@@ -1,0 +1,2625 @@
+:DOC-CONFIG:
+# Tangle by default to config.el, which is the most common case
+#+property: header-args:emacs-lisp :tangle config.el :cache yes
+#+property: header-args :mkdirp yes :comments both
+#+startup: fold
+#+title: Doom Emacs configuration
+#+author: Venky Iyer
+#+email: indigoviolet@gmail.com
+:END:
+
+This is my literate Doom Emacs configuration.
+
+See [[file:init.el][init.el]], [[file:packages.el][packages.el]] and [[file:config.el][config.el]] for the generated files. Also see [[file:~/.local/doom-emacs/custom.el][custom.el]] for customizations
+
+
+* Notes about writing doom config
+
+- See [[api demos][https://github.com/hlissner/doom-emacs/blob/develop/modules/lang/emacs-lisp/demos.org]] for how to use ~use-package!~, ~map!~, ~after!~, ~set-hook!~ etc.
+
+- Most important thing for start up speed is to defer packages as much as possible.
+
+  :defer, :bind, :commands, :after, :after-call, :defer-incrementally should be used in ~use-package!~
+
+  ~after!~ should be used for doom's built in packages if it is simple
+
+  ~:after-call (pre-command-hook after-find-file dired-before-readin-hook))~ <- some hooks that can be used for :after-call
+
+
+* To try:
+
+** Ideas from [[https://github.com/zzamboni/dot-doom/blob/master/doom.org][zzamboni]]
+*** Jump to matching parens
+*** variable pitch fonts & mixed fonts
+*** kill whole line instead of emptying it
+*** autosave and backup (disabled in doom)
+*** confirm-kill-emacs
+*** auto-restore emacs on startup?
+*** org speed keys
+** org-mode:
+*** [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]] -- Need to set org-super-agenda-groups
+*** org-mode company tweaks (see [[*Company backends][Company backends]])
+*** [[https://old.reddit.com/r/orgmode/comments/8n45ds/why_highlighting_text_is_so_painful_in_orgmode/dztalak/][Change emphasis colors/etc in org-mode]]
+*** Escaping in org-mode https://emacs.stackexchange.com/a/16746/31740
+*** org-mode Latex previewers:
+
+
+https://github.com/yangsheng6810/org-latex-impatient
+https://old.reddit.com/r/emacs/comments/k6rq84/display_equations_inline_with_mathpreview/
+https://github.com/fuxialexander/emacs-webkit-katex-render
+
+
+
+*** DONE org-appear (toggle visibility of emphasis markers)
+
+** [[https://sideshowcoder.com/2020/07/02/opening-sourcegraph-from-emacs/][Sourcegraph links via git-link]]
+** [[https://ubolonton.github.io/emacs-tree-sitter/getting-started/][Emacs Tree Sitter]]
+** [[https://old.reddit.com/r/emacs/comments/931la6/tip_how_to_adopt_flycheck_as_your_new_best_friend/][Flycheck Hydra]]
+** Flycheck a directory: http://endlessparentheses.com/flycheck-a-directory-and-report-the-results.html. We don't need this right now because we have [[http://endlessparentheses.com/flycheck-a-directory-and-report-the-results.html][project checkers]]
+** Pretty hydra (nicer hydras, :pretty-hydra in use-package)
+** Major mode hydra (hydra per major mode) <-- might be useful to have python-specific flycheckers in hydra hooked from hydra global
+** https://github.com/tecosaur/emacs-everywhere
+** [[https://github.com/hlissner/doom-emacs/issues/3191][apheleia-based format instead of format-all]]
+** toml formatter using prettier and apheleia
+** DONE [[https://emacs.stackexchange.com/a/28391/31740][Set font size based on monitor/scaling?]]
+
+*** See https://github.com/mnp/dispwatch and doom/*font* functions
+** DONE maple-minibuffer (mini-frame replacement)
+** DONE bufler (ibuffer replacement)
+** Pyright/pylance
+
+try lsp-pyright instead of mspyls. Previously didn't work with attrs, but now it
++seems to have some support+. Whoops, misspoke:
+https://github.com/microsoft/pyright/issues/146 pyright still doesn't have attrs
+support.
+
+For LSP it's ok if we ignore all LSP errors and only use it for type hints etc -
+for which it seems to work better than mspyls
+
+- [ ] Figure out how to get pyright to watch fewer files?
+- [ ] Revisit lsp completion with pyright: https://github.com/emacs-lsp/lsp-pyright/issues/16#issuecomment-676501575
+- [ ] poetry and pyright: https://github.com/emacs-lsp/lsp-pyright/issues/24
+- [ ] Set up semantic for tabnine: https://www.tabnine.com/semantic, but see if we can use current language server instead of pyls (pyright or pylance?)
+- [ ] try pylance: https://github.com/emacs-lsp/lsp-mode/issues/1863#issuecomment-652740357
+
+** Pyre
+
+try flycheck-pyre instead of mypy
+** js-mode with tide instead of rjsx mode
+
+https://www.reddit.com/r/emacs/comments/ca6q7v/emacs_for_web_dev_rjsx_webmode_tide_js2etc/
+https://www.reddit.com/r/emacs/comments/9tr2vn/web_development_with_emacs_tips_and_tricks/
+https://github.com/mooz/js2-mode
+https://www.reddit.com/r/emacs/comments/bo741n/react_react_native_environment_setup/
+
+** http://emacsrocks.com/
+** http://whattheemacsd.com/
+** http://endlessparentheses.com/emacs-25-is-out-what-are-the-new-features-and-what-were-my-predictions.html
+** https://github.com/grettke/help/blob/master/help.pdf
+** http://ergoemacs.org/emacs/emacs_hyper_super_keys.html
+** https://github.com/EricCrosson/unkillable-scratch
+
+** Make rubocop fast async
+https://emacs.stackexchange.com/questions/29086/non-shell-command-on-region
+** exwm
+
+* Config file headers
+
+Doom Emacs uses three config files:
+
+- =init.el= defines which of the existing Doom [[https://github.com/hlissner/doom-emacs/blob/develop/docs/getting_started.org#modules][modules]] are loaded. A Doom module is a bundle of packages, configuration and commands, organized into a unit that can be toggled easily from this file.
+- =packages.el= defines which [[https://github.com/hlissner/doom-emacs/blob/develop/docs/getting_started.org#package-management][packages]] should be installed, beyond those that are installed and loaded as part of the enabled modules.
+- =config.el= contains all [[https://github.com/hlissner/doom-emacs/blob/develop/docs/getting_started.org#configuring-doom][custom configuration]] and code.
+
+There are other files that can be loaded, but theses are the main ones. The load order of different files is [[https://github.com/hlissner/doom-emacs/blob/develop/docs/getting_started.org#load-order][defined depending on the type of session]] being started.
+
+All the config files are generated from this Org file, to try and make its meaning as clear as possible. All =package!= declarations are written to =packages.el=, all other LISP code is written to =config.el=.
+
+We start by simply defining the standard headers used by the three files. These headers come from the initial files generated by =doom install=, and contain either some Emacs-LISP relevant indicators like =lexical-binding=, or instructions about the contents of the file.
+
+** init.el
+#+begin_src emacs-lisp :tangle init.el
+  ;;; init.el -*- lexical-binding: t; -*-
+
+  ;; DO NOT EDIT THIS FILE DIRECTLY
+
+  ;; This file controls what Doom modules are enabled and what order they load
+  ;; in. Remember to run 'doom sync' after modifying it!
+
+  ;; NOTE Press 'SPC h d h' (or 'C-h d h' for non-vim users) to access Doom's
+  ;;      documentation. There you'll find a "Module Index" link where you'll find
+  ;;      a comprehensive list of Doom's modules and what flags they support.
+
+  ;; NOTE Move your cursor over a module's name (or its flags) and press 'K' (or
+  ;;      'C-c c k' for non-vim users) to view its documentation. This works on
+  ;;      flags as well (those symbols that start with a plus).
+  ;;
+  ;;      Alternatively, press 'gd' (or 'C-c c d') on a module to browse its
+  ;;      directory (for easy access to its source code).
+#+end_src
+
+** packages.el
+#+begin_src emacs-lisp :tangle packages.el
+  ;; -*- no-byte-compile: t; -*-
+  ;;; $DOOMDIR/packages.el
+
+  ;; DO NOT EDIT THIS FILE DIRECTLY
+
+  ;; To install a package with Doom you must declare them here and run 'doom sync'
+  ;; on the command line, then restart Emacs for the changes to take effect -- or
+  ;; use 'M-x doom/reload'.
+
+
+  ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
+  ;(package! some-package)
+
+  ;; To install a package directly from a remote git repo, you must specify a
+  ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
+  ;; https://github.com/raxod502/straight.el#the-recipe-format
+  ;(package! another-package
+  ;  :recipe (:host github :repo "username/repo"))
+
+  ;; If the package you are trying to install does not contain a PACKAGENAME.el
+  ;; file, or is located in a subdirectory of the repo, you'll need to specify
+  ;; `:files' in the `:recipe':
+  ;(package! this-package
+  ;  :recipe (:host github :repo "username/repo"
+  ;           :files ("some-file.el" "src/lisp/*.el")))
+
+  ;; If you'd like to disable a package included with Doom, you can do so here
+  ;; with the `:disable' property:
+  ;(package! builtin-package :disable t)
+
+  ;; You can override the recipe of a built in package without having to specify
+  ;; all the properties for `:recipe'. These will inherit the rest of its recipe
+  ;; from Doom or MELPA/ELPA/Emacsmirror:
+  ;(package! builtin-package :recipe (:nonrecursive t))
+  ;(package! builtin-package-2 :recipe (:repo "myfork/package"))
+
+  ;; Specify a `:branch' to install a package from a particular branch or tag.
+  ;; This is required for some packages whose default branch isn't 'master' (which
+  ;; our package manager can't deal with; see raxod502/straight.el#279)
+  ;(package! builtin-package :recipe (:branch "develop"))
+
+  ;; Use `:pin' to specify a particular commit to install.
+  ;(package! builtin-package :pin "1a2b3c4d5e")
+
+
+  ;; Doom's packages are pinned to a specific commit and updated from release to
+  ;; release. The `unpin!' macro allows you to unpin single packages...
+  ;(unpin! pinned-package)
+  ;; ...or multiple packages
+  ;(unpin! pinned-package another-pinned-package)
+  ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
+  ;(unpin! t)
+#+end_src
+
+** config.el
+#+begin_src emacs-lisp :tangle config.el
+  ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+
+  ;; DO NOT EDIT THIS FILE DIRECTLY
+
+  ;; Place your private configuration here! Remember, you do not need to run 'doom
+  ;; sync' after modifying this file!
+
+
+  ;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
+  ;; are the three important ones:
+  ;;
+  ;; + `doom-font'
+  ;; + `doom-variable-pitch-font'
+  ;; + `doom-big-font' -- used for `doom-big-font-mode'; use this for
+  ;;   presentations or streaming.
+  ;;
+  ;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
+  ;; font string. You generally only need these two:
+  ;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
+  ;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
+
+  ;; There are two ways to load a theme. Both assume the theme is installed and
+  ;; available. You can either set `doom-theme' or manually load a theme with the
+  ;; `load-theme' function. This is the default:
+  (setq doom-theme 'doom-one)
+
+  ;; If you use `org' and don't want your org files in the default location below,
+  ;; change `org-directory'. It must be set before org loads!
+  (setq org-directory "~/org/")
+
+
+  ;; Here are some additional functions/macros that could help you configure Doom:
+  ;;
+  ;; - `load!' for loading external *.el files relative to this one
+  ;; - `use-package!' for configuring packages
+  ;; - `after!' for running code after a package has loaded
+  ;; - `add-load-path!' for adding directories to the `load-path', relative to
+  ;;   this file. Emacs searches the `load-path' when you load packages with
+  ;;   `require' or `use-package'.
+  ;; - `map!' for binding new keys
+  ;;
+  ;; To get information about any of these functions/macros, move the cursor over
+  ;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
+  ;; This will open documentation for it, including demos of how they are used.
+  ;;
+  ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
+  ;; they are implemented.
+#+end_src
+
+
+* Doom modules
+
+This code is written to the =init.el= to select which modules to load. Written here as-is for now, as it is quite well structured and clear.
+
+#+begin_src emacs-lisp :tangle init.el
+
+;; Don't use disputed keys in org: conflicts with windmove. Putting this in
+;; (use-package! org :init) doesn't appear to work
+;;
+;; If you do this,
+;;
+;; > When set, Org moves the following key bindings in
+;; > Org files, and in the agenda buffer—but not during date selection.
+;; >
+;; > S-UP ⇒ M-p	S-DOWN ⇒ M-n
+;; > S-LEFT ⇒ M--	S-RIGHT ⇒ M-+
+;; > C-S-LEFT ⇒ M-S--	C-S-RIGHT ⇒ M-S-+
+;;
+
+(setq org-replace-disputed-keys t)
+
+(doom! :input
+       ;;chinese
+       ;;japanese
+       ;;layout            ; auie,ctsrnm is the superior home row
+
+       :completion
+       company           ; the ultimate code completion backend
+       ;;helm              ; the *other* search engine for love and life
+       ;;ido               ; the other *other* search engine...
+       ;;(ivy +prescient +childframe +icons)               ; a search engine for love and life (selectrum)
+
+       :ui
+       ;;deft              ; notational velocity for Emacs
+       doom              ; what makes DOOM look the way it does
+       doom-dashboard    ; a nifty splash screen for Emacs
+       doom-quit         ; DOOM quit-message prompts when you quit Emacs
+       ;;(emoji +unicode)  ; 🙂
+       ;;fill-column       ; a `fill-column' indicator
+       hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
+       hydra
+       indent-guides     ; highlighted indent columns
+       ;;ligatures         ; ligatures and symbols to make your code pretty again
+       ;;minimap           ; show a map of the code on the side
+       modeline          ; snazzy, Atom-inspired modeline, plus API
+       nav-flash         ; blink cursor line after big motions
+       ;;neotree           ; a project drawer, like NERDTree for vim
+       ophints           ; highlight the region an operation acts on
+       ;; (popup +defaults)   ; tame sudden yet inevitable temporary windows
+       ;;tabs              ; a tab bar for Emacs
+       treemacs          ; a project drawer, like neotree but cooler
+       ;;unicode           ; extended unicode support for various languages
+       vc-gutter         ; vcs diff in the fringe
+       vi-tilde-fringe   ; fringe tildes to mark beyond EOB
+       ;;window-select     ; visually switch windows
+       workspaces        ; tab emulation, persistence & separate workspaces
+       ;;zen               ; distraction-free coding or writing
+
+       :editor
+       ;; (evil +everywhere); come to the dark side, we have cookies
+       ;; file-templates    ; auto-snippets for empty files
+       fold              ; (nigh) universal code folding
+       (format +onsave)  ; automated prettiness
+       ;;god               ; run Emacs commands without modifier keys
+       ;;lispy             ; vim for lisp, for people who don't like vim
+       ;;multiple-cursors  ; editing in many places at once
+       ;;objed             ; text object editing for the innocent
+       ;;parinfer          ; turn lisp into python, sort of
+       ;;rotate-text       ; cycle region at point between text candidates
+       ;; snippets          ; my elves. They type so I don't have to
+       ;;word-wrap         ; soft wrapping with language-aware indent
+
+       :emacs
+       ;; dired             ; making dired pretty [functional]
+       electric          ; smarter, keyword-based electric-indent
+       ;; ibuffer         ; interactive buffer management (we're using bufler)
+       (undo +tree)              ; persistent, smarter undo for your inevitable mistakes
+       ;; vc                ; version-control and Emacs, sitting in a tree (magit)
+
+       :term
+       ;;eshell            ; the elisp shell that works everywhere
+       ;;shell             ; simple shell REPL for Emacs
+       ;;term              ; basic terminal emulator for Emacs
+       vterm             ; the best terminal emulation in Emacs
+
+       :checkers
+       syntax              ; tasing you for every semicolon you forget
+       ;;spell             ; tasing you for misspelling mispelling
+       ;;grammar           ; tasing grammar mistake every you make
+
+       :tools
+       ;;ansible
+       ;;debugger          ; FIXME stepping through code, to help you add bugs
+       direnv
+       ;; docker
+       editorconfig      ; let someone else argue about tabs vs spaces
+       ein               ; tame Jupyter notebooks with emacs
+       (eval +overlay)     ; run code, run (also, repls)
+       ;;gist              ; interacting with github gists
+       lookup              ; navigate your code and its documentation
+       (lsp +peek)
+       magit             ; a git porcelain for Emacs
+       ;;make              ; run make tasks from Emacs
+       ;;pass              ; password manager for nerds
+       pdf               ; pdf enhancements <-- pdf-tools + org-noter: this crashes emacs on `i` in a pdf file
+       ;;prodigy           ; FIXME managing external services & code builders
+       ;;rgb               ; creating color strings
+       ;;taskrunner        ; taskrunner for all your projects
+       ;; terraform         ; infrastructure as code
+       ;;tmux              ; an API for interacting with tmux
+       ;;upload            ; map local to remote projects via ssh/ftp
+
+       :os
+       (:if IS-MAC macos)  ; improve compatibility with macOS
+       ;;tty               ; improve the terminal Emacs experience
+
+       :lang
+       ;;agda              ; types of types of types of types...
+       (cc +lsp)                ; C/C++/Obj-C madness
+       ;;clojure           ; java with a lisp
+       ;;common-lisp       ; if you've seen one lisp, you've seen them all
+       ;;coq               ; proofs-as-programs
+       ;;crystal           ; ruby at the speed of c
+       ;;csharp            ; unity, .NET, and mono shenanigans
+       data              ; config/data formats
+       ;;(dart +flutter)   ; paint ui and not much else
+       ;;elixir            ; erlang done right
+       ;;elm               ; care for a cup of TEA?
+       emacs-lisp        ; drown in parentheses
+       ;;erlang            ; an elegant language for a more civilized age
+       ;;ess               ; emacs speaks statistics
+       ;;faust             ; dsp, but you get to keep your soul
+       ;;fsharp            ; ML stands for Microsoft's Language
+       ;;fstar             ; (dependent) types and (monadic) effects and Z3
+       ;;gdscript          ; the language you waited for
+       ;;(go +lsp)         ; the hipster dialect
+       ;;(haskell +dante)  ; a language that's lazier than I am
+       ;;hy                ; readability of scheme w/ speed of python
+       ;;idris             ; a language you can depend on
+       json              ; At least it ain't XML
+       ;;(java +meghanada) ; the poster child for carpal tunnel syndrome
+       (javascript +lsp)        ; all(hope(abandon(ye(who(enter(here))))))
+       ;;julia             ; a better, faster MATLAB
+       ;;kotlin            ; a better, slicker Java(Script)
+       ;;latex             ; writing papers in Emacs has never been so fun
+       ;;lean
+       ;;factor
+       ;;ledger            ; an accounting system in Emacs
+       ;;lua               ; one-based indices? one-based indices
+       markdown          ; writing docs for people to ignore
+       ;;nim               ; python + lisp at the speed of c
+       ;;nix               ; I hereby declare "nix geht mehr!"
+       ;;ocaml             ; an objective camel
+       (org +dragndrop +pretty)               ; organize your plain life in plain text
+       ;;php               ; perl's insecure younger brother
+       ;;plantuml          ; diagrams for confusing people more
+       ;;purescript        ; javascript, but functional
+
+       ;; +poetry is slow
+       (python +lsp)            ; beautiful is better than ugly
+
+       ;;qt                ; the 'cutest' gui framework ever
+       ;;racket            ; a DSL for DSLs
+       ;;raku              ; the artist formerly known as perl6
+       ;;rest              ; Emacs as a REST client
+       ;;rst               ; ReST in peace
+       ;;(ruby +rails)     ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
+       ;;rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+       ;;scala             ; java, but good
+       ;;scheme            ; a fully conniving family of lisps
+       sh                ; she sells {ba,z,fi}sh shells on the C xor
+       ;;sml
+       ;;solidity          ; do you need a blockchain? No.
+       ;;swift             ; who asked for emoji variables?
+       ;;terra             ; Earth and Moon in alignment for performance.
+       ;;web               ; the tubes
+       yaml              ; JSON, but readable
+
+       :email
+       ;;(mu4e +gmail)
+       ;;notmuch
+       ;;(wanderlust +gmail)
+
+       :app
+       ;;calendar
+       ;;irc               ; how neckbeards socialize
+       ;;(rss +org)        ; emacs as an RSS reader
+       ;;twitter           ; twitter client https://twitter.com/vnought
+       ;; everywhere       ; https://github.com/tecosaur/emacs-everywhere
+
+       :config
+       ;; literate for literate configs, (we prefer to use our own org-mode hook)
+       (default +bindings +smartparens))
+#+end_src
+
+
+* Disabled packages
+
+magit-todos: was slow on the startup, unused
+
+#+begin_src emacs-lisp :tangle packages.el
+(disable-packages! magit-todos)
+#+end_src
+
+* Basic config
+
+#+begin_src emacs-lisp
+;; Some functionality uses this to identify you, e.g. GPG configuration, email
+;; clients, file templates and snippets.
+(setq user-full-name "Venky Iyer"
+      user-mail-address "indigoviolet@gmail.com")
+
+;; This determines the style of line numbers in effect. If set to `nil', line
+;; numbers are disabled. For relative line numbers, set this to `relative'.
+(setq display-line-numbers-type nil)
+
+
+;; For some reason Doom disables auto-save and backup files by default. Let's reenable them.
+(setq auto-save-default t
+      make-backup-files t)
+
+;; Disable exit confirmation.
+(setq confirm-kill-emacs nil)
+
+;; indent anywhere, no completion on tab
+(setq tab-always-indent t)
+
+(setq scroll-preserve-screen-position 'always)
+
+;; gets pageup/pagedown to ends of buffer
+(setq scroll-error-top-bottom t)
+
+;; https://stackoverflow.com/a/19782939/14044156
+(setq suggest-key-bindings nil)
+
+;; no line wrapping
+(global-visual-line-mode t)
+(global-whitespace-mode +1)
+(blink-cursor-mode)
+(setq! whitespace-style '(face tabs tab-mark trailing))
+#+end_src
+
+** Custom.el handling
+
+#+begin_src emacs-lisp
+;; (setq custom-file (make-temp-file "emacs-custom"))
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+;; (setq custom-file "/tmp/emacs-custom")
+
+(load custom-file 'noerror)
+#+end_src
+
+** dir-locals.el safe Variables
+
+Turn off "don't remember risky variables" feature
+
+#+begin_src emacs-lisp
+;; https://emacs.stackexchange.com/a/44604
+;; This actually just skips them instead of setting them regardless
+;; (advice-add 'risky-local-variable-p :override #'ignore)
+
+
+(setq enable-local-variables :all)
+#+end_src
+
+** Prevent *Warnings* buffer from popping up
+
+
+#+begin_src emacs-lisp
+(setq warning-minimum-level :error)
+#+end_src
+
+* COMMENT Profiling startup
+
+https://github.com/hlissner/doom-emacs/issues/4498
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! benchmark-init)
+#+end_src
+
+
+#+begin_src emacs-lisp :tangle init.el
+(when doom-debug-p
+  (require 'benchmark-init)
+  (add-hook 'doom-first-input-hook #'benchmark-init/deactivate))
+#+end_src
+* Global keybindings
+
+
+#+begin_src emacs-lisp
+(map! :g "M-i" #'delete-indentation)
+(map! :g "M-t" #'beginning-of-buffer)
+(map! :g "M-z" #'end-of-buffer)
+#+end_src
+
+* Chords
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! use-package-chords)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! use-package-chords
+  :custom
+
+  ;; Max time delay between two key presses to be considered a key chord
+  (key-chord-two-keys-delay 0.2) ; default 0.1
+
+  ;; Max time delay between two presses of the same key to be considered a key chord.
+  ;; Should normally be a little longer than `key-chord-two-keys-delay'.
+  (key-chord-one-key-delay 0.3) ; default 0.2
+
+  :config (key-chord-mode 1)
+  )
+#+end_src
+* Rainbow
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! rainbow-mode)
+(package! rainbow-delimiters)
+(package! rainbow-identifiers)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode)
+  :custom
+  (rainbow-delimiters-max-face-count 9)
+
+  :config
+  (set-face-foreground 'rainbow-delimiters-depth-1-face "white")
+  (set-face-foreground 'rainbow-delimiters-depth-2-face "cyan")
+  (set-face-foreground 'rainbow-delimiters-depth-3-face "yellow")
+  (set-face-foreground 'rainbow-delimiters-depth-4-face "green")
+  (set-face-foreground 'rainbow-delimiters-depth-5-face "orange")
+  (set-face-foreground 'rainbow-delimiters-depth-6-face "purple")
+  (set-face-foreground 'rainbow-delimiters-depth-7-face "white")
+  (set-face-foreground 'rainbow-delimiters-depth-8-face "cyan")
+  (set-face-foreground 'rainbow-delimiters-depth-9-face "yellow")
+  (set-face-foreground 'rainbow-delimiters-unmatched-face "red"))
+
+
+(use-package! rainbow-identifiers
+  :init
+  ;; Use C-u what-cursor-position to figure out what face
+  ;; https://stackoverflow.com/questions/1242352/get-font-face-under-cursor-in-emacs
+  (setq rainbow-identifiers-faces-to-override '(font-lock-type-face
+                                                font-lock-variable-name-face
+                                                font-lock-function-name-face
+                                                font-lock-function-name-face
+                                                font-lock-constant-face
+                                                ;; font-lock-string-face
+
+                                                js2-function-call
+                                                js2-object-property
+                                                js2-object-property-access
+
+                                                ))
+
+
+  :config
+  (setq rainbow-identifiers-face-count 222)
+  ;; (setq rainbow-identifiers-choose-face-function (quote rainbow-identifiers-cie-l*a*b*-choose-face))
+  (setq rainbow-identifiers-choose-face-function (quote rainbow-identifiers-predefined-choose-face))
+
+  (defmacro vi-rainbow-identifiers--define-faces ()
+    (let ((faces '())
+          ;; Light colors don't matter, but we need them to define the face
+          (light-colors [
+                         ;; "#78683f" "#43783f" "#3f7178" "#513f78" "#783f5a"
+                         ;; "#707e4f" "#4f7e67" "#4f5c7e" "#7a4f7e" "#7e544f"
+                         ;; "#783778" "#784437" "#5e7837" "#37785e" "#374478"
+
+                         ;; 219 colors derived from list-colors-display with dark colors removed
+                         "#0000af" "#0000d7" "#0000ee" "#0000ff" "#005f00" "#005f5f" "#005f87"
+                         "#005faf" "#005fd7" "#005fff" "#008700" "#00875f" "#008787" "#0087af"
+                         "#0087d7" "#0087ff" "#00af00" "#00af5f" "#00af87" "#00afaf" "#00afd7"
+                         "#00afff" "#00cd00" "#00cdcd" "#00d700" "#00d75f" "#00d787" "#00d7af"
+                         "#00d7d7" "#00d7ff" "#00ff00" "#00ff5f" "#00ff87" "#00ffaf" "#00ffd7"
+                         "#00ffff" "#5c5cff"
+                         ;; "#5f0000" "#5f005f"
+                         ;; "#5f0087"
+                         ;; "#5f00af"
+                         ;; "#5f00d7"
+                         ;; "#5f00ff"
+                         "#5f5f00" "#5f5f5f" "#5f5f87" "#5f5faf" "#5f5fd7" "#5f5fff"
+                         "#5f8700" "#5f875f" "#5f8787" "#5f87af" "#5f87d7" "#5f87ff" "#5faf00"
+                         "#5faf5f" "#5faf87" "#5fafaf" "#5fafd7" "#5fafff" "#5fd700" "#5fd75f"
+                         "#5fd787" "#5fd7af" "#5fd7d7" "#5fd7ff" "#5fff00" "#5fff5f" "#5fff87"
+                         "#5fffaf" "#5fffd7" "#5fffff" "#7f7f7f"
+                         ;; "#870000"
+                         "#87005f"
+                         ;; "#870087"
+                         "#8700af"
+                         ;; "#8700d7"
+                         ;; "#8700ff"
+                         "#875f00" "#875f5f" "#875f87" "#875faf"
+                         "#875fd7" "#875fff" "#878700" "#87875f" "#878787" "#8787af" "#8787d7"
+                         "#8787ff" "#87af00" "#87af5f" "#87af87" "#87afaf" "#87afd7" "#87afff"
+                         "#87d700" "#87d75f" "#87d787" "#87d7af" "#87d7d7" "#87d7ff" "#87ff00"
+                         "#87ff5f" "#87ff87" "#87ffaf" "#87ffd7" "#87ffff" "#af0000" "#af005f"
+                         "#af0087" "#af00af" "#af00d7" "#af00ff" "#af5f00" "#af5f5f" "#af5f87"
+                         "#af5faf" "#af5fd7" "#af5fff" "#af8700" "#af875f" "#af8787" "#af87af"
+                         "#af87d7" "#af87ff" "#afaf00" "#afaf5f" "#afaf87" "#afafaf" "#afafd7"
+                         "#afafff" "#afd700" "#afd75f" "#afd787" "#afd7af" "#afd7d7" "#afd7ff"
+                         "#afff00" "#afff5f" "#afff87" "#afffaf" "#afffd7" "#afffff" "#cd0000"
+                         "#cd00cd" "#cdcd00" "#d70000" "#d7005f" "#d70087" "#d700af" "#d700d7"
+                         "#d700ff" "#d75f00" "#d75f5f" "#d75f87" "#d75faf" "#d75fd7" "#d75fff"
+                         "#d78700" "#d7875f" "#d78787" "#d787af" "#d787d7" "#d787ff" "#d7af00"
+                         "#d7af5f" "#d7af87" "#d7afaf" "#d7afd7" "#d7afff" "#d7d700" "#d7d75f"
+                         "#d7d787" "#d7d7af" "#d7d7d7" "#d7d7ff" "#d7ff00" "#d7ff5f" "#d7ff87"
+                         "#d7ffaf" "#d7ffd7" "#d7ffff" "#e5e5e5" "#ff0000" "#ff005f" "#ff0087"
+                         "#ff00af" "#ff00d7" "#ff00ff" "#ff5f00" "#ff5f5f" "#ff5f87" "#ff5faf"
+                         "#ff5fd7" "#ff5fff" "#ff8700" "#ff875f" "#ff8787" "#ff87af" "#ff87d7"
+                         "#ff87ff" "#ffaf00" "#ffaf5f" "#ffaf87" "#ffafaf" "#ffafd7" "#ffafff"
+                         "#ffd700" "#ffd75f" "#ffd787" "#ffd7af" "#ffd7d7" "#ffd7ff" "#ffff00"
+                         "#ffff5f" "#ffff87" "#ffffaf" "#ffffd7" "#ffffff"
+                         ])
+          (dark-colors [
+                        ;; Original 15
+                        ;; "#9999bb" "#bb99b4" "#bba699" "#a6bb99" "#99bbb4"
+                        ;; "#e0d0a0" "#a3e0a0" "#a0d6e0" "#b6a0e0" "#e0a0bc"
+                        ;; "#a7c0b9" "#a7aac0" "#c0a7bd" "#c0afa7" "#b3c0a7"
+
+                        ;; 219 colors derived from list-colors-display with dark colors removed
+                        "#0000af" "#0000d7" "#0000ee" "#0000ff" "#005f00" "#005f5f" "#005f87"
+                        "#005faf" "#005fd7" "#005fff" "#008700" "#00875f" "#008787" "#0087af"
+                        "#0087d7" "#0087ff" "#00af00" "#00af5f" "#00af87" "#00afaf" "#00afd7"
+                        "#00afff" "#00cd00" "#00cdcd" "#00d700" "#00d75f" "#00d787" "#00d7af"
+                        "#00d7d7" "#00d7ff" "#00ff00" "#00ff5f" "#00ff87" "#00ffaf" "#00ffd7"
+                        "#00ffff" "#5c5cff"
+                        ;; "#5f0000" too dark
+                        ;; "#5f005f" too dark
+                        ;; "#5f0087"
+                        ;; "#5f00af" "#5f00d7"
+                        ;; "#5f00ff"
+                        "#5f5f00" "#5f5f5f" "#5f5f87" "#5f5faf" "#5f5fd7" "#5f5fff"
+                        "#5f8700" "#5f875f" "#5f8787" "#5f87af" "#5f87d7" "#5f87ff" "#5faf00"
+                        "#5faf5f" "#5faf87" "#5fafaf" "#5fafd7" "#5fafff" "#5fd700" "#5fd75f"
+                        "#5fd787" "#5fd7af" "#5fd7d7" "#5fd7ff" "#5fff00" "#5fff5f" "#5fff87"
+                        "#5fffaf" "#5fffd7" "#5fffff" "#7f7f7f"
+                        ;; "#870000"  too dark
+                        "#87005f"
+                        ;; "#870087"
+                        "#8700af"
+                        ;; "#8700d7"
+                        ;; "#8700ff"
+                        "#875f00" "#875f5f" "#875f87" "#875faf"
+                        "#875fd7" "#875fff" "#878700" "#87875f" "#878787" "#8787af" "#8787d7"
+                        "#8787ff" "#87af00" "#87af5f" "#87af87" "#87afaf" "#87afd7" "#87afff"
+                        "#87d700" "#87d75f" "#87d787" "#87d7af" "#87d7d7" "#87d7ff" "#87ff00"
+                        "#87ff5f" "#87ff87" "#87ffaf" "#87ffd7" "#87ffff" "#af0000" "#af005f"
+                        "#af0087" "#af00af" "#af00d7" "#af00ff" "#af5f00" "#af5f5f" "#af5f87"
+                        "#af5faf" "#af5fd7" "#af5fff" "#af8700" "#af875f" "#af8787" "#af87af"
+                        "#af87d7" "#af87ff" "#afaf00" "#afaf5f" "#afaf87" "#afafaf" "#afafd7"
+                        "#afafff" "#afd700" "#afd75f" "#afd787" "#afd7af" "#afd7d7" "#afd7ff"
+                        "#afff00" "#afff5f" "#afff87" "#afffaf" "#afffd7" "#afffff" "#cd0000"
+                        "#cd00cd" "#cdcd00" "#d70000" "#d7005f" "#d70087" "#d700af" "#d700d7"
+                        "#d700ff" "#d75f00" "#d75f5f" "#d75f87" "#d75faf" "#d75fd7" "#d75fff"
+                        "#d78700" "#d7875f" "#d78787" "#d787af" "#d787d7" "#d787ff" "#d7af00"
+                        "#d7af5f" "#d7af87" "#d7afaf" "#d7afd7" "#d7afff" "#d7d700" "#d7d75f"
+                        "#d7d787" "#d7d7af" "#d7d7d7" "#d7d7ff" "#d7ff00" "#d7ff5f" "#d7ff87"
+                        "#d7ffaf" "#d7ffd7" "#d7ffff" "#e5e5e5" "#ff0000" "#ff005f" "#ff0087"
+                        "#ff00af" "#ff00d7" "#ff00ff" "#ff5f00" "#ff5f5f" "#ff5f87" "#ff5faf"
+                        "#ff5fd7" "#ff5fff" "#ff8700" "#ff875f" "#ff8787" "#ff87af" "#ff87d7"
+                        "#ff87ff" "#ffaf00" "#ffaf5f" "#ffaf87" "#ffafaf" "#ffafd7" "#ffafff"
+                        "#ffd700" "#ffd75f" "#ffd787" "#ffd7af" "#ffd7d7" "#ffd7ff" "#ffff00"
+                        "#ffff5f" "#ffff87" "#ffffaf" "#ffffd7" "#ffffff"
+                        ]))
+      (dotimes (i 212)
+        (push `(defface ,(intern (format "rainbow-identifiers-identifier-%d" (1+ i)))
+                 '((((class color) (background dark)) :foreground ,(aref dark-colors i))
+                   ;; doesn't matter, we don't use light background
+                   (((class color) (background light)) :foreground ,(aref light-colors i)))
+                 ,(format "Identifier face #%d" (1+ i))
+                 :group 'rainbow-identifiers-faces)
+              faces))
+      `(progn ,@faces)))
+  (vi-rainbow-identifiers--define-faces)
+
+  :hook
+  (prog-mode . rainbow-identifiers-mode)
+  )
+#+end_src
+
+* Parens
+
+#+begin_src emacs-lisp
+(after! paren
+  (setq show-paren-style 'expression)
+  (setq show-paren-priority -50)
+  (setq show-paren-delay 0)
+  (set-face-attribute 'show-paren-match nil :inherit 'secondary-selection)
+  (set-face-attribute 'show-paren-match-expression nil :inherit nil :underline nil :background "midnight blue")
+  (set-face-attribute 'show-paren-mismatch nil :weight 'bold :underline t :overline nil :slant 'normal)
+  )
+#+end_src
+
+
+* Sessions, Persistence etc.
+
+If we turned off the ~workspaces~ module, the recentf list isn't loaded
+automatically. ~pre-command-hook~ seems to be sufficient to have recentf
+available, though there is some suspicion that it loads the list many times?
+(see Messages buffer).
+
+#+begin_src emacs-lisp
+;; recentf list isn't loaded on startup with doom/workspaces turned off
+;; (add-hook! 'pre-command-hook #'recentf-load-list)
+#+end_src
+* Window/Buffer management
+
+** Movement
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! windmove)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! windmove
+  :after-call pre-command-hook
+  :custom
+  (windmove-wrap-around t)
+  :config
+  ;; shift-left right etc
+  (windmove-default-keybindings)
+  )
+#+end_src
+
+** Splitting
+
+#+begin_src emacs-lisp
+(map! :g "C-x |" #'split-window-horizontally)
+(map! :g "C-x _" #'split-window-vertically)
+(map! :g "C-x /" #'delete-window)
+#+end_src
+
+*** Keep windows balanced
+#+begin_src emacs-lisp
+(setq split-width-threshold nil)
+(defadvice split-window-below (after restore-balance-below activate)
+  (balance-windows))
+
+(defadvice split-window-right (after restore-balance-right activate)
+  (balance-windows))
+
+(defadvice delete-window (after restore-balance activate)
+  (balance-windows))
+#+end_src
+
+** Switching
+
+#+begin_src emacs-lisp
+(after! consult
+  (map! :g "M-j" #'consult-buffer)
+  (map! :g "M-k" #'consult-buffer)
+  )
+#+end_src
+
+** Restore
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! winner)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! winner
+  :config
+  (winner-mode)
+  :bind
+  ("C-x 2" . winner-undo)
+  ("C-x 3" . winner-redo)
+  )
+#+end_src
+
+
+** COMMENT minibuffer frame
+
+Doesn't work well: yes-or-no questions cannot be ignored, sometimes gets out of "sync"  and no longer shows the minibuffer
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! mini-frame)
+#+end_src
+
+
+#+begin_src emacs-lisp
+
+(use-package! mini-frame
+  :after-call pre-command-hook
+  :init
+  (setq x-gtk-resize-child-frames 'resize-mode)
+  :custom
+  (mini-frame-show-parameters '(
+                                (top . 0.3)
+                                (width . 0.6)
+                                (left . 0.2)
+                                ))
+
+  (mini-frame-ignore-commands '(eval-expression
+                                "edebug-eval-expression"
+                                debugger-eval-expression
+                                y-or-n-p yes-or-no-p ;don't seem to work: https://github.com/muffinmad/emacs-mini-frame/issues/28
+                                "ctrlf-.*"           ;regexps work
+                                ))
+  :config
+  (mini-frame-mode))
+#+end_src
+
+** COMMENT maple-minibuffer
+
+Doesn't work well: seems to lose focus
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! emacs-maple-minibuffer :recipe (:host github :repo "honmaple/emacs-maple-minibuffer"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! maple-minibuffer
+  :hook (after-init . maple-minibuffer-mode)
+  :custom
+  (maple-minibuffer:position-type 'window-center)
+  (maple-minibuffer:border-color "gray50")
+  (maple-minibuffer:height nil)
+  (maple-minibuffer:width 0.7)
+  (maple-minibuffer:cache t)
+
+  (maple-minibuffer:action '(read-from-minibuffer read-string))
+  (maple-minibuffer:ignore-action '(eval-expression))
+
+  ;; more custom parameters for frame
+  (maple-minibuffer:parameters '(
+                                 ;; (height . ,(or maple-minibuffer:height 10))
+                                 (width . ,(or maple-minibuffer:width (window-pixel-width)))
+                                 (left-fringe . 5)
+                                 (right-fringe . 5)
+                                 ))
+
+  :config
+  (add-to-list 'maple-minibuffer:ignore-regexp "^helm-")
+  )
+#+end_src
+
+** COMMENT which-key posframe
+
+Disabling all of these posframe solutions (minibuffer, which-key, hydra) since they are too finicky
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! which-key-posframe :recipe (:host github :repo "yanghaoxie/which-key-posframe"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! which-key-posframe
+  :after-call pre-command-hook
+  :config (which-key-posframe-mode))
+#+end_src
+
+** COMMENT hydra posframe
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! hydra-posframe :recipe (:host github :repo "Ladicle/hydra-posframe"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! hydra-posframe
+  :after-call pre-command-hook
+  :after (hydra posframe)
+  :config
+  (hydra-posframe-mode))
+#+end_src
+** zoom
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! zoom :recipe (:host github :repo "cyrus-and/zoom"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! zoom
+  :hook (after-init . zoom-mode)
+  :custom
+  (zoom-size '(0.618 . 0.618))
+  (zoom-ignored-major-modes '(undo-tree-visualizer-mode))
+  )
+#+end_src
+
+** bufler
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! bufler)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! bufler
+  :commands (bufler bufler-switch-buffer)
+  :custom
+  (bufler-vc-state nil)
+  (bufler-columns '("Name" "VC" "Path"))
+  (bufler-filter-buffer-modes '(bufler-list-mode calendar-mode
+                                                 magit-diff-mode magit-process-mode magit-revision-mode magit-section-mode
+                                                 special-mode timer-list-mode))
+  (bufler-groups
+   (bufler-defgroups
+     (group
+      ;; Subgroup collecting all named workspaces.
+      (auto-workspace))
+     (group
+      ;; Group all Ein buffers
+      (name-match "*Ein*" (rx bos "*ein")))
+     (group
+      ;; Subgroup collecting all `help-mode' and `info-mode' buffers.
+      (group-or "*Help/Info*"
+                (mode-match "*Help*" (rx bos "help-"))
+                (mode-match "*Info*" (rx bos "info-"))))
+     (group
+      ;; Subgroup collecting all special buffers (i.e. ones that are not
+      ;; file-backed), except `magit-status-mode' buffers (which are allowed to fall
+      ;; through to other groups, so they end up grouped with their project buffers).
+      (group-and "*Special*"
+                 (lambda (buffer)
+                   (unless (or (funcall (mode-match "Magit" (rx bos "magit-status"))
+                                        buffer)
+                               (funcall (mode-match "Dired" (rx bos "dired"))
+                                        buffer)
+                               (funcall (auto-file) buffer))
+                     "*Special*")))
+      (group
+       ;; Subgroup collecting these "special special" buffers
+       ;; separately for convenience.
+       (name-match "**Special**"
+                   (rx bos "*" (or "Messages" "Warnings" "scratch" "Backtrace") "*")))
+      (group
+       ;; Subgroup collecting all other Magit buffers, grouped by directory.
+       (mode-match "*Magit* (non-status)" (rx bos (or "magit" "forge") "-"))
+       ;; (auto-directory)
+       )
+      ;; Subgroup for Helm buffers.
+      ;; (mode-match "*Helm*" (rx bos "helm-"))
+      ;; Remaining special buffers are grouped automatically by mode.
+      (auto-mode)
+      )
+     ;; All buffers under "~/.emacs.d" (or wherever it is).
+     (dir user-emacs-directory)
+     (group
+      ;; Subgroup collecting buffers in `org-directory' (or "~/org" if
+      ;; `org-directory' is not yet defined).
+      (dir (if (bound-and-true-p org-directory)
+               org-directory
+             "~/org"))
+      (group
+       ;; Subgroup collecting indirect Org buffers, grouping them by file.
+       ;; This is very useful when used with `org-tree-to-indirect-buffer'.
+       (auto-indirect)
+       (auto-file)
+       )
+      ;; Group remaining buffers by whether they're file backed, then by mode.
+      (group-not "*special*" (auto-file))
+      (auto-mode)
+      )
+     (group
+      ;; Subgroup collecting buffers in a projectile project.
+      (auto-projectile))
+     ;; auto-project will cause issues with tramp buffers (https://github.com/alphapapa/bufler.el/issues/63)
+     ;; (group
+     ;;  ;; Subgroup collecting buffers in a version-control project,
+     ;;  ;; grouping them by directory.
+     ;;  (auto-project))
+     ;; Group remaining buffers by directory, then major mode.
+     (auto-directory)
+     (auto-mode)
+     )
+   )
+  :config
+  (bufler-mode)
+  :bind
+  ("C-x C-b" . bufler)
+  )
+#+end_src
+
+* Font size
+
+** Adjust for display change
+#+begin_src emacs-lisp
+(defun vi/set-font-size (sz)
+  (setq doom-font (font-spec :size sz))
+  (doom/reload-font)
+  )
+
+(defun vi/adjust-font-size-for-display (disp)
+  (message "rejiggering for %s" disp)
+  (cond ((equal disp '(3440 . 1440))   ; LG monitor
+         (vi/set-font-size 13))
+        ((equal disp '(4002 . 2668))    ; just laptop
+         (vi/set-font-size 27))
+        (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
+#+end_src
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! dispwatch :recipe (:host github :repo "mnp/dispwatch"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package dispwatch
+  :config
+  (dispwatch-mode 1)
+  (add-hook! 'dispwatch-display-change-hooks #'vi/adjust-font-size-for-display)
+  )
+#+end_src
+
+* Kill/Yank
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! hungry-delete)
+(package! easy-kill :recipe (:host github :repo "leoliu/easy-kill"))
+(package! easy-kill-extras)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! hungry-delete
+  :after-call after-find-file
+  :config
+  (global-hungry-delete-mode))
+
+(use-package! easy-kill
+  :after-call after-find-file
+  :custom
+  (easy-mark-try-things (quote (url email word forward-line-edge)))
+  :config
+
+  ;; (defun easy-kill-on-inside-pairs (_n)
+  ;;   (er/mark-inside-pairs)
+  ;;   (easy-kill-adjust-candidate 'expand-region (mark) (point))
+  ;;   )
+
+  ;; (defun easy-kill-on-outside-pairs (_n)
+  ;;   (er/mark-outside-pairs)
+  ;;   (easy-kill-adjust-candidate 'expand-region (mark) (point)))
+  :bind (
+         ([remap kill-ring-save] . easy-kill)
+         ("M-SPC" . easy-mark)
+         )
+  ;; (global-set-key [remap kill-ring-save] 'easy-kill)
+  ;; (global-set-key [remap set-mark-command] 'easy-mark)
+  )
+
+(use-package easy-kill-extras
+  :after easy-kill
+  :init
+  (setq easy-kill-ace-jump-enable-p nil)
+  :config
+  (add-to-list 'easy-kill-alist '(?^ backward-line-edge ""))
+  (add-to-list 'easy-kill-alist '(?$ forward-line-edge ""))
+  (add-to-list 'easy-kill-alist '(?b buffer ""))
+  ;; (add-to-list 'easy-kill-alist '(?< buffer-before-point ""))
+  ;; (add-to-list 'easy-kill-alist '(?> buffer-after-point ""))
+  (add-to-list 'easy-kill-alist '(?< inside-pairs ""))
+  (add-to-list 'easy-kill-alist '(?> outside-pairs ""))
+  (add-to-list 'easy-kill-alist '(?f string-to-char-forward ""))
+  (add-to-list 'easy-kill-alist '(?F string-up-to-char-forward ""))
+  ;; (add-to-list 'easy-kill-alist '(?t string-to-char-backward ""))
+  ;; (add-to-list 'easy-kill-alist '(?T string-up-to-char-backward ""))
+  )
+#+end_src
+
+* Undo
+
+#+begin_src emacs-lisp
+(after! undo-tree
+  (map! "C--" #'undo-tree-undo)
+  )
+#+end_src
+
+* Yankpad
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! yankpad :recipe (:host github :repo "Kungsgeten/yankpad"))
+(package! yasnippet)
+#+end_src
+
+#+begin_src emacs-lisp
+(after! yasnippet
+  (setq yas-wrap-around-region t)
+  (yas-global-mode 1))
+
+(use-package! yankpad
+  :after-call after-find-file
+  :commands (yankpad-insert company-yankpad)
+  :custom
+  (yankpad-file "~/.emacs.d/yankpad.org")
+  :config
+  (add-to-list 'hippie-expand-try-functions-list #'yankpad-expand)
+  )
+#+end_src
+
+* Fill
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! unfill)
+(package! fill-function-arguments)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! unfill
+  :bind ("M-a" . unfill-paragraph))
+
+(use-package! fill-function-arguments
+  :hook
+  (prog-mode . (lambda () (local-set-key (kbd "M-q") #'fill-function-arguments-dwim)))
+  (emacs-lisp-mode . (lambda ()
+                       (setq-local fill-function-arguments-first-argument-same-line t)
+                       (setq-local fill-function-arguments-second-argument-same-line t)
+                       (setq-local fill-function-arguments-last-argument-same-line t)
+                       (setq-local fill-function-arguments-argument-separator " ")))
+  )
+#+end_src
+
+* Comment editing
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! rebox2)
+(package! poporg)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! rebox2
+  :config
+  (setq rebox-style-loop '(13 15 23 25 16 17 26 27 11 21))
+  :bind
+  (
+   ("M-:" . rebox-dwim)
+   :map rebox-mode-map ("M-q" . nil)
+   )
+  ;; (define-key rebox-mode-map (kbd "M-q") nil)
+  )
+
+(defun python-mode-poporg-hook ()
+  (setq-local poporg-edit-hook '(sql-mode))
+  )
+
+(use-package! poporg
+  :custom
+  ;; don't match * in common prefix - this will break C-style comments
+  ;; poporg but it is necessary to retain org headings
+  (poporg-comment-skip-regexp "[[:space:]]*")
+  :hook (python-mode . python-mode-poporg-hook)
+  :bind ("M-\\" . poporg-dwim)
+  )
+#+end_src
+
+
+* Shift regions
+
+#+begin_src emacs-lisp
+;; Shift the selected region right if distance is postive, left if
+;; negative
+
+(defun vi/shift-region (distance)
+  (let ((mark (mark)))
+    (save-excursion
+      (indent-rigidly (region-beginning) (region-end) distance)
+      (push-mark mark t t)
+      ;; Tell the command loop not to deactivate the mark
+      ;; for transient mark mode
+      (setq deactivate-mark nil))))
+
+(defun vi/shift-right ()
+  (interactive)
+  (vi/shift-region 1))
+
+(defun vi/shift-left ()
+  (interactive)
+  (vi/shift-region -1))
+
+(map! :g "M->" #'vi/shift-right)
+(map! :g "M-<" #'vi/shift-left)
+#+end_src
+
+* Movement
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! mwim)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! mwim
+  :bind
+  ("C-a" . mwim-beginning)
+  ("C-e" . mwim-end)
+  )
+#+end_src
+
+* Search/Filtering
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! smartscan)
+(package! ctrlf)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! smartscan
+  :after-call after-find-file
+  :config
+  (global-smartscan-mode 1)
+
+  ;; M-p, M-n interfere in git-rebase mode
+  (add-hook! git-rebase-mode (smartscan-mode -1))
+  )
+
+
+
+(use-package! ctrlf
+  :after-call after-find-file
+  :custom
+  (ctrlf-mode-bindings '(
+                         ("C-s" . ctrlf-forward-fuzzy)
+                         ("C-r" . ctrlf-backward-fuzzy)
+                         ("C-M-s" . ctrlf-forward-regexp)
+                         ("C-M-r" . ctrlf-backward-regexp)
+                         )
+                       )
+  :config
+  (ctrlf-mode +1)
+
+  (add-hook! 'pdf-isearch-minor-mode-hook (ctrlf-local-mode -1))
+  )
+#+end_src
+
+** Jumping
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! smart-jump)
+(package! rg)                           ;For smart-jump-find-references-with-rg
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! smart-jump
+  :config
+  (smart-jump-setup-default-registers)
+  :commands (smart-jump-go smart-jump-back smart-jump-references)
+  )
+
+(after! dumb-jump
+  (setq xref-backend-functions (remq 'etags--xref-backend xref-backend-functions))
+  (add-to-list 'xref-backend-functions #'dumb-jump-xref-activate t))
+#+end_src
+** Selectrum/Consult/Embark/Marginalia
+
+
+Instead of default ivy
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! selectrum)
+(package! selectrum-prescient)
+(package! consult :recipe (:host github :repo "minad/consult"))
+(package! consult-flycheck :recipe (:host github :repo "minad/consult"))
+(package! marginalia)
+(package! embark)
+(package! embark-consult)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(after! prescient
+  (setq prescient-history-length 500)
+  )
+
+(use-package! selectrum
+  :after-call pre-command-hook
+  :config
+  (selectrum-mode +1)
+  )
+(use-package! selectrum-prescient
+  :after selectrum
+
+  :config
+  (selectrum-prescient-mode +1)
+  (prescient-persist-mode +1)
+  )
+
+(use-package! consult
+  :after selectrum
+  :custom
+  (consult-project-root-function #'projectile-project-root)
+  (consult-narrow-key "<")
+  (consult-preview-key nil)           ;no previews
+  (consult-config '(
+                    (consult-buffer :preview-key any) ;preview for buffers
+                    (consult-yank :preview-key any) ;preview for yank
+                    ))
+  :config
+
+  (defun vi/consult-fd (&optional dir)
+    (interactive "P")
+    (let ((consult-find-command "fd --color=never --full-path ARG OPTS"))
+      (consult-find dir)))
+  )
+
+(use-package! marginalia
+  :after consult which-key
+  :custom
+  ;; https://github.com/oantolin/embark#showing-a-reminder-of-available-actions
+  (embark-action-indicator
+   (lambda (map _target)
+     (which-key--show-keymap "Embark" map nil nil 'no-paging)
+     #'which-key--hide-popup-ignore-command)
+   embark-become-indicator embark-action-indicator)
+  :config
+  (marginalia-mode)
+  (advice-add #'marginalia-cycle :after
+              (lambda () (when (bound-and-true-p selectrum-mode) (selectrum-exhibit))))
+
+  )
+
+(use-package! embark
+  :custom
+  (embark-quit-after-action nil)
+  :after marginalia
+  :bind (
+         ("C-z" . embark-act)
+         :map embark-general-map ("A" . marginalia-cycle)
+         ))
+
+(use-package! embark-consult
+  :after (embark consult))
+#+end_src
+
+* Narrowing
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! recursive-narrow)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! recursive-narrow
+  :after-call after-find-file
+  :commands (hydra-narrow/body recursive-narrow-or-widen-dwim recursive-widen)
+  :config
+  (defhydra hydra-narrow (:exit t :columns 2)
+    "Narrow"
+    ("n" recursive-narrow-or-widen-dwim "narrow")
+    ("w" recursive-widen "widen")
+    )
+  )
+#+end_src
+* Folding
+
+- Outshine is not compatible with Python https://github.com/alphapapa/outshine/issues/42
+- bicycle doesn't seem to do anything more than outline-cycle and outline-cycle-buffer
+
+#+begin_src emacs-lisp
+(use-package! outline
+  :hook (prog-mode . outline-minor-mode)
+  :bind (:map outline-minor-mode-map
+         ([C-tab] . outline-cycle)
+         ([s-tab] . outline-cycle-buffer)))
+#+end_src
+
+* Completion
+
+
+#+begin_src emacs-lisp
+(after! company
+  (setq company-idle-delay 0.2
+        company-selection-wrap-around t
+        company-minimum-prefix-length 2
+        company-tooltip-idle-delay 0.1
+        company-tooltip-align-annotations t)
+  )
+#+end_src
+
+** Prescient
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! company-prescient)
+#+end_src
+
+#+begin_src emacs-lisp
+(after! company #'company-prescient-mode)
+#+end_src
+
+** Tabnine
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! company-tabnine)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! company-tabnine
+  :after company
+  :after-call after-find-file
+  :config
+  ;; https://github.com/TommyX12/company-tabnine#known-issues
+  ;; workaround for company-transformers
+  (setq company-tabnine--disable-next-transform nil)
+  (defun my-company--transform-candidates (func &rest args)
+    (if (not company-tabnine--disable-next-transform)
+        (apply func args)
+      (setq company-tabnine--disable-next-transform nil)
+      (car args)))
+
+  (defun my-company-tabnine (func &rest args)
+    (when (eq (car args) 'candidates)
+      (setq company-tabnine--disable-next-transform t))
+    (apply func args))
+
+  (advice-add #'company--transform-candidates :around #'my-company--transform-candidates)
+  (advice-add #'company-tabnine :around #'my-company-tabnine)
+  )
+
+;; We want these grouped so they are merged
+;; since they are prepended, and company uses only one (maybe grouped) backend, any others should be ignored.
+(set-company-backend! '(prog-mode conf-mode sh-mode text-mode) '(company-tabnine company-yankpad company-capf))
+#+end_src
+
+
+* Iedit
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! iedit)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! iedit
+  :bind
+  ("C-;" . iedit-mode))
+#+end_src
+
+* wgrep
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! wgrep)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(after! wgrep
+  (setq wgrep-auto-save-buffer t)
+  )
+#+end_src
+
+* Which-key
+
+#+begin_src emacs-lisp
+;; Allow C-h to trigger which-key before it is done automatically
+(setq which-key-show-early-on-C-h t)
+#+end_src
+
+* Hydra
+
+#+begin_src emacs-lisp
+(use-package! hydra
+  :after-call pre-command-hook
+  :config
+  (defhydra hydra-global (:exit t :columns 3)
+    " Hydra "
+    ("a" hydra-annotate/body "Annotate")
+    ("A" org-agenda-list "Agenda")
+    ("c" hydra-flycheck/body "flycheck")
+    ("e" hydra-ein/body "ein")
+    ("g" magit-status-here "magit")
+    ("i" vi/lsp-ui-imenu "imenu")
+    ("n" hydra-narrow/body "narrow")
+    ("o" hydra-org/body "org")
+    ("p" org-pomodoro "Pomodoro")
+    ("f" vi/consult-fd "fd")
+    ("s" consult-ripgrep "rg in project")
+    ("b" consult-buffer "Buffers")
+    ("l" consult-line "Line isearch")
+    ("t" treemacs-select-window "treemacs")
+    ("T" +treemacs/toggle "Toggle treemacs")
+    ("v" multi-vterm-next "vterm-toggle")
+    ("V" multi-vterm "vterm")
+    ("y" yankpad-insert "yankpad")
+    ;;("b" bufler-switch-buffer "Buffers") ;; won't show recent files
+    )
+  :chords
+  ("hh" . hydra-global/body))
+#+end_src
+
+
+* Org mode
+
+#+begin_src emacs-lisp
+(after! org
+  ;; hide org markup indicators
+  (setq org-hide-emphasis-markers t
+        ;; Insert Org headings at point, not after the current subtree (this is enabled by default by Doom).
+        org-insert-heading-respect-content nil
+        org-cycle-separator-lines 0
+        org-blank-before-new-entry '((heading . never) (plain-list-item . never))
+        org-startup-folded t
+        org-src-window-setup 'current-window
+        org-src-preserve-indentation nil
+        org-edit-src-content-indentation 0
+        org-startup-numerated nil
+        org-num-skip-commented t
+        org-M-RET-may-split-line t
+        org-agenda-files '("~/org/Notes.org")
+        org-agenda-skip-scheduled-if-done t
+        )
+  (defhydra hydra-org (:exit t)
+    "Org"
+    ("k" org-cut-subtree "cut subtree")
+    ("y" org-paste-subtree "paste subtree")
+    )
+  )
+#+end_src
+
+** Company backends
+
+- company-tabnine is currently excluded because it always triggers (see
+  company-tabnine-always-trigger), and actually makes it annoying to type free
+  text.
+
+- It would be good to tweak some of these parameters specific to org-mode and
+  make it less noisy
+
+#+begin_src emacs-lisp
+
+(after! org
+  ;; since they are prepended, and company uses only one (maybe grouped)
+  ;; backend, any others should be ignored.
+  (set-company-backend! 'org-mode '(company-yankpad company-capf))
+  )
+#+end_src
+
+
+** Windmove conflicts
+
+#+begin_src emacs-lisp
+;; https://orgmode.org/org.html#Conflicts
+;; (after! (org windmove)
+;;   (add-hook! 'org-shiftup-final-hook #'windmove-up)
+;;   (add-hook! 'org-shiftleft-final-hook #'windmove-left)
+;;   (add-hook! 'org-shiftdown-final-hook #'windmove-down)
+;;   (add-hook! 'org-shiftright-final-hook #'windmove-right)
+;;   )
+#+end_src
+
+** Electric pairs
+
+#+begin_src emacs-lisp
+(after! smartparens
+  (sp-local-pair 'org-mode "~" "~")
+  (sp-local-pair 'org-mode "=" "=")
+  (sp-local-pair 'org-mode "$" "$")
+  )
+#+end_src
+
+** show delimiters
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-appear :recipe (:host github :repo "awth13/org-appear"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! org-appear
+  :custom (
+           (org-appear-autoemphasis t)
+           (org-appear-autolinks t)
+           (org-appear-autosubmarkers t)
+           (org-appear-autoentities t)
+           )
+  :hook (org-mode . org-appear-mode)
+  )
+#+end_src
+
+** tangle on save
+
+*** Use auto-tangle
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-auto-tangle)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! org-auto-tangle
+  :after-call after-find-file
+  :config
+  (setq org-auto-tangle-default t)      ;this doesn't work with :custom
+  :hook (org-mode . org-auto-tangle-mode))
+#+end_src
+
+***  COMMENT Manually
+#+begin_src emacs-lisp
+(add-hook! org-mode :append
+  (add-hook! after-save :append :local #'org-babel-tangle))
+#+end_src
+
+** Images
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-download)
+#+end_src
+
+#+begin_src emacs-lisp
+(after! org
+  (setq org-download-method 'directory
+        org-download-image-dir "org-images"
+        org-download-heading-lvl nil
+        org-download-timestamp "%Y%m%d-%H%M%S_"
+        org-startup-with-inline-images t
+        org-image-actual-width 300))
+#+end_src
+** Reformatting an Org buffer
+
+(originally:
+https://zzamboni.org/post/my-doom-emacs-configuration-with-commentary/ A
+function that reformats the current buffer by regenerating the text from its
+internal parsed representation. Quite amazing.)
+
+#+begin_src emacs-lisp
+(after! org
+  (defun vi/org-reformat-buffer ()
+    (interactive)
+    (when (y-or-n-p "Really format current buffer? ")
+      (let ((document (org-element-interpret-data (org-element-parse-buffer))))
+        (erase-buffer)
+        (insert document)
+        (goto-char (point-min))))))
+#+end_src
+
+** Splitting src blocks
+
+https://scripter.co/splitting-an-org-block-into-two/
+https://github.com/kaushalmodi/.emacs.d/blob/master/setup-files/setup-org.el
+
+#+begin_src emacs-lisp
+(after! org
+  (defun modi/org-in-any-block-p ()
+    "Return non-nil if the point is in any Org block.
+
+The Org block can be *any*: src, example, verse, etc., even any
+Org Special block.
+
+This function is heavily adapted from `org-between-regexps-p'."
+    (save-match-data
+      (let ((pos (point))
+            (case-fold-search t)
+            (block-begin-re "^[[:blank:]]*#\\+begin_\\(?1:.+?\\)\\(?: .*\\)*$")
+            (limit-up (save-excursion (outline-previous-heading)))
+            (limit-down (save-excursion (outline-next-heading)))
+            beg end)
+        (save-excursion
+          ;; Point is on a block when on BLOCK-BEGIN-RE or if
+          ;; BLOCK-BEGIN-RE can be found before it...
+          (and (or (org-in-regexp block-begin-re)
+                   (re-search-backward block-begin-re limit-up :noerror))
+               (setq beg (match-beginning 0))
+               ;; ... and BLOCK-END-RE after it...
+               (let ((block-end-re (concat "^[[:blank:]]*#\\+end_"
+                                           (match-string-no-properties 1)
+                                           "\\( .*\\)*$")))
+                 (goto-char (match-end 0))
+                 (re-search-forward block-end-re limit-down :noerror))
+               (> (setq end (match-end 0)) pos)
+               ;; ... without another BLOCK-BEGIN-RE in-between.
+               (goto-char (match-beginning 0))
+               (not (re-search-backward block-begin-re (1+ beg) :noerror))
+               ;; Return value.
+               (cons beg end))))))
+
+  (defun modi/org-split-block ()
+    "Sensibly split the current Org block at point.
+
+(1) Point in-between a line
+
+    ,#+begin_src emacs-lisp             #+begin_src emacs-lisp
+    (message▮ \"one\")                   (message \"one\")
+    (message \"two\")          -->       #+end_src
+    ,#+end_src                          ▮
+                                       ,#+begin_src emacs-lisp
+                                       (message \"two\")
+                                       ,#+end_src
+
+(2) Point at EOL
+
+    ,#+begin_src emacs-lisp             #+begin_src emacs-lisp
+    (message \"one\")▮                   (message \"one\")
+    (message \"two\")          -->       #+end_src
+    ,#+end_src                          ▮
+                                       ,#+begin_src emacs-lisp
+                                       (message \"two\")
+                                       ,#+end_src
+
+(3) Point at BOL
+
+    ,#+begin_src emacs-lisp             #+begin_src emacs-lisp
+    (message \"one\")                    (message \"one\")
+    ▮(message \"two\")          -->      #+end_src
+    ,#+end_src                          ▮
+                                       ,#+begin_src emacs-lisp
+                                       (message \"two\")
+                                       ,#+end_src
+"
+    (interactive)
+    (if (modi/org-in-any-block-p)
+        (save-match-data
+          (save-restriction
+            (widen)
+            (let ((case-fold-search t)
+                  (at-bol (bolp))
+                  block-start
+                  block-end)
+              (save-excursion
+                (re-search-backward "^\\(?1:[[:blank:]]*#\\+begin_.+?\\)\\(?: .*\\)*$" nil nil 1)
+                (setq block-start (match-string-no-properties 0))
+                (setq block-end (replace-regexp-in-string
+                                 "begin_" "end_" ;Replaces "begin_" with "end_", "BEGIN_" with "END_"
+                                 (match-string-no-properties 1))))
+              ;; Go to the end of current line, if not at the BOL
+              (unless at-bol
+                (end-of-line 1))
+              (insert (concat (if at-bol "" "\n")
+                              block-end
+                              "\n\n"
+                              block-start
+                              (if at-bol "\n" "")))
+              ;; Go to the line before the inserted "#+begin_ .." line
+              (beginning-of-line (if at-bol -1 0)))))
+      (message "Point is not in an Org block")))
+
+  (defun modi/org-meta-return (&optional arg)
+    "Insert a new heading or wrap a region in a table.
+Calls `org-insert-heading', `org-insert-item',
+`org-table-wrap-region', or `modi/org-split-block' depending on
+context.  When called with an argument, unconditionally call
+`org-insert-heading'."
+    (interactive "P")
+    (org-check-before-invisible-edit 'insert)
+    (or (run-hook-with-args-until-success 'org-metareturn-hook)
+        (call-interactively (cond (arg #'org-insert-heading)
+                                  ((org-at-table-p) #'org-table-wrap-region)
+                                  ((org-in-item-p) #'org-insert-item)
+                                  ((modi/org-in-any-block-p) #'modi/org-split-block)
+                                  (t #'org-insert-heading)))))
+  (advice-add 'org-meta-return :override #'modi/org-meta-return)
+
+  )
+#+end_src
+
+** Useful functions
+
+#+begin_src emacs-lisp
+(after! org
+  ;; http://emacs.stackexchange.com/a/10712/115
+  (defun modi/org-delete-link ()
+    "Replace an Org link of the format [[LINK][DESCRIPTION]] with DESCRIPTION.
+If the link is of the format [[LINK]], delete the whole Org link.
+
+In both the cases, save the LINK to the kill-ring.
+
+Execute this command while the point is on or after the hyper-linked Org link."
+    (interactive)
+    (when (derived-mode-p 'org-mode)
+      (let ((search-invisible t) start end)
+        (save-excursion
+          (when (re-search-backward "\\[\\[" nil :noerror)
+            (when (re-search-forward "\\[\\[\\(.*?\\)\\(\\]\\[.*?\\)*\\]\\]"
+                                     nil :noerror)
+              (setq start (match-beginning 0))
+              (setq end   (match-end 0))
+              (kill-new (match-string-no-properties 1)) ;Save link to kill-ring
+              (replace-regexp "\\[\\[.*?\\(\\]\\[\\(.*?\\)\\)*\\]\\]" "\\2"
+                              nil start end)))))))
+
+  (defun modi/lower-case-org-keywords ()
+    "Lower case Org keywords and block identifiers.
+
+Example: \"#+TITLE\" -> \"#+title\"
+         \"#+BEGIN_EXAMPLE\" -> \"#+begin_example\"
+
+Inspiration:
+https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c1210daf0."
+    (interactive)
+    (save-excursion
+      (goto-char (point-min))
+      (let ((case-fold-search nil)
+            (count 0))
+        ;; Match examples: "#+FOO bar", "#+FOO:", "=#+FOO=", "~#+FOO~",
+        ;;                 "‘#+FOO’", "“#+FOO”", ",#+FOO bar",
+        ;;                 "#+FOO_bar<eol>", "#+FOO<eol>".
+        (while (re-search-forward "\\(?1:#\\+[A-Z_]+\\(?:_[[:alpha:]]+\\)*\\)\\(?:[ :=~’”]\\|$\\)" nil :noerror)
+          (setq count (1+ count))
+          (replace-match (downcase (match-string-no-properties 1)) :fixedcase nil nil 1))
+        (message "Lower-cased %d matches" count))))
+
+  )
+#+end_src
+** Import from various formats into org
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-pandoc-import   :recipe (:host github :repo "tecosaur/org-pandoc-import" :files ("*.el" "filters" "preprocessors")))
+#+end_src
+
+Needs ~brew install pandoc~
+
+#+begin_src emacs-lisp
+(use-package! org-pandoc-import :after org)
+#+end_src
+
+** literate calc
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! literate-calc-mode)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(add-hook! org-mode #'literate-calc-minor-mode)
+#+end_src
+
+
+
+
+** super-agenda
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-super-agenda)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(after! org
+  (org-super-agenda-mode)
+  )
+#+end_src
+
+* ein
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! ein :pin "f2bad874d325fce4eb06986fa97b2bdb418a11eb")
+#+end_src
+#+begin_src emacs-lisp
+(use-package! ein
+  :after-call pre-command-hook
+  :commands (hydra-ein/body)
+  :init
+  (setq ein:notebooklist-render-order '(render-opened-notebooks render-directory render-header))
+  (setq ein:truncate-long-cell-output 10000)
+  (setq ein:cell-max-num-outputs 10000)
+  (setq markdown-header-scaling t)
+  (setq ein:output-area-inlined-images t)
+  (setq ein:url-or-port '("http://localhost:8888"))
+  (setq ein:jupyter-server-args '("--no-browser" "--port=8889"))
+  ;; https://github.com/millejoh/emacs-ipython-notebook/issues/423#issuecomment-458254069
+  (setq ein:query-timeout nil)
+
+  :config
+  (defun vi/ein-fix ()
+    (interactive)
+    (set-face-extend 'ein:cell-input-area t)
+    (setq ein:worksheet-enable-undo t)
+    (turn-on-undo-tree-mode)
+    )
+
+  (defun vi/ein-toggle-inlined-images ()
+    (interactive)
+    (setq ein:output-area-inlined-images (if ein:output-area-inlined-images nil t))
+    )
+
+  (defun vi/restart-and-execute-all-above ()
+    (interactive)
+    (aif (ein:get-notebook)
+        (lexical-let ((ws (ein:worksheet--get-ws-or-error)))
+          (ein:kernel-delete-session
+           (lambda (kernel)
+             (ein:events-trigger (ein:$kernel-events kernel) 'status_restarting.Kernel)
+             (ein:kernel-retrieve-session kernel 0
+                                          (lambda (kernel)
+                                            (ein:events-trigger (ein:$kernel-events kernel)
+                                                                'status_restarted.Kernel)
+                                            (ein:worksheet-execute-all-cells-above ws))))
+           :kernel (ein:$notebook-kernel it)))
+      (message "Not in notebook buffer!"))
+    )
+
+  (defhydra hydra-ein (:exit t)
+    "Ein"
+    ("x" ein:worksheet-execute-all-cells-above "Execute all above")
+    ("X" vi/restart-and-execute-all-above "Restart & x")
+    ("n" ein:notebooklist-open "Notebook list")
+    ("l" ein:notebooklist-login "Login")
+    ("r" ein:notebook-reconnect-session-command-km "Reconnect")
+    ("R" ein:notebook-restart-session-command-km "Restart")
+    ("i" vi/ein-toggle-inlined-images "Toggle inlined images")
+    ("f" vi/ein-fix "Fix")
+    ("z" ein:notebook-kernel-interrupt-command-km "interrupt")
+    )
+  )
+#+end_src
+
+* vterm
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! multi-vterm :recipe (:host github :repo "suonlight/multi-vterm"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(setq vterm-module-cmake-args "-DUSE_SYSTEM_LIBVTERM=no")
+(use-package! vterm
+  :custom
+  (vterm-max-scrollback 100000)
+  (vterm-buffer-name-string "vterm %s")
+  :bind
+  (
+   :map vterm-mode-map
+   ("M-j" . nil)
+   ("M-k" . nil)
+   ("C-c C-r" . vterm-send-C-r)
+   )
+  )
+(use-package! multi-vterm
+  :commands (multi-vterm-next multi-vterm))
+#+end_src
+
+* Projectile
+
+
+#+begin_src emacs-lisp
+(use-package! projectile
+  :custom
+  (projectile-project-search-path '("~/dev"))
+  (projectile-auto-discover t)
+  (projectile-indexing-method 'alien)
+  )
+#+end_src
+* Flycheck
+
+
+#+begin_src emacs-lisp
+(use-package! flycheck
+  :commands (hydra-flycheck/body)
+  :custom
+  (flycheck-check-syntax-automatically '(mode-enabled save idle-change idle-buffer-switch))
+  (flycheck-idle-change-delay 10)
+  (flycheck-idle-buffer-switch-delay 5)
+  :config
+  (defhydra hydra-flycheck (:exit t)
+    "flycheck"
+    ("c" (flycheck-buffer) "check buffer")
+    ;; annoying in doom, something about popups
+    ;; ("l" (flycheck-list-errors) "list errors")
+    ("l" consult-flycheck "flycheck")
+    ("q" nil "quit")
+    )
+  )
+#+end_src
+
+** flycheck-projectile
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! flycheck-projectile)
+#+end_src
+
+* magit
+
+#+begin_src emacs-lisp
+(after! magit
+  ;; Set magit log date formats
+  (setq magit-log-margin '(t "%Y-%m-%d %H:%M " magit-log-margin-width t 18))
+
+  ;; Add ignored files section to magit status
+  (magit-add-section-hook 'magit-status-sections-hook
+                          'magit-insert-ignored-files       ;insert this one
+                          'magit-insert-unstaged-changes t) ;after this one
+  )
+#+end_src
+
+* LSP
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! lsp-treemacs)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! lsp-mode
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+
+  :custom
+  ;; We prefer to use TabNine::sem
+  (lsp-completion-mode -1)
+  (lsp-completion-enable nil)
+  (lsp-enable-snippet nil)
+  (lsp-prefer-capf nil)
+
+  ;; https://emacs-lsp.github.io/lsp-mode/page/settings/
+  (lsp-auto-configure t)
+  (lsp-enable-imenu t)
+  (lsp-signature-auto-activate t)
+  (lsp-headerline-breadcrumb-enable t)
+  (lsp-keep-workspace-alive nil)
+  (lsp-semantic-tokens-enable t)
+  (lsp-symbol-highlighting-skip-current t)
+  (lsp-enable-xref nil)
+  (lsp-lens-enable t)
+
+  ;; This will disable the flycheck checkers.
+  ;; (lsp-diagnostics-provider :flycheck)
+
+  ;; https://github.com/emacs-lsp/lsp-mode#performance
+  (read-process-output-max (* 1024 1024)) ;; 1mb
+
+  :config
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.venv\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.mypy_cache\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]wandb\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]__pycache__\\'")
+
+  (defhydra hydra-lsp (:exit t :columns 2)
+    "LSP"
+    ("?" lsp-ui-peek-find-references "Find references")
+    ("." lsp-ui-peek-find-definition "Find definition")
+    ("e" lsp-treemacs-errors-list "Errors")
+    ("i" vi/lsp-ui-imenu "Imenu")
+    )
+
+  :hook (
+         (python-mode . vi/setup-python-lsp)
+         (c++-mode . vi/setup-c++-lsp)
+         (lsp-mode . lsp-enable-which-key-integration)
+         (lsp-mode . lsp-treemacs-sync-mode)
+         )
+  :commands (lsp lsp-deferred hydra-lsp/body)
+  )
+
+
+(use-package! lsp-ui
+  :after-call after-find-file
+  :custom
+  (lsp-ui-imenu-window-width 30)
+  (lsp-ui-imenu-auto-refresh t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-doc-enable t)
+  (lsp-ui-peek-enable t)
+  :config
+  (defun vi/lsp-ui-imenu ()
+    (interactive)
+    (lsp-ui-imenu)
+    (window-preserve-size (get-buffer-window lsp-ui-imenu-buffer-name) t t)
+    )
+  )
+
+(use-package! lsp-treemacs
+  :after-call after-find-file
+  :custom
+  (lsp-treemacs-sync-mode 1)
+  )
+#+end_src
+
+* C++
+
+** ccls vs clangd
+
+doom-emacs default c++ lsp server is ccls. (See https://github.com/hlissner/doom-emacs/issues/2689)
+
+Switching to clangd seems to require some or all of the following:
+
+1. Disable ccls package
+
+#+begin_src emacs-lisp
+;; (disable-packages! ccls)
+#+end_src
+
+1. Do not reference ccls in vi/setup-c++-lsp
+2. Ensure that clangd is installed
+3. After loading lsp, in *scratch* buffer, execute ~(set-lsp-priority! 'clangd 1)~
+
+   Doing this in config.org seems to result in "nil" lsp server name somewhere.
+4. +lsp/switch-client to clangd
+
+** Turn off lens
+
+Lens shows refs for each variable in an overlay which is annoying. Also duplicated between lsp-lens and ccls-code-lens
+
+#+begin_src emacs-lisp
+(defun vi/setup-c++-lsp ()
+  ;; For now we are using ccls, might want to try clangd someday. ccls is
+  ;; default in doom-emacs, switching to clangd didn't work out of the box.
+  (setq-local lsp-lens-enable nil)
+  (remove-hook! lsp-lens-mode #'ccls-code-lens-mode)
+  (ccls-code-lens-mode -1)
+  )
+#+end_src
+* Python
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! python-black)
+(package! lsp-python-ms :disable t)     ;it will override lsp-pyright otherwise
+(package! lsp-pyright)
+#+end_src
+
+
+
+
+#+begin_src emacs-lisp
+(defun vi/setup-python-lsp ()
+  ;; mspyls
+  ;; (require 'lsp-python-ms)
+  ;; (lsp-register-custom-settings '(("python.analysis.downloadChannel" "beta" t)))
+
+  ;; pyright
+  (require 'lsp-pyright)
+  (lsp-deferred)
+  )
+
+(defun vi/setup-python-flycheck ()
+  (setq-local flycheck-disabled-checkers '(python-pylint))
+  (setq-local flycheck-python-mypy-executable (concat (projectile-project-root) "/.venv/bin/mypy"))
+  (flycheck-select-checker 'python-flake8-vi)
+  (flycheck-add-next-checker 'python-flake8-vi 'python-mypy-vi)
+  )
+
+(setq-hook! 'python-mode-hook +format-with-lsp nil)
+(add-hook! 'python-mode-hook #'(vi/setup-python-flycheck python-black-on-save-mode))
+(set-formatter! 'isort "isort --profile=black --stdout -" :modes '(python-mode))
+
+;; even switch-buffer is slow. and we use direnv anyway
+;; (after! poetry
+;;   (setq poetry-tracking-strategy 'switch-buffer)
+;;   )
+
+(after! projectile
+  (add-to-list 'projectile-project-root-files "pyproject.toml")
+  )
+#+end_src
+
+
+
+** Flycheck checkers
+
+*** Define flake8 checkers (for file and project)
+
+- the builtin flake8 has to be configured via flake8rc, and I want a python-flake8-project-vi anyway
+- also the builtin flake8 looks for setup.cfg instead of projectile-project-root for :working-directory
+- filters flake8 to only pyflakes errors
+- skips .venv directory
+
+#+begin_src emacs-lisp
+(after! flycheck
+  (flycheck-define-checker python-flake8-vi
+    "flake8 -> pyflakes "
+
+    :command ("flake8"
+              "--format" "default"
+              "--select" "F"                ;only pyflakes
+              "--extend-exclude" ".venv"  ;no venvs
+              (config-file "--append-config" flycheck-flake8rc)
+              (option "--max-complexity" flycheck-flake8-maximum-complexity nil
+                      flycheck-option-int)
+              (option "--max-line-length" flycheck-flake8-maximum-line-length nil
+                      flycheck-option-int)
+              source-original)
+    :working-directory (lambda (_) (projectile-project-root))
+    :error-filter (lambda (errors)
+                    (let ((errors (flycheck-sanitize-errors errors)))
+                      (seq-map #'flycheck-flake8-fix-error-level errors)))
+    :error-patterns
+    ((warning line-start
+              (file-name) ":" line ":" (optional column ":") " "
+              (id (one-or-more (any alpha)) (one-or-more digit)) " "
+              (message (one-or-more not-newline))
+              line-end))
+    :modes python-mode
+    )
+
+  (add-to-list 'flycheck-checkers 'python-flake8-vi)
+
+  (flycheck-define-checker python-flake8-project-vi
+    "flake8 -> pyflakes, and running on whole project"
+
+    ;; Not calling flake8 directly makes it easier to switch between different
+    ;; Python versions; see https://github.com/flycheck/flycheck/issues/1055.
+    :command ("flake8"
+              "--format" "default"
+              "--select" "F"                ;only pyflakes
+              "--extend-exclude" ".venv"  ;no venvs
+              (config-file "--append-config" flycheck-flake8rc)
+              (option "--max-complexity" flycheck-flake8-maximum-complexity nil
+                      flycheck-option-int)
+              (option "--max-line-length" flycheck-flake8-maximum-line-length nil
+                      flycheck-option-int)
+              "."
+              )
+    :working-directory (lambda (_) (projectile-project-root))
+    :error-filter (lambda (errors)
+                    (let ((errors (flycheck-sanitize-errors errors)))
+                      (seq-map #'flycheck-flake8-fix-error-level errors)))
+    :error-patterns
+    ((warning line-start
+              (file-name) ":" line ":" (optional column ":") " "
+              (id (one-or-more (any alpha)) (one-or-more digit)) " "
+              (message (one-or-more not-newline))
+              line-end))
+    :modes python-mode
+    )
+
+  (add-to-list 'flycheck-checkers 'python-flake8-project-vi)
+  )
+#+end_src
+*** Run mypy from projectile root dir
+
+There are some weird errors that show up if you don't run mypy from the root directory
+
+#+begin_src emacs-lisp
+(after! flycheck
+  (flycheck-define-checker python-mypy-vi
+    "Mypy syntax and type checker (copied from flycheck, but with :working-directory)"
+    :command ("mypy"
+              "--show-column-numbers"
+              (config-file "--config-file" flycheck-python-mypy-config)
+              (option "--cache-dir" flycheck-python-mypy-cache-dir)
+              source-original)
+    :error-patterns
+    ((error line-start (file-name) ":" line (optional ":" column)
+            ": error:" (message) line-end)
+     (warning line-start (file-name) ":" line (optional ":" column)
+              ": warning:" (message) line-end)
+     (info line-start (file-name) ":" line (optional ":" column)
+           ": note:" (message) line-end))
+    :working-directory (lambda (_) (projectile-project-root))
+    :modes python-mode
+    ;; Ensure the file is saved, to work around
+    ;; https://github.com/python/mypy/issues/4746.
+    :predicate flycheck-buffer-saved-p)
+
+  (add-to-list 'flycheck-checkers 'python-mypy-vi))
+#+end_src
+
+*** Run mypy for the entire project
+
+#+begin_src emacs-lisp
+(after! flycheck
+  (flycheck-define-checker python-mypy-project-vi
+    "Mypy the entire project"
+    :command ("mypy"
+              "--show-column-numbers"
+              (config-file "--config-file" flycheck-python-mypy-config)
+              (option "--cache-dir" flycheck-python-mypy-cache-dir)
+              "."
+              )
+    :error-patterns
+    ((error line-start (file-name) ":" line (optional ":" column)
+            ": error:" (message) line-end)
+     (warning line-start (file-name) ":" line (optional ":" column)
+              ": warning:" (message) line-end)
+     (info line-start (file-name) ":" line (optional ":" column)
+           ": note:" (message) line-end))
+    :working-directory (lambda (_) (projectile-project-root))
+    :modes python-mode
+    )
+  (add-to-list 'flycheck-checkers 'python-mypy-project-vi)
+  )
+#+end_src
+
+
+* Treemacs
+
+
+#+begin_src emacs-lisp
+(after! treemacs
+  (setq treemacs-show-hidden-files nil
+        treemacs-is-never-other-window nil)
+  (treemacs-follow-mode t)
+  )
+#+end_src
+
+* dir-locals
+
+https://emacs.stackexchange.com/questions/13080/reloading-directory-local-variables
+#+begin_src emacs-lisp
+(defun vi/reload-dir-locals-for-current-buffer ()
+  "reload dir locals for the current buffer"
+  (interactive)
+  (let ((enable-local-variables :all))
+    (hack-dir-local-variables-non-file-buffer)))
+
+(defun vi/reload-dir-locals-for-all-buffer-in-this-directory ()
+  "For every buffer with the same `default-directory` as the
+current buffer's, reload dir-locals."
+  (interactive)
+  (let ((dir default-directory))
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when (equal default-directory dir))
+        (vi/reload-dir-locals-for-current-buffer)))))
+#+end_src
+
+* docker
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! dockerfile-mode)
+#+end_src
+
+dockfmt does a bad job: rips out comments, uses tabs.
+
+#+begin_src emacs-lisp
+(after! dockerfile-mode
+  (setq-hook! 'dockerfile-mode-hook +format-with :none))
+
+
+(after! ob-tangle
+  (setq org-babel-pre-tangle-hook
+        (list (lambda ()
+                (let (before-save-hook after-save-hook)
+                  (save-buffer))))))
+#+end_src
+
+^ this doesn't work https://github.com/hlissner/doom-emacs/issues/4651
+
+
+Also note that dockerfile-mode sets up an auto-mode-alist rule that maps
+Dockerfile.* -> dockerfile-mode, including ~Dockerfile.org~
+
+This seems to mainly depend on load order, since it conflicts with the org mode
+rule for "*.org" :/
+
+So we could:
+
+- add another rule in dockerfile-mode use-package :mode that maps *.org to org
+  mode
+- use file-local-variables like below in Dockerfile.org
+
+
+#+begin_example
+# Local Variables:
+# mode: org
+# End:
+
+#+end_example
+
+
+* atomic chrome
+
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! atomic-chrome)
+#+end_src
+#+begin_src emacs-lisp
+(use-package! atomic-chrome
+  :after-call after-find-file
+  :custom
+  (atomic-chrome-default-major-mode 'python-mode)
+  (atomic-chrome-url-major-mode-alist
+   '(("\\.ipynb$" . python-mode))
+   )
+  ;; (atomic-chrome-extension-type-list '(atomic-chrome))
+  (atomic-chrome-buffer-open-style 'full)
+
+  :config
+  (atomic-chrome-start-server)
+  )
+#+end_src
+
+
+* Annotations
+
+- annot breaks things quite badly
+- bookmark+ is too convoluted, no inline display
+
+** COMMENT IPA
+
+- ipa.el's storage is not trustworthy -it loses or doubles annotations
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! ipa :recipe (:host github :repo "IdoMagal/ipa.el"))
+#+end_src
+
+
+
+#+begin_src emacs-lisp
+(use-package! ipa
+  :custom
+  (ipa-file-function 'ipa-get-sidecar-file)
+  :after-call after-find-file
+  :config
+  (defhydra hydra-ipa (:exit t :columns 2)
+    "IPA"
+    ("a" ipa-insert "Add")
+    ("e" ipa-edit "Edit")
+    ("t" ipa-toggle "Hide/Show")
+    )
+  )
+#+end_src
+
+** COMMENT bookmark-plus
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! bookmark+ :recipe (:host github :repo "emacsmirror/bookmark-plus"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! bookmark+)
+#+end_src
+
+** annotate
+
++OK, but sets the buffer to modified: https://github.com/bastibe/annotate.el/issues/74+
+
+#+begin_src emacs-lisp :tangle packages.el
+;; (package! annotate :recipe (:host github :repo "cage2/annotate.el" :branch "prevent-saving-empty-db"))
+(package! annotate :recipe (:host github :repo "bastibe/annotate.el"))
+#+end_src
+
+- [ ] Fix vi/setup-annotate to handle src buffers in org-mode (buffer-file-name is nil). What should this do? will the default file work?
+
+
+#+begin_src emacs-lisp
+(defun vi/setup-annotate ()
+  (when (buffer-file-name)
+    (setq-local annotate-file (expand-file-name (concat buffer-file-name ".annotate")))))
+
+;; No longer used: this was for https://github.com/bastibe/annotate.el/issues/104
+;; (defun vi/annotate-annotate ()
+;;   (interactive)
+;;   ;; Turn on annotate-mode if not already
+;;   (unless annotate-mode (annotate-mode))
+;;   (annotate-annotate)
+;;   )
+
+(use-package! annotate
+  :after-call after-find-file
+  :custom
+  (annotate-endline-annotate-whole-line t)
+  (annotate-database-confirm-deletion nil)
+  (annotate-use-echo-area nil)          ;shows in overlays
+  (annotate-use-messages nil)           ;No messages like "annotations loaded"
+  (annotate-annotation-max-size-not-place-new-line 200)
+  (annotate-annotation-position-policy :by-length)
+  :hook (
+         (prog-mode . annotate-mode)
+         (annotate-mode . vi/setup-annotate)
+         )
+  :config
+  (set-face-attribute 'annotate-annotation nil :foreground "red" :background "white")
+  (set-face-attribute 'annotate-annotation-secondary nil :foreground "red" :background "white")
+  (set-face-attribute 'annotate-highlight nil :underline "#51afef" :background "#2c3946")
+  (set-face-attribute 'annotate-highlight-secondary nil :underline "#51afef" :background "#2c3946")
+  (defhydra hydra-annotate (:exit t :columns 2)
+    "Annotate"
+    ("a" annotate-annotate "Add")
+    ("l" annotate-summary-of-file-from-current-pos "list")
+    )
+  )
+#+end_src
+
+
+
+* Bookmarks
+
+- Linkmarks depends on helm. also it doesn't play nice with org-capture
+  templates in Doom. Unclear if it even offers anything beyond org-capture.
+
+- Bookmark+ is very complicated
+
+** COMMENT Linkmarks
+#+begin_src emacs-lisp :tangle packages.el
+(package! linkmarks :recipe (:host github :repo "dustinlacewell/linkmarks"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(defun vi/setup-linkmarks ()
+  (setq-local linkmarks-file (expand-file-name (concat (projectile-acquire-root) "/Bookmarks.org")))
+  )
+
+(use-package! linkmarks
+  :hook (prog-mode . vi/setup-linkmarks)
+  )
+#+end_src
+
+* Misc modes
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! gitconfig-mode)
+(package! gitignore-mode)
+#+end_src
+
+
+** Cuda mode doesn't inherit from prog-mode?
+#+begin_src emacs-lisp
+(add-hook! 'cuda-mode-hook #'prog-mode)
+#+end_src
+
+* Github
+
+** Clone git repo
+
+[[https://xenodium.com/emacs-clone-git-repo-from-clipboard/][Source]]
+
+#+begin_src emacs-lisp
+(defun vi/git-clone-clipboard-url ()
+  "Clone git URL in clipboard asynchronously and open in dired when finished."
+  (interactive)
+  (cl-assert (string-match-p "^\\(http\\|https\\|ssh\\)://" (current-kill 0)) nil "No URL in clipboard")
+  (let* ((url (current-kill 0))
+         (download-dir (expand-file-name "~/dev/"))
+         (project-dir (concat (file-name-as-directory download-dir)
+                              (file-name-base url)))
+         (default-directory download-dir)
+         (command (format "git clone %s" url))
+         (buffer (generate-new-buffer (format "*%s*" command)))
+         (proc))
+    (when (file-exists-p project-dir)
+      (if (y-or-n-p (format "%s exists. delete?" (file-name-base url)))
+          (delete-directory project-dir t)
+        (user-error "Bailed")))
+    (switch-to-buffer buffer)
+    (setq proc (start-process-shell-command (nth 0 (split-string command)) buffer command))
+    (with-current-buffer buffer
+      (setq default-directory download-dir)
+      (shell-command-save-pos-or-erase)
+      (require 'shell)
+      (shell-mode)
+      (view-mode +1))
+    (set-process-sentinel proc (lambda (process state)
+                                 (let ((output (with-current-buffer (process-buffer process)
+                                                 (buffer-string))))
+                                   (kill-buffer (process-buffer process))
+                                   (if (= (process-exit-status process) 0)
+                                       (progn
+                                         (message "finished: %s" command)
+                                         (dired project-dir))
+                                     (user-error (format "%s\n%s" command output))))))
+    (set-process-filter proc #'comint-output-filter)))
+#+end_src
+
+* Pomodoro
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-pomodoro)
+#+end_src
+
+* Local Variables
+# Local Variables:
+# mode: org
+# End:
+#+end_example
