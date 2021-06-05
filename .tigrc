@@ -1,0 +1,7 @@
+set main-view-author-display = no
+set main-view-id-display = yes
+set line-graphics = utf-8
+
+# date=human doesn't work
+set main-view-date = custom
+set main-view-date-format = "%d %b %H:%M"

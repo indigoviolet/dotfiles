@@ -1,0 +1,8 @@
+# shfmt is affected by this
+[*.{sh,zsh}]
+indent_style = space
+indent_size = 4
+
+# Local Variables:
+# mode: editorconfig-conf
+# End:

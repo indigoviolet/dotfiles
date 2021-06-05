@@ -1,0 +1,3 @@
+[gcloud]
+# For some reason there's a spurious block space character in the default
+symbol = " "
