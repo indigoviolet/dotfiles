@@ -1,0 +1,170 @@
+:DOC-CONFIG:
+# Tangle by default to config.el, which is the most common case
+#+property: header-args :mkdirp yes :comments both
+#+startup: fold
+#+title: Build emacs
+#+author: Venky Iyer
+#+email: indigoviolet@gmail.com
+:END:
+
+
+
+* Prerequisites:
+
+- sudo apt-get install autoconf automake libtool texinfo build-essential xorg-dev libgtk2.0-dev libjpeg-dev libncurses5-dev libdbus-1-dev libgif-dev libtiff-dev libm17n-dev libpng-dev librsvg2-dev libotf-dev libgnutls28-dev libxml2-dev libjansson-dev libwebkit2gtk-4.0-dev libgccjit0 libgccjit-10-dev
+- sudo apt-get build-dep emacs
+
+
+* Checkout emacs
+
+First clean ~/dev/emacs
+
+- (prefer github) git clone --depth 1 git://git.sv.gnu.org/emacs.git ~/dev/emacs
+- (for master) git clone --shallow-since="28 days ago" git@github.com:emacs-mirror/emacs.git --branch master ~/dev/emacs
+- (for native-comp) git clone --shallow-since="28 days ago" git@github.com:emacs-mirror/emacs.git --branch feature/native-comp ~/dev/emacs
+
+* build-emacs-master.sh
+
+#+BEGIN_SRC shell :tangle build-emacs-master.sh :shebang "#!/bin/zsh"
+# build-emacs-master.sh --- fetch, review, merge and build Emacs.
+
+set -ev
+
+cd ~/dev/emacs
+
+## branch enforcing: turned off for native-comp
+# git branch | grep '^\* master' >/dev/null || exit 'Not on branch master!'
+
+git fetch
+
+## News/Diff: not useful
+# echo News since HEAD:
+# git diff HEAD..FETCH_HEAD -- etc/NEWS
+# echo
+# echo Commits since HEAD:
+# git log --graph --oneline HEAD..FETCH_HEAD
+# echo 'Continue with build (RETURN to continue, ^C to quit)?'
+# read nought
+
+git pull --ff
+git clean -dfx
+
+## on nativecomp: Pinned commit for https://discord.com/channels/406534637242810369/406536226166800384/797785171767197716
+# PINNED='213b5d73159cafbdd52b9c0fb0479544cca98a77'
+PINNED='HEAD'
+BUILD='nativecomp'
+
+## on master: Parent of https://github.com/emacs-mirror/emacs/commit/32c6732d16385f242b1109517f25e9aefd6caa5c, which breaks according to https://discord.com/channels/406534637242810369/406536226166800384/797785171767197716
+# PINNED='632917461a7c1893a83979a3873b51d4da3b8a42'
+# BUILD='head'
+
+echo "Using pinned commit $PINNED on $BUILD (RETURN to continue, ^C to quit)"
+read nought
+
+git checkout $PINNED
+
+PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig TK=gtk3 ~/.dotfiles/emacs.d/configure-emacs.sh $BUILD
+
+make -j8
+
+echo Build finished, hit RETURN to continue to testing w/ -Q.
+read nought
+./src/emacs -Q
+
+# doom build/sync needed?
+
+echo Hit RETURN to test w/ configuration.
+read nought
+./src/emacs
+
+echo Hit RETURN to install...
+read nought
+sudo make -j8 install
+
+systemctl --user disable emacs.service
+#+END_SRC
+
+* configure-emacs.sh
+
+#+BEGIN_SRC shell :tangle configure-emacs.sh :shebang "#!/bin/sh"
+set -ev
+
+V=${1-head}
+TK=${TK-yes}
+PREFIX=/usr/local
+
+if [ ! -f configure ]; then
+    ./autogen.sh all
+fi
+
+echo version: $V
+
+# Keep an eye on:
+#   . --with-cairo
+case $V in
+nativecomp)
+    ./configure \
+        --prefix=$PREFIX \
+        --with-x-toolkit=$TK \
+        --with-modules \
+        --with-xwidgets \
+        --with-file-notification=yes \
+        --with-gameuser=no \
+        --with-cairo \
+        --with-mailutils \
+        --with-native-compilation
+    ;;
+head)
+    ./configure \
+        --prefix=$PREFIX \
+        --with-x-toolkit=$TK \
+        --with-modules \
+        --with-xwidgets \
+        --with-file-notification=yes \
+        --with-gameuser=no \
+        --with-cairo \
+        --with-mailutils
+    ;;
+nothreads)
+    ./configure \
+        --prefix=$PREFIX \
+        --with-x-toolkit=$TK \
+        --with-modules \
+        --with-file-notification=yes \
+        --with-gameuser=no \
+        --with-mailutils \
+        --without-threads
+    ;;
+pdmp)
+    ./configure \
+        --prefix=$PREFIX \
+        --with-x-toolkit=$TK \
+        --with-modules \
+        --with-file-notification=yes \
+        --with-gameuser=no \
+        --with-mailutils \
+        --with-pdumper=yes \
+        --with-unexec=yes \
+        --with-dumping=pdumper
+    ;;
+26)
+    ./configure \
+        --prefix=$PREFIX \
+        --with-x-toolkit=$TK \
+        --with-modules \
+        --with-file-notification=yes \
+        --with-mailutils
+    ;;
+25)
+    ./configure \
+        --prefix=$PREFIX \
+        --with-x-toolkit=$TK \
+        --with-modules \
+        --with-file-notification=yes
+    ;;
+,*)
+    echo "I don't know how to configure Emacs version $1"
+    exit 1
+    ;;
+esac
+#+END_SRC

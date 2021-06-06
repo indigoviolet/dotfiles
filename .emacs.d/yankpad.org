@@ -1,0 +1,130 @@
+:DOC-CONFIG:
+#+auto_tangle: nil
+:END:
+
+* org-mode
+** srcblock:
+
+#+begin_src ${1:emacs-lisp}
+$0
+#+end_src
+
+** exampleblock:
+
+#+begin_example
+$0
+#+end_example
+
+** srcpackage:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! $0)
+#+end_src
+
+** srcpackage-github:
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! $1 :recipe (:host github :repo "$0/$1"))
+#+end_src
+
+** docconfig :src:
+
+#+begin_src org
+:DOC-CONFIG:
+#+startup: fold
+#+property: header-args :comments both :mkdirp yes
+:END:
+#+end_src
+
+** block:
+
+#+begin ${1:title}
+$0
+#+end
+
+* python-mode
+
+** ipydb: Jupyter debugger :src:
+#+begin_src python
+from IPython.core.debugger import set_trace
+set_trace()
+#+end_src
+
+** ipdb: ipdb debugger :src:
+
+#+begin_src python
+import ipdb
+ipdb.set_trace()
+#+end_src
+
+** script-cell: :src:
+
+#+begin_src
+%%script echo ${1:nope}
+#+end_src
+
+** first-cell: :src:
+
+
+#+begin_src python
+%reload_ext autoreload
+%autoreload 2
+%matplotlib inline
+
+import matplotlib as mpl
+
+mpl.rcParams["figure.facecolor"] = "white"
+mpl.rcParams["axes.facecolor"] = "white"
+mpl.rcParams["savefig.facecolor"] = "white"
+
+from IPython.core.interactiveshell import InteractiveShell
+
+InteractiveShell.ast_node_interactivity = "all"
+#+end_src
+
+
+* lisp-data-mode
+
+.dir-locals.el files start in this mode
+
+** dir-locals-readonly: :src:
+#+begin_src emacs-lisp
+((nil . (
+         (buffer-read-only . t)
+         (+format-with . :none)
+         (require-final-newline . nil)
+         (eval . (setq-hook! 'lsp-mode-hook +format-with-lsp nil))
+         (eval . (remove-hook 'write-file-hooks 'delete-trailing-whitespace))
+         )
+      ))
+#+end_src
+** dir-locals-python-noformat: :src:
+
+#+begin_src emacs-lisp
+((python-mode . ((eval . (python-black-on-save-mode -1))
+                 (+format-with . :none)
+                 (require-final-newline . nil)
+                 (eval . (remove-hook 'write-file-hooks 'delete-trailing-whitespace)))))
+#+end_src
+
+
+* yaml-mode
+
+** mutagen-project-ml-west :src:
+
+#+begin_src yaml
+$1:
+  alpha: "/home/venky/dev/$1"
+  beta: "venky@ml-west1:/home/venky/dev/$1"
+#+end_src
+
+* conf-unix-mode
+
+** mypy-missing-import: :src:
+
+#+begin_src
+[mypy-$0.*]
+ignore_missing_imports = true
+#+end_src
+
+* Default :global:
