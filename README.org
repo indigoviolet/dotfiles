@@ -5,6 +5,21 @@
 
 * Yadm dotfiles
 
+** Get Brew
+
+
+#+begin_src shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+#+end_src
+
+
+** Get yadm
+
+#+begin_src shell
+brew install yadm
+#+end_src
+
+
 ** Getting started
 
 https://yadm.io/docs/getting_started
@@ -70,9 +85,6 @@ Note that .Brewfile is an alt file
 
 #+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/02-brew.sh
 set -eux
-
-# install brew
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 
 # install items
 if [[ -e ~/.Brewfile ]]; then
