@@ -166,6 +166,17 @@ EMACSDIR=$HOME/.local/doom-emacs/ $HOME/.local/doom-emacs/bin/doom install
 ** zsh secrets
 Make ~~/.zsh_secrets~ if you need any secrets that aren't committed. It is sourced via ~secrets.zsh~
 
+** Alt files
+
+We use alt files to
+
+1. change the file wholesale (eg. Brewfile)
+2. template the file to have slightly different content (eg. zshrc)
+
+Some files are only useful on a specific class, but we don't bother removing
+these or hiding them. They are addressed at point of use - ie. if it is a
+zshcustom file, we might use templates to include them correctly in zshrc.
+
 * Paperwm
 
 Checked out in dev/PaperWM and installed.
@@ -255,3 +266,4 @@ https://kinesis-ergo.com/wp-content/uploads/kb500-qsg.pdf
 - [X] Remove .emacs and add script to install chemacs
 - [X] move personal laptop bootstrap scripts + config files to alt
 - [ ] Handle fin alts
+- [ ] id_rsa and id_rsa.pub -> encrypt and add?
