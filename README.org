@@ -73,7 +73,7 @@ brew bundle --global check || brew bundle --global install -v
 *** Asdf
 
 #+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/03-asdf.sh
-set -eux
+set -ux
 for plugin in nodejs python yarn poetry; do
 	asdf plugin add $plugin
 done
@@ -85,7 +85,7 @@ bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-release-team-ke
 asdf install nodejs 13.8.0
 
 asdf install yarn 1.22.10
-asdf install poetry 1.1.4
+asdf install poetry 1.1.6
 #+end_src
 
 *** Pipx
@@ -95,8 +95,8 @@ We use .pipx.json which is created by
 =pipx list --json > ~/.pipx.json=
 
 #+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/04-pipx.sh
-set -eux
-for p in $(cat ~/.pipx.json | jq '.venvs[].metadata.main_package.package_or_url'); do
+set -ux
+for p in $(cat ~/.pipx.json | jq -r '.venvs[].metadata.main_package.package_or_url'); do
 	pipx install $p
 done
 #+end_src
@@ -104,7 +104,7 @@ done
 *** Prezto
 
 #+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/05-prezto.sh
-set -eux
+set -ux
 git clone --recursive https://github.com/sorin-ionescu/prezto.git "${HOME}/.zprezto"
 git clone --recurse-submodules https://github.com/belak/prezto-contrib "${HOME}/.zprezto/contrib"
 cd ~/.zprezto/contrib && git pull
