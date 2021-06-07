@@ -1,0 +1,72 @@
+tap "beeftornado/rmtree"
+tap "ggpeti/rmrec"
+tap "homebrew/bundle"
+tap "homebrew/cask"
+tap "homebrew/core"
+tap "pokanop/pokanop"
+# New way to see and navigate directory trees
+brew "broot"
+# Freely available high-quality data compressor
+brew "bzip2"
+# GNU File, Shell, and Text utilities
+brew "coreutils"
+# Load/unload environment variables based on $PWD
+brew "direnv"
+# Simple, fast and user-friendly alternative to find
+brew "fd"
+# Monitor a directory for changes and run a shell command
+brew "fswatch"
+# Command-line fuzzy finder written in Go
+brew "fzf"
+# Validating, recursive, caching DNS resolver
+brew "unbound"
+# GNU Transport Layer Security (TLS) Library
+brew "gnutls"
+# Improved top (interactive process viewer)
+brew "htop"
+# Add GitHub support to git on the command-line
+brew "hub"
+# Command-line interface for SQLite
+brew "sqlite"
+# Improved colored diff
+brew "icdiff"
+# Lightweight and flexible command-line JSON processor
+brew "jq"
+# Kubernetes command-line interface
+brew "kubernetes-cli"
+# GNOME XML library
+brew "libxml2"
+# XML security library
+brew "libxmlsec1"
+# Simple tool to make locally trusted development certificates
+brew "mkcert"
+# Platform built on V8 to build network applications
+brew "node"
+# Install NodeJS versions
+brew "node-build"
+# Manage multiple NodeJS versions
+brew "nodenv"
+# Execute binaries from Python packages in isolated environments
+brew "pipx"
+# Python version management
+brew "pyenv"
+# Interpreted, interactive, object-oriented programming language
+brew "python@3.8"
+# Install various Ruby versions and implementations
+brew "ruby-build"
+# Ruby version manager
+brew "rbenv"
+# Search tool like grep and The Silver Searcher
+brew "ripgrep"
+# Cross-shell prompt for astronauts
+brew "starship"
+# Watch files and take action when they change
+brew "watchman"
+# Yet Another Dotfiles Manager
+brew "yadm"
+# JavaScript package manager
+brew "yarn"
+# General-purpose lossless data-compression library
+brew "zlib"
+# nostromo is a CLI to manage aliases through simple commands to add and remove scoped aliases and substitutions.
+brew "pokanop/pokanop/nostromo"
