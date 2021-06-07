@@ -1,4 +1,3 @@
-
 # Used only on gcloud
 #
 # Copied out of zshrc (conda init zsh) and modified after install

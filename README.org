@@ -14,6 +14,7 @@ lives in ~.local/share/yadm/repo.git~)
 
 #+begin_src shell
 yadm clone git@github.com:indigoviolet/dotfiles-yadm.git
+yadm config local.class <personal|fin|gcp>
 yadm status
 #+end_src
 
@@ -252,4 +253,5 @@ https://kinesis-ergo.com/wp-content/uploads/kb500-qsg.pdf
 - [X] Brewfile
 - [X] asdf setup script
 - [X] Remove .emacs and add script to install chemacs
-- tmux alternates?
+- [X] move personal laptop bootstrap scripts + config files to alt
+- [ ] Handle fin alts
