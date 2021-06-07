@@ -222,6 +222,17 @@ ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="043e", ATTRS{idProduct}=="9a3
 - prefer brew for now, except for nodenv/pyenv replacements and things that can't be installed by brew:
 - python, nodejs, yarn, poetry
 
+* Kinesis Advantage
+
+https://kinesis-ergo.com/wp-content/uploads/kb500-qsg.pdf
+
+- ~=m~ to switch to mac mode
+- ~Program+\~ to switch off clicks
+- Remapping: ~Prgrm+F12~ to start. Hit source, then destination to copy from source to destination
+  + *Swap* ctrl and capslock
+  + Copy alt to left shift
+  + Copy win to key below X
+
 * Todos
 
 - [X] Dispatcher
