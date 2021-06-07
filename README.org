@@ -48,11 +48,105 @@ find "$BOOTSTRAP_D" -type f | sort | while IFS= read -r bootstrap; do
 done
 
 #+end_src
+
+
+*** build deps
+
+for pyenv builds https://github.com/pyenv/pyenv/wiki/common-build-problems (which also affect asdf)
+
+#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/01-build-deps.sh
+set -eux
+sudo apt-get update
+sudo apt-get install --yes clang
+sudo apt-get install --no-install-recommends -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+#+end_src
+
+*** Brew
+
+#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/02-brew.sh
+set -eux
+brew bundle --global check || brew bundle --global install -v
+#+end_src
+
+*** Asdf
+
+#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/03-asdf.sh
+set -eux
+for plugin in nodejs python yarn poetry; do
+	asdf plugin add $plugin
+done
+
+asdf install python 3.9.0
+asdf install python 3.8.1
+
+bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-release-team-keyring'
+asdf install nodejs 13.8.0
+
+asdf install yarn 1.22.10
+asdf install poetry 1.1.4
+#+end_src
+
+*** Pipx
+
+We use .pipx.json which is created by
+
+=pipx list --json > ~/.pipx.json=
+
+#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/04-pipx.sh
+set -eux
+for p in $(cat ~/.pipx.json | jq '.venvs[].metadata.main_package.package_or_url'); do
+	pipx install $p
+done
+#+end_src
+
+*** Prezto
+
+#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/05-prezto.sh
+set -eux
+git clone --recursive https://github.com/sorin-ionescu/prezto.git "${HOME}/.zprezto"
+git clone --recurse-submodules https://github.com/belak/prezto-contrib "${HOME}/.zprezto/contrib"
+cd ~/.zprezto/contrib && git pull
+#+end_src
+
+*** Zinit
+
+#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/06-zinit.sh
+set -eux
+mkdir ~/.zinit && git clone https://github.com/zdharma/zinit.git ~/.zinit/bin
+#+end_src
+
+*** Misc utilities
+
+#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/07-misc-utilities.sh
+set -eux
+(command -v less &> /dev/null) || sudo apt-get install --yes less
+(command -v htop &> /dev/null) || sudo apt-get install --yes htop
+(command -v notify-send &> /dev/null) || sudo apt-get install --yes libnotify-bin
+# this is installed with apt-get because brew installs a shitload of dependencies
+(command -v svn &>/dev/null) || sudo apt-get install --yes subversion
+#+end_src
+
+*** chemacs
+
+#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/08-chemacs.sh
+set -eux
+git clone https://github.com/plexus/chemacs.git "${HOME}/.local/chemacs" && $HOME/.local/chemacs/install.sh
+#+end_src
+
+*** Doom emacs
+
+#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/09-doom-emacs.sh
+set -eux
+git clone https://github.com/hlissner/doom-emacs "${HOME}/.local/doom-emacs"
+EMACSDIR=$HOME/.local/doom-emacs/ $HOME/.local/doom-emacs/bin/doom install
+#+end_src
+
+
 * Todos
 
 - [X] Dispatcher
 - Bootstrap script from dotbot
-- Brewfile
+- [X] Brewfile
 - asdf setup script
 - Remove .emacs and add script to install chemacs
 - tmux alternates?
