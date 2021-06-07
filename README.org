@@ -63,6 +63,8 @@ sudo apt-get install --no-install-recommends -y make build-essential libssl-dev 
 
 *** Brew
 
+=brew bundle dump --global -f=
+
 #+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/02-brew.sh
 set -eux
 brew bundle --global check || brew bundle --global install -v
@@ -145,8 +147,8 @@ EMACSDIR=$HOME/.local/doom-emacs/ $HOME/.local/doom-emacs/bin/doom install
 * Todos
 
 - [X] Dispatcher
-- Bootstrap script from dotbot
+- [X] Bootstrap script from dotbot
 - [X] Brewfile
-- asdf setup script
-- Remove .emacs and add script to install chemacs
+- [X] asdf setup script
+- [X] Remove .emacs and add script to install chemacs
 - tmux alternates?

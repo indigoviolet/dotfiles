@@ -1,6 +1,8 @@
 #/bin/bash
 # Brew
 
+# =brew bundle dump --global -f=
+
 
 # [[file:../../../README.org::*Brew][Brew:1]]
 set -eux

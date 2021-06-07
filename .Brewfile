@@ -5,18 +5,22 @@ tap "linuxbrew/xorg"
 tap "mutagen-io/mutagen"
 # Automatic configure script builder
 brew "autoconf"
+# Tool for generating GNU Standards-compliant Makefiles
+brew "automake"
 # Extendable version manager with support for Ruby, Node.js, Erlang & more
 brew "asdf"
-# Cross-platform make
-brew "cmake"
 # Command-line interface for SQLite
 brew "sqlite"
 # General-purpose data compression with high compression ratio
 brew "xz"
 # Interpreted, interactive, object-oriented programming language
 brew "python@3.9"
-# GNOME XML library
-brew "libxml2"
+# Super fast C++ logging library
+brew "spdlog"
+# Generate compilation database for clang tooling
+brew "bear"
+# Cross-platform make
+brew "cmake"
 # Load/unload environment variables based on $PWD
 brew "direnv"
 # Simple, fast and user-friendly alternative to find
@@ -25,20 +29,26 @@ brew "fd"
 brew "fzf"
 # GNU Compiler Collection
 brew "gcc@5"
+# GNOME XML library
+brew "libxml2"
+# GitHub command-line tool
+brew "gh"
 # Alternative to top/htop
 brew "glances"
 # Improved top (interactive process viewer)
 brew "htop"
-# Add GitHub support to git on the command-line
-brew "hub"
 # Improved colored diff
 brew "icdiff"
 # Lightweight and flexible command-line JSON processor
 brew "jq"
+# Lazier way to manage everything docker
+brew "lazydocker"
+# Open source suite of directory software
+brew "openldap"
 # Swiss-army knife of markup format conversion
 brew "pandoc"
 # Execute binaries from Python packages in isolated environments
-brew "pipx"
+brew "pipx", args: ["HEAD"]
 # Search tool like grep and The Silver Searcher
 brew "ripgrep"
 # Static analysis and lint tool, for (ba)sh scripts
@@ -47,7 +57,11 @@ brew "shellcheck"
 brew "shfmt"
 # Cross-shell prompt for astronauts
 brew "starship"
+# Text interface for Git repositories
+brew "tig"
 # Watch files and take action when they change
 brew "watchman"
+# Yet Another Dotfiles Manager
+brew "yadm"
 # Fast file synchronization and network forwarding for remote development
 brew "mutagen-io/mutagen/mutagen-beta"

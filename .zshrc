@@ -35,7 +35,7 @@ fi
 # already source ~/.zprofile, but we repeat because some terminals
 # eg. vscode don't seem to
 
-ZSH_CUSTOM_DIR=${HOME}/.dotfiles/zsh
+ZSH_CUSTOM_DIR=${HOME}/.zshcustom
 source ${ZSH_CUSTOM_DIR}/env.zsh
 source ${ZSH_CUSTOM_DIR}/brew.zsh
 
