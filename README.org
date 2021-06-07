@@ -54,7 +54,7 @@ done
 
 for pyenv builds https://github.com/pyenv/pyenv/wiki/common-build-problems (which also affect asdf)
 
-#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/01-build-deps.sh
+#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/01-build-deps.sh##c.personal
 set -eux
 sudo apt-get update
 sudo apt-get install --yes clang
@@ -63,7 +63,9 @@ sudo apt-get install --no-install-recommends -y make build-essential libssl-dev 
 
 *** Brew
 
-=brew bundle dump --global --force --describe=
+=brew bundle dump  --force --describe --global=
+
+Note that .Brewfile is an alt file
 
 #+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/02-brew.sh
 set -eux
@@ -72,12 +74,16 @@ set -eux
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 
 # install items
-brew bundle --global check || brew bundle --global install -v
+if [[ -e ~/.Brewfile ]]; then
+	brew bundle --global check || brew bundle --global install -v
+fi
 #+end_src
 
 *** Asdf
 
-#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/03-asdf.sh
+asdf installed with Brew
+
+#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/03-asdf.sh##c.personal
 set -ux
 for plugin in nodejs python yarn poetry; do
 	asdf plugin add $plugin
@@ -95,15 +101,21 @@ asdf install poetry 1.1.6
 
 *** Pipx
 
+pipx is installed with Brew
+
 We use .pipx.json which is created by
 
 =pipx list --json > ~/.pipx.json=
 
+Note that .pipx.json is an alt file
+
 #+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/04-pipx.sh
 set -ux
-for p in $(cat ~/.pipx.json | jq -r '.venvs[].metadata.main_package.package_or_url'); do
-	pipx install $p
-done
+if [[ -e ~/.pipx.json ]]; then
+	for p in $(cat ~/.pipx.json | jq -r '.venvs[].metadata.main_package.package_or_url'); do
+		pipx install $p
+	done
+fi
 #+end_src
 
 *** Prezto
@@ -124,7 +136,7 @@ mkdir ~/.zinit && git clone https://github.com/zdharma/zinit.git ~/.zinit/bin
 
 *** Misc utilities
 
-#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/07-misc-utilities.sh
+#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/07-misc-utilities.sh##c.personal
 set -eux
 (command -v less &> /dev/null) || sudo apt-get install --yes less
 (command -v htop &> /dev/null) || sudo apt-get install --yes htop
@@ -135,14 +147,14 @@ set -eux
 
 *** chemacs
 
-#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/08-chemacs.sh
+#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/08-chemacs.sh##c.personal
 set -eux
 git clone https://github.com/plexus/chemacs.git "${HOME}/.local/chemacs" && $HOME/.local/chemacs/install.sh
 #+end_src
 
 *** Doom emacs
 
-#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/09-doom-emacs.sh
+#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/09-doom-emacs.sh##c.personal
 set -eux
 git clone https://github.com/hlissner/doom-emacs "${HOME}/.local/doom-emacs"
 EMACSDIR=$HOME/.local/doom-emacs/ $HOME/.local/doom-emacs/bin/doom install

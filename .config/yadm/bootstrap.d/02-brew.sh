@@ -1,7 +1,9 @@
 #/bin/bash
 # Brew
 
-# =brew bundle dump --global --force --describe=
+# =brew bundle dump  --force --describe --global=
+
+# Note that .Brewfile is an alt file
 
 
 # [[file:../../../README.org::*Brew][Brew:1]]
@@ -11,5 +13,7 @@ set -eux
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 
 # install items
-brew bundle --global check || brew bundle --global install -v
+if [[ -e ~/.Brewfile ]]; then
+	brew bundle --global check || brew bundle --global install -v
+fi
 # Brew:1 ends here
