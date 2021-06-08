@@ -974,13 +974,12 @@
   )
 ;; show delimiters:2 ends here
 
-;; [[file:config.org::*Use auto-tangle][Use auto-tangle:2]]
-(use-package! org-auto-tangle
-  :after-call after-find-file
-  :config
-  (setq org-auto-tangle-default t)      ;this doesn't work with :custom
-  :hook (org-mode . org-auto-tangle-mode))
-;; Use auto-tangle:2 ends here
+;; Manually
+
+;; [[file:config.org::*Manually][Manually:1]]
+(add-hook! org-mode :append
+  (add-hook! after-save :append :local #'org-babel-tangle))
+;; Manually:1 ends here
 
 ;; [[file:config.org::*Images][Images:2]]
 (after! org

@@ -1641,7 +1641,9 @@ Instead of default ivy
 
 ** tangle on save
 
-*** Use auto-tangle
+*** COMMENT Use auto-tangle
+
+Fails with /sudo tangle files https://github.com/yilkalargaw/org-auto-tangle/issues/9
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! org-auto-tangle)
@@ -1655,7 +1657,7 @@ Instead of default ivy
   :hook (org-mode . org-auto-tangle-mode))
 #+end_src
 
-***  COMMENT Manually
+*** Manually
 #+begin_src emacs-lisp
 (add-hook! org-mode :append
   (add-hook! after-save :append :local #'org-babel-tangle))

@@ -236,13 +236,6 @@
 (package! org-appear :recipe (:host github :repo "awth13/org-appear"))
 ;; show delimiters:1 ends here
 
-;; Use auto-tangle
-
-
-;; [[file:config.org::*Use auto-tangle][Use auto-tangle:1]]
-(package! org-auto-tangle)
-;; Use auto-tangle:1 ends here
-
 ;; Images
 
 
