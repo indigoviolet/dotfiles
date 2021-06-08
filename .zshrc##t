@@ -48,11 +48,6 @@ source ${ZSH_CUSTOM_DIR}/input.zsh
 source ${ZSH_CUSTOM_DIR}/git.zsh
 source ${ZSH_CUSTOM_DIR}/ssh.zsh
 source ${ZSH_CUSTOM_DIR}/fzf.zsh
-
-# source ${ZSH_CUSTOM_DIR}/pyenv.zsh
-# source ${ZSH_CUSTOM_DIR}/rbenv.zsh
-# source ${ZSH_CUSTOM_DIR}/nodenv.zsh
-
 source ${ZSH_CUSTOM_DIR}/yarn.zsh
 
 source ${ZSH_CUSTOM_DIR}/misc.zsh
@@ -86,8 +81,6 @@ source ${ZSH_CUSTOM_DIR}/prompt.zsh
 # source ${ZSH_CUSTOM_DIR}/tilix.zsh
 
 source ${ZSH_CUSTOM_DIR}/zinit.zsh
-
-# manage-ssh-key
 
 # test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
