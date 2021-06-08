@@ -36,4 +36,3 @@ cd "${HOME}/code/fin-dev" && pip install --upgrade -r requirements.txt
 
 # Run ansible script for the first time
 cd "${HOME}/code/fin-dev/bootstrap" && bash ./mac-playbook/run.sh
-
