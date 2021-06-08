@@ -279,3 +279,8 @@ https://kinesis-ergo.com/wp-content/uploads/kb500-qsg.pdf
 - [X] move personal laptop bootstrap scripts + config files to alt
 - [ ] Handle fin alts
 - [ ] id_rsa and id_rsa.pub -> encrypt and add?
+
+* Mac
+
+- Cmd+Shift+. to show hidden files
+- VSCode: use Cmd+Shift+P to "Install 'code' command in PATH"
