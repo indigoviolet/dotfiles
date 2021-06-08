@@ -96,7 +96,7 @@ fi
 
 asdf installed with Brew
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/03-asdf.sh##c.personal
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/03-asdf.sh##os.Linux
 set -ux
 for plugin in nodejs python yarn poetry; do
 	asdf plugin add $plugin
