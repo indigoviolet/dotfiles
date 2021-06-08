@@ -39,7 +39,7 @@ yadm status
 
 https://raw.githubusercontent.com/TheLocehiliosan/yadm/master/contrib/bootstrap/bootstrap-in-dir
 
-#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap
 # Save this file as ~/.config/yadm/bootstrap and make it executable. It will
 # execute all executable files (excluding templates and editor backups) in the
 # ~/.config/yadm/bootstrap.d directory when run.
@@ -70,7 +70,7 @@ done
 
 for pyenv builds https://github.com/pyenv/pyenv/wiki/common-build-problems (which also affect asdf)
 
-#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/01-build-deps.sh##c.personal
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/01-build-deps.sh##distro.Ubuntu
 set -eux
 sudo apt-get update
 sudo apt-get install --yes clang
@@ -83,7 +83,7 @@ sudo apt-get install --no-install-recommends -y make build-essential libssl-dev 
 
 Note that .Brewfile is an alt file
 
-#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/02-brew.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/02-brew.sh
 set -eux
 
 # install items
@@ -96,7 +96,7 @@ fi
 
 asdf installed with Brew
 
-#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/03-asdf.sh##c.personal
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/03-asdf.sh##c.personal
 set -ux
 for plugin in nodejs python yarn poetry; do
 	asdf plugin add $plugin
@@ -122,7 +122,7 @@ We use .pipx.json which is created by
 
 Note that .pipx.json is an alt file
 
-#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/04-pipx.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/04-pipx.sh
 set -ux
 if [[ -e ~/.pipx.json ]]; then
 	for p in $(cat ~/.pipx.json | jq -r '.venvs[].metadata.main_package.package_or_url'); do
@@ -133,7 +133,7 @@ fi
 
 *** Prezto
 
-#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/05-prezto.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/05-prezto.sh
 set -ux
 git clone --recursive https://github.com/sorin-ionescu/prezto.git "${HOME}/.zprezto"
 git clone --recurse-submodules https://github.com/belak/prezto-contrib "${HOME}/.zprezto/contrib"
@@ -142,14 +142,14 @@ cd ~/.zprezto/contrib && git pull
 
 *** Zinit
 
-#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/06-zinit.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/06-zinit.sh
 set -eux
 mkdir ~/.zinit && git clone https://github.com/zdharma/zinit.git ~/.zinit/bin
 #+end_src
 
 *** Misc utilities
 
-#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/07-misc-utilities.sh##c.personal
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/07-misc-utilities.sh##distro.Ubuntu
 set -eux
 (command -v less &> /dev/null) || sudo apt-get install --yes less
 (command -v htop &> /dev/null) || sudo apt-get install --yes htop
@@ -160,14 +160,14 @@ set -eux
 
 *** chemacs
 
-#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/08-chemacs.sh##c.personal
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/08-chemacs.sh##c.personal
 set -eux
 git clone https://github.com/plexus/chemacs.git "${HOME}/.local/chemacs" && $HOME/.local/chemacs/install.sh
 #+end_src
 
 *** Doom emacs
 
-#+begin_src shell :shebang "#/bin/bash" :tangle ~/.config/yadm/bootstrap.d/09-doom-emacs.sh##c.personal
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/09-doom-emacs.sh##c.personal
 set -eux
 git clone https://github.com/hlissner/doom-emacs "${HOME}/.local/doom-emacs"
 EMACSDIR=$HOME/.local/doom-emacs/ $HOME/.local/doom-emacs/bin/doom install
@@ -277,7 +277,8 @@ https://kinesis-ergo.com/wp-content/uploads/kb500-qsg.pdf
 - [X] asdf setup script
 - [X] Remove .emacs and add script to install chemacs
 - [X] move personal laptop bootstrap scripts + config files to alt
-- [ ] Handle fin alts
+- [X] Handle fin alts
+- [ ] Handle union of personal&gcp
 - [ ] id_rsa and id_rsa.pub -> encrypt and add?
 
 * Mac

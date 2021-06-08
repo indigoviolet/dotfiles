@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 # Asdf
 
 # asdf installed with Brew

@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 # Pipx
 
 # pipx is installed with Brew

@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 # Brew
 
 # =brew bundle dump  --force --describe --global=
