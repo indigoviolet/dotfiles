@@ -181,6 +181,14 @@ curl -o ${ZSH_CUSTOM_DIR}/git-completion.bash https://raw.githubusercontent.com/
 curl -o ${ZSH_CUSTOM_DIR}/_git https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh
 #+end_src
 
+*** Leechblock
+
+
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/12-leechblock.sh
+set -ux
+mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone indigoviolet/LeechBlockNG-chrome
+cd LeechBlockNG-chrome && ./install-jquery.sh
+#+end_src
 
 ** zsh secrets
 Make ~~/.zsh_secrets~ if you need any secrets that aren't committed. It is sourced via ~secrets.zsh~
