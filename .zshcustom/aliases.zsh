@@ -23,3 +23,4 @@ alias htopt="htop -p \"$(ps a -o 'pid' | tail -n +2 | perl -0777 -lne 'chop; s/\
 alias find=fd
 alias pgrep="pgrep -laf"
 alias pkill="pkill -fe"
+alias g="git"

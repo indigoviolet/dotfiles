@@ -1,5 +1,5 @@
-# These are in git-comp.zsh
-# source ${ZSH_CUSTOM_DIR}/git-comp.zsh
+zstyle ':completion:*:*:git:*' script ${ZSH_CUSTOM_DIR}/git-completion.bash
+fpath=(${ZSH_CUSTOM_DIR} $fpath)
 
 function _git_won() { _git_branch }
 function _git_stack() { _git_branch }
@@ -144,3 +144,4 @@ function git-select-reviewers() {
 function git-fin-core-pr () {
     hub pull-request --edit --push -f --reviewer=$(git-select-reviewers) --browse $*
 }
+
