@@ -15,7 +15,7 @@ test -e $ZINIT_DIR/bin/zinit.zsh && zinit_setup
 # too noisy and interruptive
 #zinit load marlonrichert/zsh-autocomplete
 
-{% if yadm.os == 'Linux' %}
+{% if yadm.os == "Linux" %}
 zinit load asdf-vm/asdf
 {% endif %}
 

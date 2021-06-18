@@ -9,7 +9,7 @@ typeset -Ug path
 
 export ALTERNATE_EDITOR=""
 
-{% if yadm.os == 'Linux' %}
+{% if yadm.os == "Linux" %}
 export EDITOR="emacsclient"
 {% else %}
 export EDITOR="code --wait"
@@ -33,7 +33,7 @@ path[1,0]=$HOME/.dotfiles/bin/
 path[1,0]=$HOME/.local/bin/
 path[1,0]=$HOME/.cargo/bin/
 
-{% if yadm.class == 'personal' %}
+{% if yadm.class == "personal" %}
 # For libpng (pdf-tools), emacs build etc.
 export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
 {% endif %}
