@@ -1,5 +1,5 @@
 zstyle ':completion:*:*:git:*' script ${ZSH_CUSTOM_DIR}/git-completion.bash
-fpath+=${ZSH_CUSTOM_DIR}
+fpath=(${ZSH_CUSTOM_DIR} $fpath)
 
 function _git_won() { _git_branch }
 function _git_stack() { _git_branch }
