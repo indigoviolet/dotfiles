@@ -173,6 +173,13 @@ git clone https://github.com/hlissner/doom-emacs "${HOME}/.local/doom-emacs"
 EMACSDIR=$HOME/.local/doom-emacs/ $HOME/.local/doom-emacs/bin/doom install
 #+end_src
 
+*** git completion
+
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/12-git-completion.sh
+set -ux
+curl -o ${ZSH_CUSTOM_DIR}/git-completion.bash https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
+curl -o ${ZSH_CUSTOM_DIR}/_git https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh
+#+end_src
 
 
 ** zsh secrets
