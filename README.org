@@ -175,7 +175,7 @@ EMACSDIR=$HOME/.local/doom-emacs/ $HOME/.local/doom-emacs/bin/doom install
 
 *** git completion
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/12-git-completion.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/11-git-completion.sh
 set -ux
 curl -o ${ZSH_CUSTOM_DIR}/git-completion.bash https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
 curl -o ${ZSH_CUSTOM_DIR}/_git https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh
