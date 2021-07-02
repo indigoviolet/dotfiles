@@ -83,3 +83,4 @@ brew "zlib"
 # nostromo is a CLI to manage aliases through simple commands to add and remove scoped aliases and substitutions.
 brew "pokanop/pokanop/nostromo"
 cask "font-meslo-lg-nerd-font"
+cask "font-noto-color-emoji"
