@@ -2,11 +2,10 @@ tap "beeftornado/rmtree"
 tap "ggpeti/rmrec"
 tap "homebrew/bundle"
 tap "homebrew/cask"
+tap "homebrew/cask-fonts"
 tap "homebrew/core"
 tap "pokanop/pokanop"
 tap "railwaycat/emacsmacport"
-# New way to see and navigate directory trees
-brew "broot"
 # Freely available high-quality data compressor
 brew "bzip2"
 # GNU File, Shell, and Text utilities
@@ -39,8 +38,6 @@ brew "gnutls"
 brew "gnupg"
 # Improved top (interactive process viewer)
 brew "htop"
-# Add GitHub support to git on the command-line
-brew "hub"
 # Improved colored diff
 brew "icdiff"
 # Lightweight and flexible command-line JSON processor
@@ -85,3 +82,4 @@ brew "yarn"
 brew "zlib"
 # nostromo is a CLI to manage aliases through simple commands to add and remove scoped aliases and substitutions.
 brew "pokanop/pokanop/nostromo"
+cask "font-meslo-lg-nerd-font"

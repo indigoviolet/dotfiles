@@ -79,7 +79,7 @@ sudo apt-get install --no-install-recommends -y make build-essential libssl-dev 
 
 *** Brew
 
-=brew bundle dump  --force --describe --global=
+=brew bundle dump  --force --describe --global --casks=
 
 Note that .Brewfile is an alt file
 
