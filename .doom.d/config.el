@@ -342,8 +342,8 @@
   :custom
   (windmove-wrap-around t)
   :config
-  ;; shift-left right etc
-  (windmove-default-keybindings)
+  ;; ctrl-left right etc
+  (windmove-default-keybindings 'ctrl)
   )
 ;; Movement:2 ends here
 
@@ -673,14 +673,14 @@
 
 (use-package! ctrlf
   :after-call after-find-file
-  :custom
-  (ctrlf-mode-bindings '(
-                         ("C-s" . ctrlf-forward-fuzzy)
-                         ("C-r" . ctrlf-backward-fuzzy)
-                         ("C-M-s" . ctrlf-forward-regexp)
-                         ("C-M-r" . ctrlf-backward-regexp)
-                         )
-                       )
+  ;; :custom
+  ;; (ctrlf-mode-bindings '(
+  ;;                        ("C-s" . ctrlf-forward-fuzzy)
+  ;;                        ("C-r" . ctrlf-backward-fuzzy)
+  ;;                        ("C-M-s" . ctrlf-forward-regexp)
+  ;;                        ("C-M-r" . ctrlf-backward-regexp)
+  ;;                        )
+  ;;                      )
   :config
   (ctrlf-mode +1)
 
@@ -903,13 +903,17 @@
         org-cycle-separator-lines 0
         org-blank-before-new-entry '((heading . never) (plain-list-item . never))
         org-startup-folded t
+        org-startup-align-all-tables t
+        org-startup-shrink-all-tables t
         org-src-window-setup 'current-window
         org-src-preserve-indentation nil
         org-edit-src-content-indentation 0
         org-startup-numerated nil
         org-num-skip-commented t
         org-M-RET-may-split-line t
+        ;; https://old.reddit.com/r/orgmode/comments/fagcaz/show_schedule_and_deadlines_for_standard_todo_list/
         org-agenda-files '("~/org/Notes.org")
+        org-agenda-entry-types '(:deadline :scheduled)
         org-agenda-skip-scheduled-if-done t
         )
   (defhydra hydra-org (:exit t)
@@ -937,19 +941,6 @@
   (set-company-backend! 'org-mode '(company-yankpad company-capf))
   )
 ;; Company backends:1 ends here
-
-;; Windmove conflicts
-
-
-;; [[file:config.org::*Windmove conflicts][Windmove conflicts:1]]
-;; https://orgmode.org/org.html#Conflicts
-;; (after! (org windmove)
-;;   (add-hook! 'org-shiftup-final-hook #'windmove-up)
-;;   (add-hook! 'org-shiftleft-final-hook #'windmove-left)
-;;   (add-hook! 'org-shiftdown-final-hook #'windmove-down)
-;;   (add-hook! 'org-shiftright-final-hook #'windmove-right)
-;;   )
-;; Windmove conflicts:1 ends here
 
 ;; Electric pairs
 
@@ -1177,6 +1168,17 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
           (replace-match (downcase (match-string-no-properties 1)) :fixedcase nil nil 1))
         (message "Lower-cased %d matches" count))))
 
+
+
+  ;; https://stackoverflow.com/questions/6997387/how-to-archive-all-the-done-tasks-using-a-single-command
+  (defun vi/org-archive-done-tasks ()
+    (interactive)
+    (org-map-entries
+     (lambda ()
+       (org-archive-subtree)
+       (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+     "/DONE" 'tree))
+
   )
 ;; Useful functions:1 ends here
 
@@ -1269,6 +1271,10 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
    :map vterm-mode-map
    ("M-j" . nil)
    ("M-k" . nil)
+   ("C-<left>" . windmove-left)
+   ("C-<right>" . windmove-right)
+   ("C-<up>" . windmove-up)
+   ("C-<down>" . windmove-down)
    ("C-c C-r" . vterm-send-C-r)
    )
   )
@@ -1474,7 +1480,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   )
 
 (setq-hook! 'python-mode-hook +format-with-lsp nil)
-(add-hook! 'python-mode-hook #'(vi/setup-python-flycheck python-black-on-save-mode))
+(add-hook! 'python-mode-hook #'vi/setup-python-flycheck #'python-black-on-save-mode)
 (set-formatter! 'isort "isort --profile=black --stdout -" :modes '(python-mode))
 
 ;; even switch-buffer is slow. and we use direnv anyway

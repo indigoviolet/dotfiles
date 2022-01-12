@@ -18,6 +18,9 @@
 ;;
 ;;      Alternatively, press 'gd' (or 'C-c c d') on a module to browse its
 ;;      directory (for easy access to its source code).
+
+;; https://github.com/hlissner/doom-emacs/issues/5682
+(defvar comp-deferred-compilation-deny-list nil)
 ;; init.el:1 ends here
 
 ;; Doom modules
@@ -26,21 +29,6 @@
 
 
 ;; [[file:config.org::*Doom modules][Doom modules:1]]
-;; Don't use disputed keys in org: conflicts with windmove. Putting this in
-;; (use-package! org :init) doesn't appear to work
-;;
-;; If you do this,
-;;
-;; > When set, Org moves the following key bindings in
-;; > Org files, and in the agenda buffer—but not during date selection.
-;; >
-;; > S-UP ⇒ M-p	S-DOWN ⇒ M-n
-;; > S-LEFT ⇒ M--	S-RIGHT ⇒ M-+
-;; > C-S-LEFT ⇒ M-S--	C-S-RIGHT ⇒ M-S-+
-;;
-
-(setq org-replace-disputed-keys t)
-
 (doom! :input
        ;;chinese
        ;;japanese
@@ -204,7 +192,7 @@
        ;;(wanderlust +gmail)
 
        :app
-       ;;calendar
+       ;; calendar
        ;;irc               ; how neckbeards socialize
        ;;(rss +org)        ; emacs as an RSS reader
        ;;twitter           ; twitter client https://twitter.com/vnought

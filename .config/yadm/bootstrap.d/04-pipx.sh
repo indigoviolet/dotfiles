@@ -17,4 +17,5 @@ if [[ -e ~/.pipx.json ]]; then
 		pipx install $p
 	done
 fi
+exit 0
 # Pipx:1 ends here

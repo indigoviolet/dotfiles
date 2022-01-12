@@ -339,8 +339,7 @@
 
 
 ;; [[file:config.org::*Misc modes][Misc modes:1]]
-(package! gitconfig-mode)
-(package! gitignore-mode)
+(package! git-modes)
 ;; Misc modes:1 ends here
 
 ;; Pomodoro

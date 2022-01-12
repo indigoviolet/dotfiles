@@ -129,6 +129,7 @@ if [[ -e ~/.pipx.json ]]; then
 		pipx install $p
 	done
 fi
+exit 0
 #+end_src
 
 *** Prezto
@@ -144,7 +145,7 @@ cd ~/.zprezto/contrib && git pull
 
 #+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/06-zinit.sh
 set -eux
-mkdir ~/.zinit && git clone https://github.com/zdharma/zinit.git ~/.zinit/bin
+{ mkdir ~/.zinit && git clone https://github.com/zdharma/zinit.git ~/.zinit/bin; } || exit 0
 #+end_src
 
 *** Misc utilities
@@ -162,15 +163,14 @@ set -eux
 
 #+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/08-chemacs.sh##c.personal
 set -eux
-git clone https://github.com/plexus/chemacs.git "${HOME}/.local/chemacs" && $HOME/.local/chemacs/install.sh
+{ git clone https://github.com/plexus/chemacs.git "${HOME}/.local/chemacs" && $HOME/.local/chemacs/install.sh; } || exit 0
 #+end_src
 
 *** Doom emacs
 
 #+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/09-doom-emacs.sh##c.personal
 set -eux
-git clone https://github.com/hlissner/doom-emacs "${HOME}/.local/doom-emacs"
-EMACSDIR=$HOME/.local/doom-emacs/ $HOME/.local/doom-emacs/bin/doom install
+{ git clone https://github.com/hlissner/doom-emacs "${HOME}/.local/doom-emacs" && EMACSDIR=$HOME/.local/doom-emacs/ $HOME/.local/doom-emacs/bin/doom install; } || exit 0
 #+end_src
 
 *** git completion
@@ -181,13 +181,21 @@ curl -o ${ZSH_CUSTOM_DIR}/git-completion.bash https://raw.githubusercontent.com/
 curl -o ${ZSH_CUSTOM_DIR}/_git https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh
 #+end_src
 
+#+RESULTS:
+
 *** Leechblock
 
 
 #+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/12-leechblock.sh
 set -ux
-mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone indigoviolet/LeechBlockNG-chrome
-cd LeechBlockNG-chrome && ./install-jquery.sh
+{ mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone indigoviolet/LeechBlockNG-chrome && cd LeechBlockNG-chrome && ./install-jquery.sh; } || exit 0
+#+end_src
+
+*** paywall
+
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/13-paywall.sh
+set -ux
+{ mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone iamadamdev/bypass-paywalls-chrome; } || exit 0
 #+end_src
 
 ** zsh secrets
