@@ -1,5 +1,4 @@
 :DOC-CONFIG:
-# Tangle by default to config.el, which is the most common case
 #+property: header-args :mkdirp yes :comments both
 :END:
 
@@ -109,7 +108,7 @@ bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-release-team-ke
 asdf install nodejs 17.3.1
 
 asdf install yarn 1.22.17
-asdf install poetry 1.1.12
+asdf install poetry 1.2a2
 #+end_src
 
 *** Pipx
@@ -160,7 +159,6 @@ set -eux
 curl https://raw.githubusercontent.com/gitbits/git-info/master/git-info --output ~/.local/bin/git-info && chmod +x ~/.local/bin/git-info
 #+end_src
 
-#+RESULTS:
 
 *** chemacs
 
@@ -200,6 +198,19 @@ set -ux
 set -ux
 { mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone iamadamdev/bypass-paywalls-chrome; } || exit 0
 #+end_src
+
+*** Fonts
+
+
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/14-fonts.sh##distro.Ubuntu
+set -eux
+
+# Jetbrains Mono patched (https://github.com/ryanoasis/nerd-fonts#option-5-clone-the-repo)
+mkdir $HOME/dev && cd $HOME/dev && git clone --filter=blob:none --sparse git@github.com:ryanoasis/nerd-fonts
+cd $HOME/dev/nerd-fonts && git sparse-checkout add patched-fonts/JetBrainsMono
+./install.sh JetBrainsMono
+#+end_src
+
 
 ** zsh secrets
 Make ~~/.zsh_secrets~ if you need any secrets that aren't committed. It is sourced via ~secrets.zsh~

@@ -1,5 +1,5 @@
 python 3.8.1
-poetry 1.1.6
+poetry 1.2.0a2
 nodejs 17.3.1
-yarn 1.22.10
+yarn 1.22.17
 golang 1.15.8
