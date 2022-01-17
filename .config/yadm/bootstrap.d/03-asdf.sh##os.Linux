@@ -17,5 +17,5 @@ bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-release-team-ke
 asdf install nodejs 17.3.1
 
 asdf install yarn 1.22.17
-asdf install poetry 1.2a2
+asdf install poetry 1.2.0a2
 # Asdf:1 ends here

@@ -186,7 +186,7 @@
 (package! selectrum)
 (package! selectrum-prescient)
 (package! consult :recipe (:host github :repo "minad/consult"))
-(package! consult-flycheck :recipe (:host github :repo "minad/consult"))
+(package! consult-flycheck :recipe (:host github :repo "minad/consult-flycheck"))
 (package! marginalia)
 (package! embark)
 (package! embark-consult)

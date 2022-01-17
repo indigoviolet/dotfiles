@@ -65,3 +65,5 @@ brew "watchman"
 brew "yadm"
 # Fast file synchronization and network forwarding for remote development
 brew "mutagen-io/mutagen/mutagen-beta"
+# Graphite stacked diffs
+brew "screenplaydev/tap/graphite"

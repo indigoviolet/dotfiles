@@ -45,3 +45,4 @@ bindkey '\ee' edit-command-line
 zle_highlight=(region:standout special:standout suffix:bold isearch:bg=green )
 
 bindkey '^i' complete-word      # required for _expand completer
+bindkey '^I' complete-word      # complete
