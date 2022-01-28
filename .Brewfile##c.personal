@@ -1,38 +1,42 @@
 tap "beeftornado/rmtree"
 tap "homebrew/bundle"
+tap "homebrew/cask-fonts"
 tap "homebrew/core"
 tap "linuxbrew/xorg"
 tap "mutagen-io/mutagen"
+tap "screenplaydev/tap"
+# GNOME XML library
+brew "libxml2"
+# Plugin manager for zsh, inspired by oh-my-zsh and vundle
+brew "antigen"
 # Automatic configure script builder
 brew "autoconf"
 # Tool for generating GNU Standards-compliant Makefiles
 brew "automake"
 # Extendable version manager with support for Ruby, Node.js, Erlang & more
 brew "asdf"
-# Command-line interface for SQLite
-brew "sqlite"
-# General-purpose data compression with high compression ratio
-brew "xz"
-# Interpreted, interactive, object-oriented programming language
-brew "python@3.9"
 # Super fast C++ logging library
 brew "spdlog"
 # Generate compilation database for clang tooling
 brew "bear"
+# New way to see and navigate directory trees
+brew "broot"
 # Cross-platform make
 brew "cmake"
 # Load/unload environment variables based on $PWD
 brew "direnv"
 # Simple, fast and user-friendly alternative to find
 brew "fd"
+# General-purpose data compression with high compression ratio
+brew "xz"
 # Command-line fuzzy finder written in Go
 brew "fzf"
 # GNU Compiler Collection
 brew "gcc@5"
-# GNOME XML library
-brew "libxml2"
 # GitHub command-line tool
 brew "gh"
+# Command-line interface for SQLite
+brew "sqlite"
 # Alternative to top/htop
 brew "glances"
 # Improved top (interactive process viewer)
@@ -43,6 +47,8 @@ brew "icdiff"
 brew "jq"
 # Lazier way to manage everything docker
 brew "lazydocker"
+# Interpreted, interactive, object-oriented programming language
+brew "python@3.9"
 # Open source suite of directory software
 brew "openldap"
 # Swiss-army knife of markup format conversion
@@ -63,7 +69,9 @@ brew "tig"
 brew "watchman"
 # Yet Another Dotfiles Manager
 brew "yadm"
+# Shell extension to navigate your filesystem faster
+brew "zoxide"
 # Fast file synchronization and network forwarding for remote development
 brew "mutagen-io/mutagen/mutagen-beta"
-# Graphite stacked diffs
+# The Graphite CLI allows you to easily manage your stacked-diff workflow.
 brew "screenplaydev/tap/graphite"

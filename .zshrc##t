@@ -55,6 +55,7 @@ source ${ZSH_CUSTOM_DIR}/direnv.zsh
 
 {% if yadm.os == 'Linux' %}
 # asdf only installed on Linux, poetry.zsh depends on asdf
+source ${ZSH_CUSTOM_DIR}/asdf.zsh
 source ${ZSH_CUSTOM_DIR}/poetry.zsh
 {% endif %}
 
@@ -82,7 +83,8 @@ source ${ZSH_CUSTOM_DIR}/secrets.zsh
 source ${ZSH_CUSTOM_DIR}/prompt.zsh
 # source ${ZSH_CUSTOM_DIR}/tilix.zsh
 
-source ${ZSH_CUSTOM_DIR}/zinit.zsh
+## Currently we aren't using any antigen plugins
+# source ${ZSH_CUSTOM_DIR}/antigen.zsh
 
 # test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
