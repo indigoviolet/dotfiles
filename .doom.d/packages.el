@@ -309,6 +309,13 @@
 (package! lsp-pyright)
 ;; Python:1 ends here
 
+;; Javascript/Typescript
+
+
+;; [[file:config.org::*Javascript/Typescript][Javascript/Typescript:1]]
+(package! add-node-modules-path :recipe (:host github :repo "codesuki/add-node-modules-path"))
+;; Javascript/Typescript:1 ends here
+
 ;; docker
 
 

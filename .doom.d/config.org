@@ -28,6 +28,9 @@ See [[file:init.el][init.el]], [[file:packages.el][packages.el]] and [[file:conf
 
 * To try:
 
+** use vertico + consult/marginalia/embark out of doom-emacs instead of selectrum/custom configs
+
+** Use org-remark instead of annotate
 ** Ideas from [[https://github.com/zzamboni/dot-doom/blob/master/doom.org][zzamboni]]
 *** Jump to matching parens
 *** variable pitch fonts & mixed fonts
@@ -60,6 +63,11 @@ https://github.com/fuxialexander/emacs-webkit-katex-render
 ** Major mode hydra (hydra per major mode) <-- might be useful to have python-specific flycheckers in hydra hooked from hydra global
 ** https://github.com/tecosaur/emacs-everywhere
 ** [[https://github.com/hlissner/doom-emacs/issues/3191][apheleia-based format instead of format-all]]
+
+** use corfu instead of company-mode
+
+** harpoon bookmarks
+
 ** [[https://github.com/xenodium/company-org-block][org block completion backend for company]]
 
 ** toml formatter using prettier and apheleia
@@ -554,7 +562,18 @@ https://github.com/hlissner/doom-emacs/issues/4498
   :config (key-chord-mode 1)
   )
 #+end_src
-* Rainbow
+
+* Colors
+
+** Rainbow
+:LOGBOOK:
+- State "KILL"       from "DONE"       [2022-01-26 Wed 17:28]
+- State "DONE"       from "WAIT"       [2022-01-26 Wed 17:28]
+- State "WAIT"       from "TODO"       [2022-01-26 Wed 17:28]
+- State "KILL"       from "DONE"       [2022-01-26 Wed 17:28]
+- State "DONE"       from "WAIT"       [2022-01-26 Wed 17:28]
+- State "WAIT"       from "TODO"       [2022-01-26 Wed 17:28]
+:END:
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! rainbow-mode)
@@ -1297,6 +1316,8 @@ Disabling all of these posframe solutions (minibuffer, which-key, hydra) since t
 
 (use-package! ctrlf
   :after-call after-find-file
+  :custom
+  (ctrlf-auto-recenter t)
   ;; :custom
   ;; (ctrlf-mode-bindings '(
   ;;                        ("C-s" . ctrlf-forward-fuzzy)
@@ -1451,10 +1472,11 @@ Instead of default ivy
 
 #+begin_src emacs-lisp
 (after! company
-  (setq company-idle-delay 0.2
+  (setq company-idle-delay 0.0
         company-selection-wrap-around t
-        company-minimum-prefix-length 2
+        company-minimum-prefix-length 1
         company-tooltip-idle-delay 0.1
+        company-async-redisplay-delay 0.0
         company-tooltip-align-annotations t)
   )
 #+end_src
@@ -1582,18 +1604,27 @@ Instead of default ivy
         org-cycle-separator-lines 0
         org-blank-before-new-entry '((heading . never) (plain-list-item . never))
         org-startup-folded t
+        org-startup-indented t
+        org-startup-numerated nil
         org-startup-align-all-tables t
         org-startup-shrink-all-tables t
+        org-log-into-drawer t
         org-src-window-setup 'current-window
         org-src-preserve-indentation nil
         org-edit-src-content-indentation 0
-        org-startup-numerated nil
         org-num-skip-commented t
         org-M-RET-may-split-line t
         ;; https://old.reddit.com/r/orgmode/comments/fagcaz/show_schedule_and_deadlines_for_standard_todo_list/
         org-agenda-files '("~/org/Notes.org")
         org-agenda-entry-types '(:deadline :scheduled)
         org-agenda-skip-scheduled-if-done t
+        org-todo-keywords '((sequence "TODO(t)" "WAIT(w!)" "SOMEDAY(s!)" "REVISIT(r!)" "|" "DONE(d!)" "KILL(k!)" ))
+        org-todo-keyword-faces '(("WAIT" . +org-todo-onhold)
+                                 ("HOLD" . +org-todo-onhold)
+                                 ("REVISIT" . +org-todo-onhold)
+                                 ("SOMEDAY" . +org-todo-onhold)
+                                 ("KILL" . +org-todo-cancel))
+        org-use-fast-todo-selection 'expert
         )
   (defhydra hydra-org (:exit t)
     "Org"
@@ -2125,7 +2156,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   (lsp-signature-auto-activate t)
   (lsp-headerline-breadcrumb-enable t)
   (lsp-keep-workspace-alive nil)
-  (lsp-semantic-tokens-enable t)
+  (lsp-semantic-tokens-enable nil)      ;no semantic highlighting: rainbow-identifiers
   (lsp-symbol-highlighting-skip-current t)
   (lsp-enable-xref nil)
   (lsp-lens-enable t)
@@ -2135,6 +2166,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 
   ;; https://github.com/emacs-lsp/lsp-mode#performance
   (read-process-output-max (* 1024 1024)) ;; 1mb
+  (lsp-file-watch-threshold 2000)
 
   :config
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.venv\\'")
@@ -2390,6 +2422,18 @@ There are some weird errors that show up if you don't run mypy from the root dir
 #+end_src
 
 
+* Javascript/Typescript
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! add-node-modules-path :recipe (:host github :repo "codesuki/add-node-modules-path"))
+#+end_src
+
+#+begin_src emacs-lisp
+(setq-hook! '(typescript-mode-hook rjsx-mode-hook) +format-with-lsp nil)
+(add-hook! '(typescript-mode-hook rjsx-mode-hook) #'add-node-modules-path)
+#+end_src
+
+
 * Treemacs
 
 
@@ -2568,7 +2612,8 @@ So we could:
   (annotate-annotation-max-size-not-place-new-line 200)
   (annotate-annotation-position-policy :by-length)
   :hook (
-         (prog-mode . annotate-mode)
+         ;; disable in general prog-mode for time-being - leads to args-out-of-range errors in company? [Jan 24 2022]
+         ;; (prog-mode . annotate-mode)
          (annotate-mode . vi/setup-annotate)
          )
   :config

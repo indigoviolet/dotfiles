@@ -673,6 +673,8 @@
 
 (use-package! ctrlf
   :after-call after-find-file
+  :custom
+  (ctrlf-auto-recenter t)
   ;; :custom
   ;; (ctrlf-mode-bindings '(
   ;;                        ("C-s" . ctrlf-forward-fuzzy)
@@ -798,10 +800,11 @@
 
 ;; [[file:config.org::*Completion][Completion:1]]
 (after! company
-  (setq company-idle-delay 0.2
+  (setq company-idle-delay 0.0
         company-selection-wrap-around t
-        company-minimum-prefix-length 2
+        company-minimum-prefix-length 1
         company-tooltip-idle-delay 0.1
+        company-async-redisplay-delay 0.0
         company-tooltip-align-annotations t)
   )
 ;; Completion:1 ends here
@@ -903,18 +906,27 @@
         org-cycle-separator-lines 0
         org-blank-before-new-entry '((heading . never) (plain-list-item . never))
         org-startup-folded t
+        org-startup-indented t
+        org-startup-numerated nil
         org-startup-align-all-tables t
         org-startup-shrink-all-tables t
+        org-log-into-drawer t
         org-src-window-setup 'current-window
         org-src-preserve-indentation nil
         org-edit-src-content-indentation 0
-        org-startup-numerated nil
         org-num-skip-commented t
         org-M-RET-may-split-line t
         ;; https://old.reddit.com/r/orgmode/comments/fagcaz/show_schedule_and_deadlines_for_standard_todo_list/
         org-agenda-files '("~/org/Notes.org")
         org-agenda-entry-types '(:deadline :scheduled)
         org-agenda-skip-scheduled-if-done t
+        org-todo-keywords '((sequence "TODO(t)" "WAIT(w!)" "SOMEDAY(s!)" "REVISIT(r!)" "|" "DONE(d!)" "KILL(k!)" ))
+        org-todo-keyword-faces '(("WAIT" . +org-todo-onhold)
+                                 ("HOLD" . +org-todo-onhold)
+                                 ("REVISIT" . +org-todo-onhold)
+                                 ("SOMEDAY" . +org-todo-onhold)
+                                 ("KILL" . +org-todo-cancel))
+        org-use-fast-todo-selection 'expert
         )
   (defhydra hydra-org (:exit t)
     "Org"
@@ -1375,7 +1387,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   (lsp-signature-auto-activate t)
   (lsp-headerline-breadcrumb-enable t)
   (lsp-keep-workspace-alive nil)
-  (lsp-semantic-tokens-enable t)
+  (lsp-semantic-tokens-enable nil)      ;no semantic highlighting: rainbow-identifiers
   (lsp-symbol-highlighting-skip-current t)
   (lsp-enable-xref nil)
   (lsp-lens-enable t)
@@ -1385,6 +1397,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 
   ;; https://github.com/emacs-lsp/lsp-mode#performance
   (read-process-output-max (* 1024 1024)) ;; 1mb
+  (lsp-file-watch-threshold 2000)
 
   :config
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.venv\\'")
@@ -1621,6 +1634,11 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   )
 ;; Run mypy for the entire project:1 ends here
 
+;; [[file:config.org::*Javascript/Typescript][Javascript/Typescript:2]]
+(setq-hook! '(typescript-mode-hook rjsx-mode-hook) +format-with-lsp nil)
+(add-hook! '(typescript-mode-hook rjsx-mode-hook) #'add-node-modules-path)
+;; Javascript/Typescript:2 ends here
+
 ;; Treemacs
 
 
@@ -1717,7 +1735,8 @@ current buffer's, reload dir-locals."
   (annotate-annotation-max-size-not-place-new-line 200)
   (annotate-annotation-position-policy :by-length)
   :hook (
-         (prog-mode . annotate-mode)
+         ;; disable in general prog-mode for time-being - leads to args-out-of-range errors in company? [Jan 24 2022]
+         ;; (prog-mode . annotate-mode)
          (annotate-mode . vi/setup-annotate)
          )
   :config

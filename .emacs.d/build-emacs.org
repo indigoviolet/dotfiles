@@ -82,6 +82,7 @@ read nought
 sudo make -j8 install
 
 systemctl --user disable emacs.service
+sudo rm /usr/local/share/applications/{emacsclient,emacs-mail,emacsclient-mail}.desktop
 #+END_SRC
 
 * configure-emacs.sh
