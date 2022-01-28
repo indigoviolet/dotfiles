@@ -85,9 +85,6 @@ source ${ZSH_CUSTOM_DIR}/zoxide.zsh
 
 # source ${ZSH_CUSTOM_DIR}/tilix.zsh
 
-## Currently we aren't using any antigen plugins
-# source ${ZSH_CUSTOM_DIR}/antigen.zsh
-
 # test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 # /usr/local/opt/fzf/install after brew install fzf
