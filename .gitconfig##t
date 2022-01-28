@@ -7,8 +7,6 @@
 	co = checkout
 	ci = commit
 	st = status
-	m = won master
-
 	brm = branch --merged
 
 
@@ -16,15 +14,11 @@
 	modified = !zsh -i -l -c "git-modified"
 	cleanup = !zsh -i -l -c "git-cleanup"
 
-	# # this is so fucked up, but I couldn't find another way to get the
-	# # positional argument into the shell function
-	# # Returns Github PR given a SHA
-	# getpull = "!f() {( zsh -i -l -c \"git-getpull $@\" )}; f"
-
 	# open all files modified relative to master in emacs
 	open = !"f() {( git modified | xargs emacsclient -n -t -a '' && emacsclient -t -a '' )}; f"
 
 	thisbr = rev-parse --abbrev-ref HEAD
+	master-or-main = !"f() { (git rev-parse --abbrev-ref main || git rev-parse --abbrev-ref master) }; f"
 	parentbr = !"f() {( git show-branch | sed \"s/].*//\" | grep \"\\*\" | grep -v \"$( git thisbr )\" | head -n1 | sed \"s/^.*\\[//\" | sed 's/[\\^~].*//' )}; f"
 
 	# Push to Github
@@ -33,9 +27,6 @@
 	# Force push to Github
 	puf = !git pu -f
 
-	# github pull request. see git.zsh for some functions
-	# pr = !hub pull-request
-
 	# autostash: Puts changes on stash in a specifically named way
 	autostash-msg = !"f() {( echo \"autostash on $( git thisbr )\" )}; f"
 	autostash-save = !"f() {( git stash save \"$( git autostash-msg )\" )}; f"
@@ -43,7 +34,7 @@
 	autostash-pop = !"f() {( test -n \"$( git autostash-find )\"  && git stash pop $( git autostash-find ) )}; f"
 
 	# always branch from master
-	makebr = !"f() {( git co master && git co -b $1 )}; f"
+	makebr = !"f() {( MASTERBR=$(git master-or-main); git co $MASTERBR  && git co -b $1 )}; f"
 
  	switch-to = !"f() {( git co $1 || git makebr $1 || echo 'done' )}; test -n $1 && f"
 	switch-and-apply = !"f() {( git switch-to $1 && git autostash-pop )}; test -n $1 && f"
@@ -53,7 +44,7 @@
 	won = !"f() {( : git checkout; git autostash-save && git switch-and-apply $* )}; test -n $1 && f"
 
 	# Will update
-	up = !"f() {( OLDBR=$( git thisbr ); git won master; git pull; git checkout $OLDBR && git rebase master && git autostash-pop )}; f"
+	up = !"f() {( OLDBR=$( git thisbr ); MASTERBR=$(git master-or-main); git won $MASTERBR; git pull; git checkout $OLDBR && git rebase $MASTERBR && git autostash-pop )}; f"
 
 	# Commit changes to current head as amended commit [add to latest commit. Use carefully!]
 	plus = commit --amend -a -C HEAD

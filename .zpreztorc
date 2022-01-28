@@ -35,10 +35,9 @@ zstyle ':prezto:load' pmodule \
 	'spectrum' \
 	'utility' \
 	'history' \
-	'completion' \
-	'autosuggestions'
+	'completion'
+#	'autosuggestions'
 # 'history-substring-search' # see input.zsh
-
 # 'directory' \
 # 'contrib-prompt' \
 # 'prompt' \
