@@ -24,6 +24,26 @@ zstyle ':prezto:*:*' color 'yes'
 
 # Set the Zsh functions to load (man zshcontrib).
 # zstyle ':prezto:load' zfunction 'zargs' 'zmv'
+#
+#
+
+
+# Cloning external plugins (following https://github.com/mattmc3/zsh_unplugged#prezto)
+# These need to be added below to `:prezto:load` line
+#
+# eg:
+# zstyle ':prezto:load' pmodule \
+#     ... \
+#     'zsh-autocomplete'
+external_plugins=(
+	# marlonrichert/zsh-autocomplete
+)
+for repo in $external_plugins; do
+  if [[ ! -d $ZPREZTODIR/contrib/${repo:t} ]]; then
+    git clone https://github.com/${repo} $ZPREZTODIR/contrib/${repo:t}/external
+    echo "source \${0:A:h}/external/${repo:t}.plugin.zsh" > $ZPREZTODIR/contrib/${repo:t}/init.zsh
+  fi
+done
 
 # Set the Prezto modules to load (browse modules).
 # The order matters.
@@ -35,8 +55,8 @@ zstyle ':prezto:load' pmodule \
 	'spectrum' \
 	'utility' \
 	'history' \
-	'completion'
-#	'autosuggestions'
+	'completion' \
+	'autosuggestions'
 # 'history-substring-search' # see input.zsh
 # 'directory' \
 # 'contrib-prompt' \
