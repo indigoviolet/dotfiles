@@ -2131,6 +2131,10 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
             :filter-return #'home-magit-process-environment)
 #+end_src
 
+** Another approach to magit/yadm
+
+See https://www.reddit.com/r/emacs/comments/gjukb3/yadm_magit/gasc8n6/
+
 * LSP
 
 

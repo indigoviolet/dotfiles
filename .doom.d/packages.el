@@ -72,6 +72,14 @@
 ;; Chords:1 ends here
 
 ;; Rainbow
+;; :LOGBOOK:
+;; - State "KILL"       from "DONE"       [2022-01-26 Wed 17:28]
+;; - State "DONE"       from "WAIT"       [2022-01-26 Wed 17:28]
+;; - State "WAIT"       from "TODO"       [2022-01-26 Wed 17:28]
+;; - State "KILL"       from "DONE"       [2022-01-26 Wed 17:28]
+;; - State "DONE"       from "WAIT"       [2022-01-26 Wed 17:28]
+;; - State "WAIT"       from "TODO"       [2022-01-26 Wed 17:28]
+;; :END:
 
 
 ;; [[file:config.org::*Rainbow][Rainbow:1]]

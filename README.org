@@ -95,20 +95,14 @@ fi
 
 asdf installed with Brew
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/03-asdf.sh##os.Linux
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/03-asdf.sh
 set -ux
-for plugin in nodejs python yarn poetry; do
-	asdf plugin add $plugin
-done
 
-asdf install python 3.9.0
-asdf install python 3.8.1
+## https://github.com/asdf-vm/asdf/issues/276#issuecomment-907063520
+cut -d' ' -f1 .tool-versions | xargs -i asdf plugin add  {}
 
-bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-release-team-keyring'
-asdf install nodejs 17.3.1
-
-asdf install yarn 1.22.17
-asdf install poetry 1.2.0a2
+## installs from .tool-versions (which is an alt file)
+asdf install
 #+end_src
 
 *** Pipx
@@ -124,9 +118,9 @@ Note that .pipx.json is an alt file
 #+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/04-pipx.sh
 set -ux
 if [[ -e ~/.pipx.json ]]; then
-	for p in $(cat ~/.pipx.json | jq -r '.venvs[].metadata.main_package.package_or_url'); do
-		pipx install $p
-	done
+    for p in $(cat ~/.pipx.json | jq -r '.venvs[].metadata.main_package.package_or_url'); do
+        pipx install $p
+    done
 fi
 exit 0
 #+end_src
@@ -140,16 +134,10 @@ git clone --recurse-submodules https://github.com/belak/prezto-contrib "${HOME}/
 cd ~/.zprezto/contrib && git pull
 #+end_src
 
-*** COMMENT Zinit
-
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/06-zinit.sh
-set -eux
-{ mkdir ~/.zinit && git clone https://github.com/zdharma/zinit.git ~/.zinit/bin; } || exit 0
-#+end_src
 
 *** Misc utilities
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/07-misc-utilities.sh##distro.Ubuntu
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/07-misc-utilities.sh##distro.Ubuntu,e.sh
 set -eux
 (command -v less &> /dev/null) || sudo apt-get install --yes less
 (command -v htop &> /dev/null) || sudo apt-get install --yes htop
@@ -162,14 +150,14 @@ curl https://raw.githubusercontent.com/gitbits/git-info/master/git-info --output
 
 *** chemacs
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/08-chemacs.sh##c.personal
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/08-chemacs.sh##c.personal,e.sh
 set -eux
 { git clone https://github.com/plexus/chemacs.git "${HOME}/.local/chemacs" && $HOME/.local/chemacs/install.sh; } || exit 0
 #+end_src
 
 *** Doom emacs
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/09-doom-emacs.sh##c.personal
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/09-doom-emacs.sh##c.personal,e.sh
 set -eux
 { git clone https://github.com/hlissner/doom-emacs "${HOME}/.local/doom-emacs" && EMACSDIR=$HOME/.local/doom-emacs/ $HOME/.local/doom-emacs/bin/doom install; } || exit 0
 #+end_src
@@ -187,28 +175,42 @@ curl -o ${ZSH_CUSTOM_DIR}/_git https://raw.githubusercontent.com/git/git/master/
 *** Leechblock
 
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/12-leechblock.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/12-leechblock.sh##c.personal,e.sh
 set -ux
 { mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone indigoviolet/LeechBlockNG-chrome && cd LeechBlockNG-chrome && ./install-jquery.sh; } || exit 0
 #+end_src
 
 *** paywall
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/13-paywall.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/13-paywall.sh##c.personal,e.sh
 set -ux
 { mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone iamadamdev/bypass-paywalls-chrome; } || exit 0
 #+end_src
 
 *** Fonts
 
+On Darwin we would do this with brew
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/14-fonts.sh##distro.Ubuntu
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/14-fonts.sh##c.personal,e.sh
 set -eux
 
 # Jetbrains Mono patched (https://github.com/ryanoasis/nerd-fonts#option-5-clone-the-repo)
-mkdir $HOME/dev && cd $HOME/dev && git clone --filter=blob:none --sparse git@github.com:ryanoasis/nerd-fonts
+mkdir -p $HOME/dev && cd $HOME/dev && git clone --filter=blob:none --sparse git@github.com:ryanoasis/nerd-fonts
 cd $HOME/dev/nerd-fonts && git sparse-checkout add patched-fonts/JetBrainsMono
 ./install.sh JetBrainsMono
+#+end_src
+
+*** Gcloud
+
+
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/15-gcloud.sh##c.personal,e.sh
+set -eux
+
+sudo apt-get install apt-transport-https ca-certificates gnupg
+echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list
+curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+sudo apt-get update && sudo apt-get install google-cloud-sdk
+
 #+end_src
 
 

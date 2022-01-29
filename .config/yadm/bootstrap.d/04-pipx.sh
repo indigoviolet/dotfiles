@@ -13,9 +13,9 @@
 # [[file:../../../README.org::*Pipx][Pipx:1]]
 set -ux
 if [[ -e ~/.pipx.json ]]; then
-	for p in $(cat ~/.pipx.json | jq -r '.venvs[].metadata.main_package.package_or_url'); do
-		pipx install $p
-	done
+    for p in $(cat ~/.pipx.json | jq -r '.venvs[].metadata.main_package.package_or_url'); do
+        pipx install $p
+    done
 fi
 exit 0
 # Pipx:1 ends here
