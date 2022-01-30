@@ -4,35 +4,36 @@
 
 * Yadm dotfiles
 
-** Get Brew
+** Get started
 
+#+begin_src shell :tangle ~/.config/yadm/start.sh :shebang "#!/bin/bash" :noweb tangle
+<<start.sh>>
+#+end_src
 
-#+begin_src shell
+*** Get Brew
+
+#+begin_src shell :noweb-ref start.sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 #+end_src
 
+*** Get yadm
 
-** Get yadm
-
-#+begin_src shell
+#+begin_src shell :noweb-ref start.sh
 brew install yadm
 #+end_src
 
-
-** Getting started
+*** Clone dotfiles
 
 https://yadm.io/docs/getting_started
 
 This will clone the repo files into $HOME (as a repo where the git directory
 lives in ~.local/share/yadm/repo.git~)
 
-#+begin_src shell
+#+begin_src shell :noweb-ref start.sh
 yadm clone git@github.com:indigoviolet/dotfiles-yadm.git
-yadm config local.class <personal|fin|gcp>
-yadm status
 #+end_src
 
-** Bootstrap
+** Yadm Bootstrap
 
 *** Dispatcher
 
