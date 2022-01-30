@@ -6,7 +6,15 @@
 
 ** Get started
 
+This will generate https://raw.githubusercontent.com/indigoviolet/dotfiles-yadm/HEAD/.config/yadm/start.sh, which can be run like
+
+#+begin_src shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/indigoviolet/dotfiles-yadm/HEAD/.config/yadm/start.sh)"
+#+end_src
+
+
 #+begin_src shell :tangle ~/.config/yadm/start.sh :shebang "#!/bin/bash" :noweb tangle
+set -eux
 <<start.sh>>
 #+end_src
 
