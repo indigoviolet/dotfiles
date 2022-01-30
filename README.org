@@ -6,10 +6,12 @@
 
 ** Get started
 
-This will generate https://raw.githubusercontent.com/indigoviolet/dotfiles-yadm/HEAD/.config/yadm/start.sh, which can be run like
+This will generate https://github.com/indigoviolet/dotfiles/raw/master/.config/yadm/start.sh (but we can't make a raw permalink to it since the repo is private).
+
+Run it like:
 
 #+begin_src shell
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/indigoviolet/dotfiles-yadm/HEAD/.config/yadm/start.sh)"
+/bin/bash -c "$(curl -fsSL <Get URL by visiting https://github.com/indigoviolet/dotfiles/raw/master/.config/yadm/start.sh>)"
 #+end_src
 
 
@@ -38,7 +40,7 @@ This will clone the repo files into $HOME (as a repo where the git directory
 lives in ~.local/share/yadm/repo.git~)
 
 #+begin_src shell :noweb-ref start.sh
-yadm clone git@github.com:indigoviolet/dotfiles-yadm.git
+yadm clone git@github.com:indigoviolet/dotfiles.git
 #+end_src
 
 ** Yadm Bootstrap

@@ -3,5 +3,5 @@
 set -eux
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 brew install yadm
-yadm clone git@github.com:indigoviolet/dotfiles-yadm.git
+yadm clone git@github.com:indigoviolet/dotfiles.git
 # Get started:2 ends here
