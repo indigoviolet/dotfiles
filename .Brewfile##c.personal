@@ -65,6 +65,8 @@ brew "shfmt"
 brew "starship"
 # Text interface for Git repositories
 brew "tig"
+# Configure transparent encryption of files in a Git repo
+brew "transcrypt"
 # Watch files and take action when they change
 brew "watchman"
 # Yet Another Dotfiles Manager

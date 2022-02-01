@@ -103,10 +103,14 @@
 [push]
 	default = simple
 
-[credential]
+
 {% if yadm.os == "Darwin" %}
+[credential]
 	helper = osxkeychain
-{% else %}
+{% endif %}
+
+{% if yadm.class == "personal" %}
+[credential]
 	# https://wiki.archlinux.org/index.php/GNOME/Keyring
 	helper = /usr/share/doc/git/contrib/credential/libsecret/git-credential-libsecret
 {% endif %}
@@ -120,6 +124,7 @@
 # Add an ssh key to make this work without a password https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account
 [url "ssh://git@github.com/"]
 	insteadOf = github.com
+
 [pull]
 	rebase = false
 
