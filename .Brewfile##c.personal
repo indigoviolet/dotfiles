@@ -45,6 +45,8 @@ brew "icdiff"
 brew "jq"
 # Lazier way to manage everything docker
 brew "lazydocker"
+# Modern and intuitive terminal-based text editor
+brew "micro"
 # Interpreted, interactive, object-oriented programming language
 brew "python@3.9"
 # Open source suite of directory software

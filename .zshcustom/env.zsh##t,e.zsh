@@ -9,9 +9,15 @@ typeset -Ug path
 
 export ALTERNATE_EDITOR=""
 
-{% if yadm.os == "Linux" %}
+{% if yadm.class == "personal" %}
 export EDITOR="emacsclient"
-{% else %}
+{% endif %}
+
+{% if yadm.class == "gcp" %}
+export EDITOR="micro"           # installed via brew
+{% endif %}
+
+{% if yadm.os == "Darwin" %}
 export EDITOR="code --wait"
 {% endif %}
 
