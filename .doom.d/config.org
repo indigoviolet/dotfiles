@@ -2054,17 +2054,6 @@ Needs ~brew install pandoc~
   :commands (multi-vterm-next multi-vterm))
 #+end_src
 
-* Projectile
-
-
-#+begin_src emacs-lisp
-(use-package! projectile
-  :custom
-  (projectile-project-search-path '("~/dev"))
-  (projectile-auto-discover t)
-  (projectile-indexing-method 'alien)
-  )
-#+end_src
 * Flycheck
 
 
@@ -2426,6 +2415,17 @@ There are some weird errors that show up if you don't run mypy from the root dir
 #+end_src
 
 
+* Projectile
+
+
+#+begin_src emacs-lisp
+(use-package! projectile
+  :custom
+  (projectile-project-search-path '("~/dev"))
+  (projectile-auto-discover t)
+  (projectile-indexing-method 'alien)
+  )
+#+end_src
 * Javascript/Typescript
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -2438,7 +2438,9 @@ There are some weird errors that show up if you don't run mypy from the root dir
 #+end_src
 
 
-* Treemacs
+* Directory/Project navigation
+
+** Treemacs
 
 
 #+begin_src emacs-lisp
@@ -2448,6 +2450,22 @@ There are some weird errors that show up if you don't run mypy from the root dir
   (treemacs-follow-mode t)
   )
 #+end_src
+
+** dired
+
+- [ ] todo: add hydra
+- See dired-subtree [https://github.com/Fuco1/dired-hacks#dired-subtree] and dired-sidebar [https://github.com/jojojames/dired-sidebar]
+
+** COMMENT ranger
+
+Not clear why this is better than dired - seems to do a lot and I don't usually need to do all this in emacs
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! ranger)
+#+end_src
+
+- [ ] todo: add hydra?
+- [ ] try deer mode, override dired
 
 * dir-locals
 
@@ -2513,6 +2531,18 @@ So we could:
 
 #+end_example
 
+
+* Misc modes
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! git-modes)
+#+end_src
+
+
+** Cuda mode doesn't inherit from prog-mode?
+#+begin_src emacs-lisp
+(add-hook! 'cuda-mode-hook #'prog-mode)
+#+end_src
 
 * atomic chrome
 
@@ -2634,7 +2664,9 @@ So we could:
 #+end_src
 
 
+** TODO org-remark
 
+https://github.com/nobiot/org-remark
 * Bookmarks
 
 - Linkmarks depends on helm. also it doesn't play nice with org-capture
@@ -2658,21 +2690,20 @@ So we could:
   )
 #+end_src
 
-* Misc modes
+** TODO harpoon
+
+https://github.com/otavioschwanck/harpoon.el
+
+* Pomodoro
+
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! git-modes)
+(package! org-pomodoro)
 #+end_src
 
+* COMMENT Github
 
-** Cuda mode doesn't inherit from prog-mode?
-#+begin_src emacs-lisp
-(add-hook! 'cuda-mode-hook #'prog-mode)
-#+end_src
-
-* Github
-
-** Clone git repo
+** COMMENT Clone git repo
 
 [[https://xenodium.com/emacs-clone-git-repo-from-clipboard/][Source]]
 
@@ -2711,13 +2742,6 @@ So we could:
                                          (dired project-dir))
                                      (user-error (format "%s\n%s" command output))))))
     (set-process-filter proc #'comint-output-filter)))
-#+end_src
-
-* Pomodoro
-
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! org-pomodoro)
 #+end_src
 
 * Local Variables

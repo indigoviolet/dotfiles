@@ -331,6 +331,13 @@
 (package! dockerfile-mode)
 ;; docker:1 ends here
 
+;; Misc modes
+
+
+;; [[file:config.org::*Misc modes][Misc modes:1]]
+(package! git-modes)
+;; Misc modes:1 ends here
+
 ;; atomic chrome
 
 
@@ -349,13 +356,6 @@
 ;; (package! annotate :recipe (:host github :repo "cage2/annotate.el" :branch "prevent-saving-empty-db"))
 (package! annotate :recipe (:host github :repo "bastibe/annotate.el"))
 ;; annotate:1 ends here
-
-;; Misc modes
-
-
-;; [[file:config.org::*Misc modes][Misc modes:1]]
-(package! git-modes)
-;; Misc modes:1 ends here
 
 ;; Pomodoro
 

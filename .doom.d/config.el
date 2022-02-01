@@ -1294,19 +1294,6 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   :commands (multi-vterm-next multi-vterm))
 ;; vterm:2 ends here
 
-;; Projectile
-
-
-
-;; [[file:config.org::*Projectile][Projectile:1]]
-(use-package! projectile
-  :custom
-  (projectile-project-search-path '("~/dev"))
-  (projectile-auto-discover t)
-  (projectile-indexing-method 'alien)
-  )
-;; Projectile:1 ends here
-
 ;; Flycheck
 
 
@@ -1634,6 +1621,19 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   )
 ;; Run mypy for the entire project:1 ends here
 
+;; Projectile
+
+
+
+;; [[file:config.org::*Projectile][Projectile:1]]
+(use-package! projectile
+  :custom
+  (projectile-project-search-path '("~/dev"))
+  (projectile-auto-discover t)
+  (projectile-indexing-method 'alien)
+  )
+;; Projectile:1 ends here
+
 ;; [[file:config.org::*Javascript/Typescript][Javascript/Typescript:2]]
 (setq-hook! '(typescript-mode-hook rjsx-mode-hook) +format-with-lsp nil)
 (add-hook! '(typescript-mode-hook rjsx-mode-hook) #'add-node-modules-path)
@@ -1689,6 +1689,12 @@ current buffer's, reload dir-locals."
                 (let (before-save-hook after-save-hook)
                   (save-buffer))))))
 ;; docker:2 ends here
+
+;; Cuda mode doesn't inherit from prog-mode?
+
+;; [[file:config.org::*Cuda mode doesn't inherit from prog-mode?][Cuda mode doesn't inherit from prog-mode?:1]]
+(add-hook! 'cuda-mode-hook #'prog-mode)
+;; Cuda mode doesn't inherit from prog-mode?:1 ends here
 
 ;; [[file:config.org::*atomic chrome][atomic chrome:2]]
 (use-package! atomic-chrome
@@ -1751,51 +1757,3 @@ current buffer's, reload dir-locals."
     )
   )
 ;; annotate:2 ends here
-
-;; Cuda mode doesn't inherit from prog-mode?
-
-;; [[file:config.org::*Cuda mode doesn't inherit from prog-mode?][Cuda mode doesn't inherit from prog-mode?:1]]
-(add-hook! 'cuda-mode-hook #'prog-mode)
-;; Cuda mode doesn't inherit from prog-mode?:1 ends here
-
-;; Clone git repo
-
-;; [[https://xenodium.com/emacs-clone-git-repo-from-clipboard/][Source]]
-
-
-;; [[file:config.org::*Clone git repo][Clone git repo:1]]
-(defun vi/git-clone-clipboard-url ()
-  "Clone git URL in clipboard asynchronously and open in dired when finished."
-  (interactive)
-  (cl-assert (string-match-p "^\\(http\\|https\\|ssh\\)://" (current-kill 0)) nil "No URL in clipboard")
-  (let* ((url (current-kill 0))
-         (download-dir (expand-file-name "~/dev/"))
-         (project-dir (concat (file-name-as-directory download-dir)
-                              (file-name-base url)))
-         (default-directory download-dir)
-         (command (format "git clone %s" url))
-         (buffer (generate-new-buffer (format "*%s*" command)))
-         (proc))
-    (when (file-exists-p project-dir)
-      (if (y-or-n-p (format "%s exists. delete?" (file-name-base url)))
-          (delete-directory project-dir t)
-        (user-error "Bailed")))
-    (switch-to-buffer buffer)
-    (setq proc (start-process-shell-command (nth 0 (split-string command)) buffer command))
-    (with-current-buffer buffer
-      (setq default-directory download-dir)
-      (shell-command-save-pos-or-erase)
-      (require 'shell)
-      (shell-mode)
-      (view-mode +1))
-    (set-process-sentinel proc (lambda (process state)
-                                 (let ((output (with-current-buffer (process-buffer process)
-                                                 (buffer-string))))
-                                   (kill-buffer (process-buffer process))
-                                   (if (= (process-exit-status process) 0)
-                                       (progn
-                                         (message "finished: %s" command)
-                                         (dired project-dir))
-                                     (user-error (format "%s\n%s" command output))))))
-    (set-process-filter proc #'comint-output-filter)))
-;; Clone git repo:1 ends here
