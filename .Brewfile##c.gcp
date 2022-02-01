@@ -13,12 +13,16 @@ brew "fzf"
 brew "htop"
 # Lightweight and flexible command-line JSON processor
 brew "jq"
+# Modern and intuitive terminal-based text editor
+brew "micro"
 # Execute binaries from Python packages in isolated environments
 brew "pipx", args: ["HEAD"]
 # Search tool like grep and The Silver Searcher
 brew "ripgrep"
 # Cross-shell prompt for astronauts
 brew "starship"
+# Configure transparent encryption of files in a Git repo
+brew "transcrypt"
 # Yet Another Dotfiles Manager
 brew "yadm"
 # Shell extension to navigate your filesystem faster
