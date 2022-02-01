@@ -56,6 +56,30 @@ read -p 'Set yadm local.class (<personal|fin|gcp>): ' yadmclass
 yadm config local.class $yadmclass && yadm alt && yadm bootstrap
 #+end_src
 
+**** Transcrypt
+
+See https://github.com/elasticdog/transcrypt
+
+#+begin_src shell
+
+## on local machine (where transcrypt is already configured)
+yadm transcrypt --display
+
+## or
+yadm transcrypt -c aes-256-cbc -p '<Get password from bitwarden>'
+
+## to see encrypted files
+yadm transcrypt --list
+#+end_src
+
+***** .gitattributes
+
+Configures which files are encrypted
+
+#+begin_src shell :tangle ~/.gitattributes
+.ssh/id_rsa* filter=crypt diff=crypt merge=crypt
+#+end_src
+
 ** Yadm Bootstrap
 
 *** Dispatcher
