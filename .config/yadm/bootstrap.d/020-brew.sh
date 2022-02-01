@@ -1,7 +1,7 @@
 #!/bin/bash
 # Brew
 
-# =brew bundle dump  --force --describe --global --casks=
+# =brew bundle dump --force --describe --casks --file=-==
 
 # Note that .Brewfile is an alt file
 

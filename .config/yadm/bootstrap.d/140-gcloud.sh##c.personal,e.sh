@@ -2,7 +2,6 @@
 # Gcloud
 
 
-
 # [[file:../../../README.org::*Gcloud][Gcloud:1]]
 set -eux
 

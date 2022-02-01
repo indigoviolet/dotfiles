@@ -1,0 +1,9 @@
+#!/bin/bash
+# zsh login shell
+
+
+# [[file:../../../README.org::*zsh login shell][zsh login shell:1]]
+set -eux
+
+sudo apt-get install --yes zsh && sudo chsh -s /usr/bin/zsh
+# zsh login shell:1 ends here

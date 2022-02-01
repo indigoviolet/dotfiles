@@ -2,6 +2,15 @@
 #+property: header-args :mkdirp yes :comments both
 :END:
 
+- [X] confirmation from brew
+- [X] brew shell env
+- [X] yadm bootstrap on clone [n]
+- [X] Brewfile
+- [X] yadm config local.class gcp
+- [X] yadm alt
+- [X] yadm bootstrap
+- [X] EDITOR is not set; uses nano
+
 * Yadm dotfiles
 
 ** Get started
@@ -23,7 +32,8 @@ set -eux
 *** Get Brew
 
 #+begin_src shell :noweb-ref start.sh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+yes '' | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 #+end_src
 
 *** Get yadm
@@ -40,7 +50,10 @@ This will clone the repo files into $HOME (as a repo where the git directory
 lives in ~.local/share/yadm/repo.git~)
 
 #+begin_src shell :noweb-ref start.sh
-yadm clone git@github.com:indigoviolet/dotfiles.git
+yadm clone git@github.com:indigoviolet/dotfiles.git --no-bootstrap
+
+read -p 'Set yadm local.class (<personal|fin|gcp>): ' yadmclass
+yadm config local.class $yadmclass && yadm alt && yadm bootstrap
 #+end_src
 
 ** Yadm Bootstrap
@@ -80,20 +93,28 @@ done
 
 for pyenv builds https://github.com/pyenv/pyenv/wiki/common-build-problems (which also affect asdf)
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/01-build-deps.sh##distro.Ubuntu
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/010-build-deps.sh##distro.Ubuntu
 set -eux
 sudo apt-get update
 sudo apt-get install --yes clang
 sudo apt-get install --no-install-recommends -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 #+end_src
 
+*** zsh login shell
+
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/011-login-shell-zsh.sh##distro.Ubuntu
+set -eux
+
+sudo apt-get install --yes zsh && sudo chsh -s /usr/bin/zsh
+#+end_src
+
 *** Brew
 
-=brew bundle dump  --force --describe --global --casks=
+=brew bundle dump --force --describe --casks --file=-==
 
 Note that .Brewfile is an alt file
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/02-brew.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/020-brew.sh
 set -eux
 
 # install items
@@ -106,7 +127,7 @@ fi
 
 asdf installed with Brew
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/03-asdf.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/030-asdf.sh
 set -ux
 
 ## https://github.com/asdf-vm/asdf/issues/276#issuecomment-907063520
@@ -126,7 +147,7 @@ We use .pipx.json which is created by
 
 Note that .pipx.json is an alt file
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/04-pipx.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/040-pipx.sh
 set -ux
 if [[ -e ~/.pipx.json ]]; then
     for p in $(cat ~/.pipx.json | jq -r '.venvs[].metadata.main_package.package_or_url'); do
@@ -138,7 +159,7 @@ exit 0
 
 *** Prezto
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/05-prezto.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/050-prezto.sh
 set -ux
 git clone --recursive https://github.com/sorin-ionescu/prezto.git "${HOME}/.zprezto"
 git clone --recurse-submodules https://github.com/belak/prezto-contrib "${HOME}/.zprezto/contrib"
@@ -148,7 +169,7 @@ cd ~/.zprezto/contrib && git pull
 
 *** Misc utilities
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/07-misc-utilities.sh##distro.Ubuntu,e.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/070-misc-utilities.sh##distro.Ubuntu,e.sh
 set -eux
 (command -v less &> /dev/null) || sudo apt-get install --yes less
 (command -v htop &> /dev/null) || sudo apt-get install --yes htop
@@ -161,21 +182,21 @@ curl https://raw.githubusercontent.com/gitbits/git-info/master/git-info --output
 
 *** chemacs
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/08-chemacs.sh##c.personal,e.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/080-chemacs.sh##c.personal,e.sh
 set -eux
 { git clone https://github.com/plexus/chemacs.git "${HOME}/.local/chemacs" && $HOME/.local/chemacs/install.sh; } || exit 0
 #+end_src
 
 *** Doom emacs
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/09-doom-emacs.sh##c.personal,e.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/090-doom-emacs.sh##c.personal,e.sh
 set -eux
 { git clone https://github.com/hlissner/doom-emacs "${HOME}/.local/doom-emacs" && EMACSDIR=$HOME/.local/doom-emacs/ $HOME/.local/doom-emacs/bin/doom install; } || exit 0
 #+end_src
 
 *** git completion
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/11-git-completion.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/100-git-completion.sh
 set -ux
 curl -o ${ZSH_CUSTOM_DIR}/git-completion.bash https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
 curl -o ${ZSH_CUSTOM_DIR}/_git https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh
@@ -186,14 +207,14 @@ curl -o ${ZSH_CUSTOM_DIR}/_git https://raw.githubusercontent.com/git/git/master/
 *** Leechblock
 
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/12-leechblock.sh##c.personal,e.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/110-leechblock.sh##c.personal,e.sh
 set -ux
 { mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone indigoviolet/LeechBlockNG-chrome && cd LeechBlockNG-chrome && ./install-jquery.sh; } || exit 0
 #+end_src
 
 *** paywall
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/13-paywall.sh##c.personal,e.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/120-paywall.sh##c.personal,e.sh
 set -ux
 { mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone iamadamdev/bypass-paywalls-chrome; } || exit 0
 #+end_src
@@ -202,7 +223,7 @@ set -ux
 
 On Darwin we would do this with brew
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/14-fonts.sh##c.personal,e.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/130-fonts.sh##c.personal,e.sh
 set -eux
 
 # Jetbrains Mono patched (https://github.com/ryanoasis/nerd-fonts#option-5-clone-the-repo)
@@ -213,8 +234,7 @@ cd $HOME/dev/nerd-fonts && git sparse-checkout add patched-fonts/JetBrainsMono
 
 *** Gcloud
 
-
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/15-gcloud.sh##c.personal,e.sh
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/140-gcloud.sh##c.personal,e.sh
 set -eux
 
 sudo apt-get install apt-transport-https ca-certificates gnupg
@@ -328,7 +348,7 @@ https://kinesis-ergo.com/wp-content/uploads/kb500-qsg.pdf
 - [X] Remove .emacs and add script to install chemacs
 - [X] move personal laptop bootstrap scripts + config files to alt
 - [X] Handle fin alts
-- [ ] Handle union of personal&gcp
+- [X] Handle union of personal&gcp
 - [ ] id_rsa and id_rsa.pub -> encrypt and add?
 
 * Mac
