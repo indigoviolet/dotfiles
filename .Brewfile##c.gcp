@@ -1,0 +1,27 @@
+tap "homebrew/bundle"
+tap "homebrew/core"
+tap "mutagen-io/mutagen"
+# Extendable version manager with support for Ruby, Node.js, Erlang & more
+brew "asdf"
+# Load/unload environment variables based on $PWD
+brew "direnv"
+# Simple, fast and user-friendly alternative to find
+brew "fd"
+# Command-line fuzzy finder written in Go
+brew "fzf"
+# Improved top (interactive process viewer)
+brew "htop"
+# Lightweight and flexible command-line JSON processor
+brew "jq"
+# Execute binaries from Python packages in isolated environments
+brew "pipx", args: ["HEAD"]
+# Search tool like grep and The Silver Searcher
+brew "ripgrep"
+# Cross-shell prompt for astronauts
+brew "starship"
+# Yet Another Dotfiles Manager
+brew "yadm"
+# Shell extension to navigate your filesystem faster
+brew "zoxide"
+# Fast file synchronization and network forwarding for remote development
+brew "mutagen-io/mutagen/mutagen-beta"
