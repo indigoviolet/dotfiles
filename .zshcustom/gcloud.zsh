@@ -1,6 +1,6 @@
 export CLOUDSDK_PYTHON=python          # prevent it from looking for python2, python2.7
 
-GCLOUD_INSTANCE='ml-west1'
+GCLOUD_INSTANCE='ml-west1-spot'
 GCLOUD_ZONE='us-west1-b'
 
 function gcloud-get-ip() {
