@@ -1,1 +1,0 @@
-011-login-shell-zsh.sh##distro.Ubuntu

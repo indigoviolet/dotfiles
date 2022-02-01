@@ -1,1 +1,0 @@
-090-doom-emacs.sh##c.personal,e.sh
