@@ -14,7 +14,17 @@ alias htop="htop -u $(whoami)"
 # alias ll="exa -l --git"
 # alias lt="exa -l -snew --git"
 
-unalias l # /home/venky/.zprezto/modules/utility/init.zsh
+function zshtype {
+    # equivalent of `type -t` from bash
+    readonly thing=${1:?"zshtype of what?"}
+    # > zshtype ll
+    # type: alias
+    whence -w $thing | awk '{split($0,a,": ");print a[2]}'
+}
+
+if [[ $(zshtype l) == 'alias' ]]; then
+    unalias l # /home/venky/.zprezto/modules/utility/init.zsh
+fi
 
 alias rm="rm -iv"
 alias py="ipython"
