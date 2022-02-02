@@ -1,0 +1,6 @@
+yadm.class: {{ yadm.class }}
+yadm.distro: {{ yadm.distro }}
+yadm.hostname: {{ yadm.hostname }}
+yadm.os: {{ yadm.os }}
+yadm.user: {{ yadm.user }}
+yadm.source: {{ yadm.source }}
