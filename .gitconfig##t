@@ -103,16 +103,21 @@
 [push]
 	default = simple
 
-
-{% if yadm.os == "Darwin" %}
+## the credential manager is cross-platform
 [credential]
-	helper = osxkeychain
+	helper = git-credential-manager-core
+
+## on windows/osx the store is the keychain by default
+
+## on graphical linux we can use the freedesktop api (gnome keyring etc.)
+{% if yadm.class == "personal" %}
+	credentialStore = secretservice
 {% endif %}
 
-{% if yadm.class == "personal" %}
-[credential]
-	# https://wiki.archlinux.org/index.php/GNOME/Keyring
-	helper = /usr/share/doc/git/contrib/credential/libsecret/git-credential-libsecret
+## on headless tty we'll use a long timeout for the ephemeral in-memory cache
+{% if yadm.class == "gcp" %}
+	credentialStore = cache
+	cacheOptions = "--timeout 604800" # 1 week
 {% endif %}
 
 [filter "lfs"]
