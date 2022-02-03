@@ -2,62 +2,6 @@
 #+property: header-args :mkdirp yes :comments both
 :END:
 
-* gcp issues
-- [X] confirmation from brew
-- [X] brew shell env
-- [X] yadm bootstrap on clone [n]
-- [X] Brewfile
-- [X] yadm config local.class gcp
-- [X] yadm alt
-- [X] yadm bootstrap
-- [X] EDITOR is not set; uses nano
-
-
-** Next
-
-
-#+begin_src
-+ cut '-d ' -f1 .tool-versions
-+ xargs -i asdf plugin add '{}'
-updating plugin repository...HEAD is now at 071e261 chore: format README.md
-Plugin named python already added
-Plugin named poetry already added
-+ asdf install
-Retrieving Poetry metadata
-
-# Welcome to Poetry!
-
-This will download and install the latest version of Poetry,
-a dependency and package manager for Python.
-
-It will add the `poetry` command to Poetry's bin directory, located at:
-
-/home/venky/.asdf/installs/poetry/1.2.0a2/bin
-
-You can uninstall at any time by executing this script with the --uninstall option,
-and these changes will be reverted.
-
-Installing Poetry (1.2.0a2): Creating environment
-The virtual environment was not created successfully because ensurepip is not
-available.  On Debian/Ubuntu systems, you need to install the python3-venv
-package using the following command.
-
-    apt install python3.8-venv
-
-You may need to use sudo with that command.  After installing the python3-venv
-package, recreate your virtual environment.
-
-Failing command: ['/home/venky/.asdf/installs/poetry/1.2.0a2/venv/bin/python3', '-Im', 'ensurepip', '--upgrade', '--default-pip']
-
-
-Cleanup: Something went wrong!
-
-49 /home/venky/.asdf/plugins/poetry/bin/install: POETRY_HOME=$install_path python3 - --version "$version" $flags
-Error: bootstrap '/home/venky/.config/yadm/bootstrap.d/030-asdf.sh' failed
-
-
-#+end_src
-
 * Yadm dotfiles
 
 ** Get started
@@ -186,7 +130,14 @@ cd ~/.zprezto/contrib && git pull
 #+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro.Ubuntu
 set -eux
 
-sudo apt-get install --no-install-recommends -y zsh && sudo chsh -s /usr/bin/zsh
+sudo apt-get install --no-install-recommends -y zsh && sudo chsh -s $(which zsh) $(whoami)
+#+end_src
+
+To check:
+
+#+begin_src
+grep $(whoami) /etc/passwd
+sudo su - $(whoami)
 #+end_src
 
 *** Brew
@@ -279,8 +230,6 @@ set -ux
 curl -o ${ZSH_CUSTOM_DIR}/git-completion.bash https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
 curl -o ${ZSH_CUSTOM_DIR}/_git https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh
 #+end_src
-
-#+RESULTS:
 
 *** Leechblock
 
