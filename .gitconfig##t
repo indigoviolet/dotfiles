@@ -109,13 +109,13 @@
 
 ## on windows/osx the store is the keychain by default
 
-## on graphical linux we can use the freedesktop api (gnome keyring etc.)
 {% if yadm.class == "personal" %}
+## on graphical linux we can use the freedesktop api (gnome keyring etc.)
 	credentialStore = secretservice
 {% endif %}
 
-## on headless tty we'll use a long timeout for the ephemeral in-memory cache
 {% if yadm.class == "gcp" %}
+## on headless tty we'll use a long timeout for the ephemeral in-memory cache
 	credentialStore = cache
 	cacheOptions = "--timeout 604800" # 1 week
 {% endif %}
@@ -125,7 +125,7 @@
 	smudge = git-lfs smudge -- %f
 	required = true
 
-# Github repos will use ssh instead of https
+# Github repos will use ssh instead of https (more secure, efficient, can be shared over ssh)
 # Add an ssh key to make this work without a password https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account
 [url "ssh://git@github.com/"]
 	insteadOf = github.com
