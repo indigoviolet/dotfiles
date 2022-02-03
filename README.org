@@ -167,7 +167,7 @@ for pyenv builds https://github.com/pyenv/pyenv/wiki/common-build-problems (whic
 #+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/010-build-deps.sh##distro.Ubuntu
 set -eux
 sudo apt-get update
-sudo apt-get install --yes clang
+sudo apt-get install --no-install-recommends -y clang
 sudo apt-get install --no-install-recommends -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 #+end_src
 
@@ -186,7 +186,7 @@ cd ~/.zprezto/contrib && git pull
 #+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro.Ubuntu
 set -eux
 
-sudo apt-get install --yes zsh && sudo chsh -s /usr/bin/zsh
+sudo apt-get install --no-install-recommends -y zsh && sudo chsh -s /usr/bin/zsh
 #+end_src
 
 *** Brew
@@ -242,11 +242,11 @@ exit 0
 
 #+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/070-misc-utilities.sh##distro.Ubuntu,e.sh
 set -eux
-(command -v less &> /dev/null) || sudo apt-get install --yes less
-(command -v htop &> /dev/null) || sudo apt-get install --yes htop
-(command -v notify-send &> /dev/null) || sudo apt-get install --yes libnotify-bin
+(command -v less &> /dev/null) || sudo apt-get install --no-install-recommends -y less
+(command -v htop &> /dev/null) || sudo apt-get install --no-install-recommends -y htop
+(command -v notify-send &> /dev/null) || sudo apt-get install --no-install-recommends -y libnotify-bin
 # this is installed with apt-get because brew installs a shitload of dependencies
-(command -v svn &>/dev/null) || sudo apt-get install --yes subversion
+(command -v svn &>/dev/null) || sudo apt-get install --no-install-recommends -y subversion
 curl https://raw.githubusercontent.com/gitbits/git-info/master/git-info --output ~/.local/bin/git-info && chmod +x ~/.local/bin/git-info
 
 
@@ -318,7 +318,7 @@ set -eux
 sudo apt-get install apt-transport-https ca-certificates gnupg
 echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list
 curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-sudo apt-get update && sudo apt-get install google-cloud-sdk
+sudo apt-get update && sudo apt-get install --no-install-recommends -y google-cloud-sdk
 
 #+end_src
 
