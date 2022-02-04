@@ -1,0 +1,5 @@
+[global]
+skip_dotenv = true
+
+[whitelist]
+prefix = ["/home/venky/dev"]

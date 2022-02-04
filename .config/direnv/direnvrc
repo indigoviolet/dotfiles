@@ -7,13 +7,12 @@ layout_conda() {
     source $ACTIVATE ${env_name}
   elif (grep -q name: environment.yml); then
     # Detect environment name from `environment.yml` file in `.envrc` directory
-    source $ACTIVATE `grep name: environment.yml | sed -e 's/name: //' | cut -d "'" -f 2 | cut -d '"' -f 2`
+    source $ACTIVATE $(grep name: environment.yml | sed -e 's/name: //' | cut -d "'" -f 2 | cut -d '"' -f 2)
   else
-    (>&2 echo No environment specified);
-    exit 1;
-  fi;
+    (echo >&2 No environment specified)
+    exit 1
+  fi
 }
-
 
 layout_poetry() {
   if [[ ! -f pyproject.toml ]]; then
@@ -21,13 +20,20 @@ layout_poetry() {
     exit 2
   fi
 
-  local VENV=$(poetry env list --full-path | grep Activated | cut -d' ' -f1)
+  local VENV=$(poetry env info --path)
   if [[ -z $VENV || ! -d $VENV/bin ]]; then
     log_error "No created poetry virtual environment found.  Use 'poetry install' to create one first. (venv=$VENV or $VENV/bin not found)"
     exit 2
   fi
-  VENV=$VENV/bin
-  export VIRTUAL_ENV=$(echo "$VENV" | rev | cut -d'/' -f2- | rev)
+  export VIRTUAL_ENV=$VENV
   export POETRY_ACTIVE=1
-  PATH_add "$VENV"
+  PATH_add "$VENV/bin"
+
+  ## compare $VENV/bin/python to version set in .tool-versions
+  local poetry_python_version=$(python -V | awk '{print $2}')
+  local asdf_python_version=$(asdf current python | awk '{print $2}')
+  if test $poetry_python_version != $asdf_python_version; then
+    log_error "Poetry Python version: <$poetry_python_version> != asdf Python version: <$asdf_python_version>"
+    exit 2
+  fi
 }
