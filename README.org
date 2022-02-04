@@ -49,6 +49,10 @@ yadm config local.class $yadmclass && yadm alt && yadm bootstrap
 
 **** Transcrypt
 
+We are using Transcrypt to encrypt some keys before checking in. Note that these
+files are "##c.personal", so they only need to be encrypted on the "personal"
+machine. For remote servers, use ssh forwarding instead.
+
 See https://github.com/elasticdog/transcrypt
 
 #+begin_src shell
@@ -61,6 +65,9 @@ yadm transcrypt -c aes-256-cbc -p '<Get password from bitwarden>'
 
 ## to see encrypted files
 yadm transcrypt --list
+
+## Flush credentials (may need --force)
+yadm transcrypt -f
 #+end_src
 
 ***** .gitattributes
@@ -68,7 +75,8 @@ yadm transcrypt --list
 Configures which files are encrypted
 
 #+begin_src shell :tangle ~/.gitattributes
-.ssh/id_rsa* filter=crypt diff=crypt merge=crypt
+.ssh/id_rsa.pub\#\#c.personal filter=crypt diff=crypt merge=crypt
+.ssh/id_rsa\#\#c.personal filter=crypt diff=crypt merge=crypt
 #+end_src
 
 ** Yadm Bootstrap
