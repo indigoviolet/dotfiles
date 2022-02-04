@@ -861,8 +861,8 @@ https://orgmode.org/org.html#Conflicts
   :config
   (winner-mode)
   :bind
-  ("C-x 2" . winner-undo)
-  ("C-x 3" . winner-redo)
+  ("M-[" . winner-undo)
+  ("M-]" . winner-redo)
   )
 #+end_src
 
@@ -2536,6 +2536,7 @@ So we could:
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! git-modes)
+(package! ssh-config-mode)
 #+end_src
 
 

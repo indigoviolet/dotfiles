@@ -385,8 +385,8 @@
   :config
   (winner-mode)
   :bind
-  ("C-x 2" . winner-undo)
-  ("C-x 3" . winner-redo)
+  ("M-[" . winner-undo)
+  ("M-]" . winner-redo)
   )
 ;; Restore:2 ends here
 

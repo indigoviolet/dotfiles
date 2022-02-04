@@ -336,6 +336,7 @@
 
 ;; [[file:config.org::*Misc modes][Misc modes:1]]
 (package! git-modes)
+(package! ssh-config-mode)
 ;; Misc modes:1 ends here
 
 ;; atomic chrome
