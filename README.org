@@ -120,7 +120,15 @@ for pyenv builds https://github.com/pyenv/pyenv/wiki/common-build-problems (whic
 set -eux
 sudo apt-get update
 sudo apt-get install --no-install-recommends -y clang
-sudo apt-get install --no-install-recommends -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+sudo apt-get install --no-install-recommends -y \
+    make build-essential \
+    libssl-dev zlib1g-dev libbz2-dev \
+    libreadline-dev libsqlite3-dev \
+    wget llvm \
+    libncurses5-dev \
+    xz-utils tk-dev \
+    libxml2-dev libffi-dev \
+    libxmlsec1-dev liblzma-dev
 #+end_src
 
 *** Prezto
