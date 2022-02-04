@@ -1213,6 +1213,14 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   )
 ;; super-agenda:2 ends here
 
+;; [[file:config.org::*Firestarter][Firestarter:2]]
+(use-package! firestarter
+  :after-call after-find-file
+  :custom
+  (firestarter-mode)
+  )
+;; Firestarter:2 ends here
+
 ;; [[file:config.org::*ein][ein:2]]
 (use-package! ein
   :after-call pre-command-hook

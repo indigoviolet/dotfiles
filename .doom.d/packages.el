@@ -88,6 +88,14 @@
 (package! rainbow-identifiers)
 ;; Rainbow:1 ends here
 
+;; Environment
+
+
+
+;; [[file:config.org::*Environment][Environment:1]]
+(package! exec-path-from-shell)
+;; Environment:1 ends here
+
 ;; Movement
 
 
@@ -275,6 +283,14 @@
 ;; [[file:config.org::*super-agenda][super-agenda:1]]
 (package! org-super-agenda)
 ;; super-agenda:1 ends here
+
+;; Firestarter
+
+
+
+;; [[file:config.org::*Firestarter][Firestarter:1]]
+(package! firestarter)
+;; Firestarter:1 ends here
 
 ;; ein
 

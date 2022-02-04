@@ -769,6 +769,12 @@ available, though there is some suspicion that it loads the list many times?
 ;; recentf list isn't loaded on startup with doom/workspaces turned off
 ;; (add-hook! 'pre-command-hook #'recentf-load-list)
 #+end_src
+* Environment
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! exec-path-from-shell)
+#+end_src
 * Window/Buffer management
 
 ** Movement
@@ -1959,7 +1965,22 @@ Needs ~brew install pandoc~
   (org-super-agenda-mode)
   )
 #+end_src
+* Firestarter
 
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! firestarter)
+#+end_src
+
+
+
+#+begin_src emacs-lisp
+(use-package! firestarter
+  :after-call after-find-file
+  :custom
+  (firestarter-mode)
+  )
+#+end_src
 * ein
 
 

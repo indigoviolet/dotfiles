@@ -2,6 +2,10 @@ export CLOUDSDK_PYTHON=python          # prevent it from looking for python2, py
 
 GCLOUD_INSTANCE='ml-west1-spot'
 GCLOUD_ZONE='us-west1-b'
+GCLOUD_PROJECT="private-229003"
+
+## export for envsubst usage in mutagen project yml
+export GCLOUD_HOST="${GCLOUD_INSTANCE}.${GCLOUD_ZONE}.${GCLOUD_PROJECT}"
 
 function gcloud-get-ip() {
     gcloud compute instances describe $1 --format='get(networkInterfaces[0].accessConfigs[0].natIP)' --zone $GCLOUD_ZONE
