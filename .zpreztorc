@@ -53,14 +53,14 @@ zstyle ':prezto:load' pmodule \
 	'terminal' \
     'directory' \
 	'editor' \
-    'ssh' \
 	'spectrum' \
 	'utility' \
 	'history' \
 	'completion' \
 	'autosuggestions'
+
+# 'ssh' \ # Managed in .zshcustom/ssh.zsh
 # 'history-substring-search' # see input.zsh
-# 'directory' \
 # 'contrib-prompt' \
 # 'prompt' \
 # 'node' \
@@ -188,7 +188,7 @@ zstyle ':prezto:module:history-substring-search' globbing-flags ''
 #
 
 # Set the SSH identities to load into the agent.
-zstyle ':prezto:module:ssh:load' identities 'id_rsa'
+# zstyle ':prezto:module:ssh:load' identities 'id_rsa'
 
 #
 # Syntax Highlighting
