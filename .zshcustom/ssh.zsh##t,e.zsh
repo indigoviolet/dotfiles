@@ -13,15 +13,15 @@
 
 export SSH_AUTH_SOCK=/run/user/$(id -u)/keyring/ssh
 
-{% else %}
+# {% else %}
 
-# On other OSes, we will start it in a reusable way:
-if [ ! -S ~/.ssh/ssh_auth_sock ]; then
-    echo "'ssh-agent' has not been started since the last reboot. Starting 'ssh-agent' now."
-    eval "$(ssh-agent -s)"
-    ln -sf "$SSH_AUTH_SOCK" ~/.ssh/ssh_auth_sock
-fi
-export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
+# # On other OSes, we will start it in a reusable way:
+# if [ ! -S ~/.ssh/ssh_auth_sock ]; then
+#     echo "'ssh-agent' has not been started since the last reboot. Starting 'ssh-agent' now."
+#     eval "$(ssh-agent -s)"
+#     ln -sf "$SSH_AUTH_SOCK" ~/.ssh/ssh_auth_sock
+# fi
+# export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
 
 {% endif %}
 
@@ -29,9 +29,9 @@ export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
 # Add keys #
 # -------- #
 
-{% if yadm.os == "Darwin" %}
-# On OSX, id_rsa ssh key can be in keychain so it can be added with -K argument
-ssh-add -l >/dev/null || ssh-add -K
-{% else %}
-ssh-add -l >/dev/null || ssh-add
-{% endif %}
+# {% if yadm.os == "Darwin" %}
+# # On OSX, id_rsa ssh key can be in keychain so it can be added with -K argument
+# ssh-add -l >/dev/null || ssh-add -K
+# {% else %}
+# ssh-add -l >/dev/null || ssh-add
+# {% endif %}
