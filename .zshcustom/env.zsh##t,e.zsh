@@ -43,6 +43,12 @@ export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#808080,underline"
 export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 {% if yadm.distro == "Ubuntu" %}
-# For libpng (pdf-tools), emacs build, python build (via asdf) etc.
+
+# For libpng (pdf-tools), emacs build etc.
 export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
+
+# For python-build, esp. on 20.04, where python-build wants libffi.so.8, but
+# "apt libffi-dev" only provides libffi.so.7 (see
+# https://dev.to/ajkerrigan/homebrew-pyenv-ctypes-oh-my-3d9)
+export CC="$(brew --prefix gcc)/bin/gcc-11"
 {% endif %}
