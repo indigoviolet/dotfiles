@@ -35,13 +35,14 @@ fi
 
 # Customize to your needs...
 
-# http://tanguy.ortolo.eu/blog/article25/shrc Non-interactive sessions
-# already source ~/.zprofile, but we repeat because some terminals
-# eg. vscode don't seem to
-
 export ZSH_CUSTOM_DIR=${HOME}/.zshcustom
-source ${ZSH_CUSTOM_DIR}/brew.zsh
+
+# http://tanguy.ortolo.eu/blog/article25/shrc Non-interactive sessions already
+# source ~/.zprofile, but we repeat because some terminals eg. vscode don't seem
+# to (Edit: actually, I think vscode loads .zprofile in a parent shell and
+# doesn't source it again in each terminal)
 source ${ZSH_CUSTOM_DIR}/env.zsh
+source ${ZSH_CUSTOM_DIR}/brew.zsh
 
 source ${ZSH_CUSTOM_DIR}/aliases.zsh
 source ${ZSH_CUSTOM_DIR}/input.zsh
@@ -78,10 +79,11 @@ source ${ZSH_CUSTOM_DIR}/conda.zsh
 source ${ZSH_CUSTOM_DIR}/fin.zsh
 {% endif %}
 
-source ${ZSH_CUSTOM_DIR}/secrets.zsh
 source ${ZSH_CUSTOM_DIR}/prompt.zsh
 source ${ZSH_CUSTOM_DIR}/zoxide.zsh
+source ${ZSH_CUSTOM_DIR}/build.zsh
 
+source ${ZSH_CUSTOM_DIR}/secrets.zsh
 # source ${ZSH_CUSTOM_DIR}/tilix.zsh
 
 # test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
