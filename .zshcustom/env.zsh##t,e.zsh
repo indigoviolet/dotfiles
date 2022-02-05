@@ -42,7 +42,7 @@ path[1,0]=$HOME/.cargo/bin/
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#808080,underline"
 export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
-{% if yadm.class == "personal" %}
-# For libpng (pdf-tools), emacs build etc.
+{% if yadm.distro == "Ubuntu" %}
+# For libpng (pdf-tools), emacs build, python build (via asdf) etc.
 export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
 {% endif %}
