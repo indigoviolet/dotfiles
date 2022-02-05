@@ -40,8 +40,8 @@ fi
 # eg. vscode don't seem to
 
 export ZSH_CUSTOM_DIR=${HOME}/.zshcustom
-source ${ZSH_CUSTOM_DIR}/env.zsh
 source ${ZSH_CUSTOM_DIR}/brew.zsh
+source ${ZSH_CUSTOM_DIR}/env.zsh
 
 source ${ZSH_CUSTOM_DIR}/aliases.zsh
 source ${ZSH_CUSTOM_DIR}/input.zsh
