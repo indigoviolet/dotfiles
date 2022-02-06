@@ -36,7 +36,10 @@ zstyle ':prezto:*:*' color 'yes'
 #     ... \
 #     'zsh-autocomplete'
 external_plugins=(
-	# marlonrichert/zsh-autocomplete
+    ## deliberately using the module externally instead of from prezto; so we
+    ## can set ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE ourselves in env.zsh
+    zsh-users/zsh-autosuggestions
+
 )
 for repo in $external_plugins; do
   if [[ ! -d $ZPREZTODIR/contrib/${repo:t} ]]; then
@@ -48,7 +51,7 @@ done
 # Set the Prezto modules to load (browse modules).
 # The order matters.
 zstyle ':prezto:load' pmodule \
-	'syntax-highlighting' \
+    'syntax-highlighting' \
 	'environment' \
 	'terminal' \
     'directory' \
@@ -56,8 +59,8 @@ zstyle ':prezto:load' pmodule \
 	'spectrum' \
 	'utility' \
 	'history' \
-	'completion' \
-	'autosuggestions'
+    'completion' \
+	'zsh-autosuggestions'       # external module
 
 # 'ssh' \ # Managed in .zshcustom/ssh.zsh
 # 'history-substring-search' # see input.zsh
@@ -69,9 +72,10 @@ zstyle ':prezto:load' pmodule \
 # Autosuggestions
 #
 
-# Set the query found color.
-zstyle ':prezto:module:autosuggestions' color 'yes'
-zstyle ':prezto:module:autosuggestions:color' found ''
+# Set the query found color. (see env.zsh, set directly with ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE)
+#
+# zstyle ':prezto:module:autosuggestions' color 'yes'
+# zstyle ':prezto:module:autosuggestions:color' found ''
 
 #
 # Completions

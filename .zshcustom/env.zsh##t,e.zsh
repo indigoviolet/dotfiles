@@ -4,7 +4,7 @@
 # this file is sourced in .zprofile, so it runs in non-interactive sessions. But
 # we also source it in .zshrc to handle some exceptions, so we need a guard:
 # http://tanguy.ortolo.eu/blog/article25/shrc
-[[ ${ENV_ZSH_SOURCED:-} -eq 1 ]] && return || readonly ENV_ZSH_SOURCED=1
+[[ $ENV_ZSH_SOURCED -eq 1 ]] && return || export ENV_ZSH_SOURCED=1
 
 # Make PATH unique https://unix.stackexchange.com/a/62599
 typeset -Ug path
@@ -41,5 +41,4 @@ path[1,0]=$HOME/.local/bin/
 path[1,0]=$HOME/.cargo/bin/
 
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#808080,underline"
-export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-
+export ZSH_AUTOSUGGEST_STRATEGY=(completion history)
