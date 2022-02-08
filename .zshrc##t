@@ -66,12 +66,12 @@ source ${ZSH_CUSTOM_DIR}/doom.zsh
 source ${ZSH_CUSTOM_DIR}/gcloud.zsh
 source ${ZSH_CUSTOM_DIR}/gcloud-completion.zsh
 source ${ZSH_CUSTOM_DIR}/android.zsh
-source ${ZSH_CUSTOM_DIR}/vterm.zsh
 {% endif %}
 
 {% if yadm.class == "gcp" %}
 ## GCP includes
 # prepends to path, so keep it last
+source ${ZSH_CUSTOM_DIR}/cuda.zsh
 source ${ZSH_CUSTOM_DIR}/conda.zsh
 {% endif %}
 
@@ -79,7 +79,10 @@ source ${ZSH_CUSTOM_DIR}/conda.zsh
 source ${ZSH_CUSTOM_DIR}/fin.zsh
 {% endif %}
 
+## Prompt/directory tracking;
+source ${ZSH_CUSTOM_DIR}/vterm.zsh
 source ${ZSH_CUSTOM_DIR}/prompt.zsh
+
 source ${ZSH_CUSTOM_DIR}/zoxide.zsh
 source ${ZSH_CUSTOM_DIR}/build.zsh
 
