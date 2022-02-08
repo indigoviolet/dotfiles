@@ -71,7 +71,7 @@ source ${ZSH_CUSTOM_DIR}/android.zsh
 {% if yadm.class == "gcp" %}
 ## GCP includes
 # prepends to path, so keep it last
-source ${ZSH_CUSTOM_DIR}/cuda.zsh
+source ${ZSH_CUSTOM_DIR}/cuda.sh
 source ${ZSH_CUSTOM_DIR}/conda.zsh
 {% endif %}
 
