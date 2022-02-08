@@ -182,7 +182,7 @@ set -ux
 cut -d' ' -f1 .tool-versions | xargs -i asdf plugin add  {}
 
 ## installs from .tool-versions (which is an alt file)
-asdf install
+ASDF_POETRY_INSTALL_URL=https://install.python-poetry.org asdf install
 #+end_src
 
 *** Pipx
