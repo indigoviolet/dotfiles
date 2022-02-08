@@ -2070,6 +2070,7 @@ Needs ~brew install pandoc~
    ("C-<down>" . windmove-down)
    ("C-c C-r" . vterm-send-C-r)
    )
+  :hook (vterm-mode . goto-address-mode) ; linkify urls
   )
 (use-package! multi-vterm
   :commands (multi-vterm-next multi-vterm))

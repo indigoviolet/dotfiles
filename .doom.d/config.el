@@ -1297,6 +1297,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
    ("C-<down>" . windmove-down)
    ("C-c C-r" . vterm-send-C-r)
    )
+  :hook (vterm-mode . goto-address-mode) ; linkify urls
   )
 (use-package! multi-vterm
   :commands (multi-vterm-next multi-vterm))
