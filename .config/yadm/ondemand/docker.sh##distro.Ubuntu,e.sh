@@ -2,12 +2,12 @@
 
 set -eux
 
-# # https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script
-# curl https://get.docker.com | sh && sudo systemctl --now enable docker
+# https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script
+curl https://get.docker.com | sh && sudo systemctl --now enable docker
 
-# # https://docs.docker.com/engine/install/linux-postinstall/
-# sudo groupadd -f docker
-# sudo usermod -aG docker $USER
+# https://docs.docker.com/engine/install/linux-postinstall/
+sudo groupadd -f docker
+sudo usermod -aG docker $USER
 docker run hello-world
 
 # ------------- #
