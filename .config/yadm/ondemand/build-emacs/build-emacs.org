@@ -25,7 +25,7 @@ First clean ~/dev/emacs
 
 * build-emacs-master.sh
 
-#+BEGIN_SRC shell :tangle build-emacs-master.sh :shebang "#!/bin/zsh"
+#+BEGIN_SRC shell :tangle build-emacs-master.sh##c.personal,e.sh :shebang "#!/bin/zsh"
 # build-emacs-master.sh --- fetch, review, merge and build Emacs.
 
 set -ev
@@ -87,7 +87,7 @@ sudo rm /usr/local/share/applications/{emacsclient,emacs-mail,emacsclient-mail}.
 
 * configure-emacs.sh
 
-#+BEGIN_SRC shell :tangle configure-emacs.sh :shebang "#!/bin/sh"
+#+BEGIN_SRC shell :tangle configure-emacs.sh##c.personal,e.sh :shebang "#!/bin/sh"
 set -ev
 
 V=${1-head}
