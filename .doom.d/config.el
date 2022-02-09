@@ -25,7 +25,10 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-one)
+(setq doom-theme 'doom-vibrant)
+(doom-themes-treemacs-config)
+(doom-themes-org-config)
+(doom-themes-visual-bell-config)
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
@@ -701,71 +704,6 @@
   (setq xref-backend-functions (remq 'etags--xref-backend xref-backend-functions))
   (add-to-list 'xref-backend-functions #'dumb-jump-xref-activate t))
 ;; Jumping:2 ends here
-
-;; [[file:config.org::*Selectrum/Consult/Embark/Marginalia][Selectrum/Consult/Embark/Marginalia:2]]
-(after! prescient
-  (setq prescient-history-length 500)
-  )
-
-(use-package! selectrum
-  :after-call pre-command-hook
-  :config
-  (selectrum-mode +1)
-  )
-(use-package! selectrum-prescient
-  :after selectrum
-
-  :config
-  (selectrum-prescient-mode +1)
-  (prescient-persist-mode +1)
-  )
-
-(use-package! consult
-  :after selectrum
-  :custom
-  (consult-project-root-function #'projectile-project-root)
-  (consult-narrow-key "<")
-  (consult-preview-key nil)           ;no previews
-  (consult-config '(
-                    (consult-buffer :preview-key any) ;preview for buffers
-                    (consult-yank :preview-key any) ;preview for yank
-                    ))
-  :config
-
-  (defun vi/consult-fd (&optional dir)
-    (interactive "P")
-    (let ((consult-find-command "fd --color=never --full-path ARG OPTS"))
-      (consult-find dir)))
-  )
-
-(use-package! marginalia
-  :after consult which-key
-  :custom
-  ;; https://github.com/oantolin/embark#showing-a-reminder-of-available-actions
-  (embark-action-indicator
-   (lambda (map _target)
-     (which-key--show-keymap "Embark" map nil nil 'no-paging)
-     #'which-key--hide-popup-ignore-command)
-   embark-become-indicator embark-action-indicator)
-  :config
-  (marginalia-mode)
-  (advice-add #'marginalia-cycle :after
-              (lambda () (when (bound-and-true-p selectrum-mode) (selectrum-exhibit))))
-
-  )
-
-(use-package! embark
-  :custom
-  (embark-quit-after-action nil)
-  :after marginalia
-  :bind (
-         ("C-z" . embark-act)
-         :map embark-general-map ("A" . marginalia-cycle)
-         ))
-
-(use-package! embark-consult
-  :after (embark consult))
-;; Selectrum/Consult/Embark/Marginalia:2 ends here
 
 ;; [[file:config.org::*Narrowing][Narrowing:2]]
 (use-package! recursive-narrow

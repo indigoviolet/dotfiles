@@ -35,6 +35,8 @@ brew "fd"
 brew "xz"
 # Command-line fuzzy finder written in Go
 brew "fzf"
+# GNU Compiler Collection
+brew "gcc@5"
 # GitHub command-line tool
 brew "gh"
 # Command-line interface for SQLite
