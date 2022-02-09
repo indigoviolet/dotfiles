@@ -571,6 +571,7 @@ https://github.com/hlissner/doom-emacs/issues/4498
 ** COMMENT dim other buffers
 
 Leads to all kinds of hell -- errors everywhere. unclear what this is conflicting with.
+https://github.com/mina86/auto-dim-other-buffers.el/issues/32
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! auto-dim-other-buffers)
@@ -1208,7 +1209,7 @@ Disabling all of these posframe solutions (minibuffer, which-key, hydra) since t
   :after-call after-find-file
   :commands (yankpad-insert company-yankpad)
   :custom
-  (yankpad-file "~/.emacs.d/yankpad.org")
+  (yankpad-file "~/.config/doom/yankpad.org")
   :config
   (add-to-list 'hippie-expand-try-functions-list #'yankpad-expand)
   )
@@ -1356,6 +1357,17 @@ Disabling all of these posframe solutions (minibuffer, which-key, hydra) since t
   (add-hook! 'pdf-isearch-minor-mode-hook (ctrlf-local-mode -1))
   )
 #+end_src
+
+** regex-based searching, using python/pcre
+
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! visual-regexp)
+(package! visual-regexp-steroids)
+#+end_src
+
+
 
 ** Jumping
 
@@ -1631,7 +1643,8 @@ Instead of default ivy
         org-startup-indented t
         org-startup-numerated nil
         org-startup-align-all-tables t
-        org-startup-shrink-all-tables t
+        ;; Leads to 'File mode specification error: (user-error Not at a table)' in some org files
+        ;;        org-startup-shrink-all-tables t
         org-log-into-drawer t
         org-src-window-setup 'current-window
         org-src-preserve-indentation nil
@@ -2123,7 +2136,7 @@ Needs ~brew install pandoc~
 (package! flycheck-projectile)
 #+end_src
 
-* magit
+* magit/git
 
 #+begin_src emacs-lisp
 (after! magit
@@ -2164,6 +2177,62 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 
 See https://www.reddit.com/r/emacs/comments/gjukb3/yadm_magit/gasc8n6/
 
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'tramp
+  (add-to-list 'tramp-methods
+               '("yadm"
+                 (tramp-login-program "yadm")
+                 (tramp-login-args (("enter")))
+                 (tramp-remote-shell "/bin/bash")
+                 (tramp-remote-shell-args ("-c"))))
+  (defun yadm-status ()
+    (interactive)
+    (require 'tramp)
+    (with-current-buffer (magit-status "/yadm::")
+      )))
+#+end_src
+
+** Stage files from dired
+
+https://gist.github.com/justinhj/5945047
+#+begin_src emacs-lisp
+
+(defun git-add-files(files)
+  "Run git add with the input file"
+  (shell-command (format "git add %s" files)))
+
+(defun yadm-add-files(files)
+  "Run git add with the input file"
+  (let ((default-directory "~/"))
+    (shell-command (format "yadm add %s" files))))
+
+(defun dired-git-add-marked-files()
+  "For each marked file in a dired buffer add it to the index"
+  (interactive)
+  (if (eq major-mode 'dired-mode)
+      (let ((filenames (dired-get-marked-files))
+	    (files ""))
+	(dolist (fn filenames)
+	  (setq fn (shell-quote-argument fn))
+	  (setq files (concat files " " fn)))
+	(git-add-files files))
+    (error (format "Not a Dired buffer \(%s\)" major-mode))))
+
+(defun dired-yadm-add-marked-files()
+  "For each marked file in a dired buffer add it to the index"
+  (interactive)
+  (if (eq major-mode 'dired-mode)
+      (let ((filenames (dired-get-marked-files))
+	    (files ""))
+	(dolist (fn filenames)
+	  (setq fn (shell-quote-argument fn))
+	  (setq files (concat files " " fn)))
+	(yadm-add-files files))
+    (error (format "Not a Dired buffer \(%s\)" major-mode))))
+
+
+#+end_src
 * LSP
 
 

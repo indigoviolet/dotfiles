@@ -183,6 +183,16 @@
 (package! ctrlf)
 ;; Search/Filtering:1 ends here
 
+;; regex-based searching, using python/pcre
+
+
+
+
+;; [[file:config.org::*regex-based searching, using python/pcre][regex-based searching, using python/pcre:1]]
+(package! visual-regexp)
+(package! visual-regexp-steroids)
+;; regex-based searching, using python/pcre:1 ends here
+
 ;; Jumping
 
 

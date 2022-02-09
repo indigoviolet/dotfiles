@@ -579,7 +579,7 @@
   :after-call after-find-file
   :commands (yankpad-insert company-yankpad)
   :custom
-  (yankpad-file "~/.emacs.d/yankpad.org")
+  (yankpad-file "~/.config/doom/yankpad.org")
   :config
   (add-to-list 'hippie-expand-try-functions-list #'yankpad-expand)
   )
@@ -847,7 +847,8 @@
         org-startup-indented t
         org-startup-numerated nil
         org-startup-align-all-tables t
-        org-startup-shrink-all-tables t
+        ;; Leads to 'File mode specification error: (user-error Not at a table)' in some org files
+        ;;        org-startup-shrink-all-tables t
         org-log-into-drawer t
         org-src-window-setup 'current-window
         org-src-preserve-indentation nil
@@ -1264,10 +1265,10 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   )
 ;; Flycheck:1 ends here
 
-;; magit
+;; magit/git
 
 
-;; [[file:config.org::*magit][magit:1]]
+;; [[file:config.org::*magit/git][magit/git:1]]
 (after! magit
   ;; Set magit log date formats
   (setq magit-log-margin '(t "%Y-%m-%d %H:%M " magit-log-margin-width t 18))
@@ -1277,7 +1278,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
                           'magit-insert-ignored-files       ;insert this one
                           'magit-insert-unstaged-changes t) ;after this one
   )
-;; magit:1 ends here
+;; magit/git:1 ends here
 
 ;; Handle bare repos (yadm/$HOME)
 
@@ -1302,6 +1303,66 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 (advice-add 'magit-process-environment
             :filter-return #'home-magit-process-environment)
 ;; Handle bare repos (yadm/$HOME):1 ends here
+
+;; Another approach to magit/yadm
+
+;; See https://www.reddit.com/r/emacs/comments/gjukb3/yadm_magit/gasc8n6/
+
+
+
+;; [[file:config.org::*Another approach to magit/yadm][Another approach to magit/yadm:1]]
+(with-eval-after-load 'tramp
+  (add-to-list 'tramp-methods
+               '("yadm"
+                 (tramp-login-program "yadm")
+                 (tramp-login-args (("enter")))
+                 (tramp-remote-shell "/bin/bash")
+                 (tramp-remote-shell-args ("-c"))))
+  (defun yadm-status ()
+    (interactive)
+    (require 'tramp)
+    (with-current-buffer (magit-status "/yadm::")
+      )))
+;; Another approach to magit/yadm:1 ends here
+
+;; Stage files from dired
+
+;; https://gist.github.com/justinhj/5945047
+
+;; [[file:config.org::*Stage files from dired][Stage files from dired:1]]
+(defun git-add-files(files)
+  "Run git add with the input file"
+  (shell-command (format "git add %s" files)))
+
+(defun yadm-add-files(files)
+  "Run git add with the input file"
+  (let ((default-directory "~/"))
+    (shell-command (format "yadm add %s" files))))
+
+(defun dired-git-add-marked-files()
+  "For each marked file in a dired buffer add it to the index"
+  (interactive)
+  (if (eq major-mode 'dired-mode)
+      (let ((filenames (dired-get-marked-files))
+	    (files ""))
+	(dolist (fn filenames)
+	  (setq fn (shell-quote-argument fn))
+	  (setq files (concat files " " fn)))
+	(git-add-files files))
+    (error (format "Not a Dired buffer \(%s\)" major-mode))))
+
+(defun dired-yadm-add-marked-files()
+  "For each marked file in a dired buffer add it to the index"
+  (interactive)
+  (if (eq major-mode 'dired-mode)
+      (let ((filenames (dired-get-marked-files))
+	    (files ""))
+	(dolist (fn filenames)
+	  (setq fn (shell-quote-argument fn))
+	  (setq files (concat files " " fn)))
+	(yadm-add-files files))
+    (error (format "Not a Dired buffer \(%s\)" major-mode))))
+;; Stage files from dired:1 ends here
 
 ;; [[file:config.org::*LSP][LSP:2]]
 (use-package! lsp-mode
