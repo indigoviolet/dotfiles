@@ -192,22 +192,6 @@
 (package! rg)                           ;For smart-jump-find-references-with-rg
 ;; Jumping:1 ends here
 
-;; Selectrum/Consult/Embark/Marginalia
-
-
-;; Instead of default ivy
-
-
-;; [[file:config.org::*Selectrum/Consult/Embark/Marginalia][Selectrum/Consult/Embark/Marginalia:1]]
-(package! selectrum)
-(package! selectrum-prescient)
-(package! consult :recipe (:host github :repo "minad/consult"))
-(package! consult-flycheck :recipe (:host github :repo "minad/consult-flycheck"))
-(package! marginalia)
-(package! embark)
-(package! embark-consult)
-;; Selectrum/Consult/Embark/Marginalia:1 ends here
-
 ;; Narrowing
 
 
