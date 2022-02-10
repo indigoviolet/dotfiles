@@ -1,16 +1,3 @@
-function confirm () {
-    # call with a prompt string or use a default
-    p=$( [[ -n $1 ]] &&  echo "$1 [y/N]" )
-    read "response?${p:-Are you sure? [y/N]}"
-    case $response in
-        [yY][eE][sS]|[yY])
-            true;;
-        *)
-            false;;
-    esac
-}
-
-
 function mv-and-symlink () {
     if [[ -z $1 || -z $2 ]]
     then
@@ -38,3 +25,4 @@ function unsymlink() {
     target=$(realpath $link)
     rm -f $link && cp -R $target $link
 }
+

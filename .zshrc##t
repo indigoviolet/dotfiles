@@ -37,20 +37,15 @@ fi
 
 export ZSH_CUSTOM_DIR=${HOME}/.zshcustom
 
-# http://tanguy.ortolo.eu/blog/article25/shrc Non-interactive sessions already
-# source ~/.zprofile, but we repeat because some terminals eg. vscode don't seem
-# to (Edit: actually, I think vscode loads .zprofile in a parent shell and
-# doesn't source it again in each terminal)
-source ${ZSH_CUSTOM_DIR}/env.zsh
+# env.zsh, scriptlib.zsh
+source ${ZSH_CUSTOM_DIR}/noninteractive.zsh
 source ${ZSH_CUSTOM_DIR}/brew.zsh
-
 source ${ZSH_CUSTOM_DIR}/aliases.zsh
 source ${ZSH_CUSTOM_DIR}/input.zsh
 source ${ZSH_CUSTOM_DIR}/git.zsh
 source ${ZSH_CUSTOM_DIR}/ssh.zsh
 source ${ZSH_CUSTOM_DIR}/fzf.zsh
 source ${ZSH_CUSTOM_DIR}/yarn.zsh
-
 source ${ZSH_CUSTOM_DIR}/misc.zsh
 source ${ZSH_CUSTOM_DIR}/direnv.zsh
 
@@ -66,6 +61,7 @@ source ${ZSH_CUSTOM_DIR}/doom.zsh
 source ${ZSH_CUSTOM_DIR}/gcloud.zsh
 source ${ZSH_CUSTOM_DIR}/gcloud-completion.zsh
 source ${ZSH_CUSTOM_DIR}/android.zsh
+source ${ZSH_CUSTOM_DIR}/docker.zsh
 {% endif %}
 
 {% if yadm.class == "gcp" %}
@@ -73,6 +69,7 @@ source ${ZSH_CUSTOM_DIR}/android.zsh
 # prepends to path, so keep it last
 source ${ZSH_CUSTOM_DIR}/cuda.sh
 source ${ZSH_CUSTOM_DIR}/conda.zsh
+source ${ZSH_CUSTOM_DIR}/docker.zsh
 {% endif %}
 
 {% if yadm.class == "fin" %}

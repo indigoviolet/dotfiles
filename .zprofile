@@ -66,6 +66,4 @@ if (( $#commands[(i)lesspipe(|.sh)] )); then
 fi
 
 # Non-interactive sessions source ~/.zprofile
-ZSH_CUSTOM_DIR=${HOME}/.zshcustom
-source ${ZSH_CUSTOM_DIR}/env.zsh
-
+source ${HOME}/.zshcustom/noninteractive.zsh
