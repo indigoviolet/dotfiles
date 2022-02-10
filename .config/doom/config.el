@@ -1327,6 +1327,10 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 
 ;; Stage files from dired
 
+;; TODO: Use https://github.com/conao3/dired-git.el instead for the git portion of
+;; this. I wonder if it will also "just" work for the yadm case if I'm using
+;; /yadm:: dired via tramp
+
 ;; https://gist.github.com/justinhj/5945047
 
 ;; [[file:config.org::*Stage files from dired][Stage files from dired:1]]

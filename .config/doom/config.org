@@ -28,7 +28,10 @@ See [[file:init.el][init.el]], [[file:packages.el][packages.el]] and [[file:conf
 
 * To try:
 
-** use vertico + consult/marginalia/embark out of doom-emacs instead of selectrum/custom configs
+** DONE use vertico + consult/marginalia/embark out of doom-emacs instead of selectrum/custom configs
+:LOGBOOK:
+- State "DONE"       from              [2022-02-09 Wed 14:57]
+:END:
 
 ** Use org-remark instead of annotate
 ** Ideas from [[https://github.com/zzamboni/dot-doom/blob/master/doom.org][zzamboni]]
@@ -2194,6 +2197,10 @@ See https://www.reddit.com/r/emacs/comments/gjukb3/yadm_magit/gasc8n6/
 #+end_src
 
 ** Stage files from dired
+
+TODO: Use https://github.com/conao3/dired-git.el instead for the git portion of
+this. I wonder if it will also "just" work for the yadm case if I'm using
+/yadm:: dired via tramp
 
 https://gist.github.com/justinhj/5945047
 #+begin_src emacs-lisp
