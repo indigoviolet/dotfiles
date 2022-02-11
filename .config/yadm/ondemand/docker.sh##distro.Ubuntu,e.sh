@@ -55,7 +55,7 @@ distribution=$(
     curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - &&
     curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
 
-sudo apt-get update && sudo apt-get install --no-install-recommends -y nvidia-docker2
+sudo apt-get update && sudo apt-get install --no-install-recommends -y nvidia-container-toolkit
 systemctl --user restart docker.service
 
 ## Change settings to allow GPUs to be used by container in rootless mode
@@ -68,5 +68,8 @@ current_no_cgroups=$(dasel -f $toml_file $selector || echo 'false')
     sudo cp $toml_file ${toml_file}.bak &&
         sudo_with_env dasel put bool -f $toml_file $selector 'true'
 }
+
+## test with gpus
+docker run --rm --gpus all nvidia/cuda:11.6.0-base-ubuntu20.04 nvidia-smi
 
 pipx install docker-compose
