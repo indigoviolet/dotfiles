@@ -58,4 +58,15 @@ distribution=$(
 sudo apt-get update && sudo apt-get install --no-install-recommends -y nvidia-docker2
 systemctl --user restart docker.service
 
+## Change settings to allow GPUs to be used by container in rootless mode
+## https://github.com/NVIDIA/nvidia-docker/issues/1155
+toml_file='/etc/nvidia-container-runtime/config.toml'
+selector='.nvidia-container-cli.no-cgroups'
+current_no_cgroups=$(dasel -f $toml_file $selector || echo 'false')
+[[ ${current_no_cgroups:-'false'} == 'true' ]] || {
+    echo 'Editing $toml_file:'
+    sudo cp $toml_file ${toml_file}.bak &&
+        sudo_with_env dasel put bool -f $toml_file $selector 'true'
+}
+
 pipx install docker-compose

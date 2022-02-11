@@ -44,3 +44,10 @@ function retry {
   done
   return 0
 }
+
+
+function sudo_with_env () {
+    local SUDO_EDITOR=$(which $EDITOR)
+    set -x
+    sudo -E env PATH=$PATH SUDO_EDITOR=$SUDO_EDITOR "$@"
+}
