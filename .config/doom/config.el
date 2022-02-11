@@ -1224,7 +1224,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 (use-package! vterm
   :custom
   (vterm-max-scrollback 100000)
-  (vterm-buffer-name-string "vterm %s")
+  (vterm-buffer-name-string "%s")
   :bind
   (
    :map vterm-mode-map
@@ -1239,6 +1239,8 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   :hook (vterm-mode . goto-address-mode) ; linkify urls
   )
 (use-package! multi-vterm
+  :custom
+  (multi-vterm-buffer-name "%s")
   :commands (multi-vterm-next multi-vterm))
 ;; vterm:2 ends here
 

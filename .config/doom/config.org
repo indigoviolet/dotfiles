@@ -2084,6 +2084,7 @@ Needs ~brew install pandoc~
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! multi-vterm :recipe (:host github :repo "suonlight/multi-vterm"))
+(package! vterm-toggle :recipe (:host github :repo "jixiuf/vterm-toggle"))
 #+end_src
 
 
@@ -2092,7 +2093,7 @@ Needs ~brew install pandoc~
 (use-package! vterm
   :custom
   (vterm-max-scrollback 100000)
-  (vterm-buffer-name-string "vterm %s")
+  (vterm-buffer-name-string "%s")
   :bind
   (
    :map vterm-mode-map
@@ -2107,6 +2108,8 @@ Needs ~brew install pandoc~
   :hook (vterm-mode . goto-address-mode) ; linkify urls
   )
 (use-package! multi-vterm
+  :custom
+  (multi-vterm-buffer-name "%s")
   :commands (multi-vterm-next multi-vterm))
 #+end_src
 
