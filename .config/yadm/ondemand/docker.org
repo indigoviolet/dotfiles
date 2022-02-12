@@ -130,14 +130,14 @@ DOCKER_HOST=unix:///run/user/$UID/docker.sock docker run --rm --gpus all nvidia/
 ** Restart docker
 
 #+begin_src shell
-systemctl restart docker.service
+sudo systemctl restart docker.service
 #+end_src
 
 ** Testing
 
 #+begin_src shell
 docker run hello-world
-docker run --rm --gpus all --ipc=host nvidia/cuda:11.6.0-base-ubuntu20.04 nvidia-smi
+sudo docker run --rm --gpus all --ipc=host nvidia/cuda:11.6.0-base-ubuntu20.04 nvidia-smi
 #+end_src
 
 * docker-compose
@@ -149,7 +149,8 @@ pipx install docker-compose
 * COMMENT Uninstall
 
 #+begin_src shell
-sudo apt-get purge docker-ce docker-ce-cli containerd.io docker docker-engine docker.io containerd runc
+sudo apt-get purge docker-ce docker-ce-cli containerd.io docker docker-engine docker.io containerd runc uidmap nvidia-container-toolkit
 systemctl --user disable docker.service
 sudo systemctl disable docker.service
+pipx uninstall docker-compose
 #+end_src

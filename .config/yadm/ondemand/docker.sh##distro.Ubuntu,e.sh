@@ -65,7 +65,7 @@ sudo apt-get update && sudo apt-get install --no-install-recommends -y nvidia-co
 
 
 # [[file:docker.org::*Restart docker][Restart docker:1]]
-systemctl restart docker.service
+sudo systemctl restart docker.service
 # Restart docker:1 ends here
 
 # Testing
@@ -73,7 +73,7 @@ systemctl restart docker.service
 
 # [[file:docker.org::*Testing][Testing:1]]
 docker run hello-world
-docker run --rm --gpus all --ipc=host nvidia/cuda:11.6.0-base-ubuntu20.04 nvidia-smi
+sudo docker run --rm --gpus all --ipc=host nvidia/cuda:11.6.0-base-ubuntu20.04 nvidia-smi
 # Testing:1 ends here
 
 # docker-compose
