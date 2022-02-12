@@ -3,7 +3,10 @@
 symbol = " "
 
 [python]
-symbol = " "
+symbol = " "
 
 [package]
 symbol = " "
+
+[docker_context]
+symbol = " "
