@@ -1,5 +1,6 @@
 tap "homebrew/bundle"
 tap "homebrew/core"
+tap "jesseduffield/lazydocker"
 tap "mutagen-io/mutagen"
 # Extendable version manager with support for Ruby, Node.js, Erlang & more
 brew "asdf"
@@ -35,5 +36,7 @@ brew "transcrypt"
 brew "yadm"
 # Shell extension to navigate your filesystem faster
 brew "zoxide"
+# A simple terminal UI for docker, written in Go
+brew "jesseduffield/lazydocker/lazydocker"
 # Fast file synchronization and network forwarding for remote development
 brew "mutagen-io/mutagen/mutagen-beta"
