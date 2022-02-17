@@ -1,4 +1,4 @@
-EMACSDIR=$HOME/.local/doom-emacs
+EMACSDIR=$HOME/.emacs.d
 path+=($EMACSDIR/bin)
 
 function doom-tangle-config() {
