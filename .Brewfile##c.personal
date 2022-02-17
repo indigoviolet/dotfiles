@@ -17,8 +17,6 @@ brew "asdf"
 brew "spdlog"
 # Generate compilation database for clang tooling
 brew "bear"
-# New way to see and navigate directory trees
-brew "broot"
 # Cross-platform make
 brew "cmake"
 # GNOME XML library
