@@ -71,6 +71,16 @@
 (package! use-package-chords)
 ;; Chords:1 ends here
 
+;; dim other buffers
+
+;; Leads to all kinds of hell -- errors everywhere. unclear what this is conflicting with.
+;; https://github.com/mina86/auto-dim-other-buffers.el/issues/32
+
+
+;; [[file:config.org::*dim other buffers][dim other buffers:1]]
+(package! auto-dim-other-buffers)
+;; dim other buffers:1 ends here
+
 ;; Rainbow
 ;; :LOGBOOK:
 ;; - State "KILL"       from "DONE"       [2022-01-26 Wed 17:28]
@@ -245,6 +255,21 @@
 ;; [[file:config.org::*show delimiters][show delimiters:1]]
 (package! org-appear :recipe (:host github :repo "awth13/org-appear"))
 ;; show delimiters:1 ends here
+
+;; Use auto-tangle
+
+;; +Fails with /sudo tangle files https://github.com/yilkalargaw/org-auto-tangle/issues/9+
+
+;; Fails with `:comments both` and certain modes:
+;; https://github.com/yilkalargaw/org-auto-tangle/issues/11, but so does "Custom
+;; async tangle" below.
+
+;; The "After save hook" version is synchronous and has no problems.
+
+
+;; [[file:config.org::*Use auto-tangle][Use auto-tangle:1]]
+(package! org-auto-tangle)
+;; Use auto-tangle:1 ends here
 
 ;; Images
 

@@ -88,8 +88,9 @@
 ;; no line wrapping
 (global-visual-line-mode t)
 (global-whitespace-mode +1)
-(blink-cursor-mode)
 (setq! whitespace-style '(face tabs tab-mark trailing))
+
+(blink-cursor-mode)
 ;; Basic config:1 ends here
 
 ;; Custom.el handling
@@ -149,6 +150,14 @@
   :config (key-chord-mode 1)
   )
 ;; Chords:2 ends here
+
+;; [[file:config.org::*dim other buffers][dim other buffers:2]]
+;; (use-package! auto-dim-other-buffers
+;;   :after-call pre-command-hook
+;;   :config
+;;   (auto-dim-other-buffers-mode t)
+;;   )
+;; dim other buffers:2 ends here
 
 ;; [[file:config.org::*Rainbow][Rainbow:2]]
 (use-package! rainbow-delimiters
@@ -871,6 +880,7 @@
     "Org"
     ("k" org-cut-subtree "cut subtree")
     ("y" org-paste-subtree "paste subtree")
+    ("s" org-babel-demarcate-block "split src block")
     )
   )
 ;; Org mode:1 ends here
@@ -916,12 +926,13 @@
   )
 ;; show delimiters:2 ends here
 
-;; Manually
-
-;; [[file:config.org::*Manually][Manually:1]]
-(add-hook! org-mode :append
-  (add-hook! after-save :append :local #'org-babel-tangle))
-;; Manually:1 ends here
+;; [[file:config.org::*Use auto-tangle][Use auto-tangle:2]]
+(use-package! org-auto-tangle
+  :after-call after-find-file
+  :config
+  (setq org-auto-tangle-default t)      ;this doesn't work with :custom
+  :hook (org-mode . org-auto-tangle-mode))
+;; Use auto-tangle:2 ends here
 
 ;; [[file:config.org::*Images][Images:2]]
 (after! org
@@ -951,126 +962,6 @@
         (insert document)
         (goto-char (point-min))))))
 ;; Reformatting an Org buffer:1 ends here
-
-;; Splitting src blocks
-
-;; https://scripter.co/splitting-an-org-block-into-two/
-;; https://github.com/kaushalmodi/.emacs.d/blob/master/setup-files/setup-org.el
-
-
-;; [[file:config.org::*Splitting src blocks][Splitting src blocks:1]]
-(after! org
-  (defun modi/org-in-any-block-p ()
-    "Return non-nil if the point is in any Org block.
-
-The Org block can be *any*: src, example, verse, etc., even any
-Org Special block.
-
-This function is heavily adapted from `org-between-regexps-p'."
-    (save-match-data
-      (let ((pos (point))
-            (case-fold-search t)
-            (block-begin-re "^[[:blank:]]*#\\+begin_\\(?1:.+?\\)\\(?: .*\\)*$")
-            (limit-up (save-excursion (outline-previous-heading)))
-            (limit-down (save-excursion (outline-next-heading)))
-            beg end)
-        (save-excursion
-          ;; Point is on a block when on BLOCK-BEGIN-RE or if
-          ;; BLOCK-BEGIN-RE can be found before it...
-          (and (or (org-in-regexp block-begin-re)
-                   (re-search-backward block-begin-re limit-up :noerror))
-               (setq beg (match-beginning 0))
-               ;; ... and BLOCK-END-RE after it...
-               (let ((block-end-re (concat "^[[:blank:]]*#\\+end_"
-                                           (match-string-no-properties 1)
-                                           "\\( .*\\)*$")))
-                 (goto-char (match-end 0))
-                 (re-search-forward block-end-re limit-down :noerror))
-               (> (setq end (match-end 0)) pos)
-               ;; ... without another BLOCK-BEGIN-RE in-between.
-               (goto-char (match-beginning 0))
-               (not (re-search-backward block-begin-re (1+ beg) :noerror))
-               ;; Return value.
-               (cons beg end))))))
-
-  (defun modi/org-split-block ()
-    "Sensibly split the current Org block at point.
-
-(1) Point in-between a line
-
-    #+begin_src emacs-lisp             #+begin_src emacs-lisp
-    (message▮ \"one\")                   (message \"one\")
-    (message \"two\")          -->       #+end_src
-    #+end_src                          ▮
-                                       #+begin_src emacs-lisp
-                                       (message \"two\")
-                                       #+end_src
-
-(2) Point at EOL
-
-    #+begin_src emacs-lisp             #+begin_src emacs-lisp
-    (message \"one\")▮                   (message \"one\")
-    (message \"two\")          -->       #+end_src
-    #+end_src                          ▮
-                                       #+begin_src emacs-lisp
-                                       (message \"two\")
-                                       #+end_src
-
-(3) Point at BOL
-
-    #+begin_src emacs-lisp             #+begin_src emacs-lisp
-    (message \"one\")                    (message \"one\")
-    ▮(message \"two\")          -->      #+end_src
-    #+end_src                          ▮
-                                       #+begin_src emacs-lisp
-                                       (message \"two\")
-                                       #+end_src
-"
-    (interactive)
-    (if (modi/org-in-any-block-p)
-        (save-match-data
-          (save-restriction
-            (widen)
-            (let ((case-fold-search t)
-                  (at-bol (bolp))
-                  block-start
-                  block-end)
-              (save-excursion
-                (re-search-backward "^\\(?1:[[:blank:]]*#\\+begin_.+?\\)\\(?: .*\\)*$" nil nil 1)
-                (setq block-start (match-string-no-properties 0))
-                (setq block-end (replace-regexp-in-string
-                                 "begin_" "end_" ;Replaces "begin_" with "end_", "BEGIN_" with "END_"
-                                 (match-string-no-properties 1))))
-              ;; Go to the end of current line, if not at the BOL
-              (unless at-bol
-                (end-of-line 1))
-              (insert (concat (if at-bol "" "\n")
-                              block-end
-                              "\n\n"
-                              block-start
-                              (if at-bol "\n" "")))
-              ;; Go to the line before the inserted "#+begin_ .." line
-              (beginning-of-line (if at-bol -1 0)))))
-      (message "Point is not in an Org block")))
-
-  (defun modi/org-meta-return (&optional arg)
-    "Insert a new heading or wrap a region in a table.
-Calls `org-insert-heading', `org-insert-item',
-`org-table-wrap-region', or `modi/org-split-block' depending on
-context.  When called with an argument, unconditionally call
-`org-insert-heading'."
-    (interactive "P")
-    (org-check-before-invisible-edit 'insert)
-    (or (run-hook-with-args-until-success 'org-metareturn-hook)
-        (call-interactively (cond (arg #'org-insert-heading)
-                                  ((org-at-table-p) #'org-table-wrap-region)
-                                  ((org-in-item-p) #'org-insert-item)
-                                  ((modi/org-in-any-block-p) #'modi/org-split-block)
-                                  (t #'org-insert-heading)))))
-  (advice-add 'org-meta-return :override #'modi/org-meta-return)
-
-  )
-;; Splitting src blocks:1 ends here
 
 ;; Useful functions
 
@@ -1224,7 +1115,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 (use-package! vterm
   :custom
   (vterm-max-scrollback 100000)
-  (vterm-buffer-name-string "%s")
+  (vterm-buffer-name-string "vterm: %s")
   :bind
   (
    :map vterm-mode-map
@@ -1236,8 +1127,21 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
    ("C-<down>" . windmove-down)
    ("C-c C-r" . vterm-send-C-r)
    )
-  :hook (vterm-mode . goto-address-mode) ; linkify urls
+  :hook (
+         (vterm-mode . goto-address-mode) ; linkify urls
+         (vterm-mode . (lambda () (whitespace-mode -1))) ;don't highlight trailing whitespace
+         )
   )
+
+;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Query-Before-Exit.html
+(defun vi/vterm-no-confirm-on-exit ()
+  (set-process-query-on-exit-flag (get-buffer-process (current-buffer)) nil)
+  )
+
+(add-hook! 'vterm-mode-hook #'vi/vterm-no-confirm-on-exit)
+
+
+
 (use-package! multi-vterm
   :custom
   (multi-vterm-buffer-name "%s")
@@ -1709,6 +1613,14 @@ current buffer's, reload dir-locals."
 ;; [[file:config.org::*Cuda mode doesn't inherit from prog-mode?][Cuda mode doesn't inherit from prog-mode?:1]]
 (add-hook! 'cuda-mode-hook #'prog-mode)
 ;; Cuda mode doesn't inherit from prog-mode?:1 ends here
+
+;; shell mode
+
+
+
+;; [[file:config.org::*shell mode][shell mode:1]]
+(setq-hook! sh-mode +format-with :none)
+;; shell mode:1 ends here
 
 ;; [[file:config.org::*atomic chrome][atomic chrome:2]]
 (use-package! atomic-chrome

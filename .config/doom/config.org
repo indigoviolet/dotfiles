@@ -490,8 +490,9 @@ magit-todos: was slow on the startup, unused
 ;; no line wrapping
 (global-visual-line-mode t)
 (global-whitespace-mode +1)
-(blink-cursor-mode)
 (setq! whitespace-style '(face tabs tab-mark trailing))
+
+(blink-cursor-mode)
 #+end_src
 
 ** Custom.el handling
@@ -571,7 +572,7 @@ https://github.com/hlissner/doom-emacs/issues/4498
 #+end_src
 
 * Colors
-** COMMENT dim other buffers
+** dim other buffers
 
 Leads to all kinds of hell -- errors everywhere. unclear what this is conflicting with.
 https://github.com/mina86/auto-dim-other-buffers.el/issues/32
@@ -1670,6 +1671,7 @@ Instead of default ivy
     "Org"
     ("k" org-cut-subtree "cut subtree")
     ("y" org-paste-subtree "paste subtree")
+    ("s" org-babel-demarcate-block "split src block")
     )
   )
 #+end_src
@@ -1723,10 +1725,15 @@ Instead of default ivy
 #+end_src
 
 ** tangle on save
+*** Use auto-tangle
 
-*** COMMENT Use auto-tangle
++Fails with /sudo tangle files https://github.com/yilkalargaw/org-auto-tangle/issues/9+
 
-Fails with /sudo tangle files https://github.com/yilkalargaw/org-auto-tangle/issues/9
+Fails with `:comments both` and certain modes:
+https://github.com/yilkalargaw/org-auto-tangle/issues/11, but so does "Custom
+async tangle" below.
+
+The "After save hook" version is synchronous and has no problems.
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! org-auto-tangle)
@@ -1740,7 +1747,7 @@ Fails with /sudo tangle files https://github.com/yilkalargaw/org-auto-tangle/iss
   :hook (org-mode . org-auto-tangle-mode))
 #+end_src
 
-*** Manually
+*** COMMENT After save hook
 #+begin_src emacs-lisp
 (add-hook! org-mode :append
   (add-hook! after-save :append :local #'org-babel-tangle))
@@ -1780,7 +1787,9 @@ internal parsed representation. Quite amazing.)
         (goto-char (point-min))))))
 #+end_src
 
-** Splitting src blocks
+** COMMENT Splitting src blocks
+
+Replaced with org-babel-demarcate-block
 
 https://scripter.co/splitting-an-org-block-into-two/
 https://github.com/kaushalmodi/.emacs.d/blob/master/setup-files/setup-org.el
@@ -2093,7 +2102,7 @@ Needs ~brew install pandoc~
 (use-package! vterm
   :custom
   (vterm-max-scrollback 100000)
-  (vterm-buffer-name-string "%s")
+  (vterm-buffer-name-string "vterm: %s")
   :bind
   (
    :map vterm-mode-map
@@ -2105,13 +2114,45 @@ Needs ~brew install pandoc~
    ("C-<down>" . windmove-down)
    ("C-c C-r" . vterm-send-C-r)
    )
-  :hook (vterm-mode . goto-address-mode) ; linkify urls
+  :hook (
+         (vterm-mode . goto-address-mode) ; linkify urls
+         (vterm-mode . (lambda () (whitespace-mode -1))) ;don't highlight trailing whitespace
+         )
   )
+
+;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Query-Before-Exit.html
+(defun vi/vterm-no-confirm-on-exit ()
+  (set-process-query-on-exit-flag (get-buffer-process (current-buffer)) nil)
+  )
+
+(add-hook! 'vterm-mode-hook #'vi/vterm-no-confirm-on-exit)
+
+
+
 (use-package! multi-vterm
   :custom
   (multi-vterm-buffer-name "%s")
   :commands (multi-vterm-next multi-vterm))
 #+end_src
+
+** wrapping issues
+
+https://github.com/akermu/emacs-libvterm/issues/179
+
+- can set `vterm-min-window-width` to 1000 and `toggle-truncate-lines`
+- but this makes `ls`, `fzf`, `htop` etc weird
+- so we can run `stty cols 250` before running such commands
+- we cannot get the current emacs window width (https://github.com/akermu/emacs-libvterm/issues/577)
+- best we can do is maybe hook `frame-width` to `setenv` so that new vterms have some variable with the full width of emacs, and then use 1/2 or 1/3 of that with `stty`. or hard code 250.
+
+  we might also be able to use `window-min-width` to prevent splitting too much?
+  this appears to work with `zoom-mode`.
+
+  Also see https://github.com/cyrus-and/zoom for information on
+  `window-size-fixed` and preventing zoom from resizing?
+
+
+
 
 * Flycheck
 
@@ -2664,6 +2705,13 @@ So we could:
 (add-hook! 'cuda-mode-hook #'prog-mode)
 #+end_src
 
+* shell mode
+
+
+#+begin_src emacs-lisp
+(setq-hook! sh-mode +format-with :none)
+
+#+end_src
 * atomic chrome
 
 
