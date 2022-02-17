@@ -34,7 +34,6 @@
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
 
-
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
 ;; - `load!' for loading external *.el files relative to this one
@@ -1037,12 +1036,6 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 (add-hook! org-mode #'literate-calc-minor-mode)
 ;; literate calc:2 ends here
 
-;; [[file:config.org::*super-agenda][super-agenda:2]]
-(after! org
-  (org-super-agenda-mode)
-  )
-;; super-agenda:2 ends here
-
 ;; [[file:config.org::*Firestarter][Firestarter:2]]
 (use-package! firestarter
   :after-call after-find-file
@@ -1140,8 +1133,6 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 (add-hook! 'vterm-mode-hook #'vi/vterm-no-confirm-on-exit)
 
-
-
 (use-package! multi-vterm
   :custom
   (multi-vterm-buffer-name "%s")
@@ -1149,7 +1140,6 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 ;; vterm:2 ends here
 
 ;; Flycheck
-
 
 
 ;; [[file:config.org::*Flycheck][Flycheck:1]]

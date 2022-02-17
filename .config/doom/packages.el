@@ -295,16 +295,10 @@
 (package! literate-calc-mode)
 ;; literate calc:1 ends here
 
-;; super-agenda
-
-
-
-;; [[file:config.org::*super-agenda][super-agenda:1]]
-(package! org-super-agenda)
-;; super-agenda:1 ends here
-
 ;; Firestarter
 
+;; Execute commands on save
+;; https://github.com/emacsmirror/firestarter
 
 
 ;; [[file:config.org::*Firestarter][Firestarter:1]]
@@ -324,7 +318,7 @@
 
 ;; [[file:config.org::*vterm][vterm:1]]
 (package! multi-vterm :recipe (:host github :repo "suonlight/multi-vterm"))
-(package! vterm-toggle :recipe (:host github :repo "jixiuf/vterm-toggle"))
+;; (package! vterm-toggle :recipe (:host github :repo "jixiuf/vterm-toggle"))
 ;; vterm:1 ends here
 
 ;; flycheck-projectile
