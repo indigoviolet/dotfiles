@@ -20,8 +20,6 @@ layout_poetry() {
     exit 2
   fi
 
-  local VENV=$(poetry env info --path)
-
   # As of <2022-02-04 Fri>:
   #
   # poetry 1.2+ uses a new installer install-poetry.py which always uses the
@@ -41,14 +39,14 @@ layout_poetry() {
   # re-create the environment
   #
   #
-  poetry env use $(asdf which python)
+  # This prints out the same info as `poetry env info --path`
+  local VENV=$(poetry env use $(asdf which python) -v --no-ansi | awk '{print $3}')
 
   if [[ -z $VENV || ! -d $VENV/bin ]]; then
     log_error "No created poetry virtual environment found.  Use 'poetry install' to create one first. (venv=$VENV or $VENV/bin not found)"
     exit 2
   fi
-  export VIRTUAL_ENV=$VENV
-  export POETRY_ACTIVE=1
+  export VIRTUAL_ENV=$VENV POETRY_ACTIVE=1
   PATH_add "$VENV/bin"
 
   # # compare $VENV/bin/python to version set in .tool-versions and throw error if
@@ -61,3 +59,7 @@ layout_poetry() {
   #   exit 2
   # fi
 }
+
+# Local Variables:
+# mode: shell-script
+# End:
