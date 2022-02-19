@@ -32,6 +32,13 @@ See [[file:init.el][init.el]], [[file:packages.el][packages.el]] and [[file:conf
 :LOGBOOK:
 - State "DONE"       from              [2022-02-09 Wed 14:57]
 :END:
+** Unpin ein
+
+** Figure out how to use dired efficiently
+
+** Figure out how to get consult-buffer to be efficient
+
+** Figure out how to efficiently handle vterm, find-file in the presence of tramp
 
 ** Use org-remark instead of annotate
 ** Ideas from [[https://github.com/zzamboni/dot-doom/blob/master/doom.org][zzamboni]]
@@ -404,7 +411,7 @@ This code is written to the =init.el= to select which modules to load. Written h
        ;;nim               ; python + lisp at the speed of c
        ;;nix               ; I hereby declare "nix geht mehr!"
        ;;ocaml             ; an objective camel
-       (org +dragndrop +pretty)               ; organize your plain life in plain text
+       (org +dragndrop +pretty +jupyter)               ; organize your plain life in plain text
        ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
        ;;purescript        ; javascript, but functional
@@ -489,6 +496,7 @@ magit-todos: was slow on the startup, unused
 ;; no line wrapping
 (global-visual-line-mode t)
 (global-whitespace-mode +1)
+(global-git-gutter-mode t)
 (setq! whitespace-style '(face tabs tab-mark trailing))
 
 (blink-cursor-mode)
@@ -573,19 +581,19 @@ https://github.com/hlissner/doom-emacs/issues/4498
 * Colors
 ** dim other buffers
 
-Leads to all kinds of hell -- errors everywhere. unclear what this is conflicting with.
-https://github.com/mina86/auto-dim-other-buffers.el/issues/32
++Leads to all kinds of hell -- errors everywhere. unclear what this is conflicting with.
++https://github.com/mina86/auto-dim-other-buffers.el/issues/32+
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! auto-dim-other-buffers)
 #+end_src
 
 #+begin_src emacs-lisp
-;; (use-package! auto-dim-other-buffers
-;;   :after-call pre-command-hook
-;;   :config
-;;   (auto-dim-other-buffers-mode t)
-;;   )
+(use-package! auto-dim-other-buffers
+  :after-call pre-command-hook
+  :config
+  (auto-dim-other-buffers-mode t)
+  )
 #+end_src
 ** Rainbow
 :LOGBOOK:
@@ -1188,6 +1196,25 @@ Disabling all of these posframe solutions (minibuffer, which-key, hydra) since t
   )
 #+end_src
 
+** no yanking whitespace
+
+https://stackoverflow.com/a/69307156/14044156
+#+begin_src emacs-lisp
+(defun night/h-kill-skip-whitespace (orig-fn string &optional rest)
+  (let* (
+         (string-raw (substring-no-properties string))
+         (space-p (not (string-match-p "[^ \t\n\r]" string-raw))))
+
+    (cond
+     ((not space-p)
+      (apply orig-fn string rest))
+     (t
+      (message "skipped whitespace kill")
+     ))))
+
+(advice-add 'kill-new :around #'night/h-kill-skip-whitespace)
+#+end_src
+
 * Undo
 
 #+begin_src emacs-lisp
@@ -1323,10 +1350,9 @@ Disabling all of these posframe solutions (minibuffer, which-key, hydra) since t
 
 * Search/Filtering
 
-
+** smartscan
 #+begin_src emacs-lisp :tangle packages.el
 (package! smartscan)
-(package! ctrlf)
 #+end_src
 
 
@@ -1339,9 +1365,14 @@ Disabling all of these posframe solutions (minibuffer, which-key, hydra) since t
   ;; M-p, M-n interfere in git-rebase mode
   (add-hook! git-rebase-mode (smartscan-mode -1))
   )
+#+end_src
+** COMMENT ctrlf
 
+#+begin_src emacs-lisp :tangle packages.el
+(package! ctrlf)
+#+end_src
 
-
+#+begin_src emacs-lisp
 (use-package! ctrlf
   :after-call after-find-file
   :custom
@@ -1360,17 +1391,12 @@ Disabling all of these posframe solutions (minibuffer, which-key, hydra) since t
   (add-hook! 'pdf-isearch-minor-mode-hook (ctrlf-local-mode -1))
   )
 #+end_src
-
 ** regex-based searching, using python/pcre
-
-
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! visual-regexp)
 (package! visual-regexp-steroids)
 #+end_src
-
-
 
 ** Jumping
 
@@ -1664,15 +1690,15 @@ Instead of default ivy
                                  ("REVISIT" . +org-todo-onhold)
                                  ("SOMEDAY" . +org-todo-onhold)
                                  ("KILL" . +org-todo-cancel))
-        org-use-fast-todo-selection 'expert
-        )
+        org-use-fast-todo-selection 'expert)
   (defhydra hydra-org (:exit t)
     "Org"
     ("k" org-cut-subtree "cut subtree")
     ("y" org-paste-subtree "paste subtree")
     ("s" org-babel-demarcate-block "split src block")
     )
-  )
+  (map! :map org-mode-map "RET" #'unpackaged/org-return-dwim)
+)
 #+end_src
 
 ** Company backends
@@ -1699,8 +1725,8 @@ Instead of default ivy
 #+begin_src emacs-lisp
 (after! smartparens
   (sp-local-pair 'org-mode "~" "~")
-  (sp-local-pair 'org-mode "=" "=")
-  (sp-local-pair 'org-mode "$" "$")
+  ;; (sp-local-pair 'org-mode "=" "=")
+  ;; (sp-local-pair 'org-mode "$" "$")
   )
 #+end_src
 
@@ -1909,6 +1935,7 @@ context.  When called with an argument, unconditionally call
 
 ** Useful functions
 
+*** misc
 #+begin_src emacs-lisp
 (after! org
   ;; http://emacs.stackexchange.com/a/10712/115
@@ -1952,9 +1979,12 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
           (setq count (1+ count))
           (replace-match (downcase (match-string-no-properties 1)) :fixedcase nil nil 1))
         (message "Lower-cased %d matches" count))))
+)
+#+end_src
 
-
-
+*** Archive all done tasks
+#+begin_src emacs-lisp
+(after! org
   ;; https://stackoverflow.com/questions/6997387/how-to-archive-all-the-done-tasks-using-a-single-command
   (defun vi/org-archive-done-tasks ()
     (interactive)
@@ -1963,7 +1993,112 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
        (org-archive-subtree)
        (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
      "/DONE" 'tree))
+)
+#+end_src
 
+*** org-return-dwim
+https://github.com/alphapapa/unpackaged.el#org-return-dwim
+
+Bound to "RET" in org-mode-map
+
+#+begin_src emacs-lisp
+(after! org
+  (defun unpackaged/org-element-descendant-of (type element)
+    "Return non-nil if ELEMENT is a descendant of TYPE.
+TYPE should be an element type, like `item' or `paragraph'.
+ELEMENT should be a list like that returned by `org-element-context'."
+    ;; MAYBE: Use `org-element-lineage'.
+    (when-let* ((parent (org-element-property :parent element)))
+      (or (eq type (car parent))
+          (unpackaged/org-element-descendant-of type parent))))
+
+  ;;;###autoload
+  (defun unpackaged/org-return-dwim (&optional default)
+    "A helpful replacement for `org-return'.  With prefix, call `org-return'.
+
+On headings, move point to position after entry content.  In
+lists, insert a new item or end the list, with checkbox if
+appropriate.  In tables, insert a new row or end the table."
+    ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
+    (interactive "P")
+    (if default
+        (org-return)
+      (cond
+       ;; Act depending on context around point.
+
+       ;; NOTE: I prefer RET to not follow links, but by uncommenting this block, links will be
+       ;; followed.
+
+       ;; ((eq 'link (car (org-element-context)))
+       ;;  ;; Link: Open it.
+       ;;  (org-open-at-point-global)
+)
+       ((org-at-heading-p)
+        ;; Heading: Move to position after entry content.
+        ;; NOTE: This is probably the most interesting feature of this function.
+        (let ((heading-start (org-entry-beginning-position)))
+          (goto-char (org-entry-end-position))
+          (cond ((and (org-at-heading-p)
+                      (= heading-start (org-entry-beginning-position)))
+                 ;; Entry ends on its heading; add newline after
+                 (end-of-line)
+                 (insert "\n\n"))
+                (t
+                 ;; Entry ends after its heading; back up
+                 (forward-line -1)
+                 (end-of-line)
+                 (when (org-at-heading-p)
+                   ;; At the same heading
+                   (forward-line)
+                   (insert "\n")
+                   (forward-line -1))
+                 ;; FIXME: looking-back is supposed to be called with more arguments.
+                 (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n")))))
+                   (insert "\n"))
+                 (forward-line -1)))))
+
+       ((org-at-item-checkbox-p)
+        ;; Checkbox: Insert new item with checkbox.
+        (org-insert-todo-heading nil))
+
+       ((org-in-item-p)
+        ;; Plain list.  Yes, this gets a little complicated...
+        (let ((context (org-element-context)))
+          (if (or (eq 'plain-list (car context))  ; First item in list
+                  (and (eq 'item (car context))
+                       (not (eq (org-element-property :contents-begin context)
+                                (org-element-property :contents-end context))))
+                  (unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
+              ;; Non-empty item: Add new item.
+              (org-insert-item)
+            ;; Empty item: Close the list.
+            ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
+            (delete-region (line-beginning-position) (line-end-position))
+            (insert "\n"))))
+
+       ((when (fboundp 'org-inlinetask-in-task-p)
+          (org-inlinetask-in-task-p))
+        ;; Inline task: Don't insert a new heading.
+        (org-return))
+
+       ((org-at-table-p)
+        (cond ((save-excursion
+                 (beginning-of-line)
+                 ;; See `org-table-next-field'.
+                 (cl-loop with end = (line-end-position)
+                          for cell = (org-element-table-cell-parser)
+                          always (equal (org-element-property :contents-begin cell)
+                                        (org-element-property :contents-end cell))
+                          while (re-search-forward "|" end t)))
+               ;; Empty row: end the table.
+               (delete-region (line-beginning-position) (line-end-position))
+               (org-return))
+              (t
+               ;; Non-empty row: call `org-return'.
+               (org-return))))
+       (t
+        ;; All other cases: call `org-return'.
+        (org-return)))))
   )
 #+end_src
 ** Import from various formats into org
@@ -1977,6 +2112,19 @@ Needs ~brew install pandoc~
 
 #+begin_src emacs-lisp
 (use-package! org-pandoc-import :after org)
+#+end_src
+
+** emacs-jupyter fontification
+
+https://github.com/nnicandro/emacs-jupyter/issues/366#issuecomment-985758277
+
+#+begin_src emacs-lisp
+  (after! org
+    (defun display-ansi-colors ()
+      (ansi-color-apply-on-region (point-min) (point-max)))
+
+    (add-hook! org-babel-after-execute #'display-ansi-colors)
+    )
 #+end_src
 
 ** literate calc
@@ -2007,27 +2155,11 @@ Needs ~brew install pandoc~
   (org-super-agenda-mode)
   )
 #+end_src
-* Firestarter
-
-Execute commands on save
-https://github.com/emacsmirror/firestarter
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! firestarter)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! firestarter
-  :after-call after-find-file
-  :custom
-  (firestarter-mode)
-  )
-#+end_src
 * ein
 
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! ein :pin "f2bad874d325fce4eb06986fa97b2bdb418a11eb")
+(package! ein)
 #+end_src
 #+begin_src emacs-lisp
 (use-package! ein
@@ -2601,6 +2733,7 @@ There are some weird errors that show up if you don't run mypy from the root dir
 (after! treemacs
   (setq treemacs-show-hidden-files nil
         treemacs-is-never-other-window nil)
+  (treemacs-project-follow-mode t)
   (treemacs-follow-mode t)
   )
 #+end_src
@@ -2621,6 +2754,22 @@ Not clear why this is better than dired - seems to do a lot and I don't usually 
 - [ ] todo: add hydra?
 - [ ] try deer mode, override dired
 
+* Firestarter
+
+Execute commands on save
+https://github.com/emacsmirror/firestarter
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! firestarter)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! firestarter
+  :after-call after-find-file
+  :custom
+  (firestarter-mode)
+  )
+#+end_src
 * dir-locals
 
 https://emacs.stackexchange.com/questions/13080/reloading-directory-local-variables

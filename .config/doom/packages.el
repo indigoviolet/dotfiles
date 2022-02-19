@@ -73,8 +73,8 @@
 
 ;; dim other buffers
 
-;; Leads to all kinds of hell -- errors everywhere. unclear what this is conflicting with.
-;; https://github.com/mina86/auto-dim-other-buffers.el/issues/32
+;; +Leads to all kinds of hell -- errors everywhere. unclear what this is conflicting with.
+;; +https://github.com/mina86/auto-dim-other-buffers.el/issues/32+
 
 
 ;; [[file:config.org::*dim other buffers][dim other buffers:1]]
@@ -184,18 +184,13 @@
 (package! mwim)
 ;; Movement:1 ends here
 
-;; Search/Filtering
+;; smartscan
 
-
-
-;; [[file:config.org::*Search/Filtering][Search/Filtering:1]]
+;; [[file:config.org::*smartscan][smartscan:1]]
 (package! smartscan)
-(package! ctrlf)
-;; Search/Filtering:1 ends here
+;; smartscan:1 ends here
 
 ;; regex-based searching, using python/pcre
-
-
 
 
 ;; [[file:config.org::*regex-based searching, using python/pcre][regex-based searching, using python/pcre:1]]
@@ -295,22 +290,12 @@
 (package! literate-calc-mode)
 ;; literate calc:1 ends here
 
-;; Firestarter
-
-;; Execute commands on save
-;; https://github.com/emacsmirror/firestarter
-
-
-;; [[file:config.org::*Firestarter][Firestarter:1]]
-(package! firestarter)
-;; Firestarter:1 ends here
-
 ;; ein
 
 
 
 ;; [[file:config.org::*ein][ein:1]]
-(package! ein :pin "f2bad874d325fce4eb06986fa97b2bdb418a11eb")
+(package! ein)
 ;; ein:1 ends here
 
 ;; vterm
@@ -353,6 +338,16 @@
 ;; [[file:config.org::*Javascript/Typescript][Javascript/Typescript:1]]
 (package! add-node-modules-path :recipe (:host github :repo "codesuki/add-node-modules-path"))
 ;; Javascript/Typescript:1 ends here
+
+;; Firestarter
+
+;; Execute commands on save
+;; https://github.com/emacsmirror/firestarter
+
+
+;; [[file:config.org::*Firestarter][Firestarter:1]]
+(package! firestarter)
+;; Firestarter:1 ends here
 
 ;; docker
 

@@ -87,6 +87,7 @@
 ;; no line wrapping
 (global-visual-line-mode t)
 (global-whitespace-mode +1)
+(global-git-gutter-mode t)
 (setq! whitespace-style '(face tabs tab-mark trailing))
 
 (blink-cursor-mode)
@@ -151,11 +152,11 @@
 ;; Chords:2 ends here
 
 ;; [[file:config.org::*dim other buffers][dim other buffers:2]]
-;; (use-package! auto-dim-other-buffers
-;;   :after-call pre-command-hook
-;;   :config
-;;   (auto-dim-other-buffers-mode t)
-;;   )
+(use-package! auto-dim-other-buffers
+  :after-call pre-command-hook
+  :config
+  (auto-dim-other-buffers-mode t)
+  )
 ;; dim other buffers:2 ends here
 
 ;; [[file:config.org::*Rainbow][Rainbow:2]]
@@ -569,6 +570,26 @@
   )
 ;; Kill/Yank:2 ends here
 
+;; no yanking whitespace
+
+;; https://stackoverflow.com/a/69307156/14044156
+
+;; [[file:config.org::*no yanking whitespace][no yanking whitespace:1]]
+(defun night/h-kill-skip-whitespace (orig-fn string &optional rest)
+  (let* (
+         (string-raw (substring-no-properties string))
+         (space-p (not (string-match-p "[^ \t\n\r]" string-raw))))
+
+    (cond
+     ((not space-p)
+      (apply orig-fn string rest))
+     (t
+      (message "skipped whitespace kill")
+     ))))
+
+(advice-add 'kill-new :around #'night/h-kill-skip-whitespace)
+;; no yanking whitespace:1 ends here
+
 ;; Undo
 
 
@@ -670,7 +691,7 @@
   )
 ;; Movement:2 ends here
 
-;; [[file:config.org::*Search/Filtering][Search/Filtering:2]]
+;; [[file:config.org::*smartscan][smartscan:2]]
 (use-package! smartscan
   :after-call after-find-file
   :config
@@ -679,27 +700,7 @@
   ;; M-p, M-n interfere in git-rebase mode
   (add-hook! git-rebase-mode (smartscan-mode -1))
   )
-
-
-
-(use-package! ctrlf
-  :after-call after-find-file
-  :custom
-  (ctrlf-auto-recenter t)
-  ;; :custom
-  ;; (ctrlf-mode-bindings '(
-  ;;                        ("C-s" . ctrlf-forward-fuzzy)
-  ;;                        ("C-r" . ctrlf-backward-fuzzy)
-  ;;                        ("C-M-s" . ctrlf-forward-regexp)
-  ;;                        ("C-M-r" . ctrlf-backward-regexp)
-  ;;                        )
-  ;;                      )
-  :config
-  (ctrlf-mode +1)
-
-  (add-hook! 'pdf-isearch-minor-mode-hook (ctrlf-local-mode -1))
-  )
-;; Search/Filtering:2 ends here
+;; smartscan:2 ends here
 
 ;; [[file:config.org::*Jumping][Jumping:2]]
 (use-package! smart-jump
@@ -873,15 +874,15 @@
                                  ("REVISIT" . +org-todo-onhold)
                                  ("SOMEDAY" . +org-todo-onhold)
                                  ("KILL" . +org-todo-cancel))
-        org-use-fast-todo-selection 'expert
-        )
+        org-use-fast-todo-selection 'expert)
   (defhydra hydra-org (:exit t)
     "Org"
     ("k" org-cut-subtree "cut subtree")
     ("y" org-paste-subtree "paste subtree")
     ("s" org-babel-demarcate-block "split src block")
     )
-  )
+  (map! :map org-mode-map "RET" #'unpackaged/org-return-dwim)
+)
 ;; Org mode:1 ends here
 
 ;; Company backends
@@ -908,8 +909,8 @@
 ;; [[file:config.org::*Electric pairs][Electric pairs:1]]
 (after! smartparens
   (sp-local-pair 'org-mode "~" "~")
-  (sp-local-pair 'org-mode "=" "=")
-  (sp-local-pair 'org-mode "$" "$")
+  ;; (sp-local-pair 'org-mode "=" "=")
+  ;; (sp-local-pair 'org-mode "$" "$")
   )
 ;; Electric pairs:1 ends here
 
@@ -962,10 +963,9 @@
         (goto-char (point-min))))))
 ;; Reformatting an Org buffer:1 ends here
 
-;; Useful functions
+;; misc
 
-
-;; [[file:config.org::*Useful functions][Useful functions:1]]
+;; [[file:config.org::*misc][misc:1]]
 (after! org
   ;; http://emacs.stackexchange.com/a/10712/115
   (defun modi/org-delete-link ()
@@ -1008,9 +1008,13 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
           (setq count (1+ count))
           (replace-match (downcase (match-string-no-properties 1)) :fixedcase nil nil 1))
         (message "Lower-cased %d matches" count))))
+)
+;; misc:1 ends here
 
+;; Archive all done tasks
 
-
+;; [[file:config.org::*Archive all done tasks][Archive all done tasks:1]]
+(after! org
   ;; https://stackoverflow.com/questions/6997387/how-to-archive-all-the-done-tasks-using-a-single-command
   (defun vi/org-archive-done-tasks ()
     (interactive)
@@ -1019,9 +1023,115 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
        (org-archive-subtree)
        (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
      "/DONE" 'tree))
+)
+;; Archive all done tasks:1 ends here
 
+;; org-return-dwim
+;; https://github.com/alphapapa/unpackaged.el#org-return-dwim
+
+;; Bound to "RET" in org-mode-map
+
+
+;; [[file:config.org::*org-return-dwim][org-return-dwim:1]]
+(after! org
+  (defun unpackaged/org-element-descendant-of (type element)
+    "Return non-nil if ELEMENT is a descendant of TYPE.
+TYPE should be an element type, like `item' or `paragraph'.
+ELEMENT should be a list like that returned by `org-element-context'."
+    ;; MAYBE: Use `org-element-lineage'.
+    (when-let* ((parent (org-element-property :parent element)))
+      (or (eq type (car parent))
+          (unpackaged/org-element-descendant-of type parent))))
+
+  ;;;###autoload
+  (defun unpackaged/org-return-dwim (&optional default)
+    "A helpful replacement for `org-return'.  With prefix, call `org-return'.
+
+On headings, move point to position after entry content.  In
+lists, insert a new item or end the list, with checkbox if
+appropriate.  In tables, insert a new row or end the table."
+    ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
+    (interactive "P")
+    (if default
+        (org-return)
+      (cond
+       ;; Act depending on context around point.
+
+       ;; NOTE: I prefer RET to not follow links, but by uncommenting this block, links will be
+       ;; followed.
+
+       ;; ((eq 'link (car (org-element-context)))
+       ;;  ;; Link: Open it.
+       ;;  (org-open-at-point-global)
+)
+       ((org-at-heading-p)
+        ;; Heading: Move to position after entry content.
+        ;; NOTE: This is probably the most interesting feature of this function.
+        (let ((heading-start (org-entry-beginning-position)))
+          (goto-char (org-entry-end-position))
+          (cond ((and (org-at-heading-p)
+                      (= heading-start (org-entry-beginning-position)))
+                 ;; Entry ends on its heading; add newline after
+                 (end-of-line)
+                 (insert "\n\n"))
+                (t
+                 ;; Entry ends after its heading; back up
+                 (forward-line -1)
+                 (end-of-line)
+                 (when (org-at-heading-p)
+                   ;; At the same heading
+                   (forward-line)
+                   (insert "\n")
+                   (forward-line -1))
+                 ;; FIXME: looking-back is supposed to be called with more arguments.
+                 (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n")))))
+                   (insert "\n"))
+                 (forward-line -1)))))
+
+       ((org-at-item-checkbox-p)
+        ;; Checkbox: Insert new item with checkbox.
+        (org-insert-todo-heading nil))
+
+       ((org-in-item-p)
+        ;; Plain list.  Yes, this gets a little complicated...
+        (let ((context (org-element-context)))
+          (if (or (eq 'plain-list (car context))  ; First item in list
+                  (and (eq 'item (car context))
+                       (not (eq (org-element-property :contents-begin context)
+                                (org-element-property :contents-end context))))
+                  (unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
+              ;; Non-empty item: Add new item.
+              (org-insert-item)
+            ;; Empty item: Close the list.
+            ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
+            (delete-region (line-beginning-position) (line-end-position))
+            (insert "\n"))))
+
+       ((when (fboundp 'org-inlinetask-in-task-p)
+          (org-inlinetask-in-task-p))
+        ;; Inline task: Don't insert a new heading.
+        (org-return))
+
+       ((org-at-table-p)
+        (cond ((save-excursion
+                 (beginning-of-line)
+                 ;; See `org-table-next-field'.
+                 (cl-loop with end = (line-end-position)
+                          for cell = (org-element-table-cell-parser)
+                          always (equal (org-element-property :contents-begin cell)
+                                        (org-element-property :contents-end cell))
+                          while (re-search-forward "|" end t)))
+               ;; Empty row: end the table.
+               (delete-region (line-beginning-position) (line-end-position))
+               (org-return))
+              (t
+               ;; Non-empty row: call `org-return'.
+               (org-return))))
+       (t
+        ;; All other cases: call `org-return'.
+        (org-return)))))
   )
-;; Useful functions:1 ends here
+;; org-return-dwim:1 ends here
 
 
 
@@ -1032,17 +1142,23 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 (use-package! org-pandoc-import :after org)
 ;; Import from various formats into org:2 ends here
 
+;; emacs-jupyter fontification
+
+;; https://github.com/nnicandro/emacs-jupyter/issues/366#issuecomment-985758277
+
+
+;; [[file:config.org::*emacs-jupyter fontification][emacs-jupyter fontification:1]]
+(after! org
+  (defun display-ansi-colors ()
+    (ansi-color-apply-on-region (point-min) (point-max)))
+
+  (add-hook! org-babel-after-execute #'display-ansi-colors)
+  )
+;; emacs-jupyter fontification:1 ends here
+
 ;; [[file:config.org::*literate calc][literate calc:2]]
 (add-hook! org-mode #'literate-calc-minor-mode)
 ;; literate calc:2 ends here
-
-;; [[file:config.org::*Firestarter][Firestarter:2]]
-(use-package! firestarter
-  :after-call after-find-file
-  :custom
-  (firestarter-mode)
-  )
-;; Firestarter:2 ends here
 
 ;; [[file:config.org::*ein][ein:2]]
 (use-package! ein
@@ -1555,9 +1671,18 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 (after! treemacs
   (setq treemacs-show-hidden-files nil
         treemacs-is-never-other-window nil)
+  (treemacs-project-follow-mode t)
   (treemacs-follow-mode t)
   )
 ;; Treemacs:1 ends here
+
+;; [[file:config.org::*Firestarter][Firestarter:2]]
+(use-package! firestarter
+  :after-call after-find-file
+  :custom
+  (firestarter-mode)
+  )
+;; Firestarter:2 ends here
 
 ;; dir-locals
 

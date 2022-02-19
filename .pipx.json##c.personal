@@ -394,6 +394,199 @@
                 "venv_args": []
             }
         },
+        "jupyter-core": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-migrate",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-troubleshoot",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "jupyter",
+                        "jupyter-migrate",
+                        "jupyter-troubleshoot"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "jupyter-core",
+                    "package_or_url": "jupyter-core",
+                    "package_version": "4.9.2",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.10.1",
+                "venv_args": []
+            }
+        },
+        "notebook": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/jupyter-bundlerextension",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/jupyter-nbextension",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/jupyter-notebook",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/jupyter-serverextension",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "black": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/black",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/black-primer",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/blackd",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "ipython": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/ipython",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/ipython3",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "jsonschema": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/jsonschema",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "jupyter-client": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/jupyter-kernel",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/jupyter-kernelspec",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/jupyter-run",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "jupyter-core": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/jupyter",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/jupyter-migrate",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/jupyter-troubleshoot",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "nbclient": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/jupyter-execute",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "nbconvert": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/jupyter-dejavu",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/jupyter-nbconvert",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "nbformat": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/jupyter-trust",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygments": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "send2trash": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/notebook/bin/send2trash",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "jupyter-bundlerextension",
+                        "jupyter-nbextension",
+                        "jupyter-notebook",
+                        "jupyter-serverextension"
+                    ],
+                    "apps_of_dependencies": [
+                        "jupyter",
+                        "jupyter-migrate",
+                        "jupyter-troubleshoot",
+                        "jupyter-kernel",
+                        "jupyter-kernelspec",
+                        "jupyter-run",
+                        "jupyter-trust",
+                        "jsonschema",
+                        "jupyter-dejavu",
+                        "jupyter-nbconvert",
+                        "pygmentize",
+                        "jupyter-execute",
+                        "ipython",
+                        "ipython3",
+                        "black",
+                        "black-primer",
+                        "blackd",
+                        "send2trash"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "notebook",
+                    "package_or_url": "notebook",
+                    "package_version": "6.4.8",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.10.1",
+                "venv_args": []
+            }
+        },
         "pomodoro-beeminder": {
             "metadata": {
                 "injected_packages": {},

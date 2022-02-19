@@ -2,6 +2,11 @@
 #+property: header-args :mkdirp yes :comments both
 :END:
 
+* TODO
+
+- j2cli (pipx) https://github.com/kolypto/j2cli for templating
+- netstat from apt net-tools
+
 * Yadm dotfiles
 
 ** Get started
@@ -379,15 +384,17 @@ ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="043e", ATTRS{idProduct}=="9a3
 #+END_SRC
 
 
-* asdf v. brew
-
-- some of the plugins are not reliable (eg. jq plugin), plus there is no Brewfile counterpart
-- prefer brew for now, except for nodenv/pyenv replacements and things that can't be installed by brew:
-- python, nodejs, yarn, poetry
-
-* Kinesis Advantage
+* Kinesis Advantage :ATTACH:
+:PROPERTIES:
+:ID:       84969743-6640-4c9d-bc73-5fab6ddc939d
+:END:
 
 https://kinesis-ergo.com/wp-content/uploads/kb500-qsg.pdf
+
+
+[[attachment:_20220214_175742screenshot.png]]
+
+
 
 - ~=m~ to switch to mac mode
 - ~Program+\~ to switch off clicks
@@ -395,6 +402,12 @@ https://kinesis-ergo.com/wp-content/uploads/kb500-qsg.pdf
   + *Swap* ctrl and capslock
   + Copy alt to left shift
   + Copy win to key below X
+
+* asdf v. brew
+
+- some of the plugins are not reliable (eg. jq plugin), plus there is no Brewfile counterpart
+- prefer brew for now, except for nodenv/pyenv replacements and things that can't be installed by brew:
+- python, nodejs, yarn, poetry
 
 * Todos
 
