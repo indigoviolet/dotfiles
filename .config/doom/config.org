@@ -34,7 +34,9 @@ See [[file:init.el][init.el]], [[file:packages.el][packages.el]] and [[file:conf
 :END:
 ** Unpin ein
 
-** Figure out how to use dired efficiently
+** See if we can use https://gitlab.com/jjzmajic/hercules.el to make simpler hydras
+** Pretty hydra (nicer hydras, :pretty-hydra in use-package)
+** Figure out how to use dired efficiently (dired-sidebar?)
 
 ** Figure out how to get consult-buffer to be efficient
 
@@ -69,7 +71,6 @@ https://github.com/fuxialexander/emacs-webkit-katex-render
 ** [[https://ubolonton.github.io/emacs-tree-sitter/getting-started/][Emacs Tree Sitter]]
 ** [[https://old.reddit.com/r/emacs/comments/931la6/tip_how_to_adopt_flycheck_as_your_new_best_friend/][Flycheck Hydra]]
 ** Flycheck a directory: http://endlessparentheses.com/flycheck-a-directory-and-report-the-results.html. We don't need this right now because we have [[http://endlessparentheses.com/flycheck-a-directory-and-report-the-results.html][project checkers]]
-** Pretty hydra (nicer hydras, :pretty-hydra in use-package)
 ** Major mode hydra (hydra per major mode) <-- might be useful to have python-specific flycheckers in hydra hooked from hydra global
 ** https://github.com/tecosaur/emacs-everywhere
 ** [[https://github.com/hlissner/doom-emacs/issues/3191][apheleia-based format instead of format-all]]
@@ -2099,7 +2100,6 @@ appropriate.  In tables, insert a new row or end the table."
        (t
         ;; All other cases: call `org-return'.
         (org-return)))))
-  )
 #+end_src
 ** Import from various formats into org
 

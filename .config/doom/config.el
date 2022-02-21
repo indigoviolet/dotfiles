@@ -1130,7 +1130,6 @@ appropriate.  In tables, insert a new row or end the table."
        (t
         ;; All other cases: call `org-return'.
         (org-return)))))
-  )
 ;; org-return-dwim:1 ends here
 
 

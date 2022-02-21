@@ -1,3 +1,5 @@
+# TODO: See https://github.com/direnv/direnv/issues/898
+
 layout_conda() {
   local ACTIVATE="${HOME}/miniconda3/bin/activate"
 

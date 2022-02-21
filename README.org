@@ -210,6 +210,62 @@ fi
 exit 0
 #+end_src
 
+**** Handle injected packages?
+
+Long-term it would be nice to just have a comprehensive way to handle the exported json
+
+For example, we'd like to inject ipykernel into ipython, so that ipykernel
+doesn't need to be in every package that wants to use jupyter
+
+#+begin_src shell :results raw drawer
+pipx list --json \
+     | jq -r '.venvs[].metadata | {main_package: .main_package.package_or_url, injected: (.injected_packages | (keys[] // null))}' \
+     | jq -r '"pipx install \(.main_package)", if .injected != null then "pipx inject \(.main_package) \(.injected)" else "" end'
+#+end_src
+
+#+RESULTS:
+:results:
+pipx install black
+
+pipx install black-macchiato
+
+pipx install cleanpy
+
+pipx install cookiecutter
+
+pipx install docker-compose
+
+pipx install flake8
+
+pipx install ipython
+
+pipx install isort
+
+pipx install j2cli[yaml]
+
+pipx install jupyter-core
+
+pipx install notebook
+
+pipx install git+https://github.com/indigoviolet/pomodoro_beeminder
+
+pipx install pre-commit
+
+pipx install pyflakes
+
+pipx install pyment
+
+pipx install termdown
+
+pipx install tox
+
+pipx install youtube-dl
+
+:end:
+
+
+
+
 *** Misc utilities
 
 #+begin_src shell :shebang "#!/bin/zsh" :tangle ~/.config/yadm/bootstrap.d/070-misc-utilities.zsh##distro.Ubuntu,e.zsh
@@ -320,6 +376,19 @@ We use alt files to
 Some files are only useful on a specific class, but we don't bother removing
 these or hiding them. They are addressed at point of use - ie. if it is a
 zshcustom file, we might use templates to include them correctly in zshrc.
+* Jupyter/ipython notes
+
+** <2022-02-20 Sun>
+Currently we are following this: https://jkinred.github.io/post/using-jupyter/
+
+with emacs-jupyter or ein
+
+and kernels installed from each project via ipykernel installed in each project
+
+it would be better to inject ipykernel into the pipx ipython project, but
+currently we don't have a way to reproduce that via pipx.json (but this is easy
+to create)
+
 
 * Paperwm
 
