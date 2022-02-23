@@ -2,10 +2,23 @@
 #+property: header-args :mkdirp yes :comments both
 :END:
 
-* TODO
+* Todos [10/12]
 
-- j2cli (pipx) https://github.com/kolypto/j2cli for templating
-- netstat from apt net-tools
+** DONE Dispatcher
+** DONE Bootstrap script from dotbot
+** DONE Brewfile
+** DONE asdf setup script
+** DONE Remove .emacs and add script to install chemacs
+** DONE move personal laptop bootstrap scripts + config files to alt
+** DONE Handle fin alts
+** DONE Handle union of personal&gcp
+** DONE id_rsa and id_rsa.pub -> encrypt and add?
+** TODO Build pipx json installer
+** TODO j2cli (pipx) https://github.com/kolypto/j2cli for templating
+** DONE netstat from apt net-tools
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2022-02-22 Tue 21:09]
+:END:
 
 * Yadm dotfiles
 
@@ -268,7 +281,7 @@ pipx install youtube-dl
 
 *** Misc utilities
 
-#+begin_src shell :shebang "#!/bin/zsh" :tangle ~/.config/yadm/bootstrap.d/070-misc-utilities.zsh##distro.Ubuntu,e.zsh
+#+begin_src shell :shebang "#!/bin/zsh" :tangle ~/.config/yadm/bootstrap.d/070-misc-utilities.zsh##t,e.zsh
 set -eux
 
 # https://scriptingosx.com/2019/11/associative-arrays-in-zsh/
@@ -279,6 +292,15 @@ utils=(
     [notify-send]=libnotify-bin
     # brew installs shitloads of dependencies
     [svn]=subversion
+
+{% if yadm.class == "personal" %}
+{% endif %}
+
+{% if yadm.class == "gcp" %}
+    # not present in brew
+    [nvtop]=nvtop
+    [netstat]=net-tools
+{% endif %}
 )
 for util lib in ${(kv)utils}; do
     (command -v $util &> /dev/null) || sudo apt-get install --no-install-recommends -y $lib
@@ -478,17 +500,189 @@ https://kinesis-ergo.com/wp-content/uploads/kb500-qsg.pdf
 - prefer brew for now, except for nodenv/pyenv replacements and things that can't be installed by brew:
 - python, nodejs, yarn, poetry
 
-* Todos
+* Identify apt manually installed packages
 
-- [X] Dispatcher
-- [X] Bootstrap script from dotbot
-- [X] Brewfile
-- [X] asdf setup script
-- [X] Remove .emacs and add script to install chemacs
-- [X] move personal laptop bootstrap scripts + config files to alt
-- [X] Handle fin alts
-- [X] Handle union of personal&gcp
-- [ ] id_rsa and id_rsa.pub -> encrypt and add?
+#+begin_src shell :results raw drawer
+zcat /var/log/apt/history.log.*.gz | cat - /var/log/apt/history.log | grep -B1 -P 'apt.*?install'
+#+end_src
+
+#+RESULTS:
+:results:
+Start-Date: 2021-04-08  15:26:51
+Commandline: apt-get install gnome-session-flashback
+--
+Start-Date: 2021-04-13  19:21:16
+Commandline: apt-get install clangd
+--
+Start-Date: 2021-04-19  16:01:56
+Commandline: apt-get install doxygen
+--
+Start-Date: 2021-04-20  11:47:16
+Commandline: apt-get install fish
+--
+Start-Date: 2021-03-20  16:11:43
+Commandline: apt install python3-bluez bluez libbluetooth-dev python3-dev
+--
+Start-Date: 2021-03-26  14:22:11
+Commandline: apt-get install autoconf automake g++ gcc libpng-dev libpoppler-dev libpoppler-glib-dev libpoppler-private-dev libz-dev make pkg-config
+--
+Start-Date: 2021-03-26  14:51:06
+Commandline: apt-get install --reinstall libpng-dev
+--
+Start-Date: 2021-02-04  14:41:08
+Commandline: apt-get install --no-install-recommends -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+--
+Start-Date: 2021-02-10  10:50:52
+Commandline: apt-get install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+--
+Start-Date: 2021-02-10  10:57:36
+Commandline: apt-get install docker-ce docker-ce-cli containerd.io
+--
+Start-Date: 2021-02-10  14:34:22
+Commandline: apt-get install nvidia-docker2
+--
+Start-Date: 2021-02-11  17:48:30
+Commandline: apt-get install docker-compose
+--
+Start-Date: 2021-02-12  12:08:08
+Commandline: apt-get install libusb-dev
+--
+Start-Date: 2022-01-10  14:26:35
+Commandline: apt-get install cups-browsed
+--
+Start-Date: 2022-01-10  14:27:58
+Commandline: apt-get install cups-browsed
+--
+Start-Date: 2022-01-28  15:32:54
+Commandline: apt-get install google-cloud-sdk
+--
+Start-Date: 2021-10-20  17:00:37
+Commandline: apt install trimage
+--
+Start-Date: 2021-10-07  21:03:09
+Commandline: apt-get install gpodder
+--
+Start-Date: 2021-08-15  23:07:09
+Commandline: apt-get install speedtest-cli
+--
+Start-Date: 2021-07-05  18:15:03
+Commandline: apt-get install --yes clang
+--
+Start-Date: 2021-07-05  18:15:07
+Commandline: apt-get install --no-install-recommends -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+--
+Start-Date: 2021-06-08  18:05:30
+Commandline: apt-get install debootstrap
+--
+Start-Date: 2021-05-18  16:38:00
+Commandline: apt-get install clangd
+--
+Start-Date: 2021-05-18  17:46:07
+Commandline: apt-get install clang-format
+--
+Start-Date: 2021-05-24  13:16:21
+Commandline: apt-get install clangd
+--
+Start-Date: 2021-05-24  16:07:03
+Commandline: apt-get install bear
+--
+Start-Date: 2021-05-24  16:51:36
+Commandline: apt-get install nvidia-cuda-toolkit
+--
+Start-Date: 2021-05-25  16:45:39
+Commandline: apt-get install ninja-build
+--
+Start-Date: 2022-02-02  18:59:27
+Commandline: apt install w3m
+--
+Start-Date: 2022-02-04  16:56:34
+Commandline: apt-get install apt-file
+--
+Start-Date: 2022-02-08  17:17:37
+Commandline: apt-get install git-lfs
+--
+Start-Date: 2022-02-08  17:23:11
+Commandline: apt-get install ubuntu-minimal
+--
+Start-Date: 2022-02-08  17:23:27
+Commandline: apt-get install ubuntu-desktop-minimal
+--
+Start-Date: 2022-02-08  17:24:00
+Commandline: apt-get install --no-install-recommends ubuntu-gnome-desktop
+--
+Start-Date: 2022-02-09  14:20:15
+Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
+--
+Start-Date: 2022-02-09  14:20:31
+Commandline: apt-get install -y -qq docker-ce-rootless-extras
+--
+Start-Date: 2022-02-09  14:25:12
+Commandline: apt-get install --no-install-recommends -y nvidia-docker2
+--
+Start-Date: 2022-02-09  15:52:43
+Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
+--
+Start-Date: 2022-02-09  15:53:23
+Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
+--
+Start-Date: 2022-02-09  17:23:18
+Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
+--
+Start-Date: 2022-02-09  17:23:57
+Commandline: apt-get install -y --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
+--
+Start-Date: 2022-02-09  17:24:17
+Commandline: apt-get install -y --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
+--
+Start-Date: 2022-02-09  17:30:27
+Commandline: apt-get install -y --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
+--
+Start-Date: 2022-02-09  17:31:18
+Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
+--
+Start-Date: 2022-02-09  17:31:38
+Commandline: apt-get install -y --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
+--
+Start-Date: 2022-02-09  17:31:55
+Commandline: apt-get install -y --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
+--
+Start-Date: 2022-02-09  17:32:25
+Commandline: apt-get install -y --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
+--
+Start-Date: 2022-02-09  17:33:07
+Commandline: apt-get install --no-install-recommends -y uidmap
+--
+Start-Date: 2022-02-09  17:34:44
+Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
+--
+Start-Date: 2022-02-09  17:38:57
+Commandline: apt-get install -y -qq apt-transport-https ca-certificates curl
+--
+Start-Date: 2022-02-09  17:39:45
+Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
+--
+Start-Date: 2022-02-09  17:40:20
+Commandline: apt-get install -y -qq apt-transport-https ca-certificates curl
+--
+Start-Date: 2022-02-09  17:42:47
+Commandline: apt-get install -y --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
+--
+Start-Date: 2022-02-09  18:51:27
+Commandline: apt-get install -y -qq apt-transport-https ca-certificates curl
+--
+Start-Date: 2022-02-09  18:54:17
+Commandline: apt-get install --no-install-recommends -y nvidia-docker2
+--
+Start-Date: 2022-02-10  17:44:53
+Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
+--
+Start-Date: 2022-02-10  18:00:46
+Commandline: apt-get install cuda libnvidia-extra-510 nvidia-kernel-common-510 nvidia-kernel-source-510
+--
+Start-Date: 2022-02-22  21:06:01
+Commandline: apt install git-lfs
+:end:
+
 
 * Mac
 

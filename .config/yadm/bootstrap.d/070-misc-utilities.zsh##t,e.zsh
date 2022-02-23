@@ -13,6 +13,15 @@ utils=(
     [notify-send]=libnotify-bin
     # brew installs shitloads of dependencies
     [svn]=subversion
+
+{% if yadm.class == "personal" %}
+{% endif %}
+
+{% if yadm.class == "gcp" %}
+    # not present in brew
+    [nvtop]=nvtop
+    [netstat]=net-tools
+{% endif %}
 )
 for util lib in ${(kv)utils}; do
     (command -v $util &> /dev/null) || sudo apt-get install --no-install-recommends -y $lib
