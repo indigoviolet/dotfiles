@@ -354,8 +354,7 @@
   :custom
   (windmove-wrap-around t)
   :config
-  ;; ctrl-left right etc
-  (windmove-default-keybindings 'ctrl)
+  (windmove-default-keybindings 'shift)
   )
 ;; Movement:2 ends here
 
@@ -881,8 +880,7 @@
     ("y" org-paste-subtree "paste subtree")
     ("s" org-babel-demarcate-block "split src block")
     )
-  (map! :map org-mode-map "RET" #'unpackaged/org-return-dwim)
-)
+  )
 ;; Org mode:1 ends here
 
 ;; Company backends
@@ -1026,112 +1024,6 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 )
 ;; Archive all done tasks:1 ends here
 
-;; org-return-dwim
-;; https://github.com/alphapapa/unpackaged.el#org-return-dwim
-
-;; Bound to "RET" in org-mode-map
-
-
-;; [[file:config.org::*org-return-dwim][org-return-dwim:1]]
-(after! org
-  (defun unpackaged/org-element-descendant-of (type element)
-    "Return non-nil if ELEMENT is a descendant of TYPE.
-TYPE should be an element type, like `item' or `paragraph'.
-ELEMENT should be a list like that returned by `org-element-context'."
-    ;; MAYBE: Use `org-element-lineage'.
-    (when-let* ((parent (org-element-property :parent element)))
-      (or (eq type (car parent))
-          (unpackaged/org-element-descendant-of type parent))))
-
-  ;;;###autoload
-  (defun unpackaged/org-return-dwim (&optional default)
-    "A helpful replacement for `org-return'.  With prefix, call `org-return'.
-
-On headings, move point to position after entry content.  In
-lists, insert a new item or end the list, with checkbox if
-appropriate.  In tables, insert a new row or end the table."
-    ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
-    (interactive "P")
-    (if default
-        (org-return)
-      (cond
-       ;; Act depending on context around point.
-
-       ;; NOTE: I prefer RET to not follow links, but by uncommenting this block, links will be
-       ;; followed.
-
-       ;; ((eq 'link (car (org-element-context)))
-       ;;  ;; Link: Open it.
-       ;;  (org-open-at-point-global)
-)
-       ((org-at-heading-p)
-        ;; Heading: Move to position after entry content.
-        ;; NOTE: This is probably the most interesting feature of this function.
-        (let ((heading-start (org-entry-beginning-position)))
-          (goto-char (org-entry-end-position))
-          (cond ((and (org-at-heading-p)
-                      (= heading-start (org-entry-beginning-position)))
-                 ;; Entry ends on its heading; add newline after
-                 (end-of-line)
-                 (insert "\n\n"))
-                (t
-                 ;; Entry ends after its heading; back up
-                 (forward-line -1)
-                 (end-of-line)
-                 (when (org-at-heading-p)
-                   ;; At the same heading
-                   (forward-line)
-                   (insert "\n")
-                   (forward-line -1))
-                 ;; FIXME: looking-back is supposed to be called with more arguments.
-                 (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n")))))
-                   (insert "\n"))
-                 (forward-line -1)))))
-
-       ((org-at-item-checkbox-p)
-        ;; Checkbox: Insert new item with checkbox.
-        (org-insert-todo-heading nil))
-
-       ((org-in-item-p)
-        ;; Plain list.  Yes, this gets a little complicated...
-        (let ((context (org-element-context)))
-          (if (or (eq 'plain-list (car context))  ; First item in list
-                  (and (eq 'item (car context))
-                       (not (eq (org-element-property :contents-begin context)
-                                (org-element-property :contents-end context))))
-                  (unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
-              ;; Non-empty item: Add new item.
-              (org-insert-item)
-            ;; Empty item: Close the list.
-            ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
-            (delete-region (line-beginning-position) (line-end-position))
-            (insert "\n"))))
-
-       ((when (fboundp 'org-inlinetask-in-task-p)
-          (org-inlinetask-in-task-p))
-        ;; Inline task: Don't insert a new heading.
-        (org-return))
-
-       ((org-at-table-p)
-        (cond ((save-excursion
-                 (beginning-of-line)
-                 ;; See `org-table-next-field'.
-                 (cl-loop with end = (line-end-position)
-                          for cell = (org-element-table-cell-parser)
-                          always (equal (org-element-property :contents-begin cell)
-                                        (org-element-property :contents-end cell))
-                          while (re-search-forward "|" end t)))
-               ;; Empty row: end the table.
-               (delete-region (line-beginning-position) (line-end-position))
-               (org-return))
-              (t
-               ;; Non-empty row: call `org-return'.
-               (org-return))))
-       (t
-        ;; All other cases: call `org-return'.
-        (org-return)))))
-;; org-return-dwim:1 ends here
-
 
 
 ;; Needs ~brew install pandoc~
@@ -1155,8 +1047,13 @@ appropriate.  In tables, insert a new row or end the table."
   )
 ;; emacs-jupyter fontification:1 ends here
 
+
+
+;; Let's use this with file-locals instead
+
+
 ;; [[file:config.org::*literate calc][literate calc:2]]
-(add-hook! org-mode #'literate-calc-minor-mode)
+;; (add-hook! org-mode #'literate-calc-minor-mode)
 ;; literate calc:2 ends here
 
 ;; [[file:config.org::*ein][ein:2]]
@@ -1209,11 +1106,11 @@ appropriate.  In tables, insert a new row or end the table."
     ("X" vi/restart-and-execute-all-above "Restart & x")
     ("n" ein:notebooklist-open "Notebook list")
     ("l" ein:notebooklist-login "Login")
-    ("r" ein:notebook-reconnect-session-command-km "Reconnect")
-    ("R" ein:notebook-restart-session-command-km "Restart")
+    ("r" ein:notebook-reconnect-session-command "Reconnect")
+    ("R" ein:notebook-restart-session-command "Restart")
     ("i" vi/ein-toggle-inlined-images "Toggle inlined images")
     ("f" vi/ein-fix "Fix")
-    ("z" ein:notebook-kernel-interrupt-command-km "interrupt")
+    ("z" ein:notebook-kernel-interrupt-command "interrupt")
     )
   )
 ;; ein:2 ends here
@@ -1229,10 +1126,10 @@ appropriate.  In tables, insert a new row or end the table."
    :map vterm-mode-map
    ("M-j" . nil)
    ("M-k" . nil)
-   ("C-<left>" . windmove-left)
-   ("C-<right>" . windmove-right)
-   ("C-<up>" . windmove-up)
-   ("C-<down>" . windmove-down)
+   ("S-<left>" . windmove-left)
+   ("S-<right>" . windmove-right)
+   ("S-<up>" . windmove-up)
+   ("S-<down>" . windmove-down)
    ("C-c C-r" . vterm-send-C-r)
    )
   :hook (

@@ -2,7 +2,7 @@
 #+property: header-args :mkdirp yes :comments both
 :END:
 
-* Todos [10/12]
+* Todos [10/13]
 
 ** DONE Dispatcher
 ** DONE Bootstrap script from dotbot
@@ -15,6 +15,14 @@
 ** DONE id_rsa and id_rsa.pub -> encrypt and add?
 ** TODO Build pipx json installer
 ** TODO j2cli (pipx) https://github.com/kolypto/j2cli for templating
+
+** TODO Create a direnv cacher
+
+- check if .envrc.cache exists and is newer than [date] and newer than [list of files]
+- if so, ok, load that cache
+- else, recreate it
+
+
 ** DONE netstat from apt net-tools
 :LOGBOOK:
 - State "DONE"       from "TODO"       [2022-02-22 Tue 21:09]
@@ -682,6 +690,30 @@ Commandline: apt-get install cuda libnvidia-extra-510 nvidia-kernel-common-510 n
 Start-Date: 2022-02-22  21:06:01
 Commandline: apt install git-lfs
 :end:
+
+* Keyboard shortcuts
+
+** Use xev to identify keys being pressed
+
+#+begin_src shell
+xev | perl -nle '/keysym\s+.+?,\s+(\w+)/ and print $1'
+#+end_src
+
+** Identify X listener programs
+
+
+#+begin_src shell
+xlsclients -la
+#+end_src
+
+** Check for gnome shortcuts that aren't in the graphical interface, and edit them
+
+https://askubuntu.com/questions/82007/how-do-i-disable-ctrlaltleft-right
+
+#+begin_src shell
+gsettings list-recursively | grep <key>
+dconf-editor
+#+end_src
 
 
 * Mac

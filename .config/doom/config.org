@@ -8,6 +8,8 @@
 #+email: indigoviolet@gmail.com
 :END:
 
+
+
 This is my literate Doom Emacs configuration.
 
 See [[file:init.el][init.el]], [[file:packages.el][packages.el]] and [[file:config.el][config.el]] for the generated files. Also see [[file:~/.local/doom-emacs/custom.el][custom.el]] for customizations
@@ -32,7 +34,14 @@ See [[file:init.el][init.el]], [[file:packages.el][packages.el]] and [[file:conf
 :LOGBOOK:
 - State "DONE"       from              [2022-02-09 Wed 14:57]
 :END:
-** Unpin ein
+** DONE Unpin ein
+:LOGBOOK:
+- State "DONE"       from              [2022-02-23 Wed 14:50]
+:END:
+
+** https://github.com/rejeep/keats
+
+** https://framagit.org/steckerhalter/discover-my-major
 
 ** See if we can use https://gitlab.com/jjzmajic/hercules.el to make simpler hydras
 ** Pretty hydra (nicer hydras, :pretty-hydra in use-package)
@@ -821,8 +830,7 @@ available, though there is some suspicion that it loads the list many times?
   :custom
   (windmove-wrap-around t)
   :config
-  ;; ctrl-left right etc
-  (windmove-default-keybindings 'ctrl)
+  (windmove-default-keybindings 'shift)
   )
 #+end_src
 
@@ -1464,11 +1472,11 @@ Instead of default ivy
                     (consult-yank :preview-key any) ;preview for yank
                     ))
   :config
-
   (defun vi/consult-fd (&optional dir)
     (interactive "P")
     (let ((consult-find-command "fd --color=never --full-path ARG OPTS"))
       (consult-find dir)))
+  :commands (vi/consult-fd)
   )
 
 (use-package! marginalia
@@ -1698,8 +1706,7 @@ Instead of default ivy
     ("y" org-paste-subtree "paste subtree")
     ("s" org-babel-demarcate-block "split src block")
     )
-  (map! :map org-mode-map "RET" #'unpackaged/org-return-dwim)
-)
+  )
 #+end_src
 
 ** Company backends
@@ -1779,6 +1786,31 @@ The "After save hook" version is synchronous and has no problems.
   (add-hook! after-save :append :local #'org-babel-tangle))
 #+end_src
 
+**** COMMENT Fall through from auto-tangle to org-babel-tangle
+
+See https://github.com/yilkalargaw/org-auto-tangle/issues/9#issuecomment-1048465648 && https://github.com/yilkalargaw/org-auto-tangle/issues/11
+
+For such situations, we may want #+auto_tangle: nil to cause the
+org-babel-tangle after save hook to get set. Here's some example code to get
+started:
+
+#+begin_src emacs-lisp
+(let ((will_auto_tangle (let (
+                            (auto_tangle_extracted_assoc
+                             ;; uniquify auto_tangle; org-collect-keywords capitalizes; returns ("AUTO_TANGLE" . "nil") or ("AUTO_TANGLE" . "t")
+                             (assoc "AUTO_TANGLE" (org-collect-keywords '("auto_tangle") '("auto_tangle"))))
+                            )
+                            (if
+                                (eq auto_tangle_extracted_assoc nil)    ;not found
+                                org-auto-tangle-default           ;default
+                              (cdr auto_tangle_extracted_assoc)         ;else whatever was found
+                              )
+                            )
+                            ))
+                                        ;can be nil or "nil" or "t" or t, convert "nil" to nil
+                            (if (equal will_auto_tangle "nil") nil will_auto_tangle)
+  )
+#+end_src
 ** Images
 
 
@@ -1997,10 +2029,10 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 )
 #+end_src
 
-*** org-return-dwim
+*** COMMENT org-return-dwim
 https://github.com/alphapapa/unpackaged.el#org-return-dwim
 
-Bound to "RET" in org-mode-map
++Bound to "M-RET" in org-mode-map+ some weird error with org-at-heading-p
 
 #+begin_src emacs-lisp
 (after! org
@@ -2129,17 +2161,15 @@ https://github.com/nnicandro/emacs-jupyter/issues/366#issuecomment-985758277
 
 ** literate calc
 
-
 #+begin_src emacs-lisp :tangle packages.el
 (package! literate-calc-mode)
 #+end_src
 
+Let's use this with file-locals instead
 
 #+begin_src emacs-lisp
-(add-hook! org-mode #'literate-calc-minor-mode)
+;; (add-hook! org-mode #'literate-calc-minor-mode)
 #+end_src
-
-
 
 
 ** COMMENT super-agenda
@@ -2157,10 +2187,10 @@ https://github.com/nnicandro/emacs-jupyter/issues/366#issuecomment-985758277
 #+end_src
 * ein
 
-
 #+begin_src emacs-lisp :tangle packages.el
-(package! ein)
+(package! ein :pin "6063cee")
 #+end_src
+
 #+begin_src emacs-lisp
 (use-package! ein
   :after-call pre-command-hook
@@ -2211,11 +2241,11 @@ https://github.com/nnicandro/emacs-jupyter/issues/366#issuecomment-985758277
     ("X" vi/restart-and-execute-all-above "Restart & x")
     ("n" ein:notebooklist-open "Notebook list")
     ("l" ein:notebooklist-login "Login")
-    ("r" ein:notebook-reconnect-session-command-km "Reconnect")
-    ("R" ein:notebook-restart-session-command-km "Restart")
+    ("r" ein:notebook-reconnect-session-command "Reconnect")
+    ("R" ein:notebook-restart-session-command "Restart")
     ("i" vi/ein-toggle-inlined-images "Toggle inlined images")
     ("f" vi/ein-fix "Fix")
-    ("z" ein:notebook-kernel-interrupt-command-km "interrupt")
+    ("z" ein:notebook-kernel-interrupt-command "interrupt")
     )
   )
 #+end_src
@@ -2239,10 +2269,10 @@ https://github.com/nnicandro/emacs-jupyter/issues/366#issuecomment-985758277
    :map vterm-mode-map
    ("M-j" . nil)
    ("M-k" . nil)
-   ("C-<left>" . windmove-left)
-   ("C-<right>" . windmove-right)
-   ("C-<up>" . windmove-up)
-   ("C-<down>" . windmove-down)
+   ("S-<left>" . windmove-left)
+   ("S-<right>" . windmove-right)
+   ("S-<up>" . windmove-up)
+   ("S-<down>" . windmove-down)
    ("C-c C-r" . vterm-send-C-r)
    )
   :hook (

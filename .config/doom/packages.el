@@ -285,7 +285,6 @@
 ;; literate calc
 
 
-
 ;; [[file:config.org::*literate calc][literate calc:1]]
 (package! literate-calc-mode)
 ;; literate calc:1 ends here
@@ -293,9 +292,8 @@
 ;; ein
 
 
-
 ;; [[file:config.org::*ein][ein:1]]
-(package! ein)
+(package! ein :pin "6063cee")
 ;; ein:1 ends here
 
 ;; vterm

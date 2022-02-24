@@ -10,3 +10,6 @@ symbol = " "
 
 [docker_context]
 symbol = " "
+
+[hostname]
+style = "bold inverted bright-green"
