@@ -1033,20 +1033,6 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 (use-package! org-pandoc-import :after org)
 ;; Import from various formats into org:2 ends here
 
-;; emacs-jupyter fontification
-
-;; https://github.com/nnicandro/emacs-jupyter/issues/366#issuecomment-985758277
-
-
-;; [[file:config.org::*emacs-jupyter fontification][emacs-jupyter fontification:1]]
-(after! org
-  (defun display-ansi-colors ()
-    (ansi-color-apply-on-region (point-min) (point-max)))
-
-  (add-hook! org-babel-after-execute #'display-ansi-colors)
-  )
-;; emacs-jupyter fontification:1 ends here
-
 
 
 ;; Let's use this with file-locals instead
@@ -1055,6 +1041,35 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 ;; [[file:config.org::*literate calc][literate calc:2]]
 ;; (add-hook! org-mode #'literate-calc-minor-mode)
 ;; literate calc:2 ends here
+
+;; fontification
+
+;; https://github.com/nnicandro/emacs-jupyter/issues/366#issuecomment-985758277
+
+
+;; [[file:config.org::*fontification][fontification:1]]
+(after! org
+  (defun display-ansi-colors ()
+    (ansi-color-apply-on-region (point-min) (point-max)))
+
+  (add-hook! org-babel-after-execute #'display-ansi-colors)
+  )
+;; fontification:1 ends here
+
+;; envrc interaction
+
+;; https://github.com/nnicandro/emacs-jupyter/issues/387
+
+
+
+;; [[file:config.org::*envrc interaction][envrc interaction:1]]
+(after! org
+  (add-hook! org-mode
+    (defun fix-with-temp-buffer ()
+      (inheritenv-add-advice #'with-temp-buffer)
+      )
+    ))
+;; envrc interaction:1 ends here
 
 ;; [[file:config.org::*ein][ein:2]]
 (use-package! ein

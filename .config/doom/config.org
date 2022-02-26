@@ -2146,19 +2146,6 @@ Needs ~brew install pandoc~
 (use-package! org-pandoc-import :after org)
 #+end_src
 
-** emacs-jupyter fontification
-
-https://github.com/nnicandro/emacs-jupyter/issues/366#issuecomment-985758277
-
-#+begin_src emacs-lisp
-  (after! org
-    (defun display-ansi-colors ()
-      (ansi-color-apply-on-region (point-min) (point-max)))
-
-    (add-hook! org-babel-after-execute #'display-ansi-colors)
-    )
-#+end_src
-
 ** literate calc
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -2184,6 +2171,34 @@ Let's use this with file-locals instead
 (after! org
   (org-super-agenda-mode)
   )
+#+end_src
+
+* emacs-jupyter
+** fontification
+
+https://github.com/nnicandro/emacs-jupyter/issues/366#issuecomment-985758277
+
+#+begin_src emacs-lisp
+  (after! org
+    (defun display-ansi-colors ()
+      (ansi-color-apply-on-region (point-min) (point-max)))
+
+    (add-hook! org-babel-after-execute #'display-ansi-colors)
+    )
+#+end_src
+
+** envrc interaction
+
+https://github.com/nnicandro/emacs-jupyter/issues/387
+
+
+#+begin_src emacs-lisp
+(after! org
+  (add-hook! org-mode
+    (defun fix-with-temp-buffer ()
+      (inheritenv-add-advice #'with-temp-buffer)
+      )
+    ))
 #+end_src
 * ein
 
