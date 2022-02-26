@@ -1,7 +1,9 @@
 #!/bin/bash
 # Brew
 
-# =brew bundle dump --force --describe --casks --file=-==
+# +brew bundle dump --force --describe --casks --file=-+ See [[file:.zshcustom/brew.zsh::function brew-dump-leaves () {][brew-dump-leaves]] instead
+
+# =brew-dump-leaves >! ~/.Brewfile=
 
 # Note that .Brewfile is an alt file
 

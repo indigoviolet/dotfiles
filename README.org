@@ -184,7 +184,9 @@ sudo su - $(whoami)
 
 *** Brew
 
-=brew bundle dump --force --describe --casks --file=-==
++brew bundle dump --force --describe --casks --file=-+ See [[file:.zshcustom/brew.zsh::function brew-dump-leaves () {][brew-dump-leaves]] instead
+
+=brew-dump-leaves >! ~/.Brewfile=
 
 Note that .Brewfile is an alt file
 
@@ -196,6 +198,7 @@ if [[ -e ~/.Brewfile ]]; then
 	brew bundle --global check || brew bundle --global install -v
 fi
 #+end_src
+
 
 *** Asdf
 
