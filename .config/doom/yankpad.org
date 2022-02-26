@@ -115,7 +115,7 @@ InteractiveShell.ast_node_interactivity = "all"
 #+begin_src yaml
 $1:
   alpha: "/home/venky/dev/$1"
-  beta: "venky@ml-west1:/home/venky/dev/$1"
+  beta: "venky@${GCLOUD_HOST}:/home/venky/dev/$1"
 #+end_src
 
 * conf-unix-mode
