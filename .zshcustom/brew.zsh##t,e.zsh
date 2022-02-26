@@ -26,4 +26,10 @@ function brew-list-dependencies () {
     # brew list -1 | while read cask; do echo -ne "\x1B[1;34m $cask \x1B[0m"; brew deps $cask --installed | awk '{printf(" %s ", $0)}'; echo ""; done
 }
 
+function brew-dump-leaves () {
+    # Only capture manually installed "leaves"
+    { brew leaves --installed-on-request; echo "^tap" } | rg --file - <(brew bundle dump --describe --file=-) --before-context 1 --no-line-number --no-context-separator --word-regexp --color=never
+}
+
+
 export HOMEBREW_NO_AUTO_UPDATE=1
