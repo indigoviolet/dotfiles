@@ -22,6 +22,11 @@
 - if so, ok, load that cache
 - else, recreate it
 
+*** See dotenv
+
+** Use https://github.com/casey/just to collect all executable commands global and project-specific?
+
+can use j2cli/jinja for inclusion
 
 ** DONE netstat from apt net-tools
 :LOGBOOK:

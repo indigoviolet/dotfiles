@@ -864,7 +864,7 @@
         org-num-skip-commented t
         org-M-RET-may-split-line t
         ;; https://old.reddit.com/r/orgmode/comments/fagcaz/show_schedule_and_deadlines_for_standard_todo_list/
-        org-agenda-files '("~/org/Notes.org")
+        org-agenda-files '("~/org/personal.org")
         org-agenda-entry-types '(:deadline :scheduled)
         org-agenda-skip-scheduled-if-done t
         org-todo-keywords '((sequence "TODO(t)" "WAIT(w!)" "SOMEDAY(s!)" "REVISIT(r!)" "|" "DONE(d!)" "KILL(k!)" ))
@@ -1089,7 +1089,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   :config
   (defun vi/ein-fix ()
     (interactive)
-    (set-face-extend 'ein:cell-input-area t)
+    ;; (set-face-extend 'ein:cell-input-area t)
     (setq ein:worksheet-enable-undo t)
     (turn-on-undo-tree-mode)
     )

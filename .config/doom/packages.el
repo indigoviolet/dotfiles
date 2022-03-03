@@ -66,6 +66,41 @@
 
 ;; Chords
 
+;; https://dzone.com/articles/rare-letter-combinations-and
+
+
+;; #+begin_example
+;; ❯ curl -Ov https://www.johndcook.com/unordered_bigram_frequencies.csv
+;; ❯ rg --pcre2 '^([A-Z])\1' unordered_bigram_frequencies.csv
+;; 29:JJ,0
+;; 43:KK,0
+;; 69:QQ,0
+;; 90:VV,0
+;; 96:WW,0
+;; 111:YY,0
+;; 135:HH,0.001
+;; 154:UU,0.001
+;; 197:AA,0.003
+;; 212:XX,0.003
+;; 215:ZZ,0.003
+;; 274:BB,0.011
+;; 299:II,0.023
+;; 302:GG,0.025
+;; 331:DD,0.043
+;; 378:NN,0.073
+;; 383:CC,0.083
+;; 400:MM,0.096
+;; 421:RR,0.121
+;; 426:PP,0.137
+;; 431:FF,0.146
+;; 442:TT,0.171
+;; 457:OO,0.21
+;; 526:EE,0.378
+;; 535:SS,0.405
+;; 572:LL,0.577
+;; #+end_example
+
+
 
 ;; [[file:config.org::*Chords][Chords:1]]
 (package! use-package-chords)
