@@ -7,8 +7,17 @@
 # For libpng (pdf-tools), emacs build etc.
 export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
 
+#
+# * For python-build, use Brew (libffi.so.8)
+#
 # For python-build, esp. on 20.04, where python-build wants libffi.so.8, but
 # "apt libffi-dev" only provides libffi.so.7 (see
 # https://dev.to/ajkerrigan/homebrew-pyenv-ctypes-oh-my-3d9)
+#
+# * For emacs build, we want to use the apt gcc-11 (libgccjit)
+#
+# unset it like so:
+#
+# > CC= <command>
 export CC="$(brew --prefix gcc)/bin/gcc-11"
 {% endif %}
