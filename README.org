@@ -444,46 +444,62 @@ echo enabled > /sys/bus/usb/devices/${MOUSE}/power/wakeup
 
 Doesn't work on wakeup, seemingly.
 
-** Check using:
-
-#+BEGIN_SRC shell
-$ grep . /sys/bus/usb/devices/*/power/wakeup
-/sys/bus/usb/devices/1-3.1.2/power/wakeup:enabled
-/sys/bus/usb/devices/1-3.1/power/wakeup:disabled
-/sys/bus/usb/devices/1-3.2.3/power/wakeup:disabled
-/sys/bus/usb/devices/1-3.2/power/wakeup:disabled
-/sys/bus/usb/devices/1-3/power/wakeup:disabled
-/sys/bus/usb/devices/1-5/power/wakeup:disabled
-/sys/bus/usb/devices/usb1/power/wakeup:disabled
-/sys/bus/usb/devices/usb2/power/wakeup:disabled
-/sys/bus/usb/devices/usb3/power/wakeup:disabled
-/sys/bus/usb/devices/usb4/power/wakeup:disabled
-
-$ sudo dmesg | grep 'Product:'
-#+END_SRC
-
-
 ** /etc/udev/rules.d/10-usb-wakeup.rules
+
+https://askubuntu.com/a/874701
 
 This seems to work ([[*Check using:][Check using:]])
 
+#+begin_src shell :results output
+lsusb | grep mouse
+lsusb | grep Keyboard
+lsusb | grep LG
+#+end_src
+
+#+RESULTS:
+: Bus 001 Device 044: ID 1ea7:0064 SHARKOON Technologies GmbH 2.4GHz Wireless rechargeable vertical mouse [More&Better]
+: Bus 001 Device 045: ID 05f3:0007 PI Engineering, Inc. Kinesis Advantage PRO MPC/USB Keyboard
+: Bus 001 Device 043: ID 043e:9a39 LG Electronics USA, Inc. LG Monitor Controls
+: Bus 001 Device 042: ID 05f3:0081 PI Engineering, Inc. Kinesis Integrated Hub
+: Bus 001 Device 041: ID 0bda:5411 Realtek Semiconductor Corp. RTS5411 Hub
+: Bus 001 Device 040: ID 0bda:5411 Realtek Semiconductor Corp. RTS5411 Hub
+
+
 #+BEGIN_SRC shell :tangle "/sudo::/etc/udev/rules.d/10-usb-wakeup.rules"
-# https://askubuntu.com/a/874701
-
-# ❯ lsusb | grep mouse
-# Bus 001 Device 018: ID 1ea7:0064 SHARKOON Technologies GmbH 2.4GHz Wireless rechargeable vertical mouse [More&Better]
-
 ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1ea7", ATTRS{idProduct}=="0064" ATTR{power/wakeup}="enabled"
-
-# ❯ lsusb | grep Keyboard
-# Bus 001 Device 015: ID 05f3:0007 PI Engineering, Inc. Kinesis Advantage PRO MPC/USB Keyboard
-
 ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="05f3", ATTRS{idProduct}=="0007" ATTR{power/wakeup}="enabled"
-
-# ❯ lsusb | grep LG
-# Bus 001 Device 017: ID 043e:9a39 LG Electronics USA, Inc. 4-Port USB 2.0 Hub
 ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="043e", ATTRS{idProduct}=="9a39" ATTR{power/wakeup}="enabled"
 #+END_SRC
+
+
+** Check using:
+
+#+BEGIN_SRC shell :results output
+grep enabled /sys/bus/usb/devices/*/power/wakeup
+echo '--'
+grep . /sys/bus/usb/devices/*/product | grep -v 'product:00'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+/sys/bus/usb/devices/1-3.1.3/power/wakeup:enabled
+/sys/bus/usb/devices/1-3.2.2/power/wakeup:enabled
+--
+/sys/bus/usb/devices/1-3.1.3/product:2.4G Mouse
+/sys/bus/usb/devices/1-3.1/product:4-Port USB 2.0 Hub
+/sys/bus/usb/devices/1-3.2/product:Kinesis Keyboard Hub
+/sys/bus/usb/devices/1-3.3/product:LG Monitor Controls
+/sys/bus/usb/devices/1-3/product:4-Port USB 2.0 Hub
+/sys/bus/usb/devices/1-7/product:HD Camera
+/sys/bus/usb/devices/2-2/product:AX88179
+/sys/bus/usb/devices/usb1/product:xHCI Host Controller
+/sys/bus/usb/devices/usb2/product:xHCI Host Controller
+/sys/bus/usb/devices/usb3/product:xHCI Host Controller
+/sys/bus/usb/devices/usb4/product:xHCI Host Controller
+#+end_example
+
+
+
 
 
 * Kinesis Advantage :ATTACH:
