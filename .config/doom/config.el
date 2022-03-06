@@ -1634,6 +1634,12 @@ current buffer's, reload dir-locals."
                   (save-buffer))))))
 ;; docker:2 ends here
 
+;; [[file:config.org::*jsonnet][jsonnet:2]]
+(use-package! jsonnet-mode
+  :mode ("\\.jsonnet\\'"
+         "\\.libsonnet\\'"))
+;; jsonnet:2 ends here
+
 ;; Cuda mode doesn't inherit from prog-mode?
 
 ;; [[file:config.org::*Cuda mode doesn't inherit from prog-mode?][Cuda mode doesn't inherit from prog-mode?:1]]

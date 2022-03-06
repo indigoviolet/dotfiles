@@ -80,10 +80,10 @@ https://github.com/fuxialexander/emacs-webkit-katex-render
 ** [[https://ubolonton.github.io/emacs-tree-sitter/getting-started/][Emacs Tree Sitter]]
 ** [[https://old.reddit.com/r/emacs/comments/931la6/tip_how_to_adopt_flycheck_as_your_new_best_friend/][Flycheck Hydra]]
 ** Flycheck a directory: http://endlessparentheses.com/flycheck-a-directory-and-report-the-results.html. We don't need this right now because we have [[http://endlessparentheses.com/flycheck-a-directory-and-report-the-results.html][project checkers]]
-** Major mode hydra (hydra per major mode) <-- might be useful to have python-specific flycheckers in hydra hooked from hydra global
 ** https://github.com/tecosaur/emacs-everywhere
 ** [[https://github.com/hlissner/doom-emacs/issues/3191][apheleia-based format instead of format-all]]
 
+*** https://github.com/omnilib/ufmt
 ** use corfu instead of company-mode
 
 ** harpoon bookmarks
@@ -1700,6 +1700,13 @@ Instead of default ivy
   ("hh" . hydra-global/body))
 #+end_src
 
+** major mode
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! pretty-hydra)
+(package! major-mode-hydra)
+#+end_src
 
 * Org mode
 
@@ -2918,8 +2925,29 @@ So we could:
 #+begin_src emacs-lisp :tangle packages.el
 (package! git-modes)
 (package! ssh-config-mode)
+(package! jsonnet-mode)
 #+end_src
 
+** jsonnet
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! jsonnet-mode)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! jsonnet-mode
+  :mode ("\\.jsonnet\\'"
+         "\\.libsonnet\\'"))
+#+end_src
+
+** Just
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! just-mode)
+(package! justl)
+#+end_src
 
 ** Cuda mode doesn't inherit from prog-mode?
 #+begin_src emacs-lisp

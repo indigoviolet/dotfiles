@@ -279,6 +279,15 @@
 (package! wgrep)
 ;; wgrep:1 ends here
 
+;; major mode
+
+
+
+;; [[file:config.org::*major mode][major mode:1]]
+(package! pretty-hydra)
+(package! major-mode-hydra)
+;; major mode:1 ends here
+
 ;; show delimiters
 
 
@@ -395,7 +404,24 @@
 ;; [[file:config.org::*Misc modes][Misc modes:1]]
 (package! git-modes)
 (package! ssh-config-mode)
+(package! jsonnet-mode)
 ;; Misc modes:1 ends here
+
+;; jsonnet
+
+
+
+;; [[file:config.org::*jsonnet][jsonnet:1]]
+(package! jsonnet-mode)
+;; jsonnet:1 ends here
+
+;; Just
+
+
+;; [[file:config.org::*Just][Just:1]]
+(package! just-mode)
+(package! justl)
+;; Just:1 ends here
 
 ;; atomic chrome
 
