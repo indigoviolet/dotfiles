@@ -4,5 +4,5 @@
 
 # [[file:../../../README.org::*Doom emacs][Doom emacs:1]]
 set -eux
-{ git clone https://github.com/hlissner/doom-emacs "${HOME}/.local/doom-emacs" && EMACSDIR=$HOME/.local/doom-emacs/ $HOME/.local/doom-emacs/bin/doom install; } || exit 0
+{ git clone https://github.com/hlissner/doom-emacs "${HOME}/.emacs.d" && $HOME/.emacs.d/bin/doom install; } || exit 0
 # Doom emacs:1 ends here
