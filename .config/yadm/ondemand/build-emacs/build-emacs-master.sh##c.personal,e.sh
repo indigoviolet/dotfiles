@@ -47,8 +47,6 @@ echo Build finished, hit RETURN to continue to testing w/ -Q.
 read nought
 ./src/emacs -Q
 
-# doom build/sync needed?
-
 echo Hit RETURN to test w/ configuration.
 read nought
 ./src/emacs
@@ -59,4 +57,7 @@ sudo make -j8 install
 
 systemctl --user disable emacs.service
 sudo rm /usr/local/share/applications/{emacsclient,emacs-mail,emacsclient-mail}.desktop
+
+echo Rebuilding doom
+doom sync
 # build-emacs-master.sh:1 ends here
