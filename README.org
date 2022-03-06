@@ -349,7 +349,7 @@ set -eux
 
 #+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/090-doom-emacs.sh##c.personal,e.sh
 set -eux
-{ git clone https://github.com/hlissner/doom-emacs "${HOME}/.local/doom-emacs" && EMACSDIR=$HOME/.local/doom-emacs/ $HOME/.local/doom-emacs/bin/doom install; } || exit 0
+{ git clone https://github.com/hlissner/doom-emacs "${HOME}/.emacs.d" && $HOME/.emacs.d/bin/doom install; } || exit 0
 #+end_src
 
 *** git completion
