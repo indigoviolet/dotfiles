@@ -20,4 +20,9 @@ export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
 #
 # > CC= <command>
 export CC="$(brew --prefix gcc)/bin/gcc-11"
+
+
+# PIPX_DEFAULT_PYTHON: see `pipx install -h`. By default this is a vendored Python, we use it from asdf
+export PIPX_DEFAULT_PYTHON=$HOME/.asdf/shims/python
+
 {% endif %}

@@ -30,12 +30,12 @@
                     "include_dependencies": false,
                     "package": "black",
                     "package_or_url": "black",
-                    "package_version": "21.12b0",
+                    "package_version": "22.1.0",
                     "pip_args": [],
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
+                "python_version": "Python 3.8.1",
                 "venv_args": []
             }
         },
@@ -82,7 +82,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
+                "python_version": "Python 3.8.1",
                 "venv_args": []
             }
         },
@@ -110,7 +110,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
+                "python_version": "Python 3.8.1",
                 "venv_args": []
             }
         },
@@ -136,12 +136,6 @@
                                 "__Path__": "/home/venky/.local/pipx/venvs/cookiecutter/bin/normalizer",
                                 "__type__": "Path"
                             }
-                        ],
-                        "python-slugify": [
-                            {
-                                "__Path__": "/home/venky/.local/pipx/venvs/cookiecutter/bin/slugify",
-                                "__type__": "Path"
-                            }
                         ]
                     },
                     "apps": [
@@ -149,7 +143,6 @@
                     ],
                     "apps_of_dependencies": [
                         "chardetect",
-                        "slugify",
                         "normalizer"
                     ],
                     "include_apps": true,
@@ -161,7 +154,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
+                "python_version": "Python 3.8.1",
                 "venv_args": []
             }
         },
@@ -226,7 +219,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
+                "python_version": "Python 3.8.1",
                 "venv_args": []
             }
         },
@@ -270,7 +263,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
+                "python_version": "Python 3.8.1",
                 "venv_args": []
             }
         },
@@ -303,7 +296,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
+                "python_version": "Python 3.8.1",
                 "venv_args": []
             }
         },
@@ -331,7 +324,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
+                "python_version": "Python 3.8.1",
                 "venv_args": []
             }
         },
@@ -469,70 +462,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
-                "venv_args": []
-            }
-        },
-        "pomodoro-beeminder": {
-            "metadata": {
-                "injected_packages": {},
-                "main_package": {
-                    "app_paths": [
-                        {
-                            "__Path__": "/home/venky/.local/pipx/venvs/pomodoro-beeminder/bin/pomo_poster",
-                            "__type__": "Path"
-                        },
-                        {
-                            "__Path__": "/home/venky/.local/pipx/venvs/pomodoro-beeminder/bin/pomo_tailer",
-                            "__type__": "Path"
-                        }
-                    ],
-                    "app_paths_of_dependencies": {
-                        "charset-normalizer": [
-                            {
-                                "__Path__": "/home/venky/.local/pipx/venvs/pomodoro-beeminder/bin/normalizer",
-                                "__type__": "Path"
-                            }
-                        ],
-                        "commonmark": [
-                            {
-                                "__Path__": "/home/venky/.local/pipx/venvs/pomodoro-beeminder/bin/cmark",
-                                "__type__": "Path"
-                            }
-                        ],
-                        "dateparser": [
-                            {
-                                "__Path__": "/home/venky/.local/pipx/venvs/pomodoro-beeminder/bin/dateparser-download",
-                                "__type__": "Path"
-                            }
-                        ],
-                        "pygments": [
-                            {
-                                "__Path__": "/home/venky/.local/pipx/venvs/pomodoro-beeminder/bin/pygmentize",
-                                "__type__": "Path"
-                            }
-                        ]
-                    },
-                    "apps": [
-                        "pomo_poster",
-                        "pomo_tailer"
-                    ],
-                    "apps_of_dependencies": [
-                        "dateparser-download",
-                        "normalizer",
-                        "cmark",
-                        "pygmentize"
-                    ],
-                    "include_apps": true,
-                    "include_dependencies": false,
-                    "package": "pomodoro-beeminder",
-                    "package_or_url": "git+https://github.com/indigoviolet/pomodoro_beeminder",
-                    "package_version": "0.1.0",
-                    "pip_args": [],
-                    "suffix": ""
-                },
-                "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
+                "python_version": "Python 3.8.1",
                 "venv_args": []
             }
         },
@@ -588,12 +518,12 @@
                     "include_dependencies": false,
                     "package": "pre-commit",
                     "package_or_url": "pre-commit",
-                    "package_version": "2.16.0",
+                    "package_version": "2.17.0",
                     "pip_args": [],
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
+                "python_version": "Python 3.8.1",
                 "venv_args": []
             }
         },
@@ -621,7 +551,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
+                "python_version": "Python 3.8.1",
                 "venv_args": []
             }
         },
@@ -649,7 +579,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
+                "python_version": "Python 3.8.1",
                 "venv_args": []
             }
         },
@@ -686,7 +616,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
+                "python_version": "Python 3.8.1",
                 "venv_args": []
             }
         },
@@ -728,7 +658,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
+                "python_version": "Python 3.8.1",
                 "venv_args": []
             }
         },
@@ -756,7 +686,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.10.1",
+                "python_version": "Python 3.8.1",
                 "venv_args": []
             }
         }
