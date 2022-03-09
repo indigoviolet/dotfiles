@@ -1,4 +1,3 @@
-EMACSDIR := env_var('EMACSDIR')
 HOME := env_var('HOME')
 
 set shell := ["bash", "-uc"]
@@ -8,6 +7,7 @@ default:
 
 
 {% if yadm.class == "personal" %}
+EMACSDIR := env_var('EMACSDIR')
 doom_rebuild:
     # https://github.com/millejoh/emacs-ipython-notebook/issues/824
     doom clean
