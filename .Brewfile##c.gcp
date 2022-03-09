@@ -4,6 +4,8 @@ tap "jesseduffield/lazydocker"
 tap "mutagen-io/mutagen"
 # Extendable version manager with support for Ruby, Node.js, Erlang & more
 brew "asdf"
+# New way to see and navigate directory trees
+brew "broot"
 # Get a file from an HTTP, HTTPS or FTP server
 brew "curl"
 # JSON, YAML, TOML, XML, and CSV query and modification tool
@@ -22,6 +24,8 @@ brew "git-lfs"
 brew "htop"
 # Lightweight and flexible command-line JSON processor
 brew "jq"
+# Handy way to save and run project-specific commands
+brew "just"
 # Modern and intuitive terminal-based text editor
 brew "micro"
 # Execute binaries from Python packages in isolated environments
