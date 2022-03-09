@@ -6,6 +6,8 @@ set shell := ["bash", "-uc"]
 default:
     just --choose
 
+
+{% if yadm.class == "personal" %}
 doom_rebuild:
     # https://github.com/millejoh/emacs-ipython-notebook/issues/824
     doom clean
@@ -14,9 +16,18 @@ doom_rebuild:
 
 doom_tangle_config:
     emacs --batch -Q --eval "(require 'org)" --eval '(org-babel-tangle-file "'$DOOMDIR'/config.org")'
+{% endif %}
+
 
 # Only capture manually installed "leaves"
 brew_dump_leaves:
     #!/usr/bin/env zsh
     set -euxo pipefail
     { brew leaves --installed-on-request; echo "^tap" } | rg --file - <(brew bundle dump --describe --file=-) --before-context 1 --no-line-number --no-context-separator --word-regexp --color=never
+
+pipx_dump:
+    pipx list --json >! ~/.pipx.json
+
+# Local Variables:
+# mode: just
+# End:
