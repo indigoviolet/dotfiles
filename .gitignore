@@ -13,6 +13,7 @@ fin-app*
 .tern-port
 .dmypy.json
 .envrc
+.ipynb_checkpoints/
 
 # Local Variables:
 # mode: gitignore

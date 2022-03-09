@@ -1115,6 +1115,17 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
       (message "Not in notebook buffer!"))
     )
 
+  (defun vi/revert-notebook ()
+    (interactive)
+    (aif (ein:get-notebook)
+        (let (
+              (nurl (ein:$notebook-url-or-port it))
+              (npath (ein:$notebook-notebook-path it))
+              )
+          (ein:notebook-close it)
+          (ein:notebook-open nurl npath)
+        )))
+  
   (defhydra hydra-ein (:exit t)
     "Ein"
     ("x" ein:worksheet-execute-all-cells-above "Execute all above")
@@ -1125,6 +1136,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
     ("R" ein:notebook-restart-session-command "Restart")
     ("i" vi/ein-toggle-inlined-images "Toggle inlined images")
     ("f" vi/ein-fix "Fix")
+    ("v" vi/revert-notebook "Revert")
     ("z" ein:notebook-kernel-interrupt-command "interrupt")
     )
   )
@@ -1410,7 +1422,8 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 (defun vi/setup-python-flycheck ()
   (setq-local flycheck-disabled-checkers '(python-pylint))
   (setq-local flycheck-python-mypy-executable (concat (projectile-project-root) "/.venv/bin/mypy"))
-  (flycheck-select-checker 'python-flake8-vi)
+  (flycheck-select-checker 'lsp)
+  (flycheck-add-next-checker 'lsp 'python-flake8-vi)
   (flycheck-add-next-checker 'python-flake8-vi 'python-mypy-vi)
   )
 

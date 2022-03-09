@@ -19,6 +19,14 @@ doom_tangle_config:
 {% endif %}
 
 
+#+begin_src
+{% if yadm.class == "gcp" %}
+jupyter_start:
+    cd ~/dev/devr/py/nbs && tmux new-session -d -s jupyter jupyter notebook
+{% endif %}
+#+end_src
+
+
 # Only capture manually installed "leaves"
 brew_dump_leaves:
     #!/usr/bin/env zsh
@@ -26,7 +34,10 @@ brew_dump_leaves:
     { brew leaves --installed-on-request; echo "^tap" } | rg --file - <(brew bundle dump --describe --file=-) --before-context 1 --no-line-number --no-context-separator --word-regexp --color=never
 
 pipx_dump:
-    pipx list --json >! ~/.pipx.json
+    pipx list --json
+
+yadm_checkpoint:
+    cd {{ HOME  }} && yadm add -u && yadm ci -m "checkpoint" && yadm push
 
 # Local Variables:
 # mode: just
