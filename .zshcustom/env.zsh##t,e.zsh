@@ -37,3 +37,7 @@ path[1,0]=$HOME/.cargo/bin/
 
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#808080,underline"
 export ZSH_AUTOSUGGEST_STRATEGY=(completion history)
+
+# https://stackoverflow.com/a/55893600/14044156
+# Force bash scripts to execute ~/.bashrc
+export BASH_ENV=$HOME/.bashrc

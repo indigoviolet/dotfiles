@@ -8,7 +8,8 @@
 # (Edit: actually, I think vscode loads .zprofile in a parent shell and doesn't
 # source it again in each terminal)
 
-[[ $NONINTERACTIVE_ZSH_SOURCED -eq 1 ]] && return || export NONINTERACTIVE_ZSH_SOURCED=1
+# Not exported so it doesn't propagate to sub-shells
+[[ $NONINTERACTIVE_ZSH_SOURCED -eq 1 ]] && return || NONINTERACTIVE_ZSH_SOURCED=1
 
 ZSH_CUSTOM_DIR=${HOME}/.zshcustom
 source ${ZSH_CUSTOM_DIR}/env.zsh
