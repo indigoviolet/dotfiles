@@ -12,9 +12,8 @@ rescuetime_post_commit
 fin-app*
 .tern-port
 .dmypy.json
-.envrc
 .ipynb_checkpoints/
-
+__pycache__/
 # Local Variables:
 # mode: gitignore
 # End:

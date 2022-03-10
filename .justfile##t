@@ -5,7 +5,6 @@ set shell := ["bash", "-uc"]
 default:
     just --choose
 
-
 {% if yadm.class == "personal" %}
 EMACSDIR := env_var('EMACSDIR')
 doom_rebuild:
@@ -16,15 +15,19 @@ doom_rebuild:
 
 doom_tangle_config:
     emacs --batch -Q --eval "(require 'org)" --eval '(org-babel-tangle-file "'$DOOMDIR'/config.org")'
+
+mutagen_project_start:
+    mutagen project start -f ~/dev/ml-west.yml
+
+mutagen_project_terminate:
+    mutagen project terminate -f ~/dev/ml-west.yml
 {% endif %}
 
 
-#+begin_src
 {% if yadm.class == "gcp" %}
 jupyter_start:
     cd ~/dev/devr/py/nbs && tmux new-session -d -s jupyter jupyter notebook
 {% endif %}
-#+end_src
 
 
 # Only capture manually installed "leaves"
@@ -39,6 +42,21 @@ pipx_dump:
 yadm_checkpoint:
     cd {{ HOME  }} && yadm add -u && yadm ci -m "checkpoint" && yadm push
 
+
+poetry_install_ipykernel:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    cd {{ invocation_directory() }}
+    if [[ $POETRY_ACTIVE -ne 1 ]]; then
+        echo "Poetry is not active"
+        exit 1
+    fi
+    poetry add -D ipykernel
+    poetry install
+    python -m ipykernel install --user --name=$(basename $(pwd))
+
 # Local Variables:
 # mode: just
+# firestarter-mode: t
+# firestarter: "yadm alt"
 # End:
