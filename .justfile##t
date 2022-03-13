@@ -34,9 +34,9 @@ jupyter_start:
 
 # Brew capture manually installed "leaves"
 brew_dump_leaves:
-    #!/usr/bin/env zsh
-    set -euxo pipefail
-    { brew leaves --installed-on-request; echo "^tap" } | rg --file - <(brew bundle dump --describe --file=-) --before-context 1 --no-line-number --no-context-separator --word-regexp --color=never
+    #!/usr/bin/env bash
+    set_init
+    { brew leaves --installed-on-request; echo "^tap"; } | rg --file - <(brew bundle dump --describe --file=-) --before-context 1 --no-line-number --no-context-separator --word-regexp --color=never
 
 pipx_dump:
     pipx list --json
@@ -47,7 +47,7 @@ yadm_checkpoint:
 # Install a Jupyter kernel from a Poetry venv
 poetry_install_ipykernel:
     #!/usr/bin/env bash
-    set -euxo pipefail
+    set_init
     cd {{ invocation_directory() }}
     if [[ ${POETRY_ACTIVE:-0} -ne 1 ]]; then
         echo "Poetry is not active"
@@ -55,22 +55,22 @@ poetry_install_ipykernel:
     fi
     poetry add -D ipykernel
     poetry install
-    python -m ipykernel install --user --name=$(basename $(pwd))
+    python -m ipykernel install --user --name="$(basename "$(pwd)")"
 
 # https://github.com/python-poetry/poetry/issues/3958
 # https://github.com/python-poetry/poetry/issues/2921#issuecomment-896812858
 # Update git dependency
 poetry_reinstall_git LIB:
     #!/usr/bin/env bash
-    set -euxo pipefail
+    set_init
     cd {{ invocation_directory() }}
     if [[ ${POETRY_ACTIVE:-0} -ne 1 ]]; then
         echo "Poetry is not active"
         exit 1
     fi
-    package_folder=`python -c 'import importlib; import sys; print("\n".join([importlib.import_module(m).__path__[0] for m in sys.argv[1:]]))' {{LIB}}`
-    if test -d $package_folder; then
-        rm $package_folder -rf
+    package_folder=$(python -c 'import importlib; import sys; print("\n".join([importlib.import_module(m).__path__[0] for m in sys.argv[1:]]))' {{LIB}})
+    if test -d "$package_folder"; then
+        rm "$package_folder" -rf
         poetry install
     fi
 
