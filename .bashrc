@@ -6,6 +6,11 @@
 
 
 set_init () {
+    set_x
+    set -euo pipefail
+}
+
+set_x () {
     # Color xtrace prompts, useful in bash scripts
     # https://stackoverflow.com/a/58068110/14044156
     #
@@ -22,5 +27,5 @@ set_init () {
     # direnv show_dump $DIRENV_DIFF
     # #+end_src
     PS4=$'\e[94m+$BASH_SOURCE:${BASH_LINENO[0]}:${FUNCNAME[0]:-NOFUNC}()>\e[0m '
-    set -euxo pipefail
+    set -x
 }
