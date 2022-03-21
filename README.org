@@ -2,7 +2,7 @@
 #+property: header-args :mkdirp yes :comments both
 :END:
 
-* Todos [10/13]
+* Todos [11/14]
 
 ** DONE Dispatcher
 ** DONE Bootstrap script from dotbot
@@ -18,15 +18,13 @@
 
 ** TODO Create a direnv cacher
 
-- check if .envrc.cache exists and is newer than [date] and newer than [list of files]
-- if so, ok, load that cache
-- else, recreate it
 
-*** See dotenv
+** DONE Use https://github.com/casey/just to collect all executable commands global and project-specific?
+:LOGBOOK:
+- State "DONE"       from              [2022-03-12 Sat 15:37]
+:END:
 
-** Use https://github.com/casey/just to collect all executable commands global and project-specific?
-
-can use j2cli/jinja for inclusion
+** can use j2cli/jinja for inclusion
 
 ** DONE netstat from apt net-tools
 :LOGBOOK:
@@ -462,9 +460,9 @@ lsusb | grep LG
 #+end_src
 
 #+RESULTS:
-: Bus 001 Device 022: ID 1ea7:0064 SHARKOON Technologies GmbH 2.4GHz Wireless rechargeable vertical mouse [More&Better]
-: Bus 001 Device 021: ID 05f3:0007 PI Engineering, Inc. Kinesis Advantage PRO MPC/USB Keyboard
-: Bus 001 Device 015: ID 043e:9a39 LG Electronics USA, Inc. LG Monitor Controls
+: Bus 001 Device 011: ID 1ea7:0064 SHARKOON Technologies GmbH 2.4GHz Wireless rechargeable vertical mouse [More&Better]
+: Bus 001 Device 010: ID 05f3:0007 PI Engineering, Inc. Kinesis Advantage PRO MPC/USB Keyboard
+: Bus 001 Device 007: ID 043e:9a39 LG Electronics USA, Inc. LG Monitor Controls
 
 
 #+BEGIN_SRC shell :tangle "/sudo::/etc/udev/rules.d/10-usb-wakeup.rules"
@@ -480,7 +478,7 @@ ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="043e", ATTRS{idProduct}=="9a3
 # on all computers
 # (I couldn't figure out how to enable wake on
 # only parent hub of the keyboard and mouse.)
-KERNEL=="usb[0-9]|usb[0-9][0-9]", SUBSYSTEM=="usb", DRIVER=="usb", ATTR{power/wakeup}="enabled"
+# KERNEL=="usb[0-9]|usb[0-9][0-9]", SUBSYSTEM=="usb", DRIVER=="usb", ATTR{power/wakeup}="enabled"
 
 # enable wakeup for all keyboards
 # Keyboards are HID class 3 protocol 1 devices.
@@ -502,19 +500,22 @@ grep . /sys/bus/usb/devices/*/product
 
 #+RESULTS:
 #+begin_example
-/sys/bus/usb/devices/1-3.2.2.2/power/wakeup:enabled
+/sys/bus/usb/devices/1-1.2.1.2/power/wakeup:enabled
+/sys/bus/usb/devices/1-1.2.1.4/power/wakeup:enabled
+/sys/bus/usb/devices/1-1.2.1/power/wakeup:enabled
+/sys/bus/usb/devices/usb1/power/wakeup:enabled
+/sys/bus/usb/devices/usb2/power/wakeup:enabled
 --
-/sys/bus/usb/devices/1-3.2.2/product:Kinesis Keyboard Hub
-/sys/bus/usb/devices/1-3.2.3/product:2.4G Mouse
-/sys/bus/usb/devices/1-3.2/product:4-Port USB 2.0 Hub
-/sys/bus/usb/devices/1-3.3/product:LG Monitor Controls
-/sys/bus/usb/devices/1-3/product:4-Port USB 2.0 Hub
+/sys/bus/usb/devices/1-1.2.1.4/product:2.4G Mouse
+/sys/bus/usb/devices/1-1.2.1/product:Kinesis Keyboard Hub
+/sys/bus/usb/devices/1-1.2.3/product:blink(1) mk2
+/sys/bus/usb/devices/1-1.2/product:4-Port USB 2.0 Hub
+/sys/bus/usb/devices/1-1.3/product:LG Monitor Controls
+/sys/bus/usb/devices/1-1/product:4-Port USB 2.0 Hub
 /sys/bus/usb/devices/1-7/product:HD Camera
 /sys/bus/usb/devices/2-2/product:AX88179
 /sys/bus/usb/devices/usb1/product:xHCI Host Controller
 /sys/bus/usb/devices/usb2/product:xHCI Host Controller
-/sys/bus/usb/devices/usb3/product:xHCI Host Controller
-/sys/bus/usb/devices/usb4/product:xHCI Host Controller
 #+end_example
 
 
