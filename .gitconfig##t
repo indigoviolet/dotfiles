@@ -99,6 +99,9 @@
 # 	tool = emerge
 # 	conflictstyle = diff3
 
+[init]
+	defaultBranch = main
+
 [core]
 	excludesfile = ~/.gitignore
 
