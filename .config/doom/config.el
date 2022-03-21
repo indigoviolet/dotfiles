@@ -505,6 +505,7 @@
   (doom/reload-font)
   )
 
+;; Can be run manually like (vi/adjust-font-size-for-display '(3440 . 1440))
 (defun vi/adjust-font-size-for-display (disp)
   (message "rejiggering for %s" disp)
   (cond ((equal disp '(3440 . 1440))   ; LG monitor
@@ -531,41 +532,65 @@
 (use-package! easy-kill
   :after-call after-find-file
   :custom
-  (easy-mark-try-things (quote (url email word forward-line-edge)))
-  :config
-
-  ;; (defun easy-kill-on-inside-pairs (_n)
-  ;;   (er/mark-inside-pairs)
-  ;;   (easy-kill-adjust-candidate 'expand-region (mark) (point))
-  ;;   )
-
-  ;; (defun easy-kill-on-outside-pairs (_n)
-  ;;   (er/mark-outside-pairs)
-  ;;   (easy-kill-adjust-candidate 'expand-region (mark) (point)))
+  (easy-mark-try-things '(WORD forward-line-edge sexp )) ;see easy-kill-alist
   :bind (
-         ([remap kill-ring-save] . easy-kill)
-         ("M-SPC" . easy-mark)
+         ([remap kill-ring-save] . easy-kill) ; M-w
+         ([remap set-mark-command] . easy-mark) ;C-SPC
+         ;; ("M-SPC" . easy-mark)
          )
-  ;; (global-set-key [remap kill-ring-save] 'easy-kill)
-  ;; (global-set-key [remap set-mark-command] 'easy-mark)
   )
 
-(use-package easy-kill-extras
+(use-package! easy-kill-extras
   :after easy-kill
   :init
   (setq easy-kill-ace-jump-enable-p nil)
+  :custom
+  (easy-kill-cycle-ignored '(string-to-char-forward string-up-to-char-forward))
   :config
-  (add-to-list 'easy-kill-alist '(?^ backward-line-edge ""))
-  (add-to-list 'easy-kill-alist '(?$ forward-line-edge ""))
-  (add-to-list 'easy-kill-alist '(?b buffer ""))
+  (require 'extra-things)
+  (defun easy-kill-on-inside-pairs (_n)
+    (er/mark-inside-pairs)
+    (easy-kill-adjust-candidate 'expand-region (mark) (point))
+    )
+
+  (defun easy-kill-on-outside-pairs (_n)
+    (er/mark-outside-pairs)
+    (easy-kill-adjust-candidate 'expand-region (mark) (point)))
+
+  (defun easy-kill-on-inside-quotes (_n)
+    (er/mark-inside-quotes)
+    (easy-kill-adjust-candidate 'expand-region (mark) (point))
+    )
+
+  (defun easy-kill-on-outside-quotes (_n)
+    (er/mark-outside-quotes)
+    (easy-kill-adjust-candidate 'expand-region (mark) (point)))
+
+  (add-to-list 'easy-kill-alist '(?W  WORD " ") t)
+  (add-to-list 'easy-kill-alist '(?l  line "\n")) ;override the symbol for list
+  (add-to-list 'easy-kill-alist '(?L  list "\n")) ;override the symbol for list
+  (add-to-list 'easy-kill-alist '(?< inside-pairs "") t)
+  (add-to-list 'easy-kill-alist '(?> outside-pairs "") t )
+  (add-to-list 'easy-kill-alist '(?\' inside-quotes "") t)
+  (add-to-list 'easy-kill-alist '(?\" outside-quotes "") t)
+  (add-to-list 'easy-kill-alist '(?$ forward-line-edge "") t)
+  (add-to-list 'easy-kill-alist '(?^ backward-line-edge "") t)
+  (add-to-list 'easy-kill-alist '(?b buffer "") t)
+  (add-to-list 'easy-kill-alist '(?f string-to-char-forward "") t)
+  (add-to-list 'easy-kill-alist '(?F string-up-to-char-forward "") t)
+
+  ;; Integrate `expand-region' functionality with easy-kill
+  (define-key easy-kill-base-map (kbd "o") 'easy-kill-er-expand)
+  (define-key easy-kill-base-map (kbd "i") 'easy-kill-er-unexpand)
+
+  ;; unused
+  ;;
   ;; (add-to-list 'easy-kill-alist '(?< buffer-before-point ""))
   ;; (add-to-list 'easy-kill-alist '(?> buffer-after-point ""))
-  (add-to-list 'easy-kill-alist '(?< inside-pairs ""))
-  (add-to-list 'easy-kill-alist '(?> outside-pairs ""))
-  (add-to-list 'easy-kill-alist '(?f string-to-char-forward ""))
-  (add-to-list 'easy-kill-alist '(?F string-up-to-char-forward ""))
   ;; (add-to-list 'easy-kill-alist '(?t string-to-char-backward ""))
   ;; (add-to-list 'easy-kill-alist '(?T string-up-to-char-backward ""))
+  ;;
+  ;;
   )
 ;; Kill/Yank:2 ends here
 
@@ -595,6 +620,12 @@
 ;; [[file:config.org::*Undo][Undo:1]]
 (after! undo-tree
   (map! "C--" #'undo-tree-undo)
+  )
+
+(after! undo-fu
+  (map! "C--" #'undo-fu-only-undo)
+  (map! "M--" #'undo-fu-only-redo)
+  (map! "C-M--" #'undo-fu-only-redo-all)
   )
 ;; Undo:1 ends here
 
@@ -818,12 +849,13 @@
     " Hydra "
     ("a" hydra-annotate/body "Annotate")
     ("A" org-agenda-list "Agenda")
-    ("c" hydra-flycheck/body "flycheck")
-    ("e" hydra-ein/body "ein")
+    ("c" flycheck-hydra/body "flycheck")
+    ("e" ein-hydra/body "ein")
     ("g" magit-status-here "magit")
-    ("i" vi/lsp-ui-imenu "imenu")
+    ;; ("i" vi/lsp-ui-imenu "imenu")
+    ("i" consult-outline "outlIne")
     ("n" hydra-narrow/body "narrow")
-    ("o" hydra-org/body "org")
+    ("o" org-hydra/body "org")
     ("p" org-pomodoro "Pomodoro")
     ("f" vi/consult-fd "fd")
     ("s" consult-ripgrep "rg in project")
@@ -839,6 +871,11 @@
   :chords
   ("hh" . hydra-global/body))
 ;; Hydra:1 ends here
+
+;; [[file:config.org::*major mode][major mode:2]]
+(use-package! pretty-hydra)
+(use-package! major-mode-hydra)
+;; major mode:2 ends here
 
 ;; Org mode
 
@@ -874,11 +911,14 @@
                                  ("SOMEDAY" . +org-todo-onhold)
                                  ("KILL" . +org-todo-cancel))
         org-use-fast-todo-selection 'expert)
-  (defhydra hydra-org (:exit t)
-    "Org"
-    ("k" org-cut-subtree "cut subtree")
-    ("y" org-paste-subtree "paste subtree")
-    ("s" org-babel-demarcate-block "split src block")
+  (pretty-hydra-define org-hydra
+    (:exit t)
+    ("Subtree"
+     (("k" org-cut-subtree "cut subtree")
+      ("y" org-paste-subtree "paste subtree"))
+     "Src"
+     (("s" org-babel-demarcate-block "split src block"))
+     )
     )
   )
 ;; Org mode:1 ends here
@@ -1042,6 +1082,51 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 ;; (add-hook! org-mode #'literate-calc-minor-mode)
 ;; literate calc:2 ends here
 
+;; sh-mode src blocks
+
+;; sh-mode uses $SHELL by default: https://list.orgmode.org/87eeg0tz6t.fsf@gmail.com/T/
+
+
+;; [[file:config.org::*sh-mode src blocks][sh-mode src blocks:1]]
+(after! org
+  (defun org-babel-bash-mode ()
+    (sh-mode)
+    (sh-set-shell "bash"))
+
+  (add-to-list 'org-src-lang-modes '("bash" . org-babel-bash))
+  )
+;; sh-mode src blocks:1 ends here
+
+;; org babel chaining
+
+;; https://xenodium.com/emacs-chaining-org-babel-blocks/
+
+
+;; [[file:config.org::*org babel chaining][org babel chaining:1]]
+(defun adviced:org-babel-execute-src-block (&optional orig-fun arg info params)
+  (let ((body (nth 1 info))
+        (include (assoc :include (nth 2 info)))
+        (named-blocks (org-element-map (org-element-parse-buffer)
+                          'src-block (lambda (item)
+                                       (when (org-element-property :name item)
+                                         (cons (org-element-property :name item)
+                                               item))))))
+    (while include
+      (unless (cdr include)
+        (user-error ":include without value" (cdr include)))
+      (unless (assoc (cdr include) named-blocks)
+        (user-error "source block \"%s\" not found" (cdr include)))
+      (setq body (concat (org-element-property :value (cdr (assoc (cdr include) named-blocks)))
+                         body))
+      (setf (nth 1 info) body)
+      (setq include (assoc :include
+                           (org-babel-parse-header-arguments
+                            (org-element-property :parameters (cdr (assoc (cdr include) named-blocks)))))))
+    (funcall orig-fun arg info params)))
+
+(advice-add 'org-babel-execute-src-block :around 'adviced:org-babel-execute-src-block)
+;; org babel chaining:1 ends here
+
 ;; fontification
 
 ;; https://github.com/nnicandro/emacs-jupyter/issues/366#issuecomment-985758277
@@ -1056,26 +1141,19 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   )
 ;; fontification:1 ends here
 
-;; envrc interaction
-
-;; https://github.com/nnicandro/emacs-jupyter/issues/387
-
-
-
-;; [[file:config.org::*envrc interaction][envrc interaction:1]]
-(after! org
-  (add-hook! org-mode
-    (defun fix-with-temp-buffer ()
-      (inheritenv-add-advice #'with-temp-buffer)
-      )
-    ))
-;; envrc interaction:1 ends here
-
 ;; [[file:config.org::*ein][ein:2]]
+(defun vi/ein-fix ()
+  (interactive)
+  ;; (set-face-extend 'ein:cell-input-area t)
+  (setq ein:worksheet-enable-undo t)
+  (turn-on-undo-tree-mode)
+  (setq outline-regexp "##+")           ;capture markdown headings, excluding level 1 for comments
+  )
+
 (use-package! ein
   :after-call pre-command-hook
-  :commands (hydra-ein/body)
   :init
+  (setq ein:polymode t)
   (setq ein:notebooklist-render-order '(render-opened-notebooks render-directory render-header))
   (setq ein:truncate-long-cell-output 10000)
   (setq ein:cell-max-num-outputs 10000)
@@ -1085,15 +1163,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   (setq ein:jupyter-server-args '("--no-browser" "--port=8889"))
   ;; https://github.com/millejoh/emacs-ipython-notebook/issues/423#issuecomment-458254069
   (setq ein:query-timeout nil)
-
   :config
-  (defun vi/ein-fix ()
-    (interactive)
-    ;; (set-face-extend 'ein:cell-input-area t)
-    (setq ein:worksheet-enable-undo t)
-    (turn-on-undo-tree-mode)
-    )
-
   (defun vi/ein-toggle-inlined-images ()
     (interactive)
     (setq ein:output-area-inlined-images (if ein:output-area-inlined-images nil t))
@@ -1103,15 +1173,15 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
     (interactive)
     (aif (ein:get-notebook)
         (lexical-let ((ws (ein:worksheet--get-ws-or-error)))
-          (ein:kernel-delete-session
-           (lambda (kernel)
-             (ein:events-trigger (ein:$kernel-events kernel) 'status_restarting.Kernel)
-             (ein:kernel-retrieve-session kernel 0
-                                          (lambda (kernel)
-                                            (ein:events-trigger (ein:$kernel-events kernel)
-                                                                'status_restarted.Kernel)
-                                            (ein:worksheet-execute-all-cells-above ws))))
-           :kernel (ein:$notebook-kernel it)))
+                     (ein:kernel-delete-session
+                      (lambda (kernel)
+                        (ein:events-trigger (ein:$kernel-events kernel) 'status_restarting.Kernel)
+                        (ein:kernel-retrieve-session kernel 0
+                                                     (lambda (kernel)
+                                                       (ein:events-trigger (ein:$kernel-events kernel)
+                                                                           'status_restarted.Kernel)
+                                                       (ein:worksheet-execute-all-cells-above ws))))
+                      :kernel (ein:$notebook-kernel it)))
       (message "Not in notebook buffer!"))
     )
 
@@ -1124,22 +1194,31 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
               )
           (ein:notebook-close it)
           (ein:notebook-open nurl npath)
-        )))
-  
-  (defhydra hydra-ein (:exit t)
-    "Ein"
-    ("x" ein:worksheet-execute-all-cells-above "Execute all above")
-    ("X" vi/restart-and-execute-all-above "Restart & x")
-    ("n" ein:notebooklist-open "Notebook list")
-    ("l" ein:notebooklist-login "Login")
-    ("r" ein:notebook-reconnect-session-command "Reconnect")
-    ("R" ein:notebook-restart-session-command "Restart")
-    ("i" vi/ein-toggle-inlined-images "Toggle inlined images")
-    ("f" vi/ein-fix "Fix")
-    ("v" vi/revert-notebook "Revert")
-    ("z" ein:notebook-kernel-interrupt-command "interrupt")
+          )))
+
+  :pretty-hydra
+  (
+   (:exit t)
+   (
+    "Connect"
+    (("n" ein:notebooklist-open "Notebook list")
+     ("l" ein:notebooklist-login "Login")
+     ("s" ein:jupyter-server-start "Start")
+     ("t" ein:jupyter-server-stop "Stop"))
+    "Reconnect"
+    (("r" ein:notebook-reconnect-session-command "Reconnect")
+     ("R" ein:notebook-restart-session-command "Restart")
+     ("z" ein:notebook-kernel-interrupt-command "interrupt")
+     ("v" vi/revert-notebook "Revert"))
+    "Exec"
+    (("x" ein:worksheet-execute-all-cells-above "Execute all above")
+     ("X" vi/restart-and-execute-all-above "Restart & x"))
+    "Fix"
+    (("i" vi/ein-toggle-inlined-images "Toggle inlined images")
+     ("f" vi/ein-fix "Fix"))
     )
-  )
+   ))
+  (add-hook! 'ein:notebook-mode-hook #'vi/ein-fix)
 ;; ein:2 ends here
 
 ;; [[file:config.org::*vterm][vterm:2]]
@@ -1183,20 +1262,24 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; [[file:config.org::*Flycheck][Flycheck:1]]
 (use-package! flycheck
-  :commands (hydra-flycheck/body)
   :custom
   (flycheck-check-syntax-automatically '(mode-enabled save idle-change idle-buffer-switch))
   (flycheck-idle-change-delay 10)
   (flycheck-idle-buffer-switch-delay 5)
-  :config
-  (defhydra hydra-flycheck (:exit t)
-    "flycheck"
+  :pretty-hydra
+  (
+   (:exit t)
+   (
+    "Flycheck"
+    (
     ("c" (flycheck-buffer) "check buffer")
     ;; annoying in doom, something about popups
     ;; ("l" (flycheck-list-errors) "list errors")
     ("l" consult-flycheck "flycheck")
     ("q" nil "quit")
+     )
     )
+   )
   )
 ;; Flycheck:1 ends here
 
@@ -1422,13 +1505,23 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 (defun vi/setup-python-flycheck ()
   (setq-local flycheck-disabled-checkers '(python-pylint))
   (setq-local flycheck-python-mypy-executable (concat (projectile-project-root) "/.venv/bin/mypy"))
+  ;; This needs to happen after lsp else:
+  ;; Error (python-mode-hook): Error running hook "vi/setup-python-flycheck" because: (user-error lsp is not a syntax checker)
   (flycheck-select-checker 'lsp)
   (flycheck-add-next-checker 'lsp 'python-flake8-vi)
   (flycheck-add-next-checker 'python-flake8-vi 'python-mypy-vi)
   )
 
+
+
 (setq-hook! 'python-mode-hook +format-with-lsp nil)
-(add-hook! 'python-mode-hook #'vi/setup-python-flycheck #'python-black-on-save-mode)
+(add-hook! 'python-mode-hook
+           #'python-black-on-save-mode
+           (defun vi/setup-python-flycheck-after-lsp ()
+             ;; So that lsp is available as a checker
+             (add-hook! 'lsp-after-open-hook #'vi/setup-python-flycheck)
+             )
+           )
 (set-formatter! 'isort "isort --profile=black --stdout -" :modes '(python-mode))
 
 ;; even switch-buffer is slow. and we use direnv anyway
@@ -1664,7 +1757,21 @@ current buffer's, reload dir-locals."
 
 
 ;; [[file:config.org::*shell mode][shell mode:1]]
-(setq-hook! sh-mode +format-with :none)
+(add-hook! '(sh-mode sh-set-shell-hook)
+  (defun set-sh-formatter ()
+    ;; never use lsp
+    (setq-local +format-with-lsp nil)
+    ;;  (message "Found: %S" sh-shell)
+    (if (string-equal sh-shell "bash")
+
+        ;; if bash :: use the default. we need to do this explicitly because the
+        ;; var might get set to :none first, and then either sh-set-shell or a
+        ;; local var might switch it
+        (setq-local +format-with nil)
+      ;; else :: don't format
+      (setq-local +format-with :none))
+    )
+  )
 ;; shell mode:1 ends here
 
 ;; [[file:config.org::*atomic chrome][atomic chrome:2]]

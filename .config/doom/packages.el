@@ -183,7 +183,14 @@
 (package! hungry-delete)
 (package! easy-kill :recipe (:host github :repo "leoliu/easy-kill"))
 (package! easy-kill-extras)
+(package! expand-region)
 ;; Kill/Yank:1 ends here
+
+;; vundo
+
+;; [[file:config.org::*vundo][vundo:1]]
+(package! vundo :recipe (:host github :repo "casouri/vundo"))
+;; vundo:1 ends here
 
 ;; Yankpad
 
@@ -333,6 +340,13 @@
 (package! literate-calc-mode)
 ;; literate calc:1 ends here
 
+;; table of contents
+
+
+;; [[file:config.org::*table of contents][table of contents:1]]
+(package! org-make-toc)
+;; table of contents:1 ends here
+
 ;; ein
 
 
@@ -349,7 +363,6 @@
 ;; vterm:1 ends here
 
 ;; flycheck-projectile
-
 
 
 ;; [[file:config.org::*flycheck-projectile][flycheck-projectile:1]]
