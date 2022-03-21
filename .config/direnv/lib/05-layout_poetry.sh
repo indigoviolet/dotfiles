@@ -1,21 +1,8 @@
-# TODO: See https://github.com/direnv/direnv/issues/898
-
-layout_conda() {
-  local ACTIVATE="${HOME}/miniconda3/bin/activate"
-
-  if [ -n "$1" ]; then
-    # Explicit environment name from layout command.
-    local env_name="$1"
-    source $ACTIVATE ${env_name}
-  elif (grep -q name: environment.yml); then
-    # Detect environment name from `environment.yml` file in `.envrc` directory
-    source $ACTIVATE $(grep name: environment.yml | sed -e 's/name: //' | cut -d "'" -f 2 | cut -d '"' -f 2)
-  else
-    (echo >&2 No environment specified)
-    exit 1
-  fi
-}
-
+# shellcheck disable=SC2155
+# shellcheck disable=SC2016
+#
+# https://unix.stackexchange.com/a/506355
+#
 layout_poetry() {
   if [[ ! -f pyproject.toml ]]; then
     log_error 'No pyproject.toml found.  Use `poetry new` or `poetry init` to create one first.'
@@ -42,7 +29,7 @@ layout_poetry() {
   #
   #
   # This prints out the same info as `poetry env info --path`
-  local VENV=$(poetry env use $(asdf which python) -v --no-ansi | awk '{print $3}')
+  local VENV="$(poetry env use $(asdf which python) -v --no-ansi | awk '{print $3}')"
 
   if [[ -z $VENV || ! -d $VENV/bin ]]; then
     log_error "No created poetry virtual environment found.  Use 'poetry install' to create one first. (venv=$VENV or $VENV/bin not found)"
@@ -63,5 +50,5 @@ layout_poetry() {
 }
 
 # Local Variables:
-# mode: shell-script
+# sh-shell: bash
 # End:
