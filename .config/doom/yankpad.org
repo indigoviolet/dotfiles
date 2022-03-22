@@ -9,6 +9,19 @@
 $0
 #+end_src
 
+** bashblock:
+
+#+begin_src bash :results output
+$0
+#+end_src
+
+** sudoblock:
+
+#+begin_src bash :results output :dir "/sudo::/"
+$0
+#+end_src
+
+
 ** exampleblock:
 
 #+begin_example
@@ -152,3 +165,4 @@ $0
 # firestarter: "yadm alt"
 # End:
 #+end_src
+** test
