@@ -1,5 +1,6 @@
 :DOC-CONFIG:
 #+property: header-args :mkdirp yes :comments both
+#+property: header-args:bash :results output
 :END:
 
 * Todos [11/14]
@@ -759,3 +760,153 @@ dconf-editor
 
 - Cmd+Shift+. to show hidden files
 - VSCode: use Cmd+Shift+P to "Install 'code' command in PATH"
+* Suspend/Hibernate
+
+
+https://www.linuxuprising.com/2021/08/how-to-enable-hibernation-on-ubuntu.html
+https://askubuntu.com/a/1056420
+
+** find info
+#+begin_src bash
+swapon --show
+#+end_src
+
+#+RESULTS:
+: NAME      TYPE SIZE USED PRIO
+: /swapfile file  32G   0B   -2
+
+
+#+begin_src bash :dir "/sudo::/"
+findmnt -no UUID -T /swapfile
+#+end_src
+
+#+RESULTS:
+: 7066f91b-b0f1-44e5-9ba5-5d3d1dfbb4b6
+
+#+begin_src bash :dir "/sudo::/"
+filefrag -v /swapfile | awk '$1=="0:" {print substr($4, 1, length($4)-2)}'
+#+end_src
+
+#+RESULTS:
+: 48513024
+
+** edit /etc/default/grub
+#+begin_src bash :results output
+grep GRUB_CMDLINE_LINUX_DEFAULT /etc/default/grub
+#+end_src
+
+#+RESULTS:
+: GRUB_CMDLINE_LINUX_DEFAULT="quiet splash resume=UUID=7066f91b-b0f1-44e5-9ba5-5d3d1dfbb4b6 resume_offset=48513024 usbcore.autosuspend=-1"
+
+** create initramfs resume
+#+begin_src :tangle "/sudo::/etc/initramfs-tools/conf.d/resume" :comments no
+RESUME=UUID=7066f91b-b0f1-44e5-9ba5-5d3d1dfbb4b6 resume_offset=48513024
+#+end_src
+
+** Gnome Extension permissions
+
+https://github.com/arelange/gnome-shell-extension-hibernate-status
+
+#+begin_src conf :tangle "/sudo::/etc/polkit-1/localauthority/10-vendor.d/com.ubuntu.desktop.pkla"
+[Enable hibernate in upower]
+Identity=unix-user:*
+Action=org.freedesktop.upower.hibernate
+ResultActive=yes
+
+[Enable hibernate in logind]
+Identity=unix-user:*
+Action=org.freedesktop.login1.hibernate;org.freedesktop.login1.handle-hibernate-key;org.freedesktop.login1;org.freedesktop.login1.hibernate-multiple-sessions;org.freedesktop.login1.hibernate-ignore-inhibit
+ResultActive=yes
+#+end_src
+
+** always suspend-then-hibernate
+
+| sleep.conf Key | Written to       | value                      |
+|----------------+------------------+----------------------------|
+| *Mode          | /sys/power/disk  | suspend                    |
+| *State         | /sys/power/state | disk, freeze, standby, mem |
+
+https://www.kernel.org/doc/html/latest/admin-guide/pm/sleep-states.html#basic-sysfs-interfaces-for-system-suspend-and-hibernation
+https://man.archlinux.org/man/sleep.conf.d.5
+*** sys/power/state
+
+| /sys/power/state | meaning                     |
+|------------------+-----------------------------|
+| freeze           | suspend to idle             |
+| standby          | standby (ACPI S1)           |
+| disk             | suspend to disk = hibernate |
+| mem              | see /sys/power/mem_sleep    |
+
+**** sys/power/mem_sleep
+
+- s2idle :: suspend to idle
+- shallow :: standby
+- deep :: suspend to ram
+
+#+begin_src bash :results output
+cat /sys/power/mem_sleep
+#+end_src
+
+#+RESULTS:
+: s2idle [deep]
+
+
+*** sys/power/disk
+
+#+begin_src bash :results output
+cat /sys/power/disk
+#+end_src
+
+#+RESULTS:
+: [platform] shutdown reboot suspend test_resume
+
+- platform :: lower power state ACPI S4
+- suspend :: hybrid, put system into state from mem_sleep file; if system is
+  woken up successfully, discard the hibernation image. else use the image to
+  restore
+
+
+*** sleep.conf
+
+#+begin_src conf :tangle "/sudo::/etc/systemd/sleep.conf"
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+#
+# Entries in this file show the compile time defaults.
+# You can change settings by editing this file.
+# Defaults can be restored by simply deleting this file.
+#
+# See systemd-sleep.conf(5) for details
+
+[Sleep]
+# https://wiki.archlinux.org/title/Power_management#Suspend_and_hibernate
+SuspendMode=suspend
+SuspendState=mem
+HibernateMode=suspend
+HibernateState=disk
+
+#AllowSuspend=yes
+#AllowHibernation=yes
+AllowSuspendThenHibernate=yes
+#AllowHybridSleep=yes
+#SuspendMode=
+#SuspendState=mem standby freeze
+#HibernateMode=platform shutdown
+#HibernateState=disk
+#HybridSleepMode=suspend platform shutdown
+#HybridSleepState=disk
+HibernateDelaySec=60min
+#+end_src
+
+*** Make suspend-then-hibernate the standard
+
+
+#+begin_src bash :results output :dir "/sudo::/"
+ln -s /usr/lib/systemd/system/systemd-suspend-then-hibernate.service /etc/systemd/system/systemd-suspend.service
+#+end_src
+
+#+RESULTS:
