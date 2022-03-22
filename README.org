@@ -774,6 +774,35 @@ dconf-editor
 
 - Cmd+Shift+. to show hidden files
 - VSCode: use Cmd+Shift+P to "Install 'code' command in PATH"
+* PaperWM
+
+seems like Gnome 40 breaks some stuff, see https://github.com/PaperWM-community/PaperWM, https://github.com/paperwm/PaperWM/issues/376#issuecomment-1020068861
+
+* Material shell
+
+https://github.com/material-shell/material-shell
+
+looks good on paper, but has some unresolved issues
+
+- seems to be larger than the screen on my display
+- installing from source didn't work
+
+* Kubuntu
+
+
+#+begin_src bash
+sudo apt-get install kubuntu-desktop
+#+end_src
+
+display-manager: https://ubuntuhandbook.org/index.php/2020/07/change-default-display-manager-ubuntu-20-04/
+
+** tiling windows
+
+requires more investigation/configuration to replicate paperwm setup
+
+- https://github.com/kwin-scripts/kwin-tiling
+- https://github.com/esjeon/krohnkite (dead?)
+- https://github.com/Bismuth-Forge/bismuth --> v3 not yet available in ppas?
 * Suspend/Hibernate
 
 
