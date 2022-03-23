@@ -1339,6 +1339,14 @@ https://stackoverflow.com/a/69307156/14044156
 #+end_src
 
 
+#+begin_src emacs-lisp
+(use-package! vundo
+  :custom
+  (vundo-roll-back-on-quit nil)
+  ;; (vundo-glyph-alist vundo-ascii-symbols)
+  :after-call after-find-file
+  :bind ("C-x u" . vundo))
+#+end_src
 
 * Yankpad
 

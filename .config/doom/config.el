@@ -629,6 +629,15 @@
   )
 ;; Undo:1 ends here
 
+;; [[file:config.org::*vundo][vundo:2]]
+(use-package! vundo
+  :custom
+  (vundo-roll-back-on-quit nil)
+  ;; (vundo-glyph-alist vundo-ascii-symbols)
+  :after-call after-find-file
+  :bind ("C-x u" . vundo))
+;; vundo:2 ends here
+
 ;; [[file:config.org::*Yankpad][Yankpad:2]]
 (after! yasnippet
   (setq yas-wrap-around-region t)
