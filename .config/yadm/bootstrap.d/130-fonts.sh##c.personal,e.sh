@@ -17,7 +17,7 @@ else
     git fetch
 fi
 
-for font in JetBrainsMono/Ligatures UbuntuMono IBMPlexMono VictorMono; do
+for font in JetBrainsMono/Ligatures IBMPlexMono VictorMono; do
     git sparse-checkout add patched-fonts/$font
     ./install.sh "${font%%/*}"
 done

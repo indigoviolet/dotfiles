@@ -391,7 +391,7 @@ else
     git fetch
 fi
 
-for font in JetBrainsMono/Ligatures UbuntuMono IBMPlexMono VictorMono; do
+for font in JetBrainsMono/Ligatures IBMPlexMono VictorMono; do
     git sparse-checkout add patched-fonts/$font
     ./install.sh "${font%%/*}"
 done
@@ -427,134 +427,24 @@ We use alt files to
 Some files are only useful on a specific class, but we don't bother removing
 these or hiding them. They are addressed at point of use - ie. if it is a
 zshcustom file, we might use templates to include them correctly in zshrc.
-* Jupyter/ipython notes
+* TODO Paperwm
 
-** <2022-02-20 Sun>
-Currently we are following this: https://jkinred.github.io/post/using-jupyter/
-
-with emacs-jupyter or ein
-
-and kernels installed from each project via ipykernel installed in each project
-
-it would be better to inject ipykernel into the pipx ipython project, but
-currently we don't have a way to reproduce that via pipx.json (but this is easy
-to create)
-
-
-* Paperwm
+TODO move to yadm
 
 Checked out in dev/PaperWM and installed.
 
 Currently using virtual-tiling-playground branch: https://github.com/paperwm/PaperWM/issues/303
 
-* Wake on usb
+seems like Gnome 40 breaks some stuff, see https://github.com/PaperWM-community/PaperWM, https://github.com/paperwm/PaperWM/issues/376#issuecomment-1020068861
 
-** COMMENT /etc/rc.local
+* Material shell
 
-#+BEGIN_SRC shell :tangle "/sudo::/etc/rc.local"
-# https://askubuntu.com/questions/848698/wake-up-from-suspend-using-wireless-usb-keyboard-or-mouse-for-any-linux-distro
-KB=$(dmesg | grep 'Product: Kinesis Keyboard' | tail -1 | perl -lne '/usb\s(.*?):/; print $1' )
-echo enabled > /sys/bus/usb/devices/${KB}/power/wakeup
+https://github.com/material-shell/material-shell
 
-MOUSE=$(dmesg | grep 'Product: 2.4G Mouse' | tail -1 | perl -lne '/usb\s(.*?):/; print $1' )
-echo enabled > /sys/bus/usb/devices/${MOUSE}/power/wakeup
-#+END_SRC
+looks good on paper, but has some unresolved issues
 
-Doesn't work on wakeup, seemingly.
-
-** /etc/udev/rules.d/10-usb-wakeup.rules
-
-https://askubuntu.com/a/874701
-
-This seems to work ([[*Check using:][Check using:]])
-
-#+begin_src shell :results output
-lsusb | grep mouse
-lsusb | grep Keyboard
-lsusb | grep LG
-#+end_src
-
-#+RESULTS:
-: Bus 001 Device 011: ID 1ea7:0064 SHARKOON Technologies GmbH 2.4GHz Wireless rechargeable vertical mouse [More&Better]
-: Bus 001 Device 010: ID 05f3:0007 PI Engineering, Inc. Kinesis Advantage PRO MPC/USB Keyboard
-: Bus 001 Device 007: ID 043e:9a39 LG Electronics USA, Inc. LG Monitor Controls
-
-
-#+BEGIN_SRC shell :tangle "/sudo::/etc/udev/rules.d/10-usb-wakeup.rules"
-ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1ea7", ATTRS{idProduct}=="0064" ATTR{power/wakeup}="enabled"
-ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="05f3", ATTRS{idProduct}=="0007" ATTR{power/wakeup}="enabled"
-ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="043e", ATTRS{idProduct}=="9a39" ATTR{power/wakeup}="enabled"
-
-
-# https://askubuntu.com/a/1213465/895483
-# - enable wakeup on ALL USB hubs (0-99)
-# e.g. ls /sys/bus/usb/devices/usb*
-# - rumor is that this step may not be necessary
-# on all computers
-# (I couldn't figure out how to enable wake on
-# only parent hub of the keyboard and mouse.)
-# KERNEL=="usb[0-9]|usb[0-9][0-9]", SUBSYSTEM=="usb", DRIVER=="usb", ATTR{power/wakeup}="enabled"
-
-# enable wakeup for all keyboards
-# Keyboards are HID class 3 protocol 1 devices.
-SUBSYSTEM=="usb", ATTRS{bInterfaceClass}=="03", ATTRS{bInterfaceProtocol}=="01", ATTR{../power/wakeup}="enabled"
-
-# enable wakeup for all mice (button click, not movement)
-# Mice are HID class 3 protocol 2 devices.
-SUBSYSTEM=="usb", ATTRS{bInterfaceClass}=="03", ATTRS{bInterfaceProtocol}=="02", ATTR{../power/wakeup}="enabled"
-#+END_SRC
-
-
-** Check using:
-
-#+BEGIN_SRC shell :results output
-grep enabled /sys/bus/usb/devices/*/power/wakeup
-echo '--'
-grep . /sys/bus/usb/devices/*/product
-#+END_SRC
-
-#+RESULTS:
-#+begin_example
-/sys/bus/usb/devices/1-1.2.1.2/power/wakeup:enabled
-/sys/bus/usb/devices/1-1.2.1.4/power/wakeup:enabled
-/sys/bus/usb/devices/1-1.2.1/power/wakeup:enabled
-/sys/bus/usb/devices/usb1/power/wakeup:enabled
-/sys/bus/usb/devices/usb2/power/wakeup:enabled
---
-/sys/bus/usb/devices/1-1.2.1.4/product:2.4G Mouse
-/sys/bus/usb/devices/1-1.2.1/product:Kinesis Keyboard Hub
-/sys/bus/usb/devices/1-1.2.3/product:blink(1) mk2
-/sys/bus/usb/devices/1-1.2/product:4-Port USB 2.0 Hub
-/sys/bus/usb/devices/1-1.3/product:LG Monitor Controls
-/sys/bus/usb/devices/1-1/product:4-Port USB 2.0 Hub
-/sys/bus/usb/devices/1-7/product:HD Camera
-/sys/bus/usb/devices/2-2/product:AX88179
-/sys/bus/usb/devices/usb1/product:xHCI Host Controller
-/sys/bus/usb/devices/usb2/product:xHCI Host Controller
-#+end_example
-
-
-
-
-
-* Kinesis Advantage :ATTACH:
-:PROPERTIES:
-:ID:       84969743-6640-4c9d-bc73-5fab6ddc939d
-:END:
-
-https://kinesis-ergo.com/wp-content/uploads/kb500-qsg.pdf
-
-
-[[attachment:_20220214_175742screenshot.png]]
-
-
-
-- ~=m~ to switch to mac mode
-- ~Program+\~ to switch off clicks
-- Remapping: ~Prgrm+F12~ to start. Hit source, then destination to copy from source to destination
-  + *Swap* ctrl and capslock
-  + Copy alt to left shift
-  + Copy win to key below X
+- seems to be larger than the screen on my display
+- installing from source didn't work
 
 * asdf v. brew
 
@@ -562,6 +452,26 @@ https://kinesis-ergo.com/wp-content/uploads/kb500-qsg.pdf
 - prefer brew for now, except for nodenv/pyenv replacements and things that can't be installed by brew:
 - python, nodejs, yarn, poetry
 
+* Mac
+
+- Cmd+Shift+. to show hidden files
+- VSCode: use Cmd+Shift+P to "Install 'code' command in PATH"
+* Kubuntu
+
+
+#+begin_src bash
+sudo apt-get install kubuntu-desktop
+#+end_src
+
+display-manager: https://ubuntuhandbook.org/index.php/2020/07/change-default-display-manager-ubuntu-20-04/
+
+** tiling windows
+
+requires more investigation/configuration to replicate paperwm setup
+
+- https://github.com/kwin-scripts/kwin-tiling
+- https://github.com/esjeon/krohnkite (dead?)
+- https://github.com/Bismuth-Forge/bismuth --> v3 not yet available in ppas?
 * Identify apt manually installed packages
 
 #+begin_src shell :results raw drawer
@@ -745,22 +655,36 @@ Start-Date: 2022-02-22  21:06:01
 Commandline: apt install git-lfs
 :end:
 
-* Keyboard shortcuts
+* Jupyter/ipython notes
 
-** Use xev to identify keys being pressed
+** <2022-02-20 Sun>
+Currently we are following this: https://jkinred.github.io/post/using-jupyter/
+
+with emacs-jupyter or ein
+
+and kernels installed from each project via ipykernel installed in each project
+
+it would be better to inject ipykernel into the pipx ipython project, but
+currently we don't have a way to reproduce that via pipx.json (but this is easy
+to create)
+
+* Hardware
+** Keyboard shortcuts
+
+*** Use xev to identify keys being pressed
 
 #+begin_src shell
 xev | perl -nle '/keysym\s+.+?,\s+(\w+)/ and print $1'
 #+end_src
 
-** Identify X listener programs
+*** Identify X listener programs
 
 
 #+begin_src shell
 xlsclients -la
 #+end_src
 
-** Check for gnome shortcuts that aren't in the graphical interface, and edit them
+*** Check for gnome shortcuts that aren't in the graphical interface, and edit them
 
 https://askubuntu.com/questions/82007/how-do-i-disable-ctrlaltleft-right
 
@@ -770,46 +694,122 @@ dconf-editor
 #+end_src
 
 
-* Mac
+** Kinesis Advantage :ATTACH:
+:PROPERTIES:
+:ID:       84969743-6640-4c9d-bc73-5fab6ddc939d
+:END:
 
-- Cmd+Shift+. to show hidden files
-- VSCode: use Cmd+Shift+P to "Install 'code' command in PATH"
-* PaperWM
-
-seems like Gnome 40 breaks some stuff, see https://github.com/PaperWM-community/PaperWM, https://github.com/paperwm/PaperWM/issues/376#issuecomment-1020068861
-
-* Material shell
-
-https://github.com/material-shell/material-shell
-
-looks good on paper, but has some unresolved issues
-
-- seems to be larger than the screen on my display
-- installing from source didn't work
-
-* Kubuntu
+https://kinesis-ergo.com/wp-content/uploads/kb500-qsg.pdf
 
 
-#+begin_src bash
-sudo apt-get install kubuntu-desktop
+[[attachment:_20220214_175742screenshot.png]]
+
+
+
+- ~=m~ to switch to mac mode
+- ~Program+\~ to switch off clicks
+- Remapping: ~Prgrm+F12~ to start. Hit source, then destination to copy from source to destination
+  + *Swap* ctrl and capslock
+  + Copy alt to left shift
+  + Copy win to key below X
+
+** Wake on usb
+
+*** COMMENT /etc/rc.local
+
+#+BEGIN_SRC shell :tangle "/sudo::/etc/rc.local"
+# https://askubuntu.com/questions/848698/wake-up-from-suspend-using-wireless-usb-keyboard-or-mouse-for-any-linux-distro
+KB=$(dmesg | grep 'Product: Kinesis Keyboard' | tail -1 | perl -lne '/usb\s(.*?):/; print $1' )
+echo enabled > /sys/bus/usb/devices/${KB}/power/wakeup
+
+MOUSE=$(dmesg | grep 'Product: 2.4G Mouse' | tail -1 | perl -lne '/usb\s(.*?):/; print $1' )
+echo enabled > /sys/bus/usb/devices/${MOUSE}/power/wakeup
+#+END_SRC
+
+Doesn't work on wakeup, seemingly.
+
+*** /etc/udev/rules.d/10-usb-wakeup.rules
+
+https://askubuntu.com/a/874701
+
+This seems to work ([[*Check using:][Check using:]])
+
+#+begin_src shell :results output
+lsusb | grep mouse
+lsusb | grep Keyboard
+lsusb | grep LG
 #+end_src
 
-display-manager: https://ubuntuhandbook.org/index.php/2020/07/change-default-display-manager-ubuntu-20-04/
+#+RESULTS:
+: Bus 001 Device 011: ID 1ea7:0064 SHARKOON Technologies GmbH 2.4GHz Wireless rechargeable vertical mouse [More&Better]
+: Bus 001 Device 010: ID 05f3:0007 PI Engineering, Inc. Kinesis Advantage PRO MPC/USB Keyboard
+: Bus 001 Device 007: ID 043e:9a39 LG Electronics USA, Inc. LG Monitor Controls
 
-** tiling windows
 
-requires more investigation/configuration to replicate paperwm setup
+#+BEGIN_SRC shell :tangle "/sudo::/etc/udev/rules.d/10-usb-wakeup.rules"
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1ea7", ATTRS{idProduct}=="0064" ATTR{power/wakeup}="enabled"
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="05f3", ATTRS{idProduct}=="0007" ATTR{power/wakeup}="enabled"
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="043e", ATTRS{idProduct}=="9a39" ATTR{power/wakeup}="enabled"
 
-- https://github.com/kwin-scripts/kwin-tiling
-- https://github.com/esjeon/krohnkite (dead?)
-- https://github.com/Bismuth-Forge/bismuth --> v3 not yet available in ppas?
-* Suspend/Hibernate
+
+# https://askubuntu.com/a/1213465/895483
+# - enable wakeup on ALL USB hubs (0-99)
+# e.g. ls /sys/bus/usb/devices/usb*
+# - rumor is that this step may not be necessary
+# on all computers
+# (I couldn't figure out how to enable wake on
+# only parent hub of the keyboard and mouse.)
+# KERNEL=="usb[0-9]|usb[0-9][0-9]", SUBSYSTEM=="usb", DRIVER=="usb", ATTR{power/wakeup}="enabled"
+
+# enable wakeup for all keyboards
+# Keyboards are HID class 3 protocol 1 devices.
+SUBSYSTEM=="usb", ATTRS{bInterfaceClass}=="03", ATTRS{bInterfaceProtocol}=="01", ATTR{../power/wakeup}="enabled"
+
+# enable wakeup for all mice (button click, not movement)
+# Mice are HID class 3 protocol 2 devices.
+SUBSYSTEM=="usb", ATTRS{bInterfaceClass}=="03", ATTRS{bInterfaceProtocol}=="02", ATTR{../power/wakeup}="enabled"
+#+END_SRC
+
+
+*** Check using:
+
+#+BEGIN_SRC shell :results output
+grep enabled /sys/bus/usb/devices/*/power/wakeup
+echo '--'
+grep . /sys/bus/usb/devices/*/product
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+/sys/bus/usb/devices/1-1.2.1.2/power/wakeup:enabled
+/sys/bus/usb/devices/1-1.2.1.4/power/wakeup:enabled
+/sys/bus/usb/devices/1-1.2.1/power/wakeup:enabled
+/sys/bus/usb/devices/usb1/power/wakeup:enabled
+/sys/bus/usb/devices/usb2/power/wakeup:enabled
+--
+/sys/bus/usb/devices/1-1.2.1.4/product:2.4G Mouse
+/sys/bus/usb/devices/1-1.2.1/product:Kinesis Keyboard Hub
+/sys/bus/usb/devices/1-1.2.3/product:blink(1) mk2
+/sys/bus/usb/devices/1-1.2/product:4-Port USB 2.0 Hub
+/sys/bus/usb/devices/1-1.3/product:LG Monitor Controls
+/sys/bus/usb/devices/1-1/product:4-Port USB 2.0 Hub
+/sys/bus/usb/devices/1-7/product:HD Camera
+/sys/bus/usb/devices/2-2/product:AX88179
+/sys/bus/usb/devices/usb1/product:xHCI Host Controller
+/sys/bus/usb/devices/usb2/product:xHCI Host Controller
+#+end_example
+
+
+
+
+
+** Suspend/Hibernate
 
 
 https://www.linuxuprising.com/2021/08/how-to-enable-hibernation-on-ubuntu.html
 https://askubuntu.com/a/1056420
 
-** find info
+*** find info
 #+begin_src bash
 swapon --show
 #+end_src
@@ -833,7 +833,7 @@ filefrag -v /swapfile | awk '$1=="0:" {print substr($4, 1, length($4)-2)}'
 #+RESULTS:
 : 48513024
 
-** edit /etc/default/grub
+*** edit /etc/default/grub
 #+begin_src bash :results output
 grep GRUB_CMDLINE_LINUX_DEFAULT /etc/default/grub
 #+end_src
@@ -841,12 +841,12 @@ grep GRUB_CMDLINE_LINUX_DEFAULT /etc/default/grub
 #+RESULTS:
 : GRUB_CMDLINE_LINUX_DEFAULT="quiet splash resume=UUID=7066f91b-b0f1-44e5-9ba5-5d3d1dfbb4b6 resume_offset=48513024 usbcore.autosuspend=-1"
 
-** create initramfs resume
+*** create initramfs resume
 #+begin_src :tangle "/sudo::/etc/initramfs-tools/conf.d/resume" :comments no
 RESUME=UUID=7066f91b-b0f1-44e5-9ba5-5d3d1dfbb4b6 resume_offset=48513024
 #+end_src
 
-** Gnome Extension permissions
+*** Gnome Extension permissions
 
 https://github.com/arelange/gnome-shell-extension-hibernate-status
 
@@ -862,7 +862,7 @@ Action=org.freedesktop.login1.hibernate;org.freedesktop.login1.handle-hibernate-
 ResultActive=yes
 #+end_src
 
-** always suspend-then-hibernate
+*** always suspend-then-hibernate
 
 | sleep.conf Key | Written to       | value                      |
 |----------------+------------------+----------------------------|
@@ -871,7 +871,7 @@ ResultActive=yes
 
 https://www.kernel.org/doc/html/latest/admin-guide/pm/sleep-states.html#basic-sysfs-interfaces-for-system-suspend-and-hibernation
 https://man.archlinux.org/man/sleep.conf.d.5
-*** sys/power/state
+**** sys/power/state
 
 | /sys/power/state | meaning                     |
 |------------------+-----------------------------|
@@ -880,7 +880,7 @@ https://man.archlinux.org/man/sleep.conf.d.5
 | disk             | suspend to disk = hibernate |
 | mem              | see /sys/power/mem_sleep    |
 
-**** sys/power/mem_sleep
+***** sys/power/mem_sleep
 
 - s2idle :: suspend to idle
 - shallow :: standby
@@ -894,7 +894,7 @@ cat /sys/power/mem_sleep
 : s2idle [deep]
 
 
-*** sys/power/disk
+**** sys/power/disk
 
 #+begin_src bash :results output
 cat /sys/power/disk
@@ -909,7 +909,7 @@ cat /sys/power/disk
   restore
 
 
-*** sleep.conf
+**** sleep.conf
 
 #+begin_src conf :tangle "/sudo::/etc/systemd/sleep.conf"
 #  This file is part of systemd.
@@ -945,7 +945,7 @@ AllowSuspendThenHibernate=yes
 HibernateDelaySec=60min
 #+end_src
 
-*** Make suspend-then-hibernate the standard
+**** Make suspend-then-hibernate the standard
 
 
 #+begin_src bash :results output :dir "/sudo::/"
