@@ -172,9 +172,23 @@
 (package! bufler)
 ;; bufler:1 ends here
 
-;; [[file:config.org::*Adjust for display change][Adjust for display change:2]]
+;; Config
+
+;; We are deliberately using this separate from the :ui module, since all we want
+;; is the unicode block info in ~unicode-fonts-blocks~. We are not calling
+;; ~(unicode-fonts-setup)~
+
+
+;; [[file:config.org::*Config][Config:1]]
+(package! unicode-fonts)
+;; Config:1 ends here
+
+;; Adjust for display size change
+
+
+;; [[file:config.org::*Adjust for display size change][Adjust for display size change:1]]
 (package! dispwatch :recipe (:host github :repo "mnp/dispwatch"))
-;; Adjust for display change:2 ends here
+;; Adjust for display size change:1 ends here
 
 ;; Kill/Yank
 
@@ -185,6 +199,13 @@
 (package! easy-kill-extras)
 (package! expand-region)
 ;; Kill/Yank:1 ends here
+
+;; undo-hl
+
+
+;; [[file:config.org::*undo-hl][undo-hl:1]]
+(package! undo-hl :recipe (:host github :repo "casouri/undo-hl"))
+;; undo-hl:1 ends here
 
 ;; vundo
 

@@ -26,9 +26,17 @@
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
 (setq doom-theme 'doom-vibrant)
+(custom-set-faces!
+  '(font-lock-keyword-face :slant italic)
+  '(font-lock-doc-face :slant italic)
+  '(font-lock-comment-face :slant italic)
+  )
+
 (doom-themes-treemacs-config)
 (doom-themes-org-config)
 (doom-themes-visual-bell-config)
+
+
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
@@ -497,9 +505,43 @@
   )
 ;; bufler:2 ends here
 
-;; Adjust for display change
+;; [[file:config.org::*Config][Config:2]]
+;; Prevent emacs from using the default font for symbols and punctuation; this
+;; will cause fontsets to be used.
+(setq use-default-font-for-symbols nil)
 
-;; [[file:config.org::*Adjust for display change][Adjust for display change:1]]
+;; We use unicode-fonts for the definition of Unicode block ranges
+(use-package! unicode-fonts
+  :config
+
+  ;; Set Symbola for a bunch of blocks used in vundo so they are all the same
+  ;; font (https://github.com/casouri/vundo/issues/12#issuecomment-1075991819)
+  (dolist (unicode-block '(
+                           "Box Drawing"
+                           "Geometric Shapes"
+                           "Geometric Shapes Extended"))
+    (let* (
+           (char-range (cdr (assoc unicode-block unicode-fonts-blocks)))
+           (start (car char-range))
+           (end (cadr char-range)))
+      (set-fontset-font "fontset-startup" (cons start end) (font-spec :family "Symbola"))))
+
+  ;; Next we want to set Google's Noto Sans fonts (like Noto Sans Cherokee, Noto
+  ;; Sans Armenian) to be the backup, since they represent a lot of different
+  ;; scripts; but there doesn't seem to be a way to specify a font-family prefix
+  ;; like "Noto Sans*". So we use the foundry name :GOOG, and cross our fingers.
+  ;; See https://gist.github.com/alanthird/7152752d384325a83677f4a90e1e1a05 for
+  ;; a more explicit setting
+  ;; 
+  ;; default for fontset-startup, we append so that it's at the end
+  (set-fontset-font "fontset-startup" nil (font-spec :foundry "GOOG") nil 'append)
+
+  ;; default for fontset-default (which is the fallback for fontset-startup)
+  (set-fontset-font t nil (font-spec :foundry "GOOG"))
+)
+;; Config:2 ends here
+
+;; [[file:config.org::*Adjust for display size change][Adjust for display size change:2]]
 (defun vi/set-font-size (sz)
   (setq doom-font (font-spec :size sz))
   (doom/reload-font)
@@ -513,15 +555,13 @@
         ((equal disp '(4002 . 2668))    ; just laptop
          (vi/set-font-size 27))
         (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
-;; Adjust for display change:1 ends here
 
-;; [[file:config.org::*Adjust for display change][Adjust for display change:3]]
 (use-package dispwatch
   :config
   (dispwatch-mode 1)
   (add-hook! 'dispwatch-display-change-hooks #'vi/adjust-font-size-for-display)
   )
-;; Adjust for display change:3 ends here
+;; Adjust for display size change:2 ends here
 
 ;; [[file:config.org::*Kill/Yank][Kill/Yank:2]]
 (use-package! hungry-delete
@@ -629,6 +669,13 @@
   )
 ;; Undo:1 ends here
 
+;; [[file:config.org::*undo-hl][undo-hl:2]]
+(use-package! undo-hl
+  :after-call after-find-file
+  :hook (prog-mode . undo-hl-mode)
+  )
+;; undo-hl:2 ends here
+
 ;; [[file:config.org::*vundo][vundo:2]]
 (use-package! vundo
   :custom
@@ -636,6 +683,8 @@
   ;; (vundo-glyph-alist vundo-ascii-symbols)
   :after-call after-find-file
   :bind ("C-x u" . vundo))
+
+(add-hook! 'vundo--mode-hook (visual-line-mode -1))
 ;; vundo:2 ends here
 
 ;; [[file:config.org::*Yankpad][Yankpad:2]]
@@ -926,7 +975,11 @@
      (("k" org-cut-subtree "cut subtree")
       ("y" org-paste-subtree "paste subtree"))
      "Src"
-     (("s" org-babel-demarcate-block "split src block"))
+     (("/" org-babel-demarcate-block "split src block"))
+     "Links"
+     (("l" org-store-link "store link")
+      ("i" org-insert-link "insert link")
+      )
      )
     )
   )
@@ -1155,7 +1208,8 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   (interactive)
   ;; (set-face-extend 'ein:cell-input-area t)
   (setq ein:worksheet-enable-undo t)
-  (turn-on-undo-tree-mode)
+  (buffer-enable-undo)
+  ;; (turn-on-undo-tree-mode)
   (setq outline-regexp "##+")           ;capture markdown headings, excluding level 1 for comments
   )
 
