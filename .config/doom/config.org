@@ -1670,7 +1670,37 @@ have Emacs use the system monospace font, so this is commented.
 #+end_src
 
 
-**** Config
+**** Base config
+
+Test on ~view-hello-file~. As of <2022-03-24 Thu> emoji doesn't work
+
+#+begin_src emacs-lisp
+(add-hook! after-setting-font
+  (defun vi/set-fontsets ()
+    ;; Prevent emacs from using the default font for symbols and punctuation; this
+    ;; will cause fontsets to be used.
+    (setq use-default-font-for-symbols nil)
+
+    ;; Next we want to set Google's Noto Sans fonts (like Noto Sans Cherokee, Noto
+    ;; Sans Armenian) to be the backup, since they represent a lot of different
+    ;; scripts; but there doesn't seem to be a way to specify a font-family prefix
+    ;; like "Noto Sans*". So we use the foundry name :GOOG, and cross our fingers.
+    ;; See https://gist.github.com/alanthird/7152752d384325a83677f4a90e1e1a05 for
+    ;; a more explicit setting
+    ;;
+    ;; default for fontset-startup, we append so that it's at the end
+    (set-fontset-font "fontset-startup" nil (font-spec :foundry "GOOG") nil 'append)
+
+    ;; default for fontset-default (which is the fallback for fontset-startup)
+    (set-fontset-font t nil (font-spec :foundry "GOOG"))
+    ))
+#+end_src
+
+***** COMMENT Per block Config
+
+Edit <2022-03-24 Thu>: See
+https://github.com/casouri/vundo/issues/12#issuecomment-1078557737 for why I
+turned this off -- there's a smaller fix in [[*vundo][vundo]]
 
 We are deliberately using this separate from the :ui module, since all we want
 is the unicode block info in ~unicode-fonts-blocks~. We are not calling
@@ -1681,10 +1711,6 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
 #+end_src
 
 #+begin_src emacs-lisp
-
-;; Prevent emacs from using the default font for symbols and punctuation; this
-;; will cause fontsets to be used.
-(setq use-default-font-for-symbols nil)
 
 ;; We use unicode-fonts for the definition of Unicode block ranges
 (use-package! unicode-fonts
@@ -1701,19 +1727,6 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
            (start (car char-range))
            (end (cadr char-range)))
       (set-fontset-font "fontset-startup" (cons start end) (font-spec :family "Symbola"))))
-
-  ;; Next we want to set Google's Noto Sans fonts (like Noto Sans Cherokee, Noto
-  ;; Sans Armenian) to be the backup, since they represent a lot of different
-  ;; scripts; but there doesn't seem to be a way to specify a font-family prefix
-  ;; like "Noto Sans*". So we use the foundry name :GOOG, and cross our fingers.
-  ;; See https://gist.github.com/alanthird/7152752d384325a83677f4a90e1e1a05 for
-  ;; a more explicit setting
-  ;; 
-  ;; default for fontset-startup, we append so that it's at the end
-  (set-fontset-font "fontset-startup" nil (font-spec :foundry "GOOG") nil 'append)
-
-  ;; default for fontset-default (which is the fallback for fontset-startup)
-  (set-fontset-font t nil (font-spec :foundry "GOOG"))
 )
 #+end_src
 
@@ -1892,9 +1905,15 @@ https://stackoverflow.com/a/69307156/14044156
   :after-call after-find-file
   :bind ("C-x u" . vundo))
 
-(add-hook! 'vundo--mode-hook (visual-line-mode -1))
+(defun vi/vundo-setup ()
+  (visual-line-mode -1)
+  (turn-off-solaire-mode)
+  (buffer-face-set :font-family "Symbola")
+  )
 
-  #+end_src
+(add-hook! 'vundo--mode-hook #'vi/vundo-setup)
+
+#+end_src
 
 *** COMMENT glyphs
 Configure the ranges used for vundo to be from a single font to prevent misalignment.
@@ -3199,8 +3218,7 @@ See https://www.reddit.com/r/emacs/comments/gjukb3/yadm_magit/gasc8n6/
   (defun yadm-status ()
     (interactive)
     (require 'tramp)
-    (with-current-buffer (magit-status "/yadm::")
-      )))
+    (with-current-buffer (magit-status "/yadm::"))))
 #+end_src
 
 ** Stage files from dired

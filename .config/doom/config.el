@@ -505,41 +505,32 @@
   )
 ;; bufler:2 ends here
 
-;; [[file:config.org::*Config][Config:2]]
-;; Prevent emacs from using the default font for symbols and punctuation; this
-;; will cause fontsets to be used.
-(setq use-default-font-for-symbols nil)
+;; Base config
 
-;; We use unicode-fonts for the definition of Unicode block ranges
-(use-package! unicode-fonts
-  :config
+;; Test on ~view-hello-file~. As of <2022-03-24 Thu> emoji doesn't work
 
-  ;; Set Symbola for a bunch of blocks used in vundo so they are all the same
-  ;; font (https://github.com/casouri/vundo/issues/12#issuecomment-1075991819)
-  (dolist (unicode-block '(
-                           "Box Drawing"
-                           "Geometric Shapes"
-                           "Geometric Shapes Extended"))
-    (let* (
-           (char-range (cdr (assoc unicode-block unicode-fonts-blocks)))
-           (start (car char-range))
-           (end (cadr char-range)))
-      (set-fontset-font "fontset-startup" (cons start end) (font-spec :family "Symbola"))))
 
-  ;; Next we want to set Google's Noto Sans fonts (like Noto Sans Cherokee, Noto
-  ;; Sans Armenian) to be the backup, since they represent a lot of different
-  ;; scripts; but there doesn't seem to be a way to specify a font-family prefix
-  ;; like "Noto Sans*". So we use the foundry name :GOOG, and cross our fingers.
-  ;; See https://gist.github.com/alanthird/7152752d384325a83677f4a90e1e1a05 for
-  ;; a more explicit setting
-  ;; 
-  ;; default for fontset-startup, we append so that it's at the end
-  (set-fontset-font "fontset-startup" nil (font-spec :foundry "GOOG") nil 'append)
+;; [[file:config.org::*Base config][Base config:1]]
+(add-hook! after-setting-font
+  (defun vi/set-fontsets ()
+    ;; Prevent emacs from using the default font for symbols and punctuation; this
+    ;; will cause fontsets to be used.
+    (setq use-default-font-for-symbols nil)
 
-  ;; default for fontset-default (which is the fallback for fontset-startup)
-  (set-fontset-font t nil (font-spec :foundry "GOOG"))
-)
-;; Config:2 ends here
+    ;; Next we want to set Google's Noto Sans fonts (like Noto Sans Cherokee, Noto
+    ;; Sans Armenian) to be the backup, since they represent a lot of different
+    ;; scripts; but there doesn't seem to be a way to specify a font-family prefix
+    ;; like "Noto Sans*". So we use the foundry name :GOOG, and cross our fingers.
+    ;; See https://gist.github.com/alanthird/7152752d384325a83677f4a90e1e1a05 for
+    ;; a more explicit setting
+    ;;
+    ;; default for fontset-startup, we append so that it's at the end
+    (set-fontset-font "fontset-startup" nil (font-spec :foundry "GOOG") nil 'append)
+
+    ;; default for fontset-default (which is the fallback for fontset-startup)
+    (set-fontset-font t nil (font-spec :foundry "GOOG"))
+    ))
+;; Base config:1 ends here
 
 ;; [[file:config.org::*Adjust for display size change][Adjust for display size change:2]]
 (defun vi/set-font-size (sz)
@@ -684,7 +675,13 @@
   :after-call after-find-file
   :bind ("C-x u" . vundo))
 
-(add-hook! 'vundo--mode-hook (visual-line-mode -1))
+(defun vi/vundo-setup ()
+  (visual-line-mode -1)
+  (turn-off-solaire-mode)
+  (buffer-face-set :font-family "Symbola")
+  )
+
+(add-hook! 'vundo--mode-hook #'vi/vundo-setup)
 ;; vundo:2 ends here
 
 ;; [[file:config.org::*Yankpad][Yankpad:2]]
@@ -1402,8 +1399,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   (defun yadm-status ()
     (interactive)
     (require 'tramp)
-    (with-current-buffer (magit-status "/yadm::")
-      )))
+    (with-current-buffer (magit-status "/yadm::"))))
 ;; Another approach to magit/yadm:1 ends here
 
 ;; Stage files from dired

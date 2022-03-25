@@ -172,17 +172,6 @@
 (package! bufler)
 ;; bufler:1 ends here
 
-;; Config
-
-;; We are deliberately using this separate from the :ui module, since all we want
-;; is the unicode block info in ~unicode-fonts-blocks~. We are not calling
-;; ~(unicode-fonts-setup)~
-
-
-;; [[file:config.org::*Config][Config:1]]
-(package! unicode-fonts)
-;; Config:1 ends here
-
 ;; Adjust for display size change
 
 
