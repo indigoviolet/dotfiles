@@ -136,10 +136,15 @@
 ;; Environment
 
 
-
 ;; [[file:config.org::*Environment][Environment:1]]
 (package! exec-path-from-shell)
 ;; Environment:1 ends here
+
+;; minor modes
+
+;; [[file:config.org::*minor modes][minor modes:1]]
+(package! minions)
+;; minor modes:1 ends here
 
 ;; Movement
 
@@ -179,15 +184,15 @@
 (package! dispwatch :recipe (:host github :repo "mnp/dispwatch"))
 ;; Adjust for display size change:1 ends here
 
-;; Kill/Yank
+;; Kill/Yank/Mark regions
 
 
-;; [[file:config.org::*Kill/Yank][Kill/Yank:1]]
+;; [[file:config.org::*Kill/Yank/Mark regions][Kill/Yank/Mark regions:1]]
 (package! hungry-delete)
 (package! easy-kill :recipe (:host github :repo "leoliu/easy-kill"))
 (package! easy-kill-extras)
 (package! expand-region)
-;; Kill/Yank:1 ends here
+;; Kill/Yank/Mark regions:1 ends here
 
 ;; undo-hl
 
@@ -296,14 +301,13 @@
 (package! wgrep)
 ;; wgrep:1 ends here
 
-;; major mode
+;; Hydra
 
 
-
-;; [[file:config.org::*major mode][major mode:1]]
+;; [[file:config.org::*Hydra][Hydra:1]]
 (package! pretty-hydra)
 (package! major-mode-hydra)
-;; major mode:1 ends here
+;; Hydra:1 ends here
 
 ;; show delimiters
 
@@ -339,8 +343,9 @@
 
 
 
+
 ;; [[file:config.org::*Import from various formats into org][Import from various formats into org:1]]
-(package! org-pandoc-import   :recipe (:host github :repo "tecosaur/org-pandoc-import" :files ("*.el" "filters" "preprocessors")))
+(package! org-pandoc-import :recipe (:host github :repo "tecosaur/org-pandoc-import" :files ("*.el" "filters" "preprocessors")))
 ;; Import from various formats into org:1 ends here
 
 ;; literate calc
@@ -455,15 +460,14 @@
 (package! atomic-chrome)
 ;; atomic chrome:1 ends here
 
-;; annotate
-
-;; +OK, but sets the buffer to modified: https://github.com/bastibe/annotate.el/issues/74+
+;; Screencasts
 
 
-;; [[file:config.org::*annotate][annotate:1]]
-;; (package! annotate :recipe (:host github :repo "cage2/annotate.el" :branch "prevent-saving-empty-db"))
-(package! annotate :recipe (:host github :repo "bastibe/annotate.el"))
-;; annotate:1 ends here
+
+;; [[file:config.org::*Screencasts][Screencasts:1]]
+(package! emacs-gif-screencast :recipe (:host github :repo "Ambrevar/emacs-gif-screencast"))
+(package! keycast :recipe (:host github :repo "tarsius/keycast"))
+;; Screencasts:1 ends here
 
 ;; Pomodoro
 
@@ -472,3 +476,13 @@
 ;; [[file:config.org::*Pomodoro][Pomodoro:1]]
 (package! org-pomodoro)
 ;; Pomodoro:1 ends here
+
+;; Profiling startup
+
+;; https://github.com/hlissner/doom-emacs/issues/4498
+
+
+
+;; [[file:config.org::*Profiling startup][Profiling startup:1]]
+(package! benchmark-init)
+;; Profiling startup:1 ends here

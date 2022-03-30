@@ -11,13 +11,13 @@ $0
 
 ** bashblock:
 
-#+begin_src bash :results output
+#+begin_src bash :results output :epilogue "echo \"\n\nexit_status: $?\"" :prologue "exec 2>&1"
 $0
 #+end_src
 
 ** sudoblock:
 
-#+begin_src bash :results output :dir "/sudo::/"
+#+begin_src bash :results output :dir "/sudo::/" :epilogue "echo \"\n\nexit_status: $?\"" :prologue "exec 2>&1"
 $0
 #+end_src
 

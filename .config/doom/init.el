@@ -49,7 +49,9 @@
        indent-guides     ; highlighted indent columns
        ;;ligatures         ; ligatures and symbols to make your code pretty again
        ;;minimap           ; show a map of the code on the side
-       modeline          ; snazzy, Atom-inspired modeline, plus API
+
+       ;; +light is nice, but see https://github.com/hlissner/emacs-hide-mode-line/issues/9
+       (modeline);; +light)          ; snazzy, Atom-inspired modeline, plus API
        nav-flash         ; blink cursor line after big motions
        ;;neotree           ; a project drawer, like NERDTree for vim
        ophints           ; highlight the region an operation acts on
@@ -209,3 +211,22 @@
        ;; literate         ; for literate configs, (we prefer to use our own org-mode hook)
        (default +bindings +smartparens))
 ;; Active:1 ends here
+
+
+
+;; ~emacs --debug-init~ to do profiling
+
+
+;; [[file:config.org::*Profiling startup][Profiling startup:2]]
+(when doom-debug-p
+  ;; https://github.com/dholm/benchmark-init-el/issues/15#issuecomment-766083560
+  (define-advice define-obsolete-function-alias (:filter-args (ll) fix-obsolete)
+    (let ((obsolete-name (pop ll))
+          (current-name (pop ll))
+          (when (if ll (pop ll) "1"))
+          (docstring (if ll (pop ll) nil)))
+      (list obsolete-name current-name when docstring)))
+  (require 'benchmark-init-modes)
+  (require 'benchmark-init)
+  (add-hook 'doom-first-input-hook #'benchmark-init/deactivate))
+;; Profiling startup:2 ends here

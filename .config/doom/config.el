@@ -329,32 +329,45 @@
   )
 ;; Rainbow:2 ends here
 
-;; Parens
+;; with smartparens-mode
 
-
-;; [[file:config.org::*Parens][Parens:1]]
-(after! paren
-  (setq show-paren-style 'expression)
-  (setq show-paren-priority -50)
-  (setq show-paren-delay 0)
-  (set-face-attribute 'show-paren-match nil :inherit 'secondary-selection)
-  (set-face-attribute 'show-paren-match-expression nil :inherit nil :underline nil :background "midnight blue")
-  (set-face-attribute 'show-paren-mismatch nil :weight 'bold :underline t :overline nil :slant 'normal)
+;; [[file:config.org::*with smartparens-mode][with smartparens-mode:1]]
+(after! smartparens
+  (show-smartparens-global-mode t)
+  (setq sp-show-pair-delay 0)
+  (setq show-pair-match-priority -50)
+  (set-face-attribute 'sp-show-pair-match-content-face nil :inherit nil :underline nil :background "midnight blue")
   )
-;; Parens:1 ends here
+;; with smartparens-mode:1 ends here
 
-;; Sessions, Persistence etc.
-
-;; If we turned off the ~workspaces~ module, the recentf list isn't loaded
-;; automatically. ~pre-command-hook~ seems to be sufficient to have recentf
-;; available, though there is some suspicion that it loads the list many times?
-;; (see Messages buffer).
+;; modeline
 
 
-;; [[file:config.org::*Sessions, Persistence etc.][Sessions, Persistence etc.:1]]
-;; recentf list isn't loaded on startup with doom/workspaces turned off
-;; (add-hook! 'pre-command-hook #'recentf-load-list)
-;; Sessions, Persistence etc.:1 ends here
+
+;; [[file:config.org::*modeline][modeline:1]]
+(after! doom-modeline
+  (setq mode-line-default-help-echo nil
+        show-help-function nil
+        )
+  )
+;; modeline:1 ends here
+
+;; [[file:config.org::*minor modes][minor modes:2]]
+(after! (:and doom-modeline minions)
+  (setq doom-modeline-minor-modes t)
+  (minions-mode)
+  )
+;; minor modes:2 ends here
+
+;; anzu
+
+;; display isearch etc matches in the +modeline-matches segment of the +light modeline in :ui
+
+
+;; [[file:config.org::*anzu][anzu:1]]
+(after! anzu
+  (global-anzu-mode))
+;; anzu:1 ends here
 
 ;; [[file:config.org::*Movement][Movement:2]]
 (use-package! windmove
@@ -414,7 +427,7 @@
   :hook (after-init . zoom-mode)
   :custom
   (zoom-size '(0.618 . 0.618))
-  (zoom-ignored-major-modes '(undo-tree-visualizer-mode))
+  (zoom-ignored-major-modes '(undo-tree-visualizer-mode vundo--mode))
   )
 ;; zoom:2 ends here
 
@@ -554,7 +567,7 @@
   )
 ;; Adjust for display size change:2 ends here
 
-;; [[file:config.org::*Kill/Yank][Kill/Yank:2]]
+;; [[file:config.org::*Kill/Yank/Mark regions][Kill/Yank/Mark regions:2]]
 (use-package! hungry-delete
   :after-call after-find-file
   :config
@@ -623,7 +636,7 @@
   ;;
   ;;
   )
-;; Kill/Yank:2 ends here
+;; Kill/Yank/Mark regions:2 ends here
 
 ;; no yanking whitespace
 
@@ -671,17 +684,19 @@
 (use-package! vundo
   :custom
   (vundo-roll-back-on-quit nil)
+  (vundo-glyph-alist vundo-unicode-symbols)
   ;; (vundo-glyph-alist vundo-ascii-symbols)
+  :config
+  (set-face-attribute 'vundo-default nil :family "DejaVu Sans Mono")
   :after-call after-find-file
   :bind ("C-x u" . vundo))
 
-(defun vi/vundo-setup ()
-  (visual-line-mode -1)
-  (turn-off-solaire-mode)
-  (buffer-face-set :font-family "Symbola")
-  )
-
-(add-hook! 'vundo--mode-hook #'vi/vundo-setup)
+(add-hook! 'vundo--mode-hook
+           #'hide-mode-line-mode
+           (visual-line-mode -1)
+           (setq window-size-fixed t)
+           ;; (buffer-face-set '(:family "DejaVu Sans Mono"))
+           )
 ;; vundo:2 ends here
 
 ;; [[file:config.org::*Yankpad][Yankpad:2]]
@@ -701,9 +716,11 @@
 
 ;; [[file:config.org::*Fill][Fill:2]]
 (use-package! unfill
+  :after-call after-find-file
   :bind ("M-a" . unfill-paragraph))
 
 (use-package! fill-function-arguments
+  :after-call after-find-file
   :hook
   (prog-mode . (lambda () (local-set-key (kbd "M-q") #'fill-function-arguments-dwim)))
   (emacs-lisp-mode . (lambda ()
@@ -716,6 +733,7 @@
 
 ;; [[file:config.org::*Comment editing][Comment editing:2]]
 (use-package! rebox2
+  :after-call after-find-file
   :config
   (setq rebox-style-loop '(13 15 23 25 16 17 26 27 11 21))
   :bind
@@ -731,6 +749,7 @@
   )
 
 (use-package! poporg
+  :after-call after-find-file
   :custom
   ;; don't match * in common prefix - this will break C-style comments
   ;; poporg but it is necessary to retain org headings
@@ -770,11 +789,21 @@
 
 ;; [[file:config.org::*Movement][Movement:2]]
 (use-package! mwim
+  :after-call after-find-file
   :bind
   ("C-a" . mwim-beginning)
   ("C-e" . mwim-end)
   )
 ;; Movement:2 ends here
+
+;; isearch
+
+;; [[file:config.org::*isearch][isearch:1]]
+(after! isearch
+  ;; Show match/total in isearch prompt
+  (setq isearch-lazy-count t
+        isearch-lazy-highlight t))
+;; isearch:1 ends here
 
 ;; [[file:config.org::*smartscan][smartscan:2]]
 (use-package! smartscan
@@ -789,6 +818,7 @@
 
 ;; [[file:config.org::*Jumping][Jumping:2]]
 (use-package! smart-jump
+  :after-call after-find-file
   :config
   (smart-jump-setup-default-registers)
   :commands (smart-jump-go smart-jump-back smart-jump-references)
@@ -820,6 +850,7 @@
 
 ;; [[file:config.org::*Folding][Folding:1]]
 (use-package! outline
+  :after-call after-find-file
   :hook (prog-mode . outline-minor-mode)
   :bind (:map outline-minor-mode-map
          ([C-tab] . outline-cycle)
@@ -893,44 +924,37 @@
 (setq which-key-show-early-on-C-h t)
 ;; Which-key:1 ends here
 
-;; Hydra
-
-
-;; [[file:config.org::*Hydra][Hydra:1]]
-(use-package! hydra
-  :after-call pre-command-hook
-  :config
-  (defhydra hydra-global (:exit t :columns 3)
-    " Hydra "
-    ("a" hydra-annotate/body "Annotate")
-    ("A" org-agenda-list "Agenda")
-    ("c" flycheck-hydra/body "flycheck")
-    ("e" ein-hydra/body "ein")
-    ("g" magit-status-here "magit")
-    ;; ("i" vi/lsp-ui-imenu "imenu")
-    ("i" consult-outline "outlIne")
-    ("n" hydra-narrow/body "narrow")
-    ("o" org-hydra/body "org")
-    ("p" org-pomodoro "Pomodoro")
-    ("f" vi/consult-fd "fd")
+;; [[file:config.org::*Hydra][Hydra:2]]
+(pretty-hydra-define global-hydra (:exit t)
+  ("Searching"
+   (;; ("f" +vertico/consult-fd "fd")
     ("s" consult-ripgrep "rg in project")
-    ("b" consult-buffer "Buffers")
-    ("l" consult-line "Line isearch")
+    ("l" consult-line "Line isearch"))
+   "Navigating"
+   (("b" consult-buffer "Buffers")
+    ("i" consult-outline "outlIne")
     ("t" treemacs-select-window "treemacs")
     ("T" +treemacs/toggle "Toggle treemacs")
     ("v" multi-vterm-next "vterm-toggle")
-    ("V" multi-vterm "vterm")
-    ("y" yankpad-insert "yankpad")
-    ;;("b" bufler-switch-buffer "Buffers") ;; won't show recent files
+    ("V" multi-vterm "vterm"))
+   "Modes"
+   (;; ("a" hydra-annotate/body "Annotate")
+    ("c" flycheck-hydra/body "flycheck")
+    ("e" ein-hydra/body "ein")
+    ("n" hydra-narrow/body "narrow")
+    ("o" org-hydra/body "org")
+    ("p" org-pomodoro "Pomodoro"))
+   "Actions"
+   (("A" org-agenda-list "Agenda")
+    ("M-y" yankpad-insert "yankpad")
+    ("g" magit-status-here "magit")
+    ("M-\\" edit-indirect-region "edit indirect region")
     )
-  :chords
-  ("hh" . hydra-global/body))
-;; Hydra:1 ends here
+   )
+  )
 
-;; [[file:config.org::*major mode][major mode:2]]
-(use-package! pretty-hydra)
-(use-package! major-mode-hydra)
-;; major mode:2 ends here
+(key-chord-define-global "hh" #'global-hydra/body)
+;; Hydra:2 ends here
 
 ;; Org mode
 
@@ -972,7 +996,9 @@
      (("k" org-cut-subtree "cut subtree")
       ("y" org-paste-subtree "paste subtree"))
      "Src"
-     (("/" org-babel-demarcate-block "split src block"))
+     (("/" org-babel-demarcate-block "split src block")
+      ("t" org-babel-tangle "tangle")
+      )
      "Links"
      (("l" org-store-link "store link")
       ("i" org-insert-link "insert link")
@@ -1013,6 +1039,7 @@
 
 ;; [[file:config.org::*show delimiters][show delimiters:2]]
 (use-package! org-appear
+  :after org
   :custom (
            (org-appear-autoemphasis t)
            (org-appear-autolinks t)
@@ -1129,7 +1156,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 
 ;; [[file:config.org::*Import from various formats into org][Import from various formats into org:2]]
-(use-package! org-pandoc-import :after org)
+(use-package! org-pandoc-import :after-call after-find-file)
 ;; Import from various formats into org:2 ends here
 
 
@@ -1298,23 +1325,32 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
    ("S-<down>" . windmove-down)
    ("C-c C-r" . vterm-send-C-r)
    )
-  :hook (
-         (vterm-mode . goto-address-mode) ; linkify urls
-         (vterm-mode . (lambda () (whitespace-mode -1))) ;don't highlight trailing whitespace
-         )
   )
 
-;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Query-Before-Exit.html
-(defun vi/vterm-no-confirm-on-exit ()
+(defun vi/vterm-hooks ()
+  ;; linkify urls
+  (goto-address-mode)
+  ;; Don't highlight trailing whitespace
+  (whitespace-mode -1)
+  ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Query-Before-Exit.html
   (set-process-query-on-exit-flag (get-buffer-process (current-buffer)) nil)
   )
 
-(add-hook! 'vterm-mode-hook #'vi/vterm-no-confirm-on-exit)
-
+(add-hook! 'vterm-mode-hook #'vi/vterm-hooks)
 (use-package! multi-vterm
   :custom
   (multi-vterm-buffer-name "%s")
   :commands (multi-vterm-next multi-vterm))
+
+
+(remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
+(after! (:and doom-modeline vterm)
+  (defun vi/vterm-copy ()
+    "Returns 'Copy' when vterm-copy-mode is active"
+    (when (and (eq major-mode 'vterm-mode) vterm-copy-mode) "Copy"))
+  ;; shows in the misc-info segment
+  (add-to-list 'global-mode-string '(:eval (vi/vterm-copy)))
+  )
 ;; vterm:2 ends here
 
 ;; Flycheck
@@ -1322,6 +1358,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; [[file:config.org::*Flycheck][Flycheck:1]]
 (use-package! flycheck
+  :after-call after-find-file
   :custom
   (flycheck-check-syntax-automatically '(mode-enabled save idle-change idle-buffer-switch))
   (flycheck-idle-change-delay 10)
@@ -1488,7 +1525,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
     ("e" lsp-treemacs-errors-list "Errors")
     ("i" vi/lsp-ui-imenu "Imenu")
     )
-
+  :after-call after-find-file
   :hook (
          (python-mode . vi/setup-python-lsp)
          (c++-mode . vi/setup-c++-lsp)
@@ -1801,6 +1838,7 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*jsonnet][jsonnet:2]]
 (use-package! jsonnet-mode
+  :after-call after-find-file
   :mode ("\\.jsonnet\\'"
          "\\.libsonnet\\'"))
 ;; jsonnet:2 ends here
@@ -1849,48 +1887,72 @@ current buffer's, reload dir-locals."
   )
 ;; atomic chrome:2 ends here
 
-
-
-;; - [ ] Fix vi/setup-annotate to handle src buffers in org-mode (buffer-file-name is nil). What should this do? will the default file work?
-
-
-
-;; [[file:config.org::*annotate][annotate:2]]
-(defun vi/setup-annotate ()
-  (when (buffer-file-name)
-    (setq-local annotate-file (expand-file-name (concat buffer-file-name ".annotate")))))
-
-;; No longer used: this was for https://github.com/bastibe/annotate.el/issues/104
-;; (defun vi/annotate-annotate ()
-;;   (interactive)
-;;   ;; Turn on annotate-mode if not already
-;;   (unless annotate-mode (annotate-mode))
-;;   (annotate-annotate)
-;;   )
-
-(use-package! annotate
-  :after-call after-find-file
-  :custom
-  (annotate-endline-annotate-whole-line t)
-  (annotate-database-confirm-deletion nil)
-  (annotate-use-echo-area nil)          ;shows in overlays
-  (annotate-use-messages nil)           ;No messages like "annotations loaded"
-  (annotate-annotation-max-size-not-place-new-line 200)
-  (annotate-annotation-position-policy :by-length)
-  :hook (
-         ;; disable in general prog-mode for time-being - leads to args-out-of-range errors in company? [Jan 24 2022]
-         ;; (prog-mode . annotate-mode)
-         (annotate-mode . vi/setup-annotate)
-         )
+;; [[file:config.org::*Screencasts][Screencasts:2]]
+(use-package! keycast
+  :after-call pre-command-hook
   :config
-  (set-face-attribute 'annotate-annotation nil :foreground "red" :background "white")
-  (set-face-attribute 'annotate-annotation-secondary nil :foreground "red" :background "white")
-  (set-face-attribute 'annotate-highlight nil :underline "#51afef" :background "#2c3946")
-  (set-face-attribute 'annotate-highlight-secondary nil :underline "#51afef" :background "#2c3946")
-  (defhydra hydra-annotate (:exit t :columns 2)
-    "Annotate"
-    ("a" annotate-annotate "Add")
-    ("l" annotate-summary-of-file-from-current-pos "list")
-    )
+  (define-minor-mode keycast-mode
+    "Show current command and its key binding in the mode line (fix for use with doom-mode-line)."
+    :global t
+    (if keycast-mode
+        (add-hook 'pre-command-hook 'keycast--update t)
+      (remove-hook 'pre-command-hook 'keycast--update))))
+(add-hook! keycast-mode-hook
+  (add-to-list 'global-mode-string '("" keycast-mode-line)))
+;; Screencasts:2 ends here
+
+;; Rotation
+
+;; [[file:config.org::*Rotation][Rotation:1]]
+(after! pdf-view
+  ;; https://emacs.stackexchange.com/questions/24738/how-do-i-rotate-pages-in-pdf-tools/24766#24766
+  (defun pdf-view--rotate (&optional counterclockwise-p page-p)
+    "Rotate PDF 90 degrees.  Requires pdftk to work.\n
+Clockwise rotation is the default; set COUNTERCLOCKWISE-P to
+non-nil for the other direction.  Rotate the whole document by
+default; set PAGE-P to non-nil to rotate only the current page.
+\nWARNING: overwrites the original file, so be careful!"
+    ;; error out when pdftk is not installed
+    (if (null (executable-find "pdftk"))
+        (error "Rotation requires pdftk")
+      ;; only rotate in pdf-view-mode
+      (when (eq major-mode 'pdf-view-mode)
+        (let* ((rotate (if counterclockwise-p "left" "right"))
+               (file   (format "\"%s\"" (pdf-view-buffer-file-name)))
+               (page   (pdf-view-current-page))
+               (pages  (cond ((not page-p)                        ; whole doc?
+                              (format "1-end%s" rotate))
+                             ((= page 1)                          ; first page?
+                              (format "%d%s %d-end"
+                                      page rotate (1+ page)))
+                             ((= page (pdf-info-number-of-pages)) ; last page?
+                              (format "1-%d %d%s"
+                                      (1- page) page rotate))
+                             (t                                   ; interior page?
+                              (format "1-%d %d%s %d-end"
+                                      (1- page) page rotate (1+ page))))))
+          ;; empty string if it worked
+          (if (string= "" (shell-command-to-string
+                           (format (concat "pdftk %s cat %s "
+                                           "output %s.NEW "
+                                           "&& mv %s.NEW %s")
+                                   file pages file file file)))
+              (pdf-view-revert-buffer nil t)
+            (error "Rotation error!"))))))
+
+  (defun pdf-view-rotate-clockwise (&optional arg)
+    "Rotate PDF page 90 degrees clockwise.  With prefix ARG, rotate
+entire document."
+    (interactive "P")
+    (pdf-view--rotate nil (not arg)))
+
+  (defun pdf-view-rotate-counterclockwise (&optional arg)
+    "Rotate PDF page 90 degrees counterclockwise.  With prefix ARG,
+rotate entire document."
+    (interactive "P")
+    (pdf-view--rotate :counterclockwise (not arg)))
+
+  (define-key pdf-view-mode-map (kbd "R") 'pdf-view-rotate-clockwise)
+
   )
-;; annotate:2 ends here
+;; Rotation:1 ends here

@@ -14,7 +14,7 @@ See [[file:init.el][init.el]], [[file:packages.el][packages.el]] and [[file:conf
 
 * Notes about writing doom config
 
-- See [[api demos][https://github.com/hlissner/doom-emacs/blob/develop/modules/lang/emacs-lisp/demos.org]] for how to use ~use-package!~, ~map!~, ~after!~, ~set-hook!~ etc.
+- See [[https://github.com/hlissner/doom-emacs/blob/develop/modules/lang/emacs-lisp/demos.org ][api demos]] for how to use ~use-package!~, ~map!~, ~after!~, ~set-hook!~ etc.
 
 - Most important thing for start up speed is to defer packages as much as possible.
 
@@ -24,6 +24,8 @@ See [[file:init.el][init.el]], [[file:packages.el][packages.el]] and [[file:conf
 
   ~:after-call (pre-command-hook after-find-file dired-before-readin-hook))~ <- some hooks that can be used for :after-call
 
+
+https://github.com/hlissner/doom-emacs/issues/310#issuecomment-354424413
 
 * To try:
 
@@ -349,7 +351,9 @@ here as-is for now, as it is quite well structured and clear.
        indent-guides     ; highlighted indent columns
        ;;ligatures         ; ligatures and symbols to make your code pretty again
        ;;minimap           ; show a map of the code on the side
-       modeline          ; snazzy, Atom-inspired modeline, plus API
+
+       ;; +light is nice, but see https://github.com/hlissner/emacs-hide-mode-line/issues/9
+       (modeline);; +light)          ; snazzy, Atom-inspired modeline, plus API
        nav-flash         ; blink cursor line after big motions
        ;;neotree           ; a project drawer, like NERDTree for vim
        ophints           ; highlight the region an operation acts on
@@ -979,21 +983,6 @@ Turn off "don't remember risky variables" feature
 (setq warning-minimum-level :error)
 #+end_src
 
-* COMMENT Profiling startup
-
-https://github.com/hlissner/doom-emacs/issues/4498
-
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! benchmark-init)
-#+end_src
-
-
-#+begin_src emacs-lisp :tangle init.el
-(when doom-debug-p
-  (require 'benchmark-init)
-  (add-hook 'doom-first-input-hook #'benchmark-init/deactivate))
-#+end_src
 * Global keybindings
 
 
@@ -1257,6 +1246,7 @@ https://dzone.com/articles/rare-letter-combinations-and
 
 * Parens
 
+** COMMENT with parens-mode
 #+begin_src emacs-lisp
 (after! paren
   (setq show-paren-style 'expression)
@@ -1268,24 +1258,57 @@ https://dzone.com/articles/rare-letter-combinations-and
   )
 #+end_src
 
-
-* Sessions, Persistence etc.
-
-If we turned off the ~workspaces~ module, the recentf list isn't loaded
-automatically. ~pre-command-hook~ seems to be sufficient to have recentf
-available, though there is some suspicion that it loads the list many times?
-(see Messages buffer).
-
+** with smartparens-mode
 #+begin_src emacs-lisp
-;; recentf list isn't loaded on startup with doom/workspaces turned off
-;; (add-hook! 'pre-command-hook #'recentf-load-list)
+(after! smartparens
+  (show-smartparens-global-mode t)
+  (setq sp-show-pair-delay 0)
+  (setq show-pair-match-priority -50)
+  (set-face-attribute 'sp-show-pair-match-content-face nil :inherit nil :underline nil :background "midnight blue")
+  )
 #+end_src
-* Environment
 
+
+* Environment
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! exec-path-from-shell)
 #+end_src
+* modeline
+
+
+#+begin_src emacs-lisp
+(after! doom-modeline
+  (setq mode-line-default-help-echo nil
+        show-help-function nil
+        )
+  )
+#+end_src
+
+** minor modes
+#+begin_src emacs-lisp :tangle packages.el
+(package! minions)
+#+end_src
+
+#+begin_src emacs-lisp
+(after! (:and doom-modeline minions)
+  (setq doom-modeline-minor-modes t)
+  (minions-mode)
+  )
+#+end_src
+
+** anzu
+
+display isearch etc matches in the +modeline-matches segment of the +light modeline in :ui
+
+#+begin_src emacs-lisp
+(after! anzu
+  (global-anzu-mode))
+#+end_src
+
+
+
+
 * Window/Buffer management
 
 ** Movement
@@ -1490,7 +1513,7 @@ Disabling all of these posframe solutions (minibuffer, which-key, hydra) since t
   :hook (after-init . zoom-mode)
   :custom
   (zoom-size '(0.618 . 0.618))
-  (zoom-ignored-major-modes '(undo-tree-visualizer-mode))
+  (zoom-ignored-major-modes '(undo-tree-visualizer-mode vundo--mode))
   )
 #+end_src
 
@@ -1760,7 +1783,7 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
   )
 #+end_src
 
-* Kill/Yank
+* Kill/Yank/Mark regions
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! hungry-delete)
@@ -1901,37 +1924,20 @@ https://stackoverflow.com/a/69307156/14044156
 (use-package! vundo
   :custom
   (vundo-roll-back-on-quit nil)
+  (vundo-glyph-alist vundo-unicode-symbols)
   ;; (vundo-glyph-alist vundo-ascii-symbols)
+  :config
+  (set-face-attribute 'vundo-default nil :family "DejaVu Sans Mono")
   :after-call after-find-file
   :bind ("C-x u" . vundo))
 
-(defun vi/vundo-setup ()
-  (visual-line-mode -1)
-  (turn-off-solaire-mode)
-  (buffer-face-set :font-family "Symbola")
-  )
+(add-hook! 'vundo--mode-hook
+           #'hide-mode-line-mode
+           (visual-line-mode -1)
+           (setq window-size-fixed t)
+           ;; (buffer-face-set '(:family "DejaVu Sans Mono"))
+           )
 
-(add-hook! 'vundo--mode-hook #'vi/vundo-setup)
-
-#+end_src
-
-*** COMMENT glyphs
-Configure the ranges used for vundo to be from a single font to prevent misalignment.
-
-symbols from from ~vundo-unicode-symbols~, identify the code point using
-~describe-char~, then find the unicode block by searching eg
-https://unicode-table.com/en/25CB/
-
-#+begin_src emacs-lisp
-(after! unicode-fonts
-  (dolist (unicode-block '(
-                           "Box Drawing"
-                           "Geometric Shapes"
-                           "Geometric Shapes Extended"))
-
-
-
-    (push "Symbola" (cadr (assoc unicode-block unicode-fonts-block-font-mapping)))))
 #+end_src
 
 * Yankpad
@@ -1967,9 +1973,11 @@ https://unicode-table.com/en/25CB/
 
 #+begin_src emacs-lisp
 (use-package! unfill
+  :after-call after-find-file
   :bind ("M-a" . unfill-paragraph))
 
 (use-package! fill-function-arguments
+  :after-call after-find-file
   :hook
   (prog-mode . (lambda () (local-set-key (kbd "M-q") #'fill-function-arguments-dwim)))
   (emacs-lisp-mode . (lambda ()
@@ -1991,6 +1999,7 @@ https://unicode-table.com/en/25CB/
 
 #+begin_src emacs-lisp
 (use-package! rebox2
+  :after-call after-find-file
   :config
   (setq rebox-style-loop '(13 15 23 25 16 17 26 27 11 21))
   :bind
@@ -2006,6 +2015,7 @@ https://unicode-table.com/en/25CB/
   )
 
 (use-package! poporg
+  :after-call after-find-file
   :custom
   ;; don't match * in common prefix - this will break C-style comments
   ;; poporg but it is necessary to retain org headings
@@ -2053,6 +2063,7 @@ https://unicode-table.com/en/25CB/
 
 #+begin_src emacs-lisp
 (use-package! mwim
+  :after-call after-find-file
   :bind
   ("C-a" . mwim-beginning)
   ("C-e" . mwim-end)
@@ -2060,6 +2071,14 @@ https://unicode-table.com/en/25CB/
 #+end_src
 
 * Search/Filtering
+
+** isearch
+#+begin_src emacs-lisp
+(after! isearch
+  ;; Show match/total in isearch prompt
+  (setq isearch-lazy-count t
+        isearch-lazy-highlight t))
+#+end_src
 
 ** smartscan
 #+begin_src emacs-lisp :tangle packages.el
@@ -2076,6 +2095,8 @@ https://unicode-table.com/en/25CB/
   ;; M-p, M-n interfere in git-rebase mode
   (add-hook! git-rebase-mode (smartscan-mode -1))
   )
+
+
 #+end_src
 ** COMMENT ctrlf
 
@@ -2120,6 +2141,7 @@ https://unicode-table.com/en/25CB/
 
 #+begin_src emacs-lisp
 (use-package! smart-jump
+  :after-call after-find-file
   :config
   (smart-jump-setup-default-registers)
   :commands (smart-jump-go smart-jump-back smart-jump-references)
@@ -2237,6 +2259,7 @@ Instead of default ivy
 
 #+begin_src emacs-lisp
 (use-package! outline
+  :after-call after-find-file
   :hook (prog-mode . outline-minor-mode)
   :bind (:map outline-minor-mode-map
          ([C-tab] . outline-cycle)
@@ -2338,49 +2361,41 @@ Instead of default ivy
 
 * Hydra
 
-#+begin_src emacs-lisp
-(use-package! hydra
-  :after-call pre-command-hook
-  :config
-  (defhydra hydra-global (:exit t :columns 3)
-    " Hydra "
-    ("a" hydra-annotate/body "Annotate")
-    ("A" org-agenda-list "Agenda")
-    ("c" flycheck-hydra/body "flycheck")
-    ("e" ein-hydra/body "ein")
-    ("g" magit-status-here "magit")
-    ;; ("i" vi/lsp-ui-imenu "imenu")
-    ("i" consult-outline "outlIne")
-    ("n" hydra-narrow/body "narrow")
-    ("o" org-hydra/body "org")
-    ("p" org-pomodoro "Pomodoro")
-    ("f" vi/consult-fd "fd")
-    ("s" consult-ripgrep "rg in project")
-    ("b" consult-buffer "Buffers")
-    ("l" consult-line "Line isearch")
-    ("t" treemacs-select-window "treemacs")
-    ("T" +treemacs/toggle "Toggle treemacs")
-    ("v" multi-vterm-next "vterm-toggle")
-    ("V" multi-vterm "vterm")
-    ("y" yankpad-insert "yankpad")
-    ;;("b" bufler-switch-buffer "Buffers") ;; won't show recent files
-    )
-  :chords
-  ("hh" . hydra-global/body))
-#+end_src
-
-** major mode
-
-
 #+begin_src emacs-lisp :tangle packages.el
 (package! pretty-hydra)
 (package! major-mode-hydra)
 #+end_src
 
-
 #+begin_src emacs-lisp
-(use-package! pretty-hydra)
-(use-package! major-mode-hydra)
+(pretty-hydra-define global-hydra (:exit t)
+  ("Searching"
+   (;; ("f" +vertico/consult-fd "fd")
+    ("s" consult-ripgrep "rg in project")
+    ("l" consult-line "Line isearch"))
+   "Navigating"
+   (("b" consult-buffer "Buffers")
+    ("i" consult-outline "outlIne")
+    ("t" treemacs-select-window "treemacs")
+    ("T" +treemacs/toggle "Toggle treemacs")
+    ("v" multi-vterm-next "vterm-toggle")
+    ("V" multi-vterm "vterm"))
+   "Modes"
+   (;; ("a" hydra-annotate/body "Annotate")
+    ("c" flycheck-hydra/body "flycheck")
+    ("e" ein-hydra/body "ein")
+    ("n" hydra-narrow/body "narrow")
+    ("o" org-hydra/body "org")
+    ("p" org-pomodoro "Pomodoro"))
+   "Actions"
+   (("A" org-agenda-list "Agenda")
+    ("M-y" yankpad-insert "yankpad")
+    ("g" magit-status-here "magit")
+    ("M-\\" edit-indirect-region "edit indirect region")
+    )
+   )
+  )
+
+(key-chord-define-global "hh" #'global-hydra/body)
 #+end_src
 
 * Org mode
@@ -2422,7 +2437,9 @@ Instead of default ivy
      (("k" org-cut-subtree "cut subtree")
       ("y" org-paste-subtree "paste subtree"))
      "Src"
-     (("/" org-babel-demarcate-block "split src block"))
+     (("/" org-babel-demarcate-block "split src block")
+      ("t" org-babel-tangle "tangle")
+      )
      "Links"
      (("l" org-store-link "store link")
       ("i" org-insert-link "insert link")
@@ -2470,6 +2487,7 @@ Instead of default ivy
 
 #+begin_src emacs-lisp
 (use-package! org-appear
+  :after org
   :custom (
            (org-appear-autoemphasis t)
            (org-appear-autolinks t)
@@ -2859,14 +2877,15 @@ appropriate.  In tables, insert a new row or end the table."
 ** Import from various formats into org
 
 
+
 #+begin_src emacs-lisp :tangle packages.el
-(package! org-pandoc-import   :recipe (:host github :repo "tecosaur/org-pandoc-import" :files ("*.el" "filters" "preprocessors")))
+(package! org-pandoc-import :recipe (:host github :repo "tecosaur/org-pandoc-import" :files ("*.el" "filters" "preprocessors")))
 #+end_src
 
 Needs ~brew install pandoc~
 
 #+begin_src emacs-lisp
-(use-package! org-pandoc-import :after org)
+(use-package! org-pandoc-import :after-call after-find-file)
 #+end_src
 
 ** literate calc
@@ -2879,6 +2898,21 @@ Let's use this with file-locals instead
 
 #+begin_src emacs-lisp
 ;; (add-hook! org-mode #'literate-calc-minor-mode)
+#+end_src
+
+
+*** COMMENT poly-literate-calc
+
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! poly-literate-calc
+  :recipe (:local-repo "lisp/poly-literate-calc" :build (:not compile)));; :host github :repo "indigoviolet/poly-literate-calc"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! poly-literate-calc)
 #+end_src
 
 
@@ -3096,23 +3130,32 @@ doesn't work
    ("S-<down>" . windmove-down)
    ("C-c C-r" . vterm-send-C-r)
    )
-  :hook (
-         (vterm-mode . goto-address-mode) ; linkify urls
-         (vterm-mode . (lambda () (whitespace-mode -1))) ;don't highlight trailing whitespace
-         )
   )
 
-;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Query-Before-Exit.html
-(defun vi/vterm-no-confirm-on-exit ()
+(defun vi/vterm-hooks ()
+  ;; linkify urls
+  (goto-address-mode)
+  ;; Don't highlight trailing whitespace
+  (whitespace-mode -1)
+  ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Query-Before-Exit.html
   (set-process-query-on-exit-flag (get-buffer-process (current-buffer)) nil)
   )
 
-(add-hook! 'vterm-mode-hook #'vi/vterm-no-confirm-on-exit)
-
+(add-hook! 'vterm-mode-hook #'vi/vterm-hooks)
 (use-package! multi-vterm
   :custom
   (multi-vterm-buffer-name "%s")
   :commands (multi-vterm-next multi-vterm))
+
+
+(remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
+(after! (:and doom-modeline vterm)
+  (defun vi/vterm-copy ()
+    "Returns 'Copy' when vterm-copy-mode is active"
+    (when (and (eq major-mode 'vterm-mode) vterm-copy-mode) "Copy"))
+  ;; shows in the misc-info segment
+  (add-to-list 'global-mode-string '(:eval (vi/vterm-copy)))
+  )
 #+end_src
 
 ** wrapping issues
@@ -3138,6 +3181,7 @@ https://github.com/akermu/emacs-libvterm/issues/179
 
 #+begin_src emacs-lisp
 (use-package! flycheck
+  :after-call after-find-file
   :custom
   (flycheck-check-syntax-automatically '(mode-enabled save idle-change idle-buffer-switch))
   (flycheck-idle-change-delay 10)
@@ -3313,7 +3357,7 @@ https://gist.github.com/justinhj/5945047
     ("e" lsp-treemacs-errors-list "Errors")
     ("i" vi/lsp-ui-imenu "Imenu")
     )
-
+  :after-call after-find-file
   :hook (
          (python-mode . vi/setup-python-lsp)
          (c++-mode . vi/setup-c++-lsp)
@@ -3716,6 +3760,7 @@ So we could:
 
 #+begin_src emacs-lisp
 (use-package! jsonnet-mode
+  :after-call after-find-file
   :mode ("\\.jsonnet\\'"
          "\\.libsonnet\\'"))
 #+end_src
@@ -3821,7 +3866,7 @@ So we could:
 (use-package! bookmark+)
 #+end_src
 
-** annotate
+** COMMENT annotate
 
 +OK, but sets the buffer to modified: https://github.com/bastibe/annotate.el/issues/74+
 
@@ -3877,6 +3922,29 @@ So we could:
 ** TODO org-remark
 
 https://github.com/nobiot/org-remark
+* Screencasts
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! emacs-gif-screencast :recipe (:host github :repo "Ambrevar/emacs-gif-screencast"))
+(package! keycast :recipe (:host github :repo "tarsius/keycast"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! keycast
+  :after-call pre-command-hook
+  :config
+  (define-minor-mode keycast-mode
+    "Show current command and its key binding in the mode line (fix for use with doom-mode-line)."
+    :global t
+    (if keycast-mode
+        (add-hook 'pre-command-hook 'keycast--update t)
+      (remove-hook 'pre-command-hook 'keycast--update))))
+(add-hook! keycast-mode-hook
+  (add-to-list 'global-mode-string '("" keycast-mode-line)))
+#+end_src
+
 * Bookmarks
 
 - Linkmarks depends on helm. also it doesn't play nice with org-capture
@@ -3903,6 +3971,62 @@ https://github.com/nobiot/org-remark
 ** TODO harpoon
 
 https://github.com/otavioschwanck/harpoon.el
+* PDF
+
+** Rotation
+#+begin_src emacs-lisp
+(after! pdf-view
+  ;; https://emacs.stackexchange.com/questions/24738/how-do-i-rotate-pages-in-pdf-tools/24766#24766
+  (defun pdf-view--rotate (&optional counterclockwise-p page-p)
+    "Rotate PDF 90 degrees.  Requires pdftk to work.\n
+Clockwise rotation is the default; set COUNTERCLOCKWISE-P to
+non-nil for the other direction.  Rotate the whole document by
+default; set PAGE-P to non-nil to rotate only the current page.
+\nWARNING: overwrites the original file, so be careful!"
+    ;; error out when pdftk is not installed
+    (if (null (executable-find "pdftk"))
+        (error "Rotation requires pdftk")
+      ;; only rotate in pdf-view-mode
+      (when (eq major-mode 'pdf-view-mode)
+        (let* ((rotate (if counterclockwise-p "left" "right"))
+               (file   (format "\"%s\"" (pdf-view-buffer-file-name)))
+               (page   (pdf-view-current-page))
+               (pages  (cond ((not page-p)                        ; whole doc?
+                              (format "1-end%s" rotate))
+                             ((= page 1)                          ; first page?
+                              (format "%d%s %d-end"
+                                      page rotate (1+ page)))
+                             ((= page (pdf-info-number-of-pages)) ; last page?
+                              (format "1-%d %d%s"
+                                      (1- page) page rotate))
+                             (t                                   ; interior page?
+                              (format "1-%d %d%s %d-end"
+                                      (1- page) page rotate (1+ page))))))
+          ;; empty string if it worked
+          (if (string= "" (shell-command-to-string
+                           (format (concat "pdftk %s cat %s "
+                                           "output %s.NEW "
+                                           "&& mv %s.NEW %s")
+                                   file pages file file file)))
+              (pdf-view-revert-buffer nil t)
+            (error "Rotation error!"))))))
+
+  (defun pdf-view-rotate-clockwise (&optional arg)
+    "Rotate PDF page 90 degrees clockwise.  With prefix ARG, rotate
+entire document."
+    (interactive "P")
+    (pdf-view--rotate nil (not arg)))
+
+  (defun pdf-view-rotate-counterclockwise (&optional arg)
+    "Rotate PDF page 90 degrees counterclockwise.  With prefix ARG,
+rotate entire document."
+    (interactive "P")
+    (pdf-view--rotate :counterclockwise (not arg)))
+
+  (define-key pdf-view-mode-map (kbd "R") 'pdf-view-rotate-clockwise)
+
+  )
+#+end_src
 
 * Pomodoro
 
@@ -3911,6 +4035,30 @@ https://github.com/otavioschwanck/harpoon.el
 (package! org-pomodoro)
 #+end_src
 
+* Profiling startup
+
+https://github.com/hlissner/doom-emacs/issues/4498
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! benchmark-init)
+#+end_src
+
+~emacs --debug-init~ to do profiling
+
+#+begin_src emacs-lisp :tangle init.el
+(when doom-debug-p
+  ;; https://github.com/dholm/benchmark-init-el/issues/15#issuecomment-766083560
+  (define-advice define-obsolete-function-alias (:filter-args (ll) fix-obsolete)
+    (let ((obsolete-name (pop ll))
+          (current-name (pop ll))
+          (when (if ll (pop ll) "1"))
+          (docstring (if ll (pop ll) nil)))
+      (list obsolete-name current-name when docstring)))
+  (require 'benchmark-init-modes)
+  (require 'benchmark-init)
+  (add-hook 'doom-first-input-hook #'benchmark-init/deactivate))
+#+end_src
 * COMMENT Github
 
 ** COMMENT Clone git repo
