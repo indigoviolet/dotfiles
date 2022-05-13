@@ -7,6 +7,7 @@ default:
 
 {% if yadm.class == "personal" %}
 EMACSDIR := env_var('EMACSDIR')
+DOOMDIR := env_var('DOOMDIR')
 
 # Handle stale elc files
 doom_rebuild:
@@ -14,15 +15,30 @@ doom_rebuild:
     doom clean
     fd -g '*.elc' {{ EMACSDIR }} -uuu -x rm
     doom build
+    ## rebuild pdf tools, this fails within emacs because CC is set
+    CC= /home/venky/.emacs.d/.local/straight/build-29.0.50/pdf-tools/build/server/autobuild -i /home/venky/.emacs.d/.local/straight/build-29.0.50/pdf-tools/
+    # unsure why this doesn't do anything
+    # echo 'y' | emacs -l ~/.emacs.d/init.el -f vterm-module-compile
+
 
 doom_tangle_config:
-    emacs --batch -Q --eval "(require 'org)" --eval '(org-babel-tangle-file "'$DOOMDIR'/config.org")'
+    emacs --batch -Q --eval "(require 'org)" --eval '(org-babel-tangle-file "{{ DOOMDIR }}/config.org")'
 
 mutagen_project_start:
     mutagen project start -f ~/dev/ml-west.yml
 
 mutagen_project_terminate:
     mutagen project terminate -f ~/dev/ml-west.yml
+
+# Log into syslog
+syslog_notice NOTICE:
+    echo "---Debug notice: {{ NOTICE }}---" | logger -i -s -p user.notice
+
+debug_suspend: (syslog_notice "Suspend")
+    systemctl suspend
+
+debug_hibernate: (syslog_notice "Hibernate")
+    systemctl hibernate
 {% endif %}
 
 {% if yadm.class == "gcp" %}
@@ -42,7 +58,7 @@ pipx_dump:
     pipx list --json
 
 yadm_checkpoint:
-    cd {{ HOME  }} && yadm add -u && yadm ci -m "checkpoint" && yadm push
+    cd {{ HOME }} && yadm add -u && yadm ci -m "checkpoint" && yadm push
 
 # Install a Jupyter kernel from a Poetry venv
 poetry_install_ipykernel:
@@ -55,7 +71,17 @@ poetry_install_ipykernel:
     fi
     poetry add -D ipykernel
     poetry install
-    python -m ipykernel install --user --name="$(basename "$(pwd)")"
+    local basename=${PWD##*/}
+    python -m ipykernel install --user --name="$basename"
+
+
+show_kernelspec:
+    #!/usr/bin/env bash
+    set_init
+    cd {{ invocation_directory() }}
+    basename=${PWD##*/}
+    jupyter kernelspec list --json | jq '.kernelspecs."'"$basename"'"'
+
 
 # https://github.com/python-poetry/poetry/issues/3958
 # https://github.com/python-poetry/poetry/issues/2921#issuecomment-896812858
