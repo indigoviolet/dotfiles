@@ -28,6 +28,10 @@ See [[file:init.el][init.el]], [[file:packages.el][packages.el]] and [[file:conf
 https://github.com/hlissner/doom-emacs/issues/310#issuecomment-354424413
 
 * To try:
+** figure out org-capture (into Notes todo, into emacs config.org todo, project todo)
+
+   https://fuco1.github.io/2019-02-10-Refiling-hydra-with-pre-defined-targets.html
+
 
 ** DONE use vertico + consult/marginalia/embark out of doom-emacs instead of selectrum/custom configs
 :LOGBOOK:
@@ -73,6 +77,7 @@ er/mark-<foo> to recreate easy-mark, with active region.
 *** dired-sidebar
 *** dirvish
 
+https://github.com/alexluigit/dirvish
 ** Figure out how to get consult-buffer to be efficient
 
 have to build helm-mini like set all over again :/
@@ -109,7 +114,10 @@ https://github.com/fuxialexander/emacs-webkit-katex-render
 *** DONE org-appear (toggle visibility of emphasis markers)
 
 ** [[https://sideshowcoder.com/2020/07/02/opening-sourcegraph-from-emacs/][Sourcegraph links via git-link]]
-** [[https://ubolonton.github.io/emacs-tree-sitter/getting-started/][Emacs Tree Sitter]]
+** DONE [[https://ubolonton.github.io/emacs-tree-sitter/getting-started/][Emacs Tree Sitter]]
+:LOGBOOK:
+- State "DONE"       from              [2022-04-08 Fri 15:29]
+:END:
 ** [[https://old.reddit.com/r/emacs/comments/931la6/tip_how_to_adopt_flycheck_as_your_new_best_friend/][Flycheck Hydra]]
 ** Flycheck a directory: http://endlessparentheses.com/flycheck-a-directory-and-report-the-results.html. We don't need this right now because we have [[http://endlessparentheses.com/flycheck-a-directory-and-report-the-results.html][project checkers]]
 ** https://github.com/tecosaur/emacs-everywhere
@@ -141,7 +149,7 @@ for which it seems to work better than mspyls
 - [ ] Figure out how to get pyright to watch fewer files?
 - [ ] Revisit lsp completion with pyright: https://github.com/emacs-lsp/lsp-pyright/issues/16#issuecomment-676501575
 - [ ] poetry and pyright: https://github.com/emacs-lsp/lsp-pyright/issues/24
-- [ ] Set up semantic for tabnine: https://www.tabnine.com/semantic, but see if we can use current language server instead of pyls (pyright or pylance?)
+- [X] Set up semantic for tabnine: https://www.tabnine.com/semantic, but see if we can use current language server instead of pyls (pyright or pylance?)
 - [ ] try pylance: https://github.com/emacs-lsp/lsp-mode/issues/1863#issuecomment-652740357
 
 ** Pyre
@@ -373,7 +381,7 @@ here as-is for now, as it is quite well structured and clear.
        ;; (evil +everywhere); come to the dark side, we have cookies
        ;; file-templates    ; auto-snippets for empty files
        fold              ; (nigh) universal code folding
-       (format +onsave)  ; automated prettiness
+       ;; (format +onsave)  ; automated prettiness
        ;;god               ; run Emacs commands without modifier keys
        ;;lispy             ; vim for lisp, for people who don't like vim
        ;;multiple-cursors  ; editing in many places at once
@@ -411,7 +419,7 @@ here as-is for now, as it is quite well structured and clear.
        ein               ; tame Jupyter notebooks with emacs
        (eval +overlay)     ; run code, run (also, repls)
        ;;gist              ; interacting with github gists
-       lookup              ; navigate your code and its documentation
+       (lookup +docsets)              ; navigate your code and its documentation
        (lsp +peek)               ; M-x vscode
        magit             ; a git porcelain for Emacs
        ;;make              ; run make tasks from Emacs
@@ -476,7 +484,7 @@ here as-is for now, as it is quite well structured and clear.
        ;;purescript        ; javascript, but functional
 
        ;; +poetry is slow
-       (python +lsp)            ; beautiful is better than ugly
+       (python +lsp +pyright)            ; beautiful is better than ugly
 
        ;;qt                ; the 'cutest' gui framework ever
        ;;racket            ; a DSL for DSLs
@@ -511,183 +519,6 @@ here as-is for now, as it is quite well structured and clear.
 
        :config
        ;; literate         ; for literate configs, (we prefer to use our own org-mode hook)
-       (default +bindings +smartparens))
-#+end_src
-
-** COMMENT old
-#+begin_src emacs-lisp :tangle init.el
-(doom! :input
-       ;;chinese
-       ;;japanese
-       ;;layout            ; auie,ctsrnm is the superior home row
-
-       :completion
-       company           ; the ultimate code completion backend
-       ;;helm              ; the *other* search engine for love and life
-       ;;ido               ; the other *other* search engine...
-       ;;(ivy +prescient +childframe +icons)               ; a search engine for love and life (selectrum)
-       (vertico +icons)
-
-       :ui
-       ;;deft              ; notational velocity for Emacs
-       doom              ; what makes DOOM look the way it does
-       doom-dashboard    ; a nifty splash screen for Emacs
-       doom-quit         ; DOOM quit-message prompts when you quit Emacs
-       ;;(emoji +unicode)  ; 🙂
-       ;;fill-column       ; a `fill-column' indicator
-       hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
-       hydra
-       indent-guides     ; highlighted indent columns
-       ;;ligatures         ; ligatures and symbols to make your code pretty again
-       ;;minimap           ; show a map of the code on the side
-       modeline          ; snazzy, Atom-inspired modeline, plus API
-       nav-flash         ; blink cursor line after big motions
-       ;;neotree           ; a project drawer, like NERDTree for vim
-       ophints           ; highlight the region an operation acts on
-       ;; (popup +defaults)   ; tame sudden yet inevitable temporary windows
-       ;;tabs              ; a tab bar for Emacs
-       treemacs          ; a project drawer, like neotree but cooler
-       unicode           ; extended unicode support for various languages
-       vc-gutter         ; vcs diff in the fringe
-       vi-tilde-fringe   ; fringe tildes to mark beyond EOB
-       ;;window-select     ; visually switch windows
-       workspaces        ; tab emulation, persistence & separate workspaces
-       ;;zen               ; distraction-free coding or writing
-
-       :editor
-       ;; (evil +everywhere); come to the dark side, we have cookies
-       ;; file-templates    ; auto-snippets for empty files
-       fold              ; (nigh) universal code folding
-       (format +onsave)  ; automated prettiness
-       ;;god               ; run Emacs commands without modifier keys
-       ;;lispy             ; vim for lisp, for people who don't like vim
-       ;;multiple-cursors  ; editing in many places at once
-       ;;objed             ; text object editing for the innocent
-       ;;parinfer          ; turn lisp into python, sort of
-       ;;rotate-text       ; cycle region at point between text candidates
-       ;; snippets          ; my elves. They type so I don't have to
-       ;;word-wrap         ; soft wrapping with language-aware indent
-
-       :emacs
-       ;; dired             ; making dired pretty [functional]
-       electric          ; smarter, keyword-based electric-indent
-       ;; ibuffer         ; interactive buffer management (we're using bufler)
-       undo              ; persistent, smarter undo for your inevitable mistakes
-       ;; vc                ; version-control and Emacs, sitting in a tree (magit)
-
-       :term
-       ;;eshell            ; the elisp shell that works everywhere
-       ;;shell             ; simple shell REPL for Emacs
-       ;;term              ; basic terminal emulator for Emacs
-       vterm             ; the best terminal emulation in Emacs
-
-       :checkers
-       syntax              ; tasing you for every semicolon you forget
-       ;;spell             ; tasing you for misspelling mispelling
-       ;;grammar           ; tasing grammar mistake every you make
-
-       :tools
-       ;;ansible
-       ;;debugger          ; FIXME stepping through code, to help you add bugs
-       direnv                ;uses https://github.com/purcell/envrc
-       ;; docker
-       editorconfig      ; let someone else argue about tabs vs spaces
-       ein               ; tame Jupyter notebooks with emacs
-       (eval +overlay)     ; run code, run (also, repls)
-       ;;gist              ; interacting with github gists
-       lookup              ; navigate your code and its documentation
-       (lsp +peek)
-       magit             ; a git porcelain for Emacs
-       ;;make              ; run make tasks from Emacs
-       ;;pass              ; password manager for nerds
-       pdf               ; pdf enhancements <-- pdf-tools + org-noter: this crashes emacs on `i` in a pdf file
-       ;;prodigy           ; FIXME managing external services & code builders
-       ;;rgb+-----------------+----------------------------------------------------------------+               ; creating color strings
-       ;;taskrunner        ; taskrunner for all your projects
-       ;; terraform         ; infrastructure as code
-       ;;tmux              ; an API for interacting with tmux
-       ;;upload            ; map local to remote projects via ssh/ftp
-
-       :os
-       (:if IS-MAC macos)  ; improve compatibility with macOS
-       ;;tty               ; improve the terminal Emacs experience
-
-       :lang
-       ;;agda              ; types of types of types of types...
-       (cc +lsp)                ; C/C++/Obj-C madness
-       ;;clojure           ; java with a lisp
-       ;;common-lisp       ; if you've seen one lisp, you've seen them all
-       ;;coq               ; proofs-as-programs
-       ;;crystal           ; ruby at the speed of c
-       ;;csharp            ; unity, .NET, and mono shenanigans
-       data              ; config/data formats
-       ;;(dart +flutter)   ; paint ui and not much else
-       ;;elixir            ; erlang done right
-       ;;elm               ; care for a cup of TEA?
-       emacs-lisp        ; drown in parentheses
-       ;;erlang            ; an elegant language for a more civilized age
-       ;;ess               ; emacs speaks statistics
-       ;;faust             ; dsp, but you get to keep your soul
-       ;;fsharp            ; ML stands for Microsoft's Language
-       ;;fstar             ; (dependent) types and (monadic) effects and Z3
-       ;;gdscript          ; the language you waited for
-       ;;(go +lsp)         ; the hipster dialect
-       ;;(haskell +dante)  ; a language that's lazier than I am
-       ;;hy                ; readability of scheme w/ speed of python
-       ;;idris             ; a language you can depend on
-       json              ; At least it ain't XML
-       ;;(java +meghanada) ; the poster child for carpal tunnel syndrome
-       (javascript +lsp)        ; all(hope(abandon(ye(who(enter(here))))))
-       ;;julia             ; a better, faster MATLAB
-       ;;kotlin            ; a better, slicker Java(Script)
-       ;;latex             ; writing papers in Emacs has never been so fun
-       ;;lean
-       ;;factor
-       ;;ledger            ; an accounting system in Emacs
-       ;;lua               ; one-based indices? one-based indices
-       markdown          ; writing docs for people to ignore
-       ;;nim               ; python + lisp at the speed of c
-       ;;nix               ; I hereby declare "nix geht mehr!"
-       ;;ocaml             ; an objective camel
-       (org +dragndrop +pretty +jupyter)               ; organize your plain life in plain text
-       ;;php               ; perl's insecure younger brother
-       ;;plantuml          ; diagrams for confusing people more
-       ;;purescript        ; javascript, but functional
-
-       ;; +poetry is slow
-       (python +lsp)            ; beautiful is better than ugly
-
-       ;;qt                ; the 'cutest' gui framework ever
-       ;;racket            ; a DSL for DSLs
-       ;;raku              ; the artist formerly known as perl6
-       ;;rest              ; Emacs as a REST client
-       ;;rst               ; ReST in peace
-       ;;(ruby +rails)     ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
-       ;;rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
-       ;;scala             ; java, but good
-       ;;scheme            ; a fully conniving family of lisps
-       sh                ; she sells {ba,z,fi}sh shells on the C xor
-       ;;sml
-       ;;solidity          ; do you need a blockchain? No.
-       ;;swift             ; who asked for emoji variables?
-       ;;terra             ; Earth and Moon in alignment for performance.
-       ;;web               ; the tubes
-       yaml              ; JSON, but readable
-
-       :email
-       ;;(mu4e +gmail)
-       ;;notmuch
-       ;;(wanderlust +gmail)
-
-       :app
-       ;; calendar
-       ;;irc               ; how neckbeards socialize
-       ;;(rss +org)        ; emacs as an RSS reader
-       ;;twitter           ; twitter client https://twitter.com/vnought
-       ;; everywhere       ; https://github.com/tecosaur/emacs-everywhere
-
-       :config
-       ;; literate for literate configs, (we prefer to use our own org-mode hook)
        (default +bindings +smartparens))
 #+end_src
 
@@ -728,27 +559,27 @@ curl https://raw.githubusercontent.com/hlissner/doom-emacs/master/init.example.e
        ;;helm              ; the *other* search engine for love and life
        ;;ido               ; the other *other* search engine...
        ;;ivy               ; a search engine for love and life
-       (vertico +icons)           ; the search engine of the future
+       vertico           ; the search engine of the future
 
        :ui
        ;;deft              ; notational velocity for Emacs
        doom              ; what makes DOOM look the way it does
        doom-dashboard    ; a nifty splash screen for Emacs
-       doom-quit         ; DOOM quit-message prompts when you quit Emacs
+       ;;doom-quit         ; DOOM quit-message prompts when you quit Emacs
        ;;(emoji +unicode)  ; 🙂
        hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
-       hydra
-       indent-guides     ; highlighted indent columns
+       ;;hydra
+       ;;indent-guides     ; highlighted indent columns
        ;;ligatures         ; ligatures and symbols to make your code pretty again
        ;;minimap           ; show a map of the code on the side
        modeline          ; snazzy, Atom-inspired modeline, plus API
-       nav-flash         ; blink cursor line after big motions
+       ;;nav-flash         ; blink cursor line after big motions
        ;;neotree           ; a project drawer, like NERDTree for vim
        ophints           ; highlight the region an operation acts on
-       ;; (popup +defaults)   ; tame sudden yet inevitable temporary windows
+       (popup +defaults)   ; tame sudden yet inevitable temporary windows
        ;;tabs              ; a tab bar for Emacs
-       treemacs          ; a project drawer, like neotree but cooler
-       unicode           ; extended unicode support for various languages
+       ;;treemacs          ; a project drawer, like neotree but cooler
+       ;;unicode           ; extended unicode support for various languages
        vc-gutter         ; vcs diff in the fringe
        vi-tilde-fringe   ; fringe tildes to mark beyond EOB
        ;;window-select     ; visually switch windows
@@ -756,17 +587,17 @@ curl https://raw.githubusercontent.com/hlissner/doom-emacs/master/init.example.e
        ;;zen               ; distraction-free coding or writing
 
        :editor
-       ;; (evil +everywhere); come to the dark side, we have cookies
-       ;; file-templates    ; auto-snippets for empty files
+       (evil +everywhere); come to the dark side, we have cookies
+       file-templates    ; auto-snippets for empty files
        fold              ; (nigh) universal code folding
-       (format +onsave)  ; automated prettiness
+       ;;(format +onsave)  ; automated prettiness
        ;;god               ; run Emacs commands without modifier keys
        ;;lispy             ; vim for lisp, for people who don't like vim
        ;;multiple-cursors  ; editing in many places at once
        ;;objed             ; text object editing for the innocent
        ;;parinfer          ; turn lisp into python, sort of
        ;;rotate-text       ; cycle region at point between text candidates
-       ;; snippets          ; my elves. They type so I don't have to
+       snippets          ; my elves. They type so I don't have to
        ;;word-wrap         ; soft wrapping with language-aware indent
 
        :emacs
@@ -780,7 +611,7 @@ curl https://raw.githubusercontent.com/hlissner/doom-emacs/master/init.example.e
        ;;eshell            ; the elisp shell that works everywhere
        ;;shell             ; simple shell REPL for Emacs
        ;;term              ; basic terminal emulator for Emacs
-       vterm             ; the best terminal emulation in Emacs
+       ;;vterm             ; the best terminal emulation in Emacs
 
        :checkers
        syntax              ; tasing you for every semicolon you forget
@@ -791,18 +622,18 @@ curl https://raw.githubusercontent.com/hlissner/doom-emacs/master/init.example.e
        ;;ansible
        ;;biblio            ; Writes a PhD for you (citation needed)
        ;;debugger          ; FIXME stepping through code, to help you add bugs
-       direnv                ;uses https://github.com/purcell/envrc
-       ;; docker
-       editorconfig      ; let someone else argue about tabs vs spaces
-       ein               ; tame Jupyter notebooks with emacs
+       ;;direnv
+       ;;docker
+       ;;editorconfig      ; let someone else argue about tabs vs spaces
+       ;;ein               ; tame Jupyter notebooks with emacs
        (eval +overlay)     ; run code, run (also, repls)
        ;;gist              ; interacting with github gists
        lookup              ; navigate your code and its documentation
-       (lsp +peek)               ; M-x vscode
+       ;;lsp               ; M-x vscode
        magit             ; a git porcelain for Emacs
        ;;make              ; run make tasks from Emacs
        ;;pass              ; password manager for nerds
-       pdf               ; pdf enhancements <-- pdf-tools + org-noter: this crashes emacs on `i` in a pdf file
+       ;;pdf               ; pdf enhancements
        ;;prodigy           ; FIXME managing external services & code builders
        ;;rgb               ; creating color strings
        ;;taskrunner        ; taskrunner for all your projects
@@ -817,13 +648,13 @@ curl https://raw.githubusercontent.com/hlissner/doom-emacs/master/init.example.e
        :lang
        ;;agda              ; types of types of types of types...
        ;;beancount         ; mind the GAAP
-       (cc +lsp)         ; C > C++ == 1
+       ;;(cc +lsp)         ; C > C++ == 1
        ;;clojure           ; java with a lisp
        ;;common-lisp       ; if you've seen one lisp, you've seen them all
        ;;coq               ; proofs-as-programs
        ;;crystal           ; ruby at the speed of c
        ;;csharp            ; unity, .NET, and mono shenanigans
-       data              ; config/data formats
+       ;;data              ; config/data formats
        ;;(dart +flutter)   ; paint ui and not much else
        ;;dhall
        ;;elixir            ; erlang done right
@@ -838,12 +669,13 @@ curl https://raw.githubusercontent.com/hlissner/doom-emacs/master/init.example.e
        ;;fstar             ; (dependent) types and (monadic) effects and Z3
        ;;gdscript          ; the language you waited for
        ;;(go +lsp)         ; the hipster dialect
+       ;;(graphql +lsp)    ; Give queries a REST
        ;;(haskell +lsp)    ; a language that's lazier than I am
        ;;hy                ; readability of scheme w/ speed of python
        ;;idris             ; a language you can depend on
-       json              ; At least it ain't XML
+       ;;json              ; At least it ain't XML
        ;;(java +lsp)       ; the poster child for carpal tunnel syndrome
-       (javascript +lsp)        ; all(hope(abandon(ye(who(enter(here))))))
+       ;;javascript        ; all(hope(abandon(ye(who(enter(here))))))
        ;;julia             ; a better, faster MATLAB
        ;;kotlin            ; a better, slicker Java(Script)
        ;;latex             ; writing papers in Emacs has never been so fun
@@ -854,14 +686,11 @@ curl https://raw.githubusercontent.com/hlissner/doom-emacs/master/init.example.e
        ;;nim               ; python + lisp at the speed of c
        ;;nix               ; I hereby declare "nix geht mehr!"
        ;;ocaml             ; an objective camel
-       (org +dragndrop +pretty +jupyter)               ; organize your plain life in plain text
+       org               ; organize your plain life in plain text
        ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
        ;;purescript        ; javascript, but functional
-
-       ;; +poetry is slow
-       (python +lsp)            ; beautiful is better than ugly
-
+       ;;python            ; beautiful is better than ugly
        ;;qt                ; the 'cutest' gui framework ever
        ;;racket            ; a DSL for DSLs
        ;;raku              ; the artist formerly known as perl6
@@ -877,7 +706,7 @@ curl https://raw.githubusercontent.com/hlissner/doom-emacs/master/init.example.e
        ;;swift             ; who asked for emoji variables?
        ;;terra             ; Earth and Moon in alignment for performance.
        ;;web               ; the tubes
-       yaml              ; JSON, but readable
+       ;;yaml              ; JSON, but readable
        ;;zig               ; C, but simpler
 
        :email
@@ -894,9 +723,12 @@ curl https://raw.githubusercontent.com/hlissner/doom-emacs/master/init.example.e
        ;;twitter           ; twitter client https://twitter.com/vnought
 
        :config
-       ;; literate         ; for literate configs, (we prefer to use our own org-mode hook)
+       ;;literate
        (default +bindings +smartparens))
 #+end_SRC
+
+
+
 
 
 
@@ -987,9 +819,22 @@ Turn off "don't remember risky variables" feature
 
 
 #+begin_src emacs-lisp
-(map! :g "M-i" #'delete-indentation)
-(map! :g "M-t" #'beginning-of-buffer)
-(map! :g "M-z" #'end-of-buffer)
+(map! "M-i" #'delete-indentation
+      "M-t" #'beginning-of-buffer
+      "M-z" #'end-of-buffer)
+#+end_src
+
+* Mouse
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! disable-mouse)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! disable-mouse
+  :config
+  (global-disable-mouse-mode))
 #+end_src
 
 * Chords
@@ -1262,7 +1107,7 @@ https://dzone.com/articles/rare-letter-combinations-and
 #+begin_src emacs-lisp
 (after! smartparens
   (show-smartparens-global-mode t)
-  (setq sp-show-pair-delay 0)
+  (setq sp-show-pair-delay 1)
   (setq show-pair-match-priority -50)
   (set-face-attribute 'sp-show-pair-match-content-face nil :inherit nil :underline nil :background "midnight blue")
   )
@@ -1273,6 +1118,15 @@ https://dzone.com/articles/rare-letter-combinations-and
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! exec-path-from-shell)
+#+end_src
+* Garbage collection
+
+#+begin_src emacs-lisp
+(use-package! gcmh
+  :custom
+  ;; (gcmh-verbose t)
+  (gcmh-high-cons-threshold 1000000000)
+  )
 #+end_src
 * modeline
 
@@ -1291,7 +1145,7 @@ https://dzone.com/articles/rare-letter-combinations-and
 #+end_src
 
 #+begin_src emacs-lisp
-(after! (:and doom-modeline minions)
+(after! doom-modeline
   (setq doom-modeline-minor-modes t)
   (minions-mode)
   )
@@ -1309,7 +1163,14 @@ display isearch etc matches in the +modeline-matches segment of the +light model
 
 
 
-* Window/Buffer management
+* window/Buffer management
+
+
+** delete-other-windows
+
+#+begin_src emacs-lisp
+(setq ignore-window-parameters t)
+#+end_src
 
 ** Movement
 
@@ -1383,10 +1244,9 @@ https://orgmode.org/org.html#Conflicts
 ** Switching
 
 #+begin_src emacs-lisp
-(after! consult
-  (map! :g "M-j" #'consult-buffer)
-  (map! :g "M-k" #'consult-buffer)
-  )
+(map! "M-j" #'consult-buffer
+      "M-k" #'consult-buffer)
+
 #+end_src
 
 ** Restore
@@ -1611,6 +1471,33 @@ Disabling all of these posframe solutions (minibuffer, which-key, hydra) since t
   ("C-x C-b" . bufler)
   )
 #+end_src
+** Popups
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! popper)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! popper
+  :init
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          help-mode
+          comint-mode
+          helpful-mode
+          python-pytest-mode
+          bufler-list-mode
+          vterm-mode
+          flycheck-error-list-mode
+          flycheck-projectile-error-list-mode
+          inferior-python-mode
+          compilation-mode))
+  (popper-mode +1)
+  (popper-echo-mode +1))
+#+end_src
 
 * Fonts
 
@@ -1767,13 +1654,20 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
   (doom/reload-font)
   )
 
+;; see (dispwatch--get-display)
 ;; Can be run manually like (vi/adjust-font-size-for-display '(3440 . 1440))
 (defun vi/adjust-font-size-for-display (disp)
   (message "rejiggering for %s" disp)
   (cond ((equal disp '(3440 . 1440))   ; LG monitor
          (vi/set-font-size 13))
-        ((equal disp '(4002 . 2668))    ; just laptop
-         (vi/set-font-size 27))
+        ((equal disp '(3000 . 2000))    ; laptop @ 100%, 2000%
+         (vi/set-font-size 13))
+        ((equal disp '(4800 . 3200))    ; laptop @ 125%
+         (vi/set-font-size 13))
+        ((equal disp '(4002 . 2668))    ; laptop @ 150%
+         (vi/set-font-size 23))
+        ((equal disp '(3426 . 2284))    ; laptop @ 175%
+         (vi/set-font-size 13))
         (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
 
 (use-package dispwatch
@@ -1798,10 +1692,17 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
   :config
   (global-hungry-delete-mode))
 
+(use-package! expand-region
+  :after-call after-find-file
+  :commands (er/mark-inside-pairs er/mark-inside-quotes er/mark-outside-pairs er/mark-outside-quotes)
+  )
+
 (use-package! easy-kill
   :after-call after-find-file
   :custom
-  (easy-mark-try-things '(WORD forward-line-edge sexp )) ;see easy-kill-alist
+  ;; Used for first marking
+  (easy-mark-try-things '(symbol line forward-line-edge sexp)) ;see easy-kill-alist
+  (easy-kill-try-things '(symbol line forward-line-edge sexp)) ;see easy-kill-alist
   :bind (
          ([remap kill-ring-save] . easy-kill) ; M-w
          ([remap set-mark-command] . easy-mark) ;C-SPC
@@ -1813,68 +1714,83 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
   :after easy-kill
   :init
   (setq easy-kill-ace-jump-enable-p nil)
-  :custom
-  (easy-kill-cycle-ignored '(string-to-char-forward string-up-to-char-forward))
   :config
   (require 'extra-things)
-  (defun easy-kill-on-inside-pairs (_n)
-    (er/mark-inside-pairs)
-    (easy-kill-adjust-candidate 'expand-region (mark) (point))
-    )
-
-  (defun easy-kill-on-outside-pairs (_n)
-    (er/mark-outside-pairs)
-    (easy-kill-adjust-candidate 'expand-region (mark) (point)))
-
-  (defun easy-kill-on-inside-quotes (_n)
-    (er/mark-inside-quotes)
-    (easy-kill-adjust-candidate 'expand-region (mark) (point))
-    )
-
-  (defun easy-kill-on-outside-quotes (_n)
-    (er/mark-outside-quotes)
-    (easy-kill-adjust-candidate 'expand-region (mark) (point)))
-
-  (add-to-list 'easy-kill-alist '(?W  WORD " ") t)
-  (add-to-list 'easy-kill-alist '(?l  line "\n")) ;override the symbol for list
-  (add-to-list 'easy-kill-alist '(?L  list "\n")) ;override the symbol for list
-  (add-to-list 'easy-kill-alist '(?< inside-pairs "") t)
-  (add-to-list 'easy-kill-alist '(?> outside-pairs "") t )
-  (add-to-list 'easy-kill-alist '(?\' inside-quotes "") t)
-  (add-to-list 'easy-kill-alist '(?\" outside-quotes "") t)
-  (add-to-list 'easy-kill-alist '(?$ forward-line-edge "") t)
-  (add-to-list 'easy-kill-alist '(?^ backward-line-edge "") t)
-  (add-to-list 'easy-kill-alist '(?b buffer "") t)
-  (add-to-list 'easy-kill-alist '(?f string-to-char-forward "") t)
-  (add-to-list 'easy-kill-alist '(?F string-up-to-char-forward "") t)
-
   ;; Integrate `expand-region' functionality with easy-kill
   (define-key easy-kill-base-map (kbd "o") 'easy-kill-er-expand)
   (define-key easy-kill-base-map (kbd "i") 'easy-kill-er-unexpand)
 
   ;; unused
   ;;
-  ;; (add-to-list 'easy-kill-alist '(?< buffer-before-point ""))
-  ;; (add-to-list 'easy-kill-alist '(?> buffer-after-point ""))
-  ;; (add-to-list 'easy-kill-alist '(?t string-to-char-backward ""))
-  ;; (add-to-list 'easy-kill-alist '(?T string-up-to-char-backward ""))
+  ;;  '(?< buffer-before-point ""))
+  ;;  '(?> buffer-after-point ""))
+  ;;  '(?t string-to-char-backward ""))
+  ;;  '(?T string-up-to-char-backward ""))
   ;;
   ;;
   )
 
+(after! easy-kill
+  (defun easy-kill-on-symbol (_n)
+    (when (er/mark-symbol)
+      (easy-kill-adjust-candidate 'symbol (mark) (point))))
+
+  (defun easy-kill-on-inside-pairs (_n)
+    (when (er/mark-inside-pairs)
+      (easy-kill-adjust-candidate 'inside-pairs (mark) (point))))
+
+  (defun easy-kill-on-outside-pairs (_n)
+    (when (er/mark-outside-pairs)
+      (easy-kill-adjust-candidate 'outside-pairs (mark) (point))))
+
+  (defun easy-kill-on-inside-quotes (_n)
+    (when (er/mark-inside-quotes)
+      (easy-kill-adjust-candidate 'inside-quotes (mark) (point))))
+
+  (defun easy-kill-on-outside-quotes (_n)
+    (when (er/mark-outside-quotes)
+      (easy-kill-adjust-candidate 'outside-quotes (mark) (point))))
+
+  ;; These take arguments
+  (setq easy-kill-cycle-ignored '(string-to-char-forward string-up-to-char-forward))
+
+  ;; easy-mark will cycle through things in this order
+  (setq easy-kill-alist
+        '((?w word " ")
+          (?s symbol " ")
+          ;; (?W WORD " ")
+          (?l line "\n")
+          (?< inside-pairs "")
+          (?> outside-pairs "")
+          (?\' inside-quotes "")
+          (?\" outside-quotes "")
+          (?$ forward-line-edge "")
+          (?^ backward-line-edge "")
+          (?d defun "\n\n")
+          (?b buffer "")
+          (?x sexp "\n")
+          (?L list "\n")
+          (?f string-to-char-forward "")
+          (?F string-up-to-char-forward "")
+          (?f filename "\n")
+          (?D defun-name " ")
+          (?b buffer-file-name)))
+  )
 
 
 #+end_src
 
 ** no yanking whitespace
 
+*** COMMENT stackoverflow solution
 https://stackoverflow.com/a/69307156/14044156
 #+begin_src emacs-lisp
 (defun night/h-kill-skip-whitespace (orig-fn string &optional rest)
+  (message string)
+  (message rest)
   (let* (
          (string-raw (substring-no-properties string))
          (space-p (not (string-match-p "[^ \t\n\r]" string-raw))))
-
     (cond
      ((not space-p)
       (apply orig-fn string rest))
@@ -1882,15 +1798,31 @@ https://stackoverflow.com/a/69307156/14044156
       (message "skipped whitespace kill")
      ))))
 
+
 (advice-add 'kill-new :around #'night/h-kill-skip-whitespace)
+#+end_src
+
+*** clean-kill-ring
+https://github.com/NicholasBHubbard/clean-kill-ring.el
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! clean-kill-ring :recipe (:host github :repo "NicholasBHubbard/clean-kill-ring.el"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! clean-kill-ring
+  :after-call after-find-file
+  :config
+  (clean-kill-ring-mode)
+  )
 #+end_src
 
 * Undo
 
 #+begin_src emacs-lisp
-(after! undo-tree
-  (map! "C--" #'undo-tree-undo)
-  )
+;; (after! undo-tree
+;;   (map! "C--" #'undo-tree-undo)
+;;   )
 
 (after! undo-fu
   (map! "C--" #'undo-fu-only-undo)
@@ -1900,7 +1832,8 @@ https://stackoverflow.com/a/69307156/14044156
 
 #+end_src
 
-** undo-hl
+** COMMENT undo-hl
+seems to make things slow?
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! undo-hl :recipe (:host github :repo "casouri/undo-hl"))
@@ -1919,7 +1852,6 @@ https://stackoverflow.com/a/69307156/14044156
 (package! vundo :recipe (:host github :repo "casouri/vundo"))
 #+end_src
 
-
 #+begin_src emacs-lisp
 (use-package! vundo
   :custom
@@ -1931,12 +1863,31 @@ https://stackoverflow.com/a/69307156/14044156
   :after-call after-find-file
   :bind ("C-x u" . vundo))
 
-(add-hook! 'vundo--mode-hook
+(add-hook! 'vundo-mode-hook
            #'hide-mode-line-mode
            (visual-line-mode -1)
            (setq window-size-fixed t)
            ;; (buffer-face-set '(:family "DejaVu Sans Mono"))
            )
+
+#+end_src
+** Last change
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! goto-chg :recipe (:host github :repo "emacs-evil/goto-chg"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(after! goto-chg
+  (map!
+   "C-." #'goto-last-change
+   "C-," #'goto-last-change-reverse))
+(after! org
+  ;; goto-last-change-reverse
+  (map! :map org-mode-map "C-," nil)
+  )
 
 #+end_src
 
@@ -2098,7 +2049,7 @@ https://stackoverflow.com/a/69307156/14044156
 
 
 #+end_src
-** COMMENT ctrlf
+** ctrlf
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! ctrlf)
@@ -2109,14 +2060,13 @@ https://stackoverflow.com/a/69307156/14044156
   :after-call after-find-file
   :custom
   (ctrlf-auto-recenter t)
-  ;; :custom
-  ;; (ctrlf-mode-bindings '(
-  ;;                        ("C-s" . ctrlf-forward-fuzzy)
-  ;;                        ("C-r" . ctrlf-backward-fuzzy)
-  ;;                        ("C-M-s" . ctrlf-forward-regexp)
-  ;;                        ("C-M-r" . ctrlf-backward-regexp)
-  ;;                        )
-  ;;                      )
+  (ctrlf-mode-bindings '(
+                         ("C-s" . ctrlf-forward-fuzzy)
+                         ("C-r" . ctrlf-backward-fuzzy)
+                         ("C-M-s" . ctrlf-forward-regexp)
+                         ("C-M-r" . ctrlf-backward-regexp)
+                         )
+                       )
   :config
   (ctrlf-mode +1)
 
@@ -2150,7 +2100,39 @@ https://stackoverflow.com/a/69307156/14044156
 (after! dumb-jump
   (setq xref-backend-functions (remq 'etags--xref-backend xref-backend-functions))
   (add-to-list 'xref-backend-functions #'dumb-jump-xref-activate t))
+
+
+(after! smart-jump
+  (smart-jump-register :modes 'lsp-mode
+                       :jump-fn 'lsp-find-definition
+                       :pop-fn 'xref-pop-marker-stack
+                       :refs-fn 'lsp-find-references
+                       :heuristic 'point
+                       :refs-heuristic 'point
+                       :should-jump t
+                       :order 2
+                       :async t)
+
+  (smart-jump-register :modes 'prog-mode
+                       :jump-fn #'+lookup/definition
+                       :pop-fn 'xref-pop-marker-stack
+                       :refs-fn #'+lookup/references
+                       :heuristic 'error
+                       :refs-heuristic 'error
+                       :should-jump t
+                       :order 1
+                       :async t)
+  )
+
 #+end_src
+** COMMENT consult-dash
+
+Doesn't work <2022-03-30 Wed>
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! consult-dash :recipe (:host github :repo "canatella/consult-dash"))
+#+end_src
+
 ** COMMENT Selectrum/Consult/Embark/Marginalia
 
 
@@ -2231,6 +2213,12 @@ Instead of default ivy
 (use-package! embark-consult
   :after (embark consult))
 #+end_src
+** Orderless
+
+#+begin_src emacs-lisp
+(after! orderless
+  (setq orderless-matching-styles '(orderless-literal orderless-regexp orderless-flex)))
+#+end_src
 
 * Narrowing
 
@@ -2254,7 +2242,7 @@ Instead of default ivy
 #+end_src
 * Folding
 
-- Outshine is not compatible with Python https://github.com/alphapapa/outshine/issues/42
+** outline
 - bicycle doesn't seem to do anything more than outline-cycle and outline-cycle-buffer
 
 #+begin_src emacs-lisp
@@ -2263,8 +2251,40 @@ Instead of default ivy
   :hook (prog-mode . outline-minor-mode)
   :bind (:map outline-minor-mode-map
          ([C-tab] . outline-cycle)
-         ([s-tab] . outline-cycle-buffer)))
+         ([s-tab] . outline-cycle-buffer))) ; win-tab
 #+end_src
+
+*** Python
+
+https://old.reddit.com/r/emacs/comments/e2u5n9/code_folding_with_outlineminormode/
+#+begin_src emacs-lisp
+(setq-hook! 'python-mode-hook outline-regexp (python-rx (* space) (or defun decorator)))
+#+end_src
+
+
+*** COMMENT outline faces
+
+doesn't do much, clutters
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! outline-minor-faces :recipe (:host github :repo "tarsius/outline-minor-faces"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! outline-minor-faces
+  :after outline
+  :config (add-hook 'outline-minor-mode-hook
+		      #'outline-minor-faces-mode))
+#+end_src
+
+** COMMENT outshine
+
+- Outshine is not compatible with Python https://github.com/alphapapa/outshine/issues/42
+#+begin_src emacs-lisp :tangle packages.el
+(package! outshine)
+#+end_src
+
 
 * Completion
 
@@ -2359,7 +2379,7 @@ Instead of default ivy
 (setq which-key-show-early-on-C-h t)
 #+end_src
 
-* Hydra
+** Hydra
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! pretty-hydra)
@@ -2367,30 +2387,41 @@ Instead of default ivy
 #+end_src
 
 #+begin_src emacs-lisp
+(after! major-mode-hydra
+  (setq major-mode-hydra-invisible-quit-key "q")
+  )
+
+
 (pretty-hydra-define global-hydra (:exit t)
   ("Searching"
    (;; ("f" +vertico/consult-fd "fd")
     ("s" consult-ripgrep "rg in project")
-    ("l" consult-line "Line isearch"))
+    ("l" consult-line "Line isearch")
+    ("D" doc-hydra/body "Docs"))
    "Navigating"
    (("b" consult-buffer "Buffers")
     ("i" consult-outline "outlIne")
     ("t" treemacs-select-window "treemacs")
     ("T" +treemacs/toggle "Toggle treemacs")
-    ("v" multi-vterm-next "vterm-toggle")
+    ("`" popper-toggle-latest "Latest Popup")
+    ("'" popper-cycle "Popup cycles")
+    )
+   ""
+    (("v" multi-vterm-next "vterm-toggle")
     ("V" multi-vterm "vterm"))
    "Modes"
    (;; ("a" hydra-annotate/body "Annotate")
+    ("SPC" major-mode-hydra "Major")
     ("c" flycheck-hydra/body "flycheck")
-    ("e" ein-hydra/body "ein")
     ("n" hydra-narrow/body "narrow")
-    ("o" org-hydra/body "org")
+    ("L" lsp-hydra/body "LSP")
     ("p" org-pomodoro "Pomodoro"))
    "Actions"
    (("A" org-agenda-list "Agenda")
     ("M-y" yankpad-insert "yankpad")
     ("g" magit-status-here "magit")
     ("M-\\" edit-indirect-region "edit indirect region")
+    ("d" consult-dir "dir" )
     )
    )
   )
@@ -2407,12 +2438,14 @@ Instead of default ivy
         ;; Insert Org headings at point, not after the current subtree (this is enabled by default by Doom).
         org-insert-heading-respect-content nil
         org-cycle-separator-lines 0
+        org-attach-id-dir ".attach"
         org-blank-before-new-entry '((heading . never) (plain-list-item . never))
         org-startup-folded t
         org-startup-indented t
         org-startup-numerated nil
         org-startup-align-all-tables t
         ;; Leads to 'File mode specification error: (user-error Not at a table)' in some org files
+        ;; replace with #+startup: shrink
         ;;        org-startup-shrink-all-tables t
         org-log-into-drawer t
         org-src-window-setup 'current-window
@@ -2422,6 +2455,10 @@ Instead of default ivy
         org-M-RET-may-split-line t
         ;; https://old.reddit.com/r/orgmode/comments/fagcaz/show_schedule_and_deadlines_for_standard_todo_list/
         org-agenda-files '("~/org/personal.org")
+        org-refile-targets '(
+                             ("~/org/personal.org" . (:maxlevel . 1))
+                             ("~/org/ml.org" . (:maxlevel . 1))
+                             )
         org-agenda-entry-types '(:deadline :scheduled)
         org-agenda-skip-scheduled-if-done t
         org-todo-keywords '((sequence "TODO(t)" "WAIT(w!)" "SOMEDAY(s!)" "REVISIT(r!)" "|" "DONE(d!)" "KILL(k!)" ))
@@ -2431,11 +2468,15 @@ Instead of default ivy
                                  ("SOMEDAY" . +org-todo-onhold)
                                  ("KILL" . +org-todo-cancel))
         org-use-fast-todo-selection 'expert)
-  (pretty-hydra-define org-hydra
-    (:exit t)
+
+;;  (pretty-hydra-define org-hydra
+  (major-mode-hydra-define org-mode nil
     ("Subtree"
-     (("k" org-cut-subtree "cut subtree")
-      ("y" org-paste-subtree "paste subtree"))
+     (("k" org-cut-subtree "cut")
+      ("y" org-paste-subtree "paste")
+      ("<up>" org-promote-subtree "promote")
+      ("<down>" org-demote-subtree "demote")
+      )
      "Src"
      (("/" org-babel-demarcate-block "split src block")
       ("t" org-babel-tangle "tangle")
@@ -2443,6 +2484,11 @@ Instead of default ivy
      "Links"
      (("l" org-store-link "store link")
       ("i" org-insert-link "insert link")
+      )
+     "Misc"
+     (
+      ("x" org-toggle-checkbox "List [x]")
+      ("Y" org-download-clipboard "pbpaste")
       )
      )
     )
@@ -2908,6 +2954,7 @@ Let's use this with file-locals instead
 #+begin_src emacs-lisp :tangle packages.el
 (package! poly-literate-calc
   :recipe (:local-repo "lisp/poly-literate-calc" :build (:not compile)));; :host github :repo "indigoviolet/poly-literate-calc"))
+
 #+end_src
 
 
@@ -3080,9 +3127,8 @@ doesn't work
           (ein:notebook-open nurl npath)
           )))
 
-  :pretty-hydra
+  :mode-hydra
   (
-   (:exit t)
    (
     "Connect"
     (("n" ein:notebooklist-open "Notebook list")
@@ -3128,7 +3174,7 @@ doesn't work
    ("S-<right>" . windmove-right)
    ("S-<up>" . windmove-up)
    ("S-<down>" . windmove-down)
-   ("C-c C-r" . vterm-send-C-r)
+   ("C-r" . vterm-send-C-r)
    )
   )
 
@@ -3144,7 +3190,7 @@ doesn't work
 (add-hook! 'vterm-mode-hook #'vi/vterm-hooks)
 (use-package! multi-vterm
   :custom
-  (multi-vterm-buffer-name "%s")
+  (multi-vterm-buffer-name "vterm: %s")
   :commands (multi-vterm-next multi-vterm))
 
 
@@ -3192,10 +3238,10 @@ https://github.com/akermu/emacs-libvterm/issues/179
    (
     "Flycheck"
     (
-    ("c" (flycheck-buffer) "check buffer")
-    ;; annoying in doom, something about popups
-    ;; ("l" (flycheck-list-errors) "list errors")
-    ("l" consult-flycheck "flycheck")
+    ("c" flycheck-buffer "check buffer")
+    ("l" flycheck-list-errors "file errors")
+    ("p" flycheck-projectile-list-errors "project errors")
+    ("L" consult-flycheck "consult")
     ("q" nil "quit")
      )
     )
@@ -3337,6 +3383,8 @@ https://gist.github.com/justinhj/5945047
   (lsp-enable-xref nil)
   (lsp-lens-enable t)
 
+  (setq lsp-disabled-clients '('pyls 'pylsp 'mspyls))
+
   ;; This will disable the flycheck checkers.
   ;; (lsp-diagnostics-provider :flycheck)
 
@@ -3349,39 +3397,53 @@ https://gist.github.com/justinhj/5945047
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.mypy_cache\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]wandb\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]__pycache__\\'")
-
-  (defhydra hydra-lsp (:exit t :columns 2)
-    "LSP"
-    ("?" lsp-ui-peek-find-references "Find references")
-    ("." lsp-ui-peek-find-definition "Find definition")
-    ("e" lsp-treemacs-errors-list "Errors")
-    ("i" vi/lsp-ui-imenu "Imenu")
-    )
   :after-call after-find-file
   :hook (
-         (python-mode . vi/setup-python-lsp)
+         (python-mode . lsp-deferred)
          (c++-mode . vi/setup-c++-lsp)
          (lsp-mode . lsp-enable-which-key-integration)
          (lsp-mode . lsp-treemacs-sync-mode)
          )
-  :commands (lsp lsp-deferred hydra-lsp/body)
+  :commands (lsp lsp-deferred)
   )
 
-
+(after! lsp
+  (pretty-hydra-define lsp-hydra (:exit t)
+    (
+     "LSP"
+     (("?" lsp-find-references "Find references")
+      ("." lsp-find-definition "Find definition")
+      ("," lsp-find-type-definition "Find type")
+      ("e" lsp-treemacs-errors-list "Errors")))
+    )
+  )
 (use-package! lsp-ui
   :after-call after-find-file
   :custom
-  (lsp-ui-imenu-window-width 30)
-  (lsp-ui-imenu-auto-refresh t)
-  (lsp-ui-sideline-show-hover t)
+  ;; sideline
+  (lsp-ui-sideline-enable t)
+  (lsp-ui-sideline-show-hover nil)
+  (lsp-ui-sideline-show-symbol nil)
+  (lsp-ui-sideline-show-diagnostics t)
+  (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-sideline-delay 1)
+  ;; doc
   (lsp-ui-doc-enable t)
+  (lsp-ui-doc-include-signature nil)
+  (lsp-ui-doc-show-with-cursor t)
+  (lsp-ui-doc-header nil)
+  (lsp-ui-doc-delay 1)
+  ;; peek
   (lsp-ui-peek-enable t)
-  :config
-  (defun vi/lsp-ui-imenu ()
-    (interactive)
-    (lsp-ui-imenu)
-    (window-preserve-size (get-buffer-window lsp-ui-imenu-buffer-name) t t)
-    )
+  ;; imenu
+  ;; (lsp-ui-imenu-window-width 30)
+  ;; (lsp-ui-imenu-auto-refresh t)
+  ;; :config
+  ;; (defun vi/lsp-ui-imenu ()
+  ;;   (interactive)
+  ;;   (lsp-ui-imenu)
+  ;;   (window-preserve-size (get-buffer-window lsp-ui-imenu-buffer-name) t t)
+  ;;   )
   )
 
 (use-package! lsp-treemacs
@@ -3389,6 +3451,12 @@ https://gist.github.com/justinhj/5945047
   :custom
   (lsp-treemacs-sync-mode 1)
   )
+#+end_src
+* Tree sitter
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! tree-sitter)
+(package! tree-sitter-langs)
 #+end_src
 
 * C++
@@ -3428,58 +3496,55 @@ Lens shows refs for each variable in an overlay which is annoying. Also duplicat
 * Python
 
 
-#+begin_src emacs-lisp :tangle packages.el
-(package! python-black)
-(package! lsp-python-ms :disable t)     ;it will override lsp-pyright otherwise
-(package! lsp-pyright)
-#+end_src
-
-
-
-
 #+begin_src emacs-lisp
-(defun vi/setup-python-lsp ()
-  ;; mspyls
-  ;; (require 'lsp-python-ms)
-  ;; (lsp-register-custom-settings '(("python.analysis.downloadChannel" "beta" t)))
-
-  ;; pyright
-  (require 'lsp-pyright)
-  (lsp-deferred)
-  )
-
 (defun vi/setup-python-flycheck ()
-  (setq-local flycheck-disabled-checkers '(python-pylint))
+
   (setq-local flycheck-python-mypy-executable (concat (projectile-project-root) "/.venv/bin/mypy"))
   ;; This needs to happen after lsp else:
   ;; Error (python-mode-hook): Error running hook "vi/setup-python-flycheck" because: (user-error lsp is not a syntax checker)
   (flycheck-select-checker 'lsp)
   (flycheck-add-next-checker 'lsp 'python-flake8-vi)
-  (flycheck-add-next-checker 'python-flake8-vi 'python-mypy-vi)
+  (flycheck-add-next-checker 'lsp 'python-mypy-vi)
+  (flycheck-add-next-checker 'lsp 'python-pycompile)
+
+  ;; we could disable mypy as well, since pyright does most of it, but pyright doesn't support attrs yet?
+  ;; (flycheck-add-next-checker 'python-flake8-vi 'python-mypy-vi)
+  ;; (flycheck-add-next-checker 'python-mypy-vi 'python-pycompile)
+  (setq-local flycheck-disabled-checkers '(python-pylint python-mypy))
   )
 
 
-
-(setq-hook! 'python-mode-hook +format-with-lsp nil)
 (add-hook! 'python-mode-hook
-           #'python-black-on-save-mode
+           #'tree-sitter-hl-mode
            (defun vi/setup-python-flycheck-after-lsp ()
              ;; So that lsp is available as a checker
              (add-hook! 'lsp-after-open-hook #'vi/setup-python-flycheck)
              )
            )
-(set-formatter! 'isort "isort --profile=black --stdout -" :modes '(python-mode))
+
+;; (setq-hook! 'python-mode-hook
+;;   lsp-diagnostic-filter
+;;   (lambda (param work)
+;;     (let
+;;         (
+;;          (diag (gethash "diagnostics" param))
+;;          (no_tags (cl-remove-if (lambda (d) (gethash "tags" d)) diag))
+;;          )
+;;       (puthash "diagnostics" no_tags param)
+;;       )
+;;     param)
+;;     (puthash
+;;      "diagnostics" (cl-remove-if (lambda (diag) (gethash "tags" diag)) (gethash "diagnostics" param))
+;;      param)
+;;     param))
+;; )
 
 ;; even switch-buffer is slow. and we use direnv anyway
 ;; (after! poetry
 ;;   (setq poetry-tracking-strategy 'switch-buffer)
 ;;   )
 
-(after! projectile
-  (add-to-list 'projectile-project-root-files "pyproject.toml")
-  )
 #+end_src
-
 
 
 ** Flycheck checkers
@@ -3608,6 +3673,133 @@ There are some weird errors that show up if you don't run mypy from the root dir
   )
 #+end_src
 
+** Hydra
+
+#+begin_src emacs-lisp
+(major-mode-hydra-define (python-mode python-pytest-mode) nil
+  (
+   "Pytest"
+   (
+    ("d" python-pytest-dispatch "Dispatch")
+    ("r" python-pytest-repeat "Repeat")
+    )
+   "Misc"
+   (("i" vi/pyflyby-tidy-imports "Imports"))
+   )
+  )
+#+end_src
+** Pyflyby
+
+
+#+begin_src emacs-lisp
+(use-package! pyflyby
+  :load-path "~/.local/pipx/venvs/pyflyby/share/emacs/site-lisp"
+  :config
+  (defun vi/pyflyby-tidy-imports ()
+    (interactive "*")
+    (pyflyby-transform-region-with-command "tidy-imports" "--align=0" "--from-spaces=1")
+    )
+  )
+#+end_src
+
+* Formatting
+
+[[https://github.com/lassik/emacs-format-all-the-code/issues/170#issuecomment-1079740651][See]] for some context on the comparison b/w apheleia and format-all available --
+these may be merged in the near future. Based on the table there, we are
+choosing b/w format-all (more formatters, synchronous, chaining), and apheleia
+(fewer but maybe the ones we need, async, chaining).
+
+In addition, there is doom-emacs' adaptation of format-all, which is [[https://github.com/hlissner/doom-emacs/issues/6203][old]], [[https://github.com/hlissner/doom-emacs/issues/4526][due
+for a rewrite for a long while]], does not support multiple formatters. Calling
+set-formatter! can silently break the chain (?)
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! py-isort :disable t)
+#+end_src
+
+** COMMENT doom-emacs version
+
+This requires ~(format +onsave)~ to be uncommented in the ~doom!~ block
+
+*** python
+
+we want to use isort with black, but there is no real chaining.
+
+so we attempt to use python-black-on-save-mode (for black), and set ~+format-with~
+to ~'isort~, hoping that they will work together, but in practice isort doesn't
+happen on save; only explicitly on ~+format/buffer~
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! python-black)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(set-formatter! 'isort "isort --profile=black --stdout -")
+(setq-hook! 'python-mode-hook +format-with-lsp nil)
+(setq-hook! 'python-mode-hook +format-with 'isort)
+(add-hook! 'python-mode-hook #'python-black-on-save-mode)
+
+
+#+end_src
+
+*** docker
+dockfmt does a bad job: rips out comments, uses tabs.
+
+#+begin_src emacs-lisp
+(after! dockerfile-mode
+  (setq-hook! 'dockerfile-mode-hook +format-with :none))
+#+end_src
+*** shell mode
+
+
+#+begin_src emacs-lisp
+(add-hook! '(sh-mode sh-set-shell-hook)
+  (defun set-sh-formatter ()
+    ;; never use lsp
+    (setq-local +format-with-lsp nil)
+    ;;  (message "Found: %S" sh-shell)
+    (if (string-equal sh-shell "bash")
+
+        ;; if bash :: use the default. we need to do this explicitly because the
+        ;; var might get set to :none first, and then either sh-set-shell or a
+        ;; local var might switch it
+        (setq-local +format-with nil)
+      ;; else :: don't format
+      (setq-local +format-with :none))
+    )
+  )
+#+end_src
+
+
+*** javascript/typescript
+
+#+begin_src emacs-lisp
+(setq-hook! '(typescript-mode-hook rjsx-mode-hook) +format-with-lsp nil)
+#+end_src
+
+** apheleia
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! apheleia)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! apheleia
+  :after-call after-find-file
+  :config
+  (setf (alist-get 'isort apheleia-formatters) '("isort" "--profile=black" "--stdout" "-"))
+  (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
+  (apheleia-global-mode)
+  )
+#+end_src
+
+** format-all
+
+format-all also requires unpinning doom's version. Let's try this if apheleia doesn't work out
 
 * Projectile
 
@@ -3618,6 +3810,8 @@ There are some weird errors that show up if you don't run mypy from the root dir
   (projectile-project-search-path '("~/dev"))
   (projectile-auto-discover t)
   (projectile-indexing-method 'alien)
+  :config
+  (add-to-list 'projectile-project-root-files "pyproject.toml")
   )
 #+end_src
 * Javascript/Typescript
@@ -3627,7 +3821,6 @@ There are some weird errors that show up if you don't run mypy from the root dir
 #+end_src
 
 #+begin_src emacs-lisp
-(setq-hook! '(typescript-mode-hook rjsx-mode-hook) +format-with-lsp nil)
 (add-hook! '(typescript-mode-hook rjsx-mode-hook) #'add-node-modules-path)
 #+end_src
 
@@ -3651,6 +3844,25 @@ There are some weird errors that show up if you don't run mypy from the root dir
 - [ ] todo: add hydra
 - See dired-subtree [https://github.com/Fuco1/dired-hacks#dired-subtree] and dired-sidebar [https://github.com/jojojames/dired-sidebar]
 
+
+
+-
+
+*** xdg open
+
+
+#+begin_src emacs-lisp
+(defun dired-open-file ()
+  "In dired, open the file named on this line."
+  (interactive)
+  (let* ((file (dired-get-filename nil t)))
+    (message "Opening %s..." file)
+    (call-process "xdg-open" nil 0 nil file)
+    (message "Opening %s done" file)))
+
+(map! :map dired-mode-map "C-<return>" #'dired-open-file)
+#+end_src
+
 ** COMMENT ranger
 
 Not clear why this is better than dired - seems to do a lot and I don't usually need to do all this in emacs
@@ -3661,6 +3873,7 @@ Not clear why this is better than dired - seems to do a lot and I don't usually 
 
 - [ ] todo: add hydra?
 - [ ] try deer mode, override dired
+**
 
 * Firestarter
 
@@ -3705,12 +3918,9 @@ current buffer's, reload dir-locals."
 (package! dockerfile-mode)
 #+end_src
 
-dockfmt does a bad job: rips out comments, uses tabs.
+
 
 #+begin_src emacs-lisp
-(after! dockerfile-mode
-  (setq-hook! 'dockerfile-mode-hook +format-with :none))
-
 
 (after! ob-tangle
   (setq org-babel-pre-tangle-hook
@@ -3742,7 +3952,7 @@ So we could:
 #+end_example
 
 
-* Misc modes
+* Misc
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! git-modes)
@@ -3777,27 +3987,42 @@ So we could:
 (add-hook! 'cuda-mode-hook #'prog-mode)
 #+end_src
 
-* shell mode
-
+** case cycle
 
 #+begin_src emacs-lisp
-(add-hook! '(sh-mode sh-set-shell-hook)
-  (defun set-sh-formatter ()
-    ;; never use lsp
-    (setq-local +format-with-lsp nil)
-    ;;  (message "Found: %S" sh-shell)
-    (if (string-equal sh-shell "bash")
+(defun cycle-letter-case ()
+  "Toggle the letter case of current word or text selection.
+Always cycle in this order: Init Caps, ALL CAPS, all lower.
 
-        ;; if bash :: use the default. we need to do this explicitly because the
-        ;; var might get set to :none first, and then either sh-set-shell or a
-        ;; local var might switch it
-        (setq-local +format-with nil)
-      ;; else :: don't format
-      (setq-local +format-with :none))
-    )
-  )
+URL `http://ergoemacs.org/emacs/modernization_upcase-word.html'
+Version 2016-01-08"
+  (interactive)
+  (let (
+        (deactivate-mark nil)
+        -p1 -p2)
+    (if (use-region-p)
+        (setq -p1 (region-beginning)
+              -p2 (region-end))
+      (save-excursion
+        (skip-chars-backward "[:alnum:]")
+        (setq -p1 (point))
+        (skip-chars-forward "[:alnum:]")
+        (setq -p2 (point))))
+    (when (not (eq last-command this-command))
+      (put this-command 'state 0))
+    (cond
+     ((equal 0 (get this-command 'state))
+      (upcase-initials-region -p1 -p2)
+      (put this-command 'state 1))
+     ((equal 1  (get this-command 'state))
+      (upcase-region -p1 -p2)
+      (put this-command 'state 2))
+     ((equal 2 (get this-command 'state))
+      (downcase-region -p1 -p2)
+      (put this-command 'state 0)))))
+
+(map! :g "M-c" #'cycle-letter-case)
 #+end_src
-
 
 * atomic chrome
 
@@ -4034,8 +4259,45 @@ rotate entire document."
 #+begin_src emacs-lisp :tangle packages.el
 (package! org-pomodoro)
 #+end_src
+* Documentation
 
-* Profiling startup
+** dash
+
+#+begin_src emacs-lisp
+(after! dash-docs
+  ;; (dash-docs-install-docset "Python_3")
+  (set-docsets! 'python-mode "Python 3")
+  )
+#+end_src
+
+** dev-docs
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! devdocs)
+#+end_src
+
+** hydra
+
+
+#+begin_src emacs-lisp
+(pretty-hydra-define doc-hydra (:exit t)
+  ("Reference"
+   (("d" +lookup/in-docsets "Dash")
+    ("D" devdocs-lookup "Devdocs")
+    ("O" +lookup/online-select "Online"))
+   "Jump"
+    (("c" +lookup/documentation "Docstring")
+    ("f" +lookup/definition "Definition")
+    ("u" +lookup/references "Usages")
+    ("i" +lookup/implementations "Impls")
+    ("t" +lookup/type-definition "Type")
+    ("F" +lookup/file "file"))
+   ))
+#+end_src
+
+* Profiling
+
+** startup
 
 https://github.com/hlissner/doom-emacs/issues/4498
 
@@ -4059,6 +4321,22 @@ https://github.com/hlissner/doom-emacs/issues/4498
   (require 'benchmark-init)
   (add-hook 'doom-first-input-hook #'benchmark-init/deactivate))
 #+end_src
+
+** COMMENT explain-pause
+
+seems to be broken in nativecomp emacs <2022-05-05 Thu>
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! explain-pause-mode :recipe (:host github :repo "lastquestion/explain-pause-mode"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(after! explain-pause-mode
+  (explain-pause-mode)
+  )
+#+end_src
+
 * COMMENT Github
 
 ** COMMENT Clone git repo
@@ -4102,8 +4380,3 @@ https://github.com/hlissner/doom-emacs/issues/4498
     (set-process-filter proc #'comint-output-filter)))
 #+end_src
 
-* Local Variables
-# Local Variables:
-# mode: org
-# End:
-#+end_example

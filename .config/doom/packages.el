@@ -64,6 +64,14 @@
 (disable-packages! magit-todos)
 ;; Disabled packages:1 ends here
 
+;; Mouse
+
+
+
+;; [[file:config.org::*Mouse][Mouse:1]]
+(package! disable-mouse)
+;; Mouse:1 ends here
+
 ;; Chords
 
 ;; https://dzone.com/articles/rare-letter-combinations-and
@@ -177,6 +185,14 @@
 (package! bufler)
 ;; bufler:1 ends here
 
+;; Popups
+
+
+
+;; [[file:config.org::*Popups][Popups:1]]
+(package! popper)
+;; Popups:1 ends here
+
 ;; Adjust for display size change
 
 
@@ -194,18 +210,27 @@
 (package! expand-region)
 ;; Kill/Yank/Mark regions:1 ends here
 
-;; undo-hl
+;; clean-kill-ring
+;; https://github.com/NicholasBHubbard/clean-kill-ring.el
 
 
-;; [[file:config.org::*undo-hl][undo-hl:1]]
-(package! undo-hl :recipe (:host github :repo "casouri/undo-hl"))
-;; undo-hl:1 ends here
+;; [[file:config.org::*clean-kill-ring][clean-kill-ring:1]]
+(package! clean-kill-ring :recipe (:host github :repo "NicholasBHubbard/clean-kill-ring.el"))
+;; clean-kill-ring:1 ends here
 
 ;; vundo
 
 ;; [[file:config.org::*vundo][vundo:1]]
 (package! vundo :recipe (:host github :repo "casouri/vundo"))
 ;; vundo:1 ends here
+
+;; Last change
+
+
+
+;; [[file:config.org::*Last change][Last change:1]]
+(package! goto-chg :recipe (:host github :repo "emacs-evil/goto-chg"))
+;; Last change:1 ends here
 
 ;; Yankpad
 
@@ -246,6 +271,13 @@
 ;; [[file:config.org::*smartscan][smartscan:1]]
 (package! smartscan)
 ;; smartscan:1 ends here
+
+;; ctrlf
+
+
+;; [[file:config.org::*ctrlf][ctrlf:1]]
+(package! ctrlf)
+;; ctrlf:1 ends here
 
 ;; regex-based searching, using python/pcre
 
@@ -392,15 +424,38 @@
 (package! lsp-treemacs)
 ;; LSP:1 ends here
 
-;; Python
+;; Tree sitter
+
+
+;; [[file:config.org::*Tree sitter][Tree sitter:1]]
+(package! tree-sitter)
+(package! tree-sitter-langs)
+;; Tree sitter:1 ends here
+
+;; Formatting
+
+;; [[https://github.com/lassik/emacs-format-all-the-code/issues/170#issuecomment-1079740651][See]] for some context on the comparison b/w apheleia and format-all available --
+;; these may be merged in the near future. Based on the table there, we are
+;; choosing b/w format-all (more formatters, synchronous, chaining), and apheleia
+;; (fewer but maybe the ones we need, async, chaining).
+
+;; In addition, there is doom-emacs' adaptation of format-all, which is [[https://github.com/hlissner/doom-emacs/issues/6203][old]], [[https://github.com/hlissner/doom-emacs/issues/4526][due
+;; for a rewrite for a long while]], does not support multiple formatters. Calling
+;; set-formatter! can silently break the chain (?)
 
 
 
-;; [[file:config.org::*Python][Python:1]]
-(package! python-black)
-(package! lsp-python-ms :disable t)     ;it will override lsp-pyright otherwise
-(package! lsp-pyright)
-;; Python:1 ends here
+;; [[file:config.org::*Formatting][Formatting:1]]
+(package! py-isort :disable t)
+;; Formatting:1 ends here
+
+;; apheleia
+
+
+
+;; [[file:config.org::*apheleia][apheleia:1]]
+(package! apheleia)
+;; apheleia:1 ends here
 
 ;; Javascript/Typescript
 
@@ -426,14 +481,14 @@
 (package! dockerfile-mode)
 ;; docker:1 ends here
 
-;; Misc modes
+;; Misc
 
 
-;; [[file:config.org::*Misc modes][Misc modes:1]]
+;; [[file:config.org::*Misc][Misc:1]]
 (package! git-modes)
 (package! ssh-config-mode)
 (package! jsonnet-mode)
-;; Misc modes:1 ends here
+;; Misc:1 ends here
 
 ;; jsonnet
 
@@ -477,12 +532,19 @@
 (package! org-pomodoro)
 ;; Pomodoro:1 ends here
 
-;; Profiling startup
+;; dev-docs
+
+
+;; [[file:config.org::*dev-docs][dev-docs:1]]
+(package! devdocs)
+;; dev-docs:1 ends here
+
+;; startup
 
 ;; https://github.com/hlissner/doom-emacs/issues/4498
 
 
 
-;; [[file:config.org::*Profiling startup][Profiling startup:1]]
+;; [[file:config.org::*startup][startup:1]]
 (package! benchmark-init)
-;; Profiling startup:1 ends here
+;; startup:1 ends here

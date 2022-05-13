@@ -71,7 +71,7 @@
        ;; (evil +everywhere); come to the dark side, we have cookies
        ;; file-templates    ; auto-snippets for empty files
        fold              ; (nigh) universal code folding
-       (format +onsave)  ; automated prettiness
+       ;; (format +onsave)  ; automated prettiness
        ;;god               ; run Emacs commands without modifier keys
        ;;lispy             ; vim for lisp, for people who don't like vim
        ;;multiple-cursors  ; editing in many places at once
@@ -109,7 +109,7 @@
        ein               ; tame Jupyter notebooks with emacs
        (eval +overlay)     ; run code, run (also, repls)
        ;;gist              ; interacting with github gists
-       lookup              ; navigate your code and its documentation
+       (lookup +docsets)              ; navigate your code and its documentation
        (lsp +peek)               ; M-x vscode
        magit             ; a git porcelain for Emacs
        ;;make              ; run make tasks from Emacs
@@ -174,7 +174,7 @@
        ;;purescript        ; javascript, but functional
 
        ;; +poetry is slow
-       (python +lsp)            ; beautiful is better than ugly
+       (python +lsp +pyright)            ; beautiful is better than ugly
 
        ;;qt                ; the 'cutest' gui framework ever
        ;;racket            ; a DSL for DSLs
@@ -217,7 +217,7 @@
 ;; ~emacs --debug-init~ to do profiling
 
 
-;; [[file:config.org::*Profiling startup][Profiling startup:2]]
+;; [[file:config.org::*startup][startup:2]]
 (when doom-debug-p
   ;; https://github.com/dholm/benchmark-init-el/issues/15#issuecomment-766083560
   (define-advice define-obsolete-function-alias (:filter-args (ll) fix-obsolete)
@@ -229,4 +229,4 @@
   (require 'benchmark-init-modes)
   (require 'benchmark-init)
   (add-hook 'doom-first-input-hook #'benchmark-init/deactivate))
-;; Profiling startup:2 ends here
+;; startup:2 ends here

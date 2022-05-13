@@ -139,10 +139,16 @@
 
 
 ;; [[file:config.org::*Global keybindings][Global keybindings:1]]
-(map! :g "M-i" #'delete-indentation)
-(map! :g "M-t" #'beginning-of-buffer)
-(map! :g "M-z" #'end-of-buffer)
+(map! "M-i" #'delete-indentation
+      "M-t" #'beginning-of-buffer
+      "M-z" #'end-of-buffer)
 ;; Global keybindings:1 ends here
+
+;; [[file:config.org::*Mouse][Mouse:2]]
+(use-package! disable-mouse
+  :config
+  (global-disable-mouse-mode))
+;; Mouse:2 ends here
 
 ;; [[file:config.org::*Chords][Chords:2]]
 (use-package! use-package-chords
@@ -334,11 +340,22 @@
 ;; [[file:config.org::*with smartparens-mode][with smartparens-mode:1]]
 (after! smartparens
   (show-smartparens-global-mode t)
-  (setq sp-show-pair-delay 0)
+  (setq sp-show-pair-delay 1)
   (setq show-pair-match-priority -50)
   (set-face-attribute 'sp-show-pair-match-content-face nil :inherit nil :underline nil :background "midnight blue")
   )
 ;; with smartparens-mode:1 ends here
+
+;; Garbage collection
+
+
+;; [[file:config.org::*Garbage collection][Garbage collection:1]]
+(use-package! gcmh
+  :custom
+  ;; (gcmh-verbose t)
+  (gcmh-high-cons-threshold 1000000000)
+  )
+;; Garbage collection:1 ends here
 
 ;; modeline
 
@@ -353,7 +370,7 @@
 ;; modeline:1 ends here
 
 ;; [[file:config.org::*minor modes][minor modes:2]]
-(after! (:and doom-modeline minions)
+(after! doom-modeline
   (setq doom-modeline-minor-modes t)
   (minions-mode)
   )
@@ -368,6 +385,13 @@
 (after! anzu
   (global-anzu-mode))
 ;; anzu:1 ends here
+
+;; delete-other-windows
+
+
+;; [[file:config.org::*delete-other-windows][delete-other-windows:1]]
+(setq ignore-window-parameters t)
+;; delete-other-windows:1 ends here
 
 ;; [[file:config.org::*Movement][Movement:2]]
 (use-package! windmove
@@ -406,10 +430,8 @@
 
 
 ;; [[file:config.org::*Switching][Switching:1]]
-(after! consult
-  (map! :g "M-j" #'consult-buffer)
-  (map! :g "M-k" #'consult-buffer)
-  )
+(map! "M-j" #'consult-buffer
+      "M-k" #'consult-buffer)
 ;; Switching:1 ends here
 
 ;; [[file:config.org::*Restore][Restore:2]]
@@ -518,6 +540,27 @@
   )
 ;; bufler:2 ends here
 
+;; [[file:config.org::*Popups][Popups:2]]
+(use-package! popper
+  :init
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          help-mode
+          comint-mode
+          helpful-mode
+          python-pytest-mode
+          bufler-list-mode
+          vterm-mode
+          flycheck-error-list-mode
+          flycheck-projectile-error-list-mode
+          inferior-python-mode
+          compilation-mode))
+  (popper-mode +1)
+  (popper-echo-mode +1))
+;; Popups:2 ends here
+
 ;; Base config
 
 ;; Test on ~view-hello-file~. As of <2022-03-24 Thu> emoji doesn't work
@@ -551,13 +594,20 @@
   (doom/reload-font)
   )
 
+;; see (dispwatch--get-display)
 ;; Can be run manually like (vi/adjust-font-size-for-display '(3440 . 1440))
 (defun vi/adjust-font-size-for-display (disp)
   (message "rejiggering for %s" disp)
   (cond ((equal disp '(3440 . 1440))   ; LG monitor
          (vi/set-font-size 13))
-        ((equal disp '(4002 . 2668))    ; just laptop
-         (vi/set-font-size 27))
+        ((equal disp '(3000 . 2000))    ; laptop @ 100%, 2000%
+         (vi/set-font-size 13))
+        ((equal disp '(4800 . 3200))    ; laptop @ 125%
+         (vi/set-font-size 13))
+        ((equal disp '(4002 . 2668))    ; laptop @ 150%
+         (vi/set-font-size 23))
+        ((equal disp '(3426 . 2284))    ; laptop @ 175%
+         (vi/set-font-size 13))
         (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
 
 (use-package dispwatch
@@ -573,10 +623,17 @@
   :config
   (global-hungry-delete-mode))
 
+(use-package! expand-region
+  :after-call after-find-file
+  :commands (er/mark-inside-pairs er/mark-inside-quotes er/mark-outside-pairs er/mark-outside-quotes)
+  )
+
 (use-package! easy-kill
   :after-call after-find-file
   :custom
-  (easy-mark-try-things '(WORD forward-line-edge sexp )) ;see easy-kill-alist
+  ;; Used for first marking
+  (easy-mark-try-things '(symbol line forward-line-edge sexp)) ;see easy-kill-alist
+  (easy-kill-try-things '(symbol line forward-line-edge sexp)) ;see easy-kill-alist
   :bind (
          ([remap kill-ring-save] . easy-kill) ; M-w
          ([remap set-mark-command] . easy-mark) ;C-SPC
@@ -588,83 +645,85 @@
   :after easy-kill
   :init
   (setq easy-kill-ace-jump-enable-p nil)
-  :custom
-  (easy-kill-cycle-ignored '(string-to-char-forward string-up-to-char-forward))
   :config
   (require 'extra-things)
-  (defun easy-kill-on-inside-pairs (_n)
-    (er/mark-inside-pairs)
-    (easy-kill-adjust-candidate 'expand-region (mark) (point))
-    )
-
-  (defun easy-kill-on-outside-pairs (_n)
-    (er/mark-outside-pairs)
-    (easy-kill-adjust-candidate 'expand-region (mark) (point)))
-
-  (defun easy-kill-on-inside-quotes (_n)
-    (er/mark-inside-quotes)
-    (easy-kill-adjust-candidate 'expand-region (mark) (point))
-    )
-
-  (defun easy-kill-on-outside-quotes (_n)
-    (er/mark-outside-quotes)
-    (easy-kill-adjust-candidate 'expand-region (mark) (point)))
-
-  (add-to-list 'easy-kill-alist '(?W  WORD " ") t)
-  (add-to-list 'easy-kill-alist '(?l  line "\n")) ;override the symbol for list
-  (add-to-list 'easy-kill-alist '(?L  list "\n")) ;override the symbol for list
-  (add-to-list 'easy-kill-alist '(?< inside-pairs "") t)
-  (add-to-list 'easy-kill-alist '(?> outside-pairs "") t )
-  (add-to-list 'easy-kill-alist '(?\' inside-quotes "") t)
-  (add-to-list 'easy-kill-alist '(?\" outside-quotes "") t)
-  (add-to-list 'easy-kill-alist '(?$ forward-line-edge "") t)
-  (add-to-list 'easy-kill-alist '(?^ backward-line-edge "") t)
-  (add-to-list 'easy-kill-alist '(?b buffer "") t)
-  (add-to-list 'easy-kill-alist '(?f string-to-char-forward "") t)
-  (add-to-list 'easy-kill-alist '(?F string-up-to-char-forward "") t)
-
   ;; Integrate `expand-region' functionality with easy-kill
   (define-key easy-kill-base-map (kbd "o") 'easy-kill-er-expand)
   (define-key easy-kill-base-map (kbd "i") 'easy-kill-er-unexpand)
 
   ;; unused
   ;;
-  ;; (add-to-list 'easy-kill-alist '(?< buffer-before-point ""))
-  ;; (add-to-list 'easy-kill-alist '(?> buffer-after-point ""))
-  ;; (add-to-list 'easy-kill-alist '(?t string-to-char-backward ""))
-  ;; (add-to-list 'easy-kill-alist '(?T string-up-to-char-backward ""))
+  ;;  '(?< buffer-before-point ""))
+  ;;  '(?> buffer-after-point ""))
+  ;;  '(?t string-to-char-backward ""))
+  ;;  '(?T string-up-to-char-backward ""))
   ;;
   ;;
   )
+
+(after! easy-kill
+  (defun easy-kill-on-symbol (_n)
+    (when (er/mark-symbol)
+      (easy-kill-adjust-candidate 'symbol (mark) (point))))
+
+  (defun easy-kill-on-inside-pairs (_n)
+    (when (er/mark-inside-pairs)
+      (easy-kill-adjust-candidate 'inside-pairs (mark) (point))))
+
+  (defun easy-kill-on-outside-pairs (_n)
+    (when (er/mark-outside-pairs)
+      (easy-kill-adjust-candidate 'outside-pairs (mark) (point))))
+
+  (defun easy-kill-on-inside-quotes (_n)
+    (when (er/mark-inside-quotes)
+      (easy-kill-adjust-candidate 'inside-quotes (mark) (point))))
+
+  (defun easy-kill-on-outside-quotes (_n)
+    (when (er/mark-outside-quotes)
+      (easy-kill-adjust-candidate 'outside-quotes (mark) (point))))
+
+  ;; These take arguments
+  (setq easy-kill-cycle-ignored '(string-to-char-forward string-up-to-char-forward))
+
+  ;; easy-mark will cycle through things in this order
+  (setq easy-kill-alist
+        '((?w word " ")
+          (?s symbol " ")
+          ;; (?W WORD " ")
+          (?l line "\n")
+          (?< inside-pairs "")
+          (?> outside-pairs "")
+          (?\' inside-quotes "")
+          (?\" outside-quotes "")
+          (?$ forward-line-edge "")
+          (?^ backward-line-edge "")
+          (?d defun "\n\n")
+          (?b buffer "")
+          (?x sexp "\n")
+          (?L list "\n")
+          (?f string-to-char-forward "")
+          (?F string-up-to-char-forward "")
+          (?f filename "\n")
+          (?D defun-name " ")
+          (?b buffer-file-name)))
+  )
 ;; Kill/Yank/Mark regions:2 ends here
 
-;; no yanking whitespace
-
-;; https://stackoverflow.com/a/69307156/14044156
-
-;; [[file:config.org::*no yanking whitespace][no yanking whitespace:1]]
-(defun night/h-kill-skip-whitespace (orig-fn string &optional rest)
-  (let* (
-         (string-raw (substring-no-properties string))
-         (space-p (not (string-match-p "[^ \t\n\r]" string-raw))))
-
-    (cond
-     ((not space-p)
-      (apply orig-fn string rest))
-     (t
-      (message "skipped whitespace kill")
-     ))))
-
-(advice-add 'kill-new :around #'night/h-kill-skip-whitespace)
-;; no yanking whitespace:1 ends here
+;; [[file:config.org::*clean-kill-ring][clean-kill-ring:2]]
+(use-package! clean-kill-ring
+  :after-call after-find-file
+  :config
+  (clean-kill-ring-mode)
+  )
+;; clean-kill-ring:2 ends here
 
 ;; Undo
 
 
 ;; [[file:config.org::*Undo][Undo:1]]
-(after! undo-tree
-  (map! "C--" #'undo-tree-undo)
-  )
+;; (after! undo-tree
+;;   (map! "C--" #'undo-tree-undo)
+;;   )
 
 (after! undo-fu
   (map! "C--" #'undo-fu-only-undo)
@@ -672,13 +731,6 @@
   (map! "C-M--" #'undo-fu-only-redo-all)
   )
 ;; Undo:1 ends here
-
-;; [[file:config.org::*undo-hl][undo-hl:2]]
-(use-package! undo-hl
-  :after-call after-find-file
-  :hook (prog-mode . undo-hl-mode)
-  )
-;; undo-hl:2 ends here
 
 ;; [[file:config.org::*vundo][vundo:2]]
 (use-package! vundo
@@ -691,13 +743,24 @@
   :after-call after-find-file
   :bind ("C-x u" . vundo))
 
-(add-hook! 'vundo--mode-hook
+(add-hook! 'vundo-mode-hook
            #'hide-mode-line-mode
            (visual-line-mode -1)
            (setq window-size-fixed t)
            ;; (buffer-face-set '(:family "DejaVu Sans Mono"))
            )
 ;; vundo:2 ends here
+
+;; [[file:config.org::*Last change][Last change:2]]
+(after! goto-chg
+  (map!
+   "C-." #'goto-last-change
+   "C-," #'goto-last-change-reverse))
+(after! org
+  ;; goto-last-change-reverse
+  (map! :map org-mode-map "C-," nil)
+  )
+;; Last change:2 ends here
 
 ;; [[file:config.org::*Yankpad][Yankpad:2]]
 (after! yasnippet
@@ -816,6 +879,25 @@
   )
 ;; smartscan:2 ends here
 
+;; [[file:config.org::*ctrlf][ctrlf:2]]
+(use-package! ctrlf
+  :after-call after-find-file
+  :custom
+  (ctrlf-auto-recenter t)
+  (ctrlf-mode-bindings '(
+                         ("C-s" . ctrlf-forward-fuzzy)
+                         ("C-r" . ctrlf-backward-fuzzy)
+                         ("C-M-s" . ctrlf-forward-regexp)
+                         ("C-M-r" . ctrlf-backward-regexp)
+                         )
+                       )
+  :config
+  (ctrlf-mode +1)
+
+  (add-hook! 'pdf-isearch-minor-mode-hook (ctrlf-local-mode -1))
+  )
+;; ctrlf:2 ends here
+
 ;; [[file:config.org::*Jumping][Jumping:2]]
 (use-package! smart-jump
   :after-call after-find-file
@@ -827,7 +909,38 @@
 (after! dumb-jump
   (setq xref-backend-functions (remq 'etags--xref-backend xref-backend-functions))
   (add-to-list 'xref-backend-functions #'dumb-jump-xref-activate t))
+
+
+(after! smart-jump
+  (smart-jump-register :modes 'lsp-mode
+                       :jump-fn 'lsp-find-definition
+                       :pop-fn 'xref-pop-marker-stack
+                       :refs-fn 'lsp-find-references
+                       :heuristic 'point
+                       :refs-heuristic 'point
+                       :should-jump t
+                       :order 2
+                       :async t)
+
+  (smart-jump-register :modes 'prog-mode
+                       :jump-fn #'+lookup/definition
+                       :pop-fn 'xref-pop-marker-stack
+                       :refs-fn #'+lookup/references
+                       :heuristic 'error
+                       :refs-heuristic 'error
+                       :should-jump t
+                       :order 1
+                       :async t)
+  )
 ;; Jumping:2 ends here
+
+;; Orderless
+
+
+;; [[file:config.org::*Orderless][Orderless:1]]
+(after! orderless
+  (setq orderless-matching-styles '(orderless-literal orderless-regexp orderless-flex)))
+;; Orderless:1 ends here
 
 ;; [[file:config.org::*Narrowing][Narrowing:2]]
 (use-package! recursive-narrow
@@ -842,20 +955,26 @@
   )
 ;; Narrowing:2 ends here
 
-;; Folding
-
-;; - Outshine is not compatible with Python https://github.com/alphapapa/outshine/issues/42
+;; outline
 ;; - bicycle doesn't seem to do anything more than outline-cycle and outline-cycle-buffer
 
 
-;; [[file:config.org::*Folding][Folding:1]]
+;; [[file:config.org::*outline][outline:1]]
 (use-package! outline
   :after-call after-find-file
   :hook (prog-mode . outline-minor-mode)
   :bind (:map outline-minor-mode-map
          ([C-tab] . outline-cycle)
-         ([s-tab] . outline-cycle-buffer)))
-;; Folding:1 ends here
+         ([s-tab] . outline-cycle-buffer))) ; win-tab
+;; outline:1 ends here
+
+;; Python
+
+;; https://old.reddit.com/r/emacs/comments/e2u5n9/code_folding_with_outlineminormode/
+
+;; [[file:config.org::*Python][Python:1]]
+(setq-hook! 'python-mode-hook outline-regexp (python-rx (* space) (or defun decorator)))
+;; Python:1 ends here
 
 ;; Completion
 
@@ -925,30 +1044,41 @@
 ;; Which-key:1 ends here
 
 ;; [[file:config.org::*Hydra][Hydra:2]]
+(after! major-mode-hydra
+  (setq major-mode-hydra-invisible-quit-key "q")
+  )
+
+
 (pretty-hydra-define global-hydra (:exit t)
   ("Searching"
    (;; ("f" +vertico/consult-fd "fd")
     ("s" consult-ripgrep "rg in project")
-    ("l" consult-line "Line isearch"))
+    ("l" consult-line "Line isearch")
+    ("D" doc-hydra/body "Docs"))
    "Navigating"
    (("b" consult-buffer "Buffers")
     ("i" consult-outline "outlIne")
     ("t" treemacs-select-window "treemacs")
     ("T" +treemacs/toggle "Toggle treemacs")
-    ("v" multi-vterm-next "vterm-toggle")
+    ("`" popper-toggle-latest "Latest Popup")
+    ("'" popper-cycle "Popup cycles")
+    )
+   ""
+    (("v" multi-vterm-next "vterm-toggle")
     ("V" multi-vterm "vterm"))
    "Modes"
    (;; ("a" hydra-annotate/body "Annotate")
+    ("SPC" major-mode-hydra "Major")
     ("c" flycheck-hydra/body "flycheck")
-    ("e" ein-hydra/body "ein")
     ("n" hydra-narrow/body "narrow")
-    ("o" org-hydra/body "org")
+    ("L" lsp-hydra/body "LSP")
     ("p" org-pomodoro "Pomodoro"))
    "Actions"
    (("A" org-agenda-list "Agenda")
     ("M-y" yankpad-insert "yankpad")
     ("g" magit-status-here "magit")
     ("M-\\" edit-indirect-region "edit indirect region")
+    ("d" consult-dir "dir" )
     )
    )
   )
@@ -966,12 +1096,14 @@
         ;; Insert Org headings at point, not after the current subtree (this is enabled by default by Doom).
         org-insert-heading-respect-content nil
         org-cycle-separator-lines 0
+        org-attach-id-dir ".attach"
         org-blank-before-new-entry '((heading . never) (plain-list-item . never))
         org-startup-folded t
         org-startup-indented t
         org-startup-numerated nil
         org-startup-align-all-tables t
         ;; Leads to 'File mode specification error: (user-error Not at a table)' in some org files
+        ;; replace with #+startup: shrink
         ;;        org-startup-shrink-all-tables t
         org-log-into-drawer t
         org-src-window-setup 'current-window
@@ -981,6 +1113,10 @@
         org-M-RET-may-split-line t
         ;; https://old.reddit.com/r/orgmode/comments/fagcaz/show_schedule_and_deadlines_for_standard_todo_list/
         org-agenda-files '("~/org/personal.org")
+        org-refile-targets '(
+                             ("~/org/personal.org" . (:maxlevel . 1))
+                             ("~/org/ml.org" . (:maxlevel . 1))
+                             )
         org-agenda-entry-types '(:deadline :scheduled)
         org-agenda-skip-scheduled-if-done t
         org-todo-keywords '((sequence "TODO(t)" "WAIT(w!)" "SOMEDAY(s!)" "REVISIT(r!)" "|" "DONE(d!)" "KILL(k!)" ))
@@ -990,11 +1126,15 @@
                                  ("SOMEDAY" . +org-todo-onhold)
                                  ("KILL" . +org-todo-cancel))
         org-use-fast-todo-selection 'expert)
-  (pretty-hydra-define org-hydra
-    (:exit t)
+
+;;  (pretty-hydra-define org-hydra
+  (major-mode-hydra-define org-mode nil
     ("Subtree"
-     (("k" org-cut-subtree "cut subtree")
-      ("y" org-paste-subtree "paste subtree"))
+     (("k" org-cut-subtree "cut")
+      ("y" org-paste-subtree "paste")
+      ("<up>" org-promote-subtree "promote")
+      ("<down>" org-demote-subtree "demote")
+      )
      "Src"
      (("/" org-babel-demarcate-block "split src block")
       ("t" org-babel-tangle "tangle")
@@ -1002,6 +1142,11 @@
      "Links"
      (("l" org-store-link "store link")
       ("i" org-insert-link "insert link")
+      )
+     "Misc"
+     (
+      ("x" org-toggle-checkbox "List [x]")
+      ("Y" org-download-clipboard "pbpaste")
       )
      )
     )
@@ -1283,9 +1428,8 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
           (ein:notebook-open nurl npath)
           )))
 
-  :pretty-hydra
+  :mode-hydra
   (
-   (:exit t)
    (
     "Connect"
     (("n" ein:notebooklist-open "Notebook list")
@@ -1323,7 +1467,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
    ("S-<right>" . windmove-right)
    ("S-<up>" . windmove-up)
    ("S-<down>" . windmove-down)
-   ("C-c C-r" . vterm-send-C-r)
+   ("C-r" . vterm-send-C-r)
    )
   )
 
@@ -1339,7 +1483,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 (add-hook! 'vterm-mode-hook #'vi/vterm-hooks)
 (use-package! multi-vterm
   :custom
-  (multi-vterm-buffer-name "%s")
+  (multi-vterm-buffer-name "vterm: %s")
   :commands (multi-vterm-next multi-vterm))
 
 
@@ -1369,10 +1513,10 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
    (
     "Flycheck"
     (
-    ("c" (flycheck-buffer) "check buffer")
-    ;; annoying in doom, something about popups
-    ;; ("l" (flycheck-list-errors) "list errors")
-    ("l" consult-flycheck "flycheck")
+    ("c" flycheck-buffer "check buffer")
+    ("l" flycheck-list-errors "file errors")
+    ("p" flycheck-projectile-list-errors "project errors")
+    ("L" consult-flycheck "consult")
     ("q" nil "quit")
      )
     )
@@ -1505,6 +1649,8 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   (lsp-enable-xref nil)
   (lsp-lens-enable t)
 
+  (setq lsp-disabled-clients '('pyls 'pylsp 'mspyls))
+
   ;; This will disable the flycheck checkers.
   ;; (lsp-diagnostics-provider :flycheck)
 
@@ -1517,39 +1663,53 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.mypy_cache\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]wandb\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]__pycache__\\'")
-
-  (defhydra hydra-lsp (:exit t :columns 2)
-    "LSP"
-    ("?" lsp-ui-peek-find-references "Find references")
-    ("." lsp-ui-peek-find-definition "Find definition")
-    ("e" lsp-treemacs-errors-list "Errors")
-    ("i" vi/lsp-ui-imenu "Imenu")
-    )
   :after-call after-find-file
   :hook (
-         (python-mode . vi/setup-python-lsp)
+         (python-mode . lsp-deferred)
          (c++-mode . vi/setup-c++-lsp)
          (lsp-mode . lsp-enable-which-key-integration)
          (lsp-mode . lsp-treemacs-sync-mode)
          )
-  :commands (lsp lsp-deferred hydra-lsp/body)
+  :commands (lsp lsp-deferred)
   )
 
-
+(after! lsp
+  (pretty-hydra-define lsp-hydra (:exit t)
+    (
+     "LSP"
+     (("?" lsp-find-references "Find references")
+      ("." lsp-find-definition "Find definition")
+      ("," lsp-find-type-definition "Find type")
+      ("e" lsp-treemacs-errors-list "Errors")))
+    )
+  )
 (use-package! lsp-ui
   :after-call after-find-file
   :custom
-  (lsp-ui-imenu-window-width 30)
-  (lsp-ui-imenu-auto-refresh t)
-  (lsp-ui-sideline-show-hover t)
+  ;; sideline
+  (lsp-ui-sideline-enable t)
+  (lsp-ui-sideline-show-hover nil)
+  (lsp-ui-sideline-show-symbol nil)
+  (lsp-ui-sideline-show-diagnostics t)
+  (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-sideline-delay 1)
+  ;; doc
   (lsp-ui-doc-enable t)
+  (lsp-ui-doc-include-signature nil)
+  (lsp-ui-doc-show-with-cursor t)
+  (lsp-ui-doc-header nil)
+  (lsp-ui-doc-delay 1)
+  ;; peek
   (lsp-ui-peek-enable t)
-  :config
-  (defun vi/lsp-ui-imenu ()
-    (interactive)
-    (lsp-ui-imenu)
-    (window-preserve-size (get-buffer-window lsp-ui-imenu-buffer-name) t t)
-    )
+  ;; imenu
+  ;; (lsp-ui-imenu-window-width 30)
+  ;; (lsp-ui-imenu-auto-refresh t)
+  ;; :config
+  ;; (defun vi/lsp-ui-imenu ()
+  ;;   (interactive)
+  ;;   (lsp-ui-imenu)
+  ;;   (window-preserve-size (get-buffer-window lsp-ui-imenu-buffer-name) t t)
+  ;;   )
   )
 
 (use-package! lsp-treemacs
@@ -1587,48 +1747,58 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   )
 ;; Turn off lens:1 ends here
 
-;; [[file:config.org::*Python][Python:2]]
-(defun vi/setup-python-lsp ()
-  ;; mspyls
-  ;; (require 'lsp-python-ms)
-  ;; (lsp-register-custom-settings '(("python.analysis.downloadChannel" "beta" t)))
+;; Python
 
-  ;; pyright
-  (require 'lsp-pyright)
-  (lsp-deferred)
-  )
 
+
+;; [[file:config.org::*Python][Python:1]]
 (defun vi/setup-python-flycheck ()
-  (setq-local flycheck-disabled-checkers '(python-pylint))
+
   (setq-local flycheck-python-mypy-executable (concat (projectile-project-root) "/.venv/bin/mypy"))
   ;; This needs to happen after lsp else:
   ;; Error (python-mode-hook): Error running hook "vi/setup-python-flycheck" because: (user-error lsp is not a syntax checker)
   (flycheck-select-checker 'lsp)
   (flycheck-add-next-checker 'lsp 'python-flake8-vi)
-  (flycheck-add-next-checker 'python-flake8-vi 'python-mypy-vi)
+  (flycheck-add-next-checker 'lsp 'python-mypy-vi)
+  (flycheck-add-next-checker 'lsp 'python-pycompile)
+
+  ;; we could disable mypy as well, since pyright does most of it, but pyright doesn't support attrs yet?
+  ;; (flycheck-add-next-checker 'python-flake8-vi 'python-mypy-vi)
+  ;; (flycheck-add-next-checker 'python-mypy-vi 'python-pycompile)
+  (setq-local flycheck-disabled-checkers '(python-pylint python-mypy))
   )
 
 
-
-(setq-hook! 'python-mode-hook +format-with-lsp nil)
 (add-hook! 'python-mode-hook
-           #'python-black-on-save-mode
+           #'tree-sitter-hl-mode
            (defun vi/setup-python-flycheck-after-lsp ()
              ;; So that lsp is available as a checker
              (add-hook! 'lsp-after-open-hook #'vi/setup-python-flycheck)
              )
            )
-(set-formatter! 'isort "isort --profile=black --stdout -" :modes '(python-mode))
+
+;; (setq-hook! 'python-mode-hook
+;;   lsp-diagnostic-filter
+;;   (lambda (param work)
+;;     (let
+;;         (
+;;          (diag (gethash "diagnostics" param))
+;;          (no_tags (cl-remove-if (lambda (d) (gethash "tags" d)) diag))
+;;          )
+;;       (puthash "diagnostics" no_tags param)
+;;       )
+;;     param)
+;;     (puthash
+;;      "diagnostics" (cl-remove-if (lambda (diag) (gethash "tags" diag)) (gethash "diagnostics" param))
+;;      param)
+;;     param))
+;; )
 
 ;; even switch-buffer is slow. and we use direnv anyway
 ;; (after! poetry
 ;;   (setq poetry-tracking-strategy 'switch-buffer)
 ;;   )
-
-(after! projectile
-  (add-to-list 'projectile-project-root-files "pyproject.toml")
-  )
-;; Python:2 ends here
+;; Python:1 ends here
 
 ;; Define flake8 checkers (for file and project)
 
@@ -1758,6 +1928,48 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   )
 ;; Run mypy for the entire project:1 ends here
 
+;; Hydra
+
+
+;; [[file:config.org::*Hydra][Hydra:1]]
+(major-mode-hydra-define (python-mode python-pytest-mode) nil
+  (
+   "Pytest"
+   (
+    ("d" python-pytest-dispatch "Dispatch")
+    ("r" python-pytest-repeat "Repeat")
+    )
+   "Misc"
+   (("i" vi/pyflyby-tidy-imports "Imports"))
+   )
+  )
+;; Hydra:1 ends here
+
+;; Pyflyby
+
+
+
+;; [[file:config.org::*Pyflyby][Pyflyby:1]]
+(use-package! pyflyby
+  :load-path "~/.local/pipx/venvs/pyflyby/share/emacs/site-lisp"
+  :config
+  (defun vi/pyflyby-tidy-imports ()
+    (interactive "*")
+    (pyflyby-transform-region-with-command "tidy-imports" "--align=0" "--from-spaces=1")
+    )
+  )
+;; Pyflyby:1 ends here
+
+;; [[file:config.org::*apheleia][apheleia:2]]
+(use-package! apheleia
+  :after-call after-find-file
+  :config
+  (setf (alist-get 'isort apheleia-formatters) '("isort" "--profile=black" "--stdout" "-"))
+  (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
+  (apheleia-global-mode)
+  )
+;; apheleia:2 ends here
+
 ;; Projectile
 
 
@@ -1768,11 +1980,12 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   (projectile-project-search-path '("~/dev"))
   (projectile-auto-discover t)
   (projectile-indexing-method 'alien)
+  :config
+  (add-to-list 'projectile-project-root-files "pyproject.toml")
   )
 ;; Projectile:1 ends here
 
 ;; [[file:config.org::*Javascript/Typescript][Javascript/Typescript:2]]
-(setq-hook! '(typescript-mode-hook rjsx-mode-hook) +format-with-lsp nil)
 (add-hook! '(typescript-mode-hook rjsx-mode-hook) #'add-node-modules-path)
 ;; Javascript/Typescript:2 ends here
 
@@ -1788,6 +2001,22 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   (treemacs-follow-mode t)
   )
 ;; Treemacs:1 ends here
+
+;; xdg open
+
+
+
+;; [[file:config.org::*xdg open][xdg open:1]]
+(defun dired-open-file ()
+  "In dired, open the file named on this line."
+  (interactive)
+  (let* ((file (dired-get-filename nil t)))
+    (message "Opening %s..." file)
+    (call-process "xdg-open" nil 0 nil file)
+    (message "Opening %s done" file)))
+
+(map! :map dired-mode-map "C-<return>" #'dired-open-file)
+;; xdg open:1 ends here
 
 ;; [[file:config.org::*Firestarter][Firestarter:2]]
 (use-package! firestarter
@@ -1819,16 +2048,7 @@ current buffer's, reload dir-locals."
         (vi/reload-dir-locals-for-current-buffer)))))
 ;; dir-locals:1 ends here
 
-
-
-;; dockfmt does a bad job: rips out comments, uses tabs.
-
-
 ;; [[file:config.org::*docker][docker:2]]
-(after! dockerfile-mode
-  (setq-hook! 'dockerfile-mode-hook +format-with :none))
-
-
 (after! ob-tangle
   (setq org-babel-pre-tangle-hook
         (list (lambda ()
@@ -1849,27 +2069,43 @@ current buffer's, reload dir-locals."
 (add-hook! 'cuda-mode-hook #'prog-mode)
 ;; Cuda mode doesn't inherit from prog-mode?:1 ends here
 
-;; shell mode
+;; case cycle
 
 
+;; [[file:config.org::*case cycle][case cycle:1]]
+(defun cycle-letter-case ()
+  "Toggle the letter case of current word or text selection.
+Always cycle in this order: Init Caps, ALL CAPS, all lower.
 
-;; [[file:config.org::*shell mode][shell mode:1]]
-(add-hook! '(sh-mode sh-set-shell-hook)
-  (defun set-sh-formatter ()
-    ;; never use lsp
-    (setq-local +format-with-lsp nil)
-    ;;  (message "Found: %S" sh-shell)
-    (if (string-equal sh-shell "bash")
+URL `http://ergoemacs.org/emacs/modernization_upcase-word.html'
+Version 2016-01-08"
+  (interactive)
+  (let (
+        (deactivate-mark nil)
+        -p1 -p2)
+    (if (use-region-p)
+        (setq -p1 (region-beginning)
+              -p2 (region-end))
+      (save-excursion
+        (skip-chars-backward "[:alnum:]")
+        (setq -p1 (point))
+        (skip-chars-forward "[:alnum:]")
+        (setq -p2 (point))))
+    (when (not (eq last-command this-command))
+      (put this-command 'state 0))
+    (cond
+     ((equal 0 (get this-command 'state))
+      (upcase-initials-region -p1 -p2)
+      (put this-command 'state 1))
+     ((equal 1  (get this-command 'state))
+      (upcase-region -p1 -p2)
+      (put this-command 'state 2))
+     ((equal 2 (get this-command 'state))
+      (downcase-region -p1 -p2)
+      (put this-command 'state 0)))))
 
-        ;; if bash :: use the default. we need to do this explicitly because the
-        ;; var might get set to :none first, and then either sh-set-shell or a
-        ;; local var might switch it
-        (setq-local +format-with nil)
-      ;; else :: don't format
-      (setq-local +format-with :none))
-    )
-  )
-;; shell mode:1 ends here
+(map! :g "M-c" #'cycle-letter-case)
+;; case cycle:1 ends here
 
 ;; [[file:config.org::*atomic chrome][atomic chrome:2]]
 (use-package! atomic-chrome
@@ -1956,3 +2192,33 @@ rotate entire document."
 
   )
 ;; Rotation:1 ends here
+
+;; dash
+
+
+;; [[file:config.org::*dash][dash:1]]
+(after! dash-docs
+  ;; (dash-docs-install-docset "Python_3")
+  (set-docsets! 'python-mode "Python 3")
+  )
+;; dash:1 ends here
+
+;; hydra
+
+
+
+;; [[file:config.org::*hydra][hydra:1]]
+(pretty-hydra-define doc-hydra (:exit t)
+  ("Reference"
+   (("d" +lookup/in-docsets "Dash")
+    ("D" devdocs-lookup "Devdocs")
+    ("O" +lookup/online-select "Online"))
+   "Jump"
+    (("c" +lookup/documentation "Docstring")
+    ("f" +lookup/definition "Definition")
+    ("u" +lookup/references "Usages")
+    ("i" +lookup/implementations "Impls")
+    ("t" +lookup/type-definition "Type")
+    ("F" +lookup/file "file"))
+   ))
+;; hydra:1 ends here
