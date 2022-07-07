@@ -1089,6 +1089,122 @@ nvidia it has failed at least twice.
 
 
 
+** Power management (powertop)
+
+- make sure tlp is installed and started
+- sudo powertop --auto-tune
+
+*** Less power usage
+
+**** camera/bt
+
+~powertop~ showed that the camera and bluetooth were using significant energy, so
+we turn them off using something like:
+
+#+begin_src emacs-lisp
+echo 0 | sudo tee /sys/bus/usb/devices/1-7/power/autosuspend_delay_ms
+echo auto | sudo tee /sys/bus/usb/devices/1-7/power/control
+#+end_src
+
+To automate this, first we set autosuspend_delay_ms in udev:
+
+#+BEGIN_SRC shell :tangle "/sudo::/etc/udev/rules.d/10-usb-autosuspend.rules"
+# HD camera (foxlink, SunplusIT)
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="05c8", ATTRS{idProduct}=="03c0", ATTR{power/autosuspend_delay_ms}="0"
+# bluetooth
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="8087", ATTRS{idProduct}=="0a2b", ATTR{power/autosuspend_delay_ms}="0"
+#+END_SRC
+
+Then we add these devices to the USB autosuspend whitelist in TLP:
+
+#+BEGIN_SRC shell :tangle "/sudo::/etc/tlp.d/10-usb-autosuspend.conf"
+USB_BLACKLIST_PRINTER=0
+
+# enable charging
+USB_BLACKLIST_PHONE=1
+
+USB_WHITELIST="05c8:03c0 8087:0a2b"
+
+#+END_SRC
+
+Check using:
+
+#+begin_src bash :results output :dir "/sudo::/" :epilogue "echo "\n\nexit_status: $?"" :prologue "exec 2>&1"
+tlp-stat -u
+#+end_src
+
+#+RESULTS:
+#+begin_example
+--- TLP 1.3.1 --------------------------------------------
+
++++ USB
+Autosuspend         = enabled
+Device whitelist    = 05c8:03c0 8087:0a2b
+Device blacklist    = (not configured)
+Bluetooth blacklist = disabled
+Phone blacklist     = enabled
+WWAN blacklist      = disabled
+
+Bus 002 Device 001 ID 1d6b:0003 control = auto, autosuspend_delay_ms = -1000 -- Linux Foundation 3.0 root hub (hub)
+Bus 001 Device 003 ID 05c8:03c0 control = auto, autosuspend_delay_ms =    0 -- Cheng Uei Precision Industry Co., Ltd (Foxlink) HD Camera (uvcvideo)
+Bus 001 Device 002 ID 8087:0a2b control = auto, autosuspend_delay_ms =    0 -- Intel Corp. Bluetooth wireless interface (btusb)
+Bus 001 Device 001 ID 1d6b:0002 control = auto, autosuspend_delay_ms = -1000 -- Linux Foundation 2.0 root hub (hub)
+
+
+#+end_example
+
+**** vm-writeback
+#+BEGIN_SRC shell :tangle "/sudo::/etc/tlp.d/20-vm-writeback.conf"
+# https://linrunner.de/tlp/faq/powertop.html#why-does-powertop-suggest-more-power-saving-settings-with-tlp-already-running
+MAX_LOST_WORK_SECS_ON_BAT=15
+#+END_SRC
+
+**** bluetooth
+#+BEGIN_SRC shell :tangle "/sudo::/etc/tlp.d/30-bt.conf"
+DEVICES_TO_DISABLE_ON_BAT_NOT_IN_USE="bluetooth"
+#+END_SRC
+
+**** gpu
+
+#+BEGIN_SRC shell :tangle "/sudo::/etc/tlp.d/40-gpu.conf"
+# Set the min/max/turbo frequency for the Intel GPU.
+# Possible values depend on your hardware. For available frequencies see
+# the output of tlp-stat -g.
+# Default: <none>
+
+# INTEL_GPU_MIN_FREQ_ON_AC=0
+# INTEL_GPU_MIN_FREQ_ON_BAT=0
+# INTEL_GPU_MAX_FREQ_ON_AC=0
+INTEL_GPU_MAX_FREQ_ON_BAT=500
+# INTEL_GPU_BOOST_FREQ_ON_AC=0
+#INTEL_GPU_BOOST_FREQ_ON_BAT=0
+
+#+END_SRC
+
+
+#+begin_src bash :results output :dir "/sudo::/" :epilogue "echo "\n\nexit_status: $?"" :prologue "exec 2>&1"
+tlp-stat -g
+#+end_src
+
+#+RESULTS:
+#+begin_example
+--- TLP 1.3.1 --------------------------------------------
+
++++ Intel Graphics
+/sys/module/i915/parameters/enable_dc        = -1 (use per-chip default)
+/sys/module/i915/parameters/enable_fbc       =  1 (enabled)
+/sys/module/i915/parameters/enable_psr       =  0 (disabled)
+/sys/module/i915/parameters/modeset          = -1 (use per-chip default)
+
+/sys/class/drm/card0/gt_min_freq_mhz         =   300 [MHz]
+/sys/class/drm/card0/gt_max_freq_mhz         =  1150 [MHz]
+/sys/class/drm/card0/gt_boost_freq_mhz       =  1150 [MHz]
+/sys/kernel/debug/dri/0/i915_ring_freq_table: 300 350 400 450 500 550 600 650 700 750 800 850 900 950 1000 1050 1100 1150 [MHz]
+
+
+#+end_example
+
+
 
 * Notes on administration
 
@@ -1346,3 +1462,12 @@ ls /usr/share/gnome-session/sessions
 #+RESULTS:
 : exwm-gnome-flashback.session  gnome-initial-setup.session  gnome.session
 : gnome-dummy.session	      gnome-login.session	   ubuntu.session
+** USB devices
+
+- ~sudo usb-devices~ is like ~lsusb~ but with better/more info
+
+#+begin_src bash
+lsusb | grep HD | perl -lne '/([0-9a-f]{4}):([0-9a-f]{4})/; print "$1"' | grep -f - /sys/bus/usb/devices/*/idVendor
+#+end_src
+
+- Power management of usb devices ~tlp-stat -u~
