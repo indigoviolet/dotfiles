@@ -6,13 +6,14 @@
   "creation_time": "2019-08-20T20:59:40.146546948Z",
   "guuid": null,
   "semantic_status": {
-    "unknown": "Enabled",
-    "org": "Suppressed",
     "typescript": "Enabled",
-    "python": "Enabled"
+    "unknown": "Enabled",
+    "python": "Enabled",
+    "org": "Suppressed"
   },
   "enable_telemetry": false,
   "user_understands_that_enabling_tabnine_cloud_sends_code_to_tabnine_servers": true,
+  "deep_completions_work_mode": "CloudOnly",
   "hosted_deep_completions_enabled": "Enabled",
   "tabnine_cloud_host": null,
   "tabnine_cloud_certificate_domain": null,
@@ -51,5 +52,6 @@
   "empty_line_suggestions": false,
   "snippets_enabled_v2": null,
   "inline_suggestions_mode_clients": null,
-  "tabnine_hub_port": null
+  "tabnine_hub_port": null,
+  "manually_selected_model": null
 }
