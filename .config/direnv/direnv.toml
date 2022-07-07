@@ -1,7 +1,7 @@
 # TODO: Use https://github.com/direnv/direnv/pull/889 if it gets merged to ignore PS4, SSH_AUTH_SOCK etc.
 
 [global]
-skip_dotenv = true
+load_dotenv = false
 
 [whitelist]
 prefix = ["/home/venky/dev"]
