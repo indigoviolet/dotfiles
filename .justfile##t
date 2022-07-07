@@ -14,11 +14,19 @@ doom_rebuild:
     # https://github.com/millejoh/emacs-ipython-notebook/issues/824
     doom clean
     fd -g '*.elc' {{ EMACSDIR }} -uuu -x rm
-    doom build
+    doom build -r
+    just doom_rebuild_pdf_tools
+    just doom_rebuild_vterm
+
+doom_rebuild_pdf_tools:
     ## rebuild pdf tools, this fails within emacs because CC is set
     CC= /home/venky/.emacs.d/.local/straight/build-29.0.50/pdf-tools/build/server/autobuild -i /home/venky/.emacs.d/.local/straight/build-29.0.50/pdf-tools/
-    # unsure why this doesn't do anything
-    # echo 'y' | emacs -l ~/.emacs.d/init.el -f vterm-module-compile
+
+# Rebuild vterm (experimental)
+doom_rebuild_vterm:
+    emacsclient --eval '(vterm-module-compile)'
+    # Look into doomscript: https://github.com/doomemacs/doomemacs/issues/6494
+
 
 
 doom_tangle_config:
