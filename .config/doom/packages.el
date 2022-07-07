@@ -64,6 +64,13 @@
 (disable-packages! magit-todos)
 ;; Disabled packages:1 ends here
 
+;; Eval
+
+
+;; [[file:config.org::*Eval][Eval:1]]
+(package! pp+ :recipe (:host github :repo "emacsmirror/pp-plus"))
+;; Eval:1 ends here
+
 ;; Mouse
 
 
@@ -148,6 +155,29 @@
 (package! exec-path-from-shell)
 ;; Environment:1 ends here
 
+;; Libraries
+;; https://xenodium.com/modern-elisp-libraries/
+
+;; TODO: Look into seq, map, cl- instead of dash/ht
+
+
+
+;; [[file:config.org::*Libraries][Libraries:1]]
+(package! dash)
+(package! s)
+(package! f)
+(package! ht)
+(package! ts)
+;; Libraries:1 ends here
+
+;; Find file
+
+
+
+;; [[file:config.org::*Find file][Find file:1]]
+(package! hardhat :recipe (:host github :repo "rolandwalker/hardhat"))
+;; Find file:1 ends here
+
 ;; minor modes
 
 ;; [[file:config.org::*minor modes][minor modes:1]]
@@ -174,7 +204,7 @@
 
 
 ;; [[file:config.org::*zoom][zoom:1]]
-(package! zoom :recipe (:host github :repo "cyrus-and/zoom"))
+(package! zoom) ;; :recipe (:host github :repo "cyrus-and/zoom"))
 ;; zoom:1 ends here
 
 ;; bufler
@@ -232,13 +262,13 @@
 (package! goto-chg :recipe (:host github :repo "emacs-evil/goto-chg"))
 ;; Last change:1 ends here
 
-;; Yankpad
+;; Snippets
 
 
-;; [[file:config.org::*Yankpad][Yankpad:1]]
+;; [[file:config.org::*Snippets][Snippets:1]]
 (package! yankpad :recipe (:host github :repo "Kungsgeten/yankpad"))
 (package! yasnippet)
-;; Yankpad:1 ends here
+;; Snippets:1 ends here
 
 ;; Fill
 
@@ -249,14 +279,18 @@
 (package! fill-function-arguments)
 ;; Fill:1 ends here
 
-;; Comment editing
+;; Boxing
 
-
-
-;; [[file:config.org::*Comment editing][Comment editing:1]]
+;; [[file:config.org::*Boxing][Boxing:1]]
 (package! rebox2)
-(package! poporg)
-;; Comment editing:1 ends here
+;; Boxing:1 ends here
+
+;; separedit
+
+
+;; [[file:config.org::*separedit][separedit:1]]
+(package! separedit)
+;; separedit:1 ends here
 
 ;; Movement
 
@@ -296,6 +330,14 @@
 (package! rg)                           ;For smart-jump-find-references-with-rg
 ;; Jumping:1 ends here
 
+;; consult customization
+
+
+
+;; [[file:config.org::*consult customization][consult customization:1]]
+(package! vi-consult-buffers :recipe (:host github :repo "indigoviolet/vi-consult-buffers"))
+;; consult customization:1 ends here
+
 ;; Narrowing
 
 
@@ -304,20 +346,29 @@
 (package! recursive-narrow)
 ;; Narrowing:1 ends here
 
-;; Prescient
+;; Company
 
 
-;; [[file:config.org::*Prescient][Prescient:1]]
-(package! company-prescient)
-;; Prescient:1 ends here
+;; [[file:config.org::*Company][Company:1]]
+(package! company)
+;; Company:1 ends here
 
 ;; Tabnine
-
 
 
 ;; [[file:config.org::*Tabnine][Tabnine:1]]
 (package! company-tabnine)
 ;; Tabnine:1 ends here
+
+;; Corfu/Cape
+
+
+;; [[file:config.org::*Corfu/Cape][Corfu/Cape:1]]
+(package! corfu :recipe (:host github :repo "minad/corfu" :files (:defaults "extensions/*.el")))
+(package! cape)
+(package! popon :recipe (:type git :repo "https://codeberg.org/akib/emacs-popon.git"))
+(package! corfu-terminal :recipe (:type git :repo "https://codeberg.org/akib/emacs-corfu-terminal.git"))
+;; Corfu/Cape:1 ends here
 
 ;; Iedit
 

@@ -28,19 +28,32 @@ See [[file:init.el][init.el]], [[file:packages.el][packages.el]] and [[file:conf
 https://github.com/hlissner/doom-emacs/issues/310#issuecomment-354424413
 
 * To try:
-** figure out org-capture (into Notes todo, into emacs config.org todo, project todo)
+** hyper/super keys
+*** http://ergoemacs.org/emacs/emacs_hyper_super_keys.html
 
-   https://fuco1.github.io/2019-02-10-Refiling-hydra-with-pre-defined-targets.html
+which keys? (ctrl is taken, caps is not reachable,)
+how to define on ubuntu?
+** DONE edit-indirect (separedit),
+
+** fence-edit,
 
 
-** DONE use vertico + consult/marginalia/embark out of doom-emacs instead of selectrum/custom configs
+
+
+** polymode (justfile?)
+** TODO Unpin ein
+
+** https://framagit.org/steckerhalter/discover-my-major
+
+** WAIT code-cells
 :LOGBOOK:
-- State "DONE"       from              [2022-02-09 Wed 14:57]
+- State "WAIT"       from              [2022-07-02 Sat 11:47]
 :END:
-** DONE Unpin ein
-:LOGBOOK:
-- State "DONE"       from              [2022-02-23 Wed 14:50]
-:END:
+
+cons: outputs aren't saved; this is not using polymode so that markdown isn't
+supported (see https://github.com/polymode/polymode/issues/305 also)
+
+** See if we can use https://gitlab.com/jjzmajic/hercules.el to make simpler hydras
 
 ** Use transient to make expand-region more like easy-mark
 
@@ -56,20 +69,6 @@ er/try-expand-alist.
 However, if we can wrap a transient around set-mark-command, then we could use
 er/mark-<foo> to recreate easy-mark, with active region.
 
-** code-cells
-** https://github.com/rejeep/keats
-
-** https://framagit.org/steckerhalter/discover-my-major
-
-** See if we can use https://gitlab.com/jjzmajic/hercules.el to make simpler hydras
-
-** edit-indirect, fence-edit, polymode (justfile?)
-
-** DONE Pretty hydra (nicer hydras, :pretty-hydra in use-package)
-:LOGBOOK:
-- State "DONE"       from              [2022-03-09 Wed 16:25]
-:END:
-
 ** https://github.com/minad/consult/wiki#isearch-like-backwardforward-consult-line
 
 ** Figure out how to use dired efficiently
@@ -78,17 +77,11 @@ er/mark-<foo> to recreate easy-mark, with active region.
 *** dirvish
 
 https://github.com/alexluigit/dirvish
-** Figure out how to get consult-buffer to be efficient
+** Tramp issues
 
-have to build helm-mini like set all over again :/
-** one more org-tangle
+*** treemacs freaks out in tramp?
+*** Figure out how to efficiently handle vterm, find-file in the presence of tramp
 
-https://github.com/trev-dev/org-tangle-config.el
-
-** treemacs freaks out in tramp?
-** Figure out how to efficiently handle vterm, find-file in the presence of tramp
-
-** Use org-remark instead of annotate
 ** Ideas from [[https://github.com/zzamboni/dot-doom/blob/master/doom.org][zzamboni]]
 *** Jump to matching parens
 *** variable pitch fonts & mixed fonts
@@ -99,7 +92,11 @@ https://github.com/trev-dev/org-tangle-config.el
 *** org speed keys
 ** org-mode:
 *** [[https://github.com/alphapapa/org-super-agenda][org-super-agenda]] -- Need to set org-super-agenda-groups
-*** org-mode company tweaks (see [[*Company backends][Company backends]])
+*** DONE org-mode company tweaks (see [[*Company backends][Company backends]])
+:LOGBOOK:
+- State "DONE"       from              [2022-07-02 Sat 11:24]
+:END:
+
 *** [[https://old.reddit.com/r/orgmode/comments/8n45ds/why_highlighting_text_is_so_painful_in_orgmode/dztalak/][Change emphasis colors/etc in org-mode]]
 *** Escaping in org-mode https://emacs.stackexchange.com/a/16746/31740
 *** org-mode Latex previewers:
@@ -113,30 +110,32 @@ https://github.com/fuxialexander/emacs-webkit-katex-render
 
 *** DONE org-appear (toggle visibility of emphasis markers)
 
+*** figure out org-capture (into Notes todo, into emacs config.org todo, project todo)
+
+
+https://fuco1.github.io/2019-02-10-Refiling-hydra-with-pre-defined-targets.html
+
+*** one more implementation of org-tangle
+
+https://github.com/trev-dev/org-tangle-config.el
+
+*** Use org-remark instead of annotate
 ** [[https://sideshowcoder.com/2020/07/02/opening-sourcegraph-from-emacs/][Sourcegraph links via git-link]]
-** DONE [[https://ubolonton.github.io/emacs-tree-sitter/getting-started/][Emacs Tree Sitter]]
-:LOGBOOK:
-- State "DONE"       from              [2022-04-08 Fri 15:29]
-:END:
-** [[https://old.reddit.com/r/emacs/comments/931la6/tip_how_to_adopt_flycheck_as_your_new_best_friend/][Flycheck Hydra]]
-** Flycheck a directory: http://endlessparentheses.com/flycheck-a-directory-and-report-the-results.html. We don't need this right now because we have [[http://endlessparentheses.com/flycheck-a-directory-and-report-the-results.html][project checkers]]
 ** https://github.com/tecosaur/emacs-everywhere
-** [[https://github.com/hlissner/doom-emacs/issues/3191][apheleia-based format instead of format-all]]
-
-*** https://github.com/omnilib/ufmt
-** use corfu instead of company-mode
-
 ** harpoon bookmarks
 
-** [[https://github.com/xenodium/company-org-block][org block completion backend for company]]
-
 ** toml formatter using prettier and apheleia
+** https://github.com/EricCrosson/unkillable-scratch
+
 ** DONE [[https://emacs.stackexchange.com/a/28391/31740][Set font size based on monitor/scaling?]]
 
 *** See https://github.com/mnp/dispwatch and doom/*font* functions
 ** DONE maple-minibuffer (mini-frame replacement)
 ** DONE bufler (ibuffer replacement)
-** Pyright/pylance
+** DONE Pyright
+:LOGBOOK:
+- State "DONE"       from              [2022-07-02 Sat 11:18]
+:END:
 
 try lsp-pyright instead of mspyls. Previously didn't work with attrs, but now it
 +seems to have some support+. Whoops, misspoke:
@@ -150,11 +149,15 @@ for which it seems to work better than mspyls
 - [ ] Revisit lsp completion with pyright: https://github.com/emacs-lsp/lsp-pyright/issues/16#issuecomment-676501575
 - [ ] poetry and pyright: https://github.com/emacs-lsp/lsp-pyright/issues/24
 - [X] Set up semantic for tabnine: https://www.tabnine.com/semantic, but see if we can use current language server instead of pyls (pyright or pylance?)
-- [ ] try pylance: https://github.com/emacs-lsp/lsp-mode/issues/1863#issuecomment-652740357
 
-** Pyre
 
-try flycheck-pyre instead of mypy
+** KILL Pylance
+:LOGBOOK:
+- State "KILL"       from              [2022-07-02 Sat 11:18]
+:END:
+
+- [ ] try pylance: https://github.com/emacs-lsp/lsp-mode/issues/1863#issuecomment-652740357 (slower release cycle?)
+
 ** js-mode with tide instead of rjsx mode
 
 https://www.reddit.com/r/emacs/comments/ca6q7v/emacs_for_web_dev_rjsx_webmode_tide_js2etc/
@@ -164,13 +167,11 @@ https://www.reddit.com/r/emacs/comments/bo741n/react_react_native_environment_se
 
 ** http://emacsrocks.com/
 ** http://whattheemacsd.com/
-** http://endlessparentheses.com/emacs-25-is-out-what-are-the-new-features-and-what-were-my-predictions.html
 ** https://github.com/grettke/help/blob/master/help.pdf
-** http://ergoemacs.org/emacs/emacs_hyper_super_keys.html
-** https://github.com/EricCrosson/unkillable-scratch
-
 ** Make rubocop fast async
 https://emacs.stackexchange.com/questions/29086/non-shell-command-on-region
+
+use apheleia?
 ** exwm
 
 * Config file headers
@@ -276,7 +277,6 @@ We start by simply defining the standard headers used by the three files. These 
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
 
-
 ;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
 ;; are the three important ones:
 ;;
@@ -289,22 +289,6 @@ We start by simply defining the standard headers used by the three files. These 
 ;; font string. You generally only need these two:
 ;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
 ;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
-
-;; There are two ways to load a theme. Both assume the theme is installed and
-;; available. You can either set `doom-theme' or manually load a theme with the
-;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-vibrant)
-(custom-set-faces!
-  '(font-lock-keyword-face :slant italic)
-  '(font-lock-doc-face :slant italic)
-  '(font-lock-comment-face :slant italic)
-  )
-
-(doom-themes-treemacs-config)
-(doom-themes-org-config)
-(doom-themes-visual-bell-config)
-
-
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
@@ -328,8 +312,31 @@ We start by simply defining the standard headers used by the three files. These 
 ;; they are implemented.
 #+end_src
 
+** Themes
 
+#+begin_src emacs-lisp
+;; There are two ways to load a theme. Both assume the theme is installed and
+;; available. You can either set `doom-theme' or manually load a theme with the
+;; `load-theme' function. This is the default:
+
+(custom-set-faces!
+  '(font-lock-keyword-face :slant italic)
+  '(font-lock-doc-face :slant italic)
+  '(font-lock-comment-face :slant italic)
+  )
+
+(doom-themes-treemacs-config)
+(doom-themes-org-config)
+(doom-themes-visual-bell-config)
+#+end_src
+
+*** the actual theme we are using
+
+#+begin_src emacs-lisp
+(setq doom-theme 'doom-one)
+#+end_src
 * Doom modules
+
 
 This code is written to the =init.el= to select which modules to load. Written
 here as-is for now, as it is quite well structured and clear.
@@ -342,7 +349,7 @@ here as-is for now, as it is quite well structured and clear.
        ;;layout            ; auie,ctsrnm is the superior home row
 
        :completion
-       company           ; the ultimate code completion backend
+       ;; company           ; the ultimate code completion backend
        ;;helm              ; the *other* search engine for love and life
        ;;ido               ; the other *other* search engine...
        ;;ivy               ; a search engine for love and life
@@ -417,7 +424,7 @@ here as-is for now, as it is quite well structured and clear.
        ;; docker
        editorconfig      ; let someone else argue about tabs vs spaces
        ein               ; tame Jupyter notebooks with emacs
-       (eval +overlay)     ; run code, run (also, repls)
+       eval     ; run code, run (also, repls) ;; +overlay disabled
        ;;gist              ; interacting with github gists
        (lookup +docsets)              ; navigate your code and its documentation
        (lsp +peek)               ; M-x vscode
@@ -531,8 +538,8 @@ above.
 curl https://raw.githubusercontent.com/hlissner/doom-emacs/master/init.example.el
 #+end_src
 
-#+RESULTS:
-#+begin_SRC emacs-lisp
+#+results:
+#+begin_src emacs-lisp
 ;;; init.el -*- lexical-binding: t; -*-
 
 ;; This file controls what Doom modules are enabled and what order they load
@@ -725,7 +732,7 @@ curl https://raw.githubusercontent.com/hlissner/doom-emacs/master/init.example.e
        :config
        ;;literate
        (default +bindings +smartparens))
-#+end_SRC
+#+end_src
 
 
 
@@ -782,7 +789,6 @@ magit-todos: was slow on the startup, unused
 (setq! whitespace-style '(face tabs tab-mark trailing))
 
 (blink-cursor-mode)
-
 #+end_src
 
 ** Custom.el handling
@@ -824,6 +830,26 @@ Turn off "don't remember risky variables" feature
       "M-z" #'end-of-buffer)
 #+end_src
 
+** Eval
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! pp+ :recipe (:host github :repo "emacsmirror/pp-plus"))
+#+end_src
+
+https://old.reddit.com/r/emacs/comments/qfhzjg/make_better_use_of_cx_ce/
+
+
+#+begin_src emacs-lisp
+(use-package! pp+
+  :after-call doom-first-buffer-hook
+  :custom
+  (pp-max-tooltip-size nil) ;; (cons 40 20)) ;; tooltips are slowww
+  :config
+  (global-set-key [remap eval-expression] 'pp-eval-expression)
+  ;; (global-set-key [remap eros-eval-last-sexp] 'pp-eval-last-sexp)
+  (global-set-key [remap eval-last-sexp] 'pp-eval-last-sexp))
+#+end_src
+
 * Mouse
 
 
@@ -833,6 +859,7 @@ Turn off "don't remember risky variables" feature
 
 #+begin_src emacs-lisp
 (use-package! disable-mouse
+  :after-call doom-first-input-hook
   :config
   (global-disable-mouse-mode))
 #+end_src
@@ -880,6 +907,7 @@ https://dzone.com/articles/rare-letter-combinations-and
 
 #+begin_src emacs-lisp
 (use-package! use-package-chords
+  :after-call doom-first-input-hook
   :custom
 
   ;; Max time delay between two key presses to be considered a key chord
@@ -905,7 +933,7 @@ https://dzone.com/articles/rare-letter-combinations-and
 
 #+begin_src emacs-lisp
 (use-package! auto-dim-other-buffers
-  :after-call pre-command-hook
+  :after-call doom-first-buffer-hook
   :config
   (auto-dim-other-buffers-mode t)
   )
@@ -1091,25 +1119,31 @@ https://dzone.com/articles/rare-letter-combinations-and
 
 * Parens
 
-** COMMENT with parens-mode
+** with parens-mode
+
 #+begin_src emacs-lisp
 (after! paren
   (setq show-paren-style 'expression)
-  (setq show-paren-priority -50)
-  (setq show-paren-delay 0)
-  (set-face-attribute 'show-paren-match nil :inherit 'secondary-selection)
-  (set-face-attribute 'show-paren-match-expression nil :inherit nil :underline nil :background "midnight blue")
-  (set-face-attribute 'show-paren-mismatch nil :weight 'bold :underline t :overline nil :slant 'normal)
-  )
+  (setq show-paren-priority -25)
+  (setq show-paren-delay 0.5)
+  (custom-set-faces!
+    '(show-paren-match :inherit secondary-selection)
+    '(show-paren-match-expression :background "darkgreen")
+    '(show-paren-mismatch :weight bold :underline t :slant normal)
+    ))
 #+end_src
 
-** with smartparens-mode
+** COMMENT with smartparens-mode
+
+show-smartparens mode is slower than show-paren mode
+
 #+begin_src emacs-lisp
 (after! smartparens
   (show-smartparens-global-mode t)
-  (setq sp-show-pair-delay 1)
-  (setq show-pair-match-priority -50)
-  (set-face-attribute 'sp-show-pair-match-content-face nil :inherit nil :underline nil :background "midnight blue")
+  (setq sp-show-pair-delay 5)
+  (setq sp-show-pair-match-priority -50)
+  (custom-set-faces!
+    '(sp-show-pair-match-content-face :background "darkgreen"))
   )
 #+end_src
 
@@ -1128,6 +1162,49 @@ https://dzone.com/articles/rare-letter-combinations-and
   (gcmh-high-cons-threshold 1000000000)
   )
 #+end_src
+* Elisp
+
+** Libraries
+https://xenodium.com/modern-elisp-libraries/
+
+TODO: Look into seq, map, cl- instead of dash/ht
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! dash)
+(package! s)
+(package! f)
+(package! ht)
+(package! ts)
+#+end_src
+
+
+
+** Snippets
+
+*** Find version of an installed package
+#+begin_example elisp
+(with-current-buffer (find-file-noselect (locate-library "consult.el"))
+  (lm-version))
+#+end_example
+* Find file
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! hardhat :recipe (:host github :repo "rolandwalker/hardhat"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! hardhat
+  :after-call doom-first-file-hook
+  :config
+  (add-to-list 'hardhat-fullpath-protected-regexps "/node_modules/")
+  (add-to-list 'hardhat-fullpath-protected-regexps "/straight/repos/")
+  (global-hardhat-mode 1)
+  )
+#+end_src
+
 * modeline
 
 
@@ -1181,7 +1258,7 @@ display isearch etc matches in the +modeline-matches segment of the +light model
 
 #+begin_src emacs-lisp
 (use-package! windmove
-  :after-call pre-command-hook
+  :after-call doom-first-buffer-hook
   :custom
   (windmove-wrap-around t)
   :config
@@ -1246,7 +1323,6 @@ https://orgmode.org/org.html#Conflicts
 #+begin_src emacs-lisp
 (map! "M-j" #'consult-buffer
       "M-k" #'consult-buffer)
-
 #+end_src
 
 ** Restore
@@ -1266,114 +1342,23 @@ https://orgmode.org/org.html#Conflicts
 #+end_src
 
 
-** COMMENT minibuffer frame
-
-Doesn't work well: yes-or-no questions cannot be ignored, sometimes gets out of "sync"  and no longer shows the minibuffer
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! mini-frame)
-#+end_src
-
-
-#+begin_src emacs-lisp
-
-(use-package! mini-frame
-  :after-call pre-command-hook
-  :init
-  (setq x-gtk-resize-child-frames 'resize-mode)
-  :custom
-  (mini-frame-show-parameters '(
-                                (top . 0.3)
-                                (width . 0.6)
-                                (left . 0.2)
-                                ))
-
-  (mini-frame-ignore-commands '(eval-expression
-                                "edebug-eval-expression"
-                                debugger-eval-expression
-                                y-or-n-p yes-or-no-p ;don't seem to work: https://github.com/muffinmad/emacs-mini-frame/issues/28
-                                "ctrlf-.*"           ;regexps work
-                                ))
-  :config
-  (mini-frame-mode))
-#+end_src
-
-** COMMENT maple-minibuffer
-
-Doesn't work well: seems to lose focus
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! emacs-maple-minibuffer :recipe (:host github :repo "honmaple/emacs-maple-minibuffer"))
-#+end_src
-
-
-#+begin_src emacs-lisp
-(use-package! maple-minibuffer
-  :hook (after-init . maple-minibuffer-mode)
-  :custom
-  (maple-minibuffer:position-type 'window-center)
-  (maple-minibuffer:border-color "gray50")
-  (maple-minibuffer:height nil)
-  (maple-minibuffer:width 0.7)
-  (maple-minibuffer:cache t)
-
-  (maple-minibuffer:action '(read-from-minibuffer read-string))
-  (maple-minibuffer:ignore-action '(eval-expression))
-
-  ;; more custom parameters for frame
-  (maple-minibuffer:parameters '(
-                                 ;; (height . ,(or maple-minibuffer:height 10))
-                                 (width . ,(or maple-minibuffer:width (window-pixel-width)))
-                                 (left-fringe . 5)
-                                 (right-fringe . 5)
-                                 ))
-
-  :config
-  (add-to-list 'maple-minibuffer:ignore-regexp "^helm-")
-  )
-#+end_src
-
-** COMMENT which-key posframe
-
-Disabling all of these posframe solutions (minibuffer, which-key, hydra) since they are too finicky
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! which-key-posframe :recipe (:host github :repo "yanghaoxie/which-key-posframe"))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! which-key-posframe
-  :after-call pre-command-hook
-  :config (which-key-posframe-mode))
-#+end_src
-
-** COMMENT hydra posframe
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! hydra-posframe :recipe (:host github :repo "Ladicle/hydra-posframe"))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! hydra-posframe
-  :after-call pre-command-hook
-  :after (hydra posframe)
-  :config
-  (hydra-posframe-mode))
-#+end_src
 ** zoom
 
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! zoom :recipe (:host github :repo "cyrus-and/zoom"))
+(package! zoom) ;; :recipe (:host github :repo "cyrus-and/zoom"))
 #+end_src
 
 
+https://github.com/doomemacs/doomemacs/issues/2225
+
 #+begin_src emacs-lisp
 (use-package! zoom
-  :hook (after-init . zoom-mode)
+  ;; :hook (doom-first-buffer . zoom-mode)
   :custom
   (zoom-size '(0.618 . 0.618))
   (zoom-ignored-major-modes '(undo-tree-visualizer-mode vundo--mode))
+  (zoom-ignore-predicates (list (lambda () (< (count-lines (point-min) (point-max)) 20))))
   )
 #+end_src
 
@@ -1485,6 +1470,7 @@ Disabling all of these posframe solutions (minibuffer, which-key, hydra) since t
         '("\\*Messages\\*"
           "Output\\*$"
           "\\*Async Shell Command\\*"
+          "\\*doom eval\\*"
           help-mode
           comint-mode
           helpful-mode
@@ -1497,6 +1483,12 @@ Disabling all of these posframe solutions (minibuffer, which-key, hydra) since t
           compilation-mode))
   (popper-mode +1)
   (popper-echo-mode +1))
+
+(after! popper
+  (add-hook! 'doom-escape-hook
+             (defun vi/close-popup()
+               ;; Return nil so the rest of the hooks do run
+               (progn (popper-close-latest) nil))))
 #+end_src
 
 * Fonts
@@ -1688,17 +1680,17 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
 
 #+begin_src emacs-lisp
 (use-package! hungry-delete
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :config
   (global-hungry-delete-mode))
 
 (use-package! expand-region
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :commands (er/mark-inside-pairs er/mark-inside-quotes er/mark-outside-pairs er/mark-outside-quotes)
   )
 
 (use-package! easy-kill
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :custom
   ;; Used for first marking
   (easy-mark-try-things '(symbol line forward-line-edge sexp)) ;see easy-kill-alist
@@ -1776,8 +1768,6 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
           (?D defun-name " ")
           (?b buffer-file-name)))
   )
-
-
 #+end_src
 
 ** no yanking whitespace
@@ -1811,7 +1801,7 @@ https://github.com/NicholasBHubbard/clean-kill-ring.el
 
 #+begin_src emacs-lisp
 (use-package! clean-kill-ring
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :config
   (clean-kill-ring-mode)
   )
@@ -1829,7 +1819,6 @@ https://github.com/NicholasBHubbard/clean-kill-ring.el
   (map! "M--" #'undo-fu-only-redo)
   (map! "C-M--" #'undo-fu-only-redo-all)
   )
-
 #+end_src
 
 ** COMMENT undo-hl
@@ -1842,7 +1831,7 @@ seems to make things slow?
 
 #+begin_src emacs-lisp
 (use-package! undo-hl
-  :after-call after-find-file
+  :after-call doom-first-buffer-hook
   :hook (prog-mode . undo-hl-mode)
   )
 #+end_src
@@ -1860,7 +1849,7 @@ seems to make things slow?
   ;; (vundo-glyph-alist vundo-ascii-symbols)
   :config
   (set-face-attribute 'vundo-default nil :family "DejaVu Sans Mono")
-  :after-call after-find-file
+  :after-call doom-first-buffer-hook
   :bind ("C-x u" . vundo))
 
 (add-hook! 'vundo-mode-hook
@@ -1869,7 +1858,6 @@ seems to make things slow?
            (setq window-size-fixed t)
            ;; (buffer-face-set '(:family "DejaVu Sans Mono"))
            )
-
 #+end_src
 ** Last change
 
@@ -1880,7 +1868,8 @@ seems to make things slow?
 
 
 #+begin_src emacs-lisp
-(after! goto-chg
+(use-package! goto-chg
+  :config
   (map!
    "C-." #'goto-last-change
    "C-," #'goto-last-change-reverse))
@@ -1888,10 +1877,9 @@ seems to make things slow?
   ;; goto-last-change-reverse
   (map! :map org-mode-map "C-," nil)
   )
-
 #+end_src
 
-* Yankpad
+* Snippets
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! yankpad :recipe (:host github :repo "Kungsgeten/yankpad"))
@@ -1904,7 +1892,7 @@ seems to make things slow?
   (yas-global-mode 1))
 
 (use-package! yankpad
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :commands (yankpad-insert company-yankpad)
   :custom
   (yankpad-file "~/.config/doom/yankpad.org")
@@ -1924,11 +1912,11 @@ seems to make things slow?
 
 #+begin_src emacs-lisp
 (use-package! unfill
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :bind ("M-a" . unfill-paragraph))
 
 (use-package! fill-function-arguments
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :hook
   (prog-mode . (lambda () (local-set-key (kbd "M-q") #'fill-function-arguments-dwim)))
   (emacs-lisp-mode . (lambda ()
@@ -1939,34 +1927,39 @@ seems to make things slow?
   )
 #+end_src
 
-* Comment editing
+* Comments
 
-
+** Boxing
 #+begin_src emacs-lisp :tangle packages.el
 (package! rebox2)
-(package! poporg)
 #+end_src
-
 
 #+begin_src emacs-lisp
 (use-package! rebox2
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :config
   (setq rebox-style-loop '(13 15 23 25 16 17 26 27 11 21))
   :bind
   (
-   ("M-:" . rebox-dwim)
+   ;; ("M-:" . rebox-dwim)
    :map rebox-mode-map ("M-q" . nil)
    )
   ;; (define-key rebox-mode-map (kbd "M-q") nil)
   )
+#+end_src
+
+** Editing comments
+
+*** COMMENT poporg
+#+begin_src emacs-lisp
+(package! poporg)
 
 (defun python-mode-poporg-hook ()
   (setq-local poporg-edit-hook '(sql-mode))
   )
 
 (use-package! poporg
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :custom
   ;; don't match * in common prefix - this will break C-style comments
   ;; poporg but it is necessary to retain org headings
@@ -1976,6 +1969,23 @@ seems to make things slow?
   )
 #+end_src
 
+*** separedit
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! separedit)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! separedit
+  :after-call doom-first-input-hook
+  :custom
+  (separedit-remove-trailing-spaces-in-comment t)
+  (separedit-default-mode 'org-mode)
+  :bind ("M-\\" . separedit)
+
+  )
+#+end_src
 
 * Shift regions
 
@@ -2014,7 +2024,7 @@ seems to make things slow?
 
 #+begin_src emacs-lisp
 (use-package! mwim
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :bind
   ("C-a" . mwim-beginning)
   ("C-e" . mwim-end)
@@ -2039,15 +2049,13 @@ seems to make things slow?
 
 #+begin_src emacs-lisp
 (use-package! smartscan
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :config
   (global-smartscan-mode 1)
 
   ;; M-p, M-n interfere in git-rebase mode
   (add-hook! git-rebase-mode (smartscan-mode -1))
   )
-
-
 #+end_src
 ** ctrlf
 
@@ -2055,22 +2063,25 @@ seems to make things slow?
 (package! ctrlf)
 #+end_src
 
+*** config
 #+begin_src emacs-lisp
 (use-package! ctrlf
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :custom
   (ctrlf-auto-recenter t)
-  (ctrlf-mode-bindings '(
-                         ("C-s" . ctrlf-forward-fuzzy)
-                         ("C-r" . ctrlf-backward-fuzzy)
-                         ("C-M-s" . ctrlf-forward-regexp)
-                         ("C-M-r" . ctrlf-backward-regexp)
-                         )
-                       )
   :config
   (ctrlf-mode +1)
 
   (add-hook! 'pdf-isearch-minor-mode-hook (ctrlf-local-mode -1))
+  :bind
+  (
+   :map ctrlf-mode-map (
+                        ("C-s" . ctrlf-forward-fuzzy)
+                        ("C-r" . ctrlf-backward-fuzzy)
+                        ("C-M-s" . ctrlf-forward-regexp)
+                        ("C-M-r" . ctrlf-backward-regexp)
+                        )
+   )
   )
 #+end_src
 ** regex-based searching, using python/pcre
@@ -2091,7 +2102,7 @@ seems to make things slow?
 
 #+begin_src emacs-lisp
 (use-package! smart-jump
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :config
   (smart-jump-setup-default-registers)
   :commands (smart-jump-go smart-jump-back smart-jump-references)
@@ -2123,103 +2134,92 @@ seems to make things slow?
                        :order 1
                        :async t)
   )
-
 #+end_src
-** COMMENT consult-dash
+** consult customization
 
-Doesn't work <2022-03-30 Wed>
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! consult-dash :recipe (:host github :repo "canatella/consult-dash"))
+(package! vi-consult-buffers :recipe (:host github :repo "indigoviolet/vi-consult-buffers"))
 #+end_src
 
-** COMMENT Selectrum/Consult/Embark/Marginalia
+#+begin_src emacs-lisp
+(use-package! vicb
+  :config
+  (vicb-setup)
+  )
 
+(after! '(consult projectile)
+   (setq consult-project-function (lambda (_) (projectile-project-root)))
+   )
 
-Instead of default ivy
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! selectrum)
-(package! selectrum-prescient)
-(package! consult :recipe (:host github :repo "minad/consult"))
-(package! consult-flycheck :recipe (:host github :repo "minad/consult-flycheck"))
-(package! marginalia)
-(package! embark)
-(package! embark-consult)
+;; (after! '(consult vicb)
+;;   ;; (consult-customize consult-buffer :group nil :sort t)
+;;   )
 #+end_src
+** embark
 
 
 #+begin_src emacs-lisp
-(after! prescient
-  (setq prescient-history-length 500)
+(after! embark
+  ;; try out embark-mixed-indicator which is more verbose than embark-which-key-indicator
+  (setq! embark-indicators '(embark--vertico-indicator embark-mixed-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
   )
+#+end_src
 
-(use-package! selectrum
-  :after-call pre-command-hook
-  :config
-  (selectrum-mode +1)
-  )
-(use-package! selectrum-prescient
-  :after selectrum
+*** targets for buffer/file
 
-  :config
-  (selectrum-prescient-mode +1)
-  (prescient-persist-mode +1)
-  )
+https://github.com/oantolin/embark/issues/231#issuecomment-854390476
 
-(use-package! consult
-  :after selectrum
-  :custom
-  (consult-project-root-function #'projectile-project-root)
-  (consult-narrow-key "<")
-  (consult-preview-key nil)           ;no previews
-  (consult-config '(
-                    (consult-buffer :preview-key any) ;preview for buffers
-                    (consult-yank :preview-key any) ;preview for yank
-                    ))
-  :config
-  (defun vi/consult-fd (&optional dir)
-    (interactive "P")
-    (let ((consult-find-command "fd --color=never --full-path ARG OPTS"))
-      (consult-find dir)))
-  :commands (vi/consult-fd)
-  )
+#+begin_src emacs-lisp
+(after! embark
+   (defun embark-target-this-buffer-file ()
+     (cons 'this-buffer-file (or (buffer-file-name) (buffer-name))))
 
-(use-package! marginalia
-  :after consult which-key
-  :custom
-  ;; https://github.com/oantolin/embark#showing-a-reminder-of-available-actions
-  (embark-action-indicator
-   (lambda (map _target)
-     (which-key--show-keymap "Embark" map nil nil 'no-paging)
-     #'which-key--hide-popup-ignore-command)
-   embark-become-indicator embark-action-indicator)
-  :config
-  (marginalia-mode)
-  (advice-add #'marginalia-cycle :after
-              (lambda () (when (bound-and-true-p selectrum-mode) (selectrum-exhibit))))
+   (add-to-list 'embark-target-finders #'embark-target-this-buffer-file 'append)
 
-  )
+   (add-to-list 'embark-keymap-alist '(this-buffer-file . this-buffer-file-map))
 
-(use-package! embark
-  :custom
-  (embark-quit-after-action nil)
-  :after marginalia
-  :bind (
-         ("C-z" . embark-act)
-         :map embark-general-map ("A" . marginalia-cycle)
-         ))
-
-(use-package! embark-consult
-  :after (embark consult))
+   (embark-define-keymap this-buffer-file-map
+         "Commands to act on current file or buffer."
+         ("l" load-file)
+         ("b" byte-compile-file)
+         ;; ("S" sudo-find-file)
+         ;; ("U" 0x0-upload)
+         ("r" rename-file-and-buffer)
+         ("d" diff-buffer-with-file)
+         ("=" ediff-buffers)
+         ("C-=" ediff-files)
+         ("!" shell-command)
+         ("&" async-shell-command)
+         ("x" consult-file-externally)
+         ;; ("C-a" mml-attach-file)
+         ("c" copy-file)
+         ("k" kill-buffer)
+         ("z" bury-buffer)
+         ("|" embark-shell-command-on-buffer)
+         ("g" revert-buffer)))
 #+end_src
 ** Orderless
 
+https://github.com/oantolin/orderless#interactively-changing-the-configuration
+https://github.com/minad/vertico#completion-styles-and-tab-completion
+
 #+begin_src emacs-lisp
 (after! orderless
-  (setq orderless-matching-styles '(orderless-literal orderless-regexp orderless-flex)))
-#+end_src
+  (setq orderless-matching-styles '(orderless-literal orderless-regexp)))
+                                                      ;;orderless-flex)))
 
+(after! (orderless vertico)
+  (defun vi/match-components-literally ()
+    "Components match literally for the rest of the session."
+    (interactive)
+    (setq-local orderless-matching-styles '(orderless-literal)
+                orderless-style-dispatchers nil))
+
+  ;; (define-key minibuffer-local-completion-map (kbd "C-l") #'vi/match-components-literally)
+  (define-key vertico-map (kbd "C-l") #'vi/match-components-literally)
+  )
+#+end_src
 * Narrowing
 
 
@@ -2230,7 +2230,7 @@ Instead of default ivy
 
 #+begin_src emacs-lisp
 (use-package! recursive-narrow
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :commands (hydra-narrow/body recursive-narrow-or-widen-dwim recursive-widen)
   :config
   (defhydra hydra-narrow (:exit t :columns 2)
@@ -2247,7 +2247,7 @@ Instead of default ivy
 
 #+begin_src emacs-lisp
 (use-package! outline
-  :after-call after-find-file
+  :after-call doom-first-buffer-hook
   :hook (prog-mode . outline-minor-mode)
   :bind (:map outline-minor-mode-map
          ([C-tab] . outline-cycle)
@@ -2278,29 +2278,35 @@ doesn't do much, clutters
 		      #'outline-minor-faces-mode))
 #+end_src
 
-** COMMENT outshine
-
-- Outshine is not compatible with Python https://github.com/alphapapa/outshine/issues/42
-#+begin_src emacs-lisp :tangle packages.el
-(package! outshine)
-#+end_src
-
-
 * Completion
 
+** Company
 
+#+begin_src emacs-lisp :tangle packages.el
+(package! company)
+#+end_src
+
+*** COMMENT Config
 #+begin_src emacs-lisp
 (after! company
   (setq company-idle-delay 0.0
-        company-selection-wrap-around t
-        company-minimum-prefix-length 1
-        company-tooltip-idle-delay 0.1
-        company-async-redisplay-delay 0.0
+        ;; company-selection-wrap-around t
+        company-frontends '(company-preview-frontend company-pseudo-tooltip-frontend)
+        company-minimum-prefix-length 3
+        company-tooltip-idle-delay 0.5
+        company-async-redisplay-delay 0.5
+        company-tooltip-minimum 3
+        ;; company-show-numbers t
         company-tooltip-align-annotations t)
   )
+
+(after! '(company company-tabnine)
+  (set-company-backend! '(prog-mode conf-mode sh-mode text-mode) '(company-tabnine company-yankpad company-capf)))
 #+end_src
 
-** Prescient
+Also see [[*Company backends][Company backends]] (org mode specific config)
+
+*** COMMENT Prescient
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! company-prescient)
@@ -2310,18 +2316,18 @@ doesn't do much, clutters
 (after! company #'company-prescient-mode)
 #+end_src
 
-** Tabnine
 
+
+** Tabnine
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! company-tabnine)
 #+end_src
 
-
 #+begin_src emacs-lisp
 (use-package! company-tabnine
-  :after company
-  :after-call after-find-file
+  :after-call doom-first-input-hook
+  :commands (company-tabnine)
   :config
   ;; https://github.com/TommyX12/company-tabnine#known-issues
   ;; workaround for company-transformers
@@ -2338,14 +2344,49 @@ doesn't do much, clutters
     (apply func args))
 
   (advice-add #'company--transform-candidates :around #'my-company--transform-candidates)
-  (advice-add #'company-tabnine :around #'my-company-tabnine)
-  )
-
-;; We want these grouped so they are merged
-;; since they are prepended, and company uses only one (maybe grouped) backend, any others should be ignored.
-(set-company-backend! '(prog-mode conf-mode sh-mode text-mode) '(company-tabnine company-yankpad company-capf))
+  (advice-add #'company-tabnine :around #'my-company-tabnine))
 #+end_src
 
+** Corfu/Cape
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! corfu :recipe (:host github :repo "minad/corfu" :files (:defaults "extensions/*.el")))
+(package! cape)
+(package! popon :recipe (:type git :repo "https://codeberg.org/akib/emacs-popon.git"))
+(package! corfu-terminal :recipe (:type git :repo "https://codeberg.org/akib/emacs-corfu-terminal.git"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! corfu
+  :after-call doom-first-input-hook
+  :custom
+  (corfu-auto t)
+  (corfu-quit-no-match 'separator)
+  (corfu-auto-delay 0.2)
+  (corfu-auto-prefix 2)
+  (completion-styles '(basic))
+  :config
+  (custom-set-faces! '(corfu-current :background "ivory4"))
+  (global-corfu-mode)
+  (corfu-history-mode 1)
+  )
+
+(after! corfu
+  (setq! corfu-terminal-disable-on-gui nil)
+  (corfu-terminal-mode)
+  )
+
+(use-package! cape
+  :after-call doom-first-input-hook
+  :config
+  (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
+  (defalias 'vi/cape-yankpad (cape-company-to-capf #'company-yankpad))
+
+  (setq-hook! '(prog-mode-hook conf-mode-hook sh-mode-hook text-mode-hook org-mode-hook)
+    completion-at-point-functions
+    (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad))
+  ))
+#+end_src
 
 * Iedit
 
@@ -2379,7 +2420,7 @@ doesn't do much, clutters
 (setq which-key-show-early-on-C-h t)
 #+end_src
 
-** Hydra
+* Hydra
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! pretty-hydra)
@@ -2414,7 +2455,8 @@ doesn't do much, clutters
     ("SPC" major-mode-hydra "Major")
     ("c" flycheck-hydra/body "flycheck")
     ("n" hydra-narrow/body "narrow")
-    ("L" lsp-hydra/body "LSP")
+    ("L" lsp-mode-hydra/body "LSP")
+    ("e" ein-hydra/body "EIN")
     ("p" org-pomodoro "Pomodoro"))
    "Actions"
    (("A" org-agenda-list "Agenda")
@@ -2422,6 +2464,7 @@ doesn't do much, clutters
     ("g" magit-status-here "magit")
     ("M-\\" edit-indirect-region "edit indirect region")
     ("d" consult-dir "dir" )
+    ("M-l" org-store-link "store link")
     )
    )
   )
@@ -2467,8 +2510,10 @@ doesn't do much, clutters
                                  ("REVISIT" . +org-todo-onhold)
                                  ("SOMEDAY" . +org-todo-onhold)
                                  ("KILL" . +org-todo-cancel))
-        org-use-fast-todo-selection 'expert)
+        org-use-fast-todo-selection 'expert
 
+        ;; https://github.com/radian-software/ctrlf/issues/118
+        org-fold-core-style 'overlays)
 ;;  (pretty-hydra-define org-hydra
   (major-mode-hydra-define org-mode nil
     ("Subtree"
@@ -2495,9 +2540,9 @@ doesn't do much, clutters
   )
 #+end_src
 
-** Company backends
+** COMMENT Company backends
 
-- company-tabnine is currently excluded because it always triggers (see
+- +company-tabnine is currently excluded+ because it always triggers (see
   company-tabnine-always-trigger), and actually makes it annoying to type free
   text.
 
@@ -2506,11 +2551,15 @@ doesn't do much, clutters
 
 #+begin_src emacs-lisp
 
-(after! org
+;;(after! org
   ;; since they are prepended, and company uses only one (maybe grouped)
   ;; backend, any others should be ignored.
-  (set-company-backend! 'org-mode '(company-yankpad company-capf))
-  )
+  ;; (set-company-backend! 'org-mode '(company-yankpad company-capf))
+;;  )
+(setq-hook! 'org-mode-hook
+  company-idle-delay 0.5
+  company-tabnine-always-trigger nil
+  company-minimum-prefix-length 3)
 #+end_src
 
 
@@ -2561,7 +2610,7 @@ The "After save hook" version is synchronous and has no problems.
 
 #+begin_src emacs-lisp
 (use-package! org-auto-tangle
-  :after-call after-find-file
+  :after-call doom-first-buffer-hook
   :config
   (setq org-auto-tangle-default t)      ;this doesn't work with :custom
   :hook (org-mode . org-auto-tangle-mode))
@@ -2954,7 +3003,6 @@ Let's use this with file-locals instead
 #+begin_src emacs-lisp :tangle packages.el
 (package! poly-literate-calc
   :recipe (:local-repo "lisp/poly-literate-calc" :build (:not compile)));; :host github :repo "indigoviolet/poly-literate-calc"))
-
 #+end_src
 
 
@@ -3019,7 +3067,7 @@ https://xenodium.com/emacs-chaining-org-babel-blocks/
 (advice-add 'org-babel-execute-src-block :around 'adviced:org-babel-execute-src-block)
 #+end_src
 
-#+RESULTS[b30c1b41ccddc21305a1d13530fcaa6911029689]:
+#+results[b30c1b41ccddc21305a1d13530fcaa6911029689]:
 
 ** table of contents
 
@@ -3035,6 +3083,26 @@ disabled because it is noisy on startup, and used rarely (<2022-03-21 Mon>)
   (add-hook! org-mode #'org-make-toc-mode))
 #+end_src
 
+** calendar
+
+#+begin_src emacs-lisp
+(after! org
+   (defmacro vi/org-in-calendar (command)
+     (let ((name (intern (format "vi/org-in-calendar-%s" command))))
+       `(progn
+          (defun ,name ()
+            (interactive)
+            (org-eval-in-calendar ,command))
+          #',name)))
+
+   (map! :map org-read-date-minibuffer-local-map
+         "<right>" (vi/org-in-calendar '(calendar-forward-day 1))
+         "<left>" (vi/org-in-calendar '(calendar-backward-day 1))
+         ">" (vi/org-in-calendar '(calendar-forward-month 1))
+         "<" (vi/org-in-calendar '(calendar-backward-month 1))
+         "." (vi/org-in-calendar '(calendar-goto-today)))
+)
+#+end_src
 
 * emacs-jupyter
 ** fontification
@@ -3042,12 +3110,12 @@ disabled because it is noisy on startup, and used rarely (<2022-03-21 Mon>)
 https://github.com/nnicandro/emacs-jupyter/issues/366#issuecomment-985758277
 
 #+begin_src emacs-lisp
-  (after! org
-    (defun display-ansi-colors ()
-      (ansi-color-apply-on-region (point-min) (point-max)))
+(after! org
+  (defun display-ansi-colors ()
+    (ansi-color-apply-on-region (point-min) (point-max)))
 
-    (add-hook! org-babel-after-execute #'display-ansi-colors)
-    )
+  (add-hook! org-babel-after-execute #'display-ansi-colors)
+  )
 #+end_src
 
 ** COMMENT envrc interaction
@@ -3082,7 +3150,7 @@ doesn't work
   )
 
 (use-package! ein
-  :after-call pre-command-hook
+  :after-call doom-first-buffer-hook
   :init
   (setq ein:polymode t)
   (setq ein:notebooklist-render-order '(render-opened-notebooks render-directory render-header))
@@ -3127,7 +3195,7 @@ doesn't work
           (ein:notebook-open nurl npath)
           )))
 
-  :mode-hydra
+  :pretty-hydra
   (
    (
     "Connect"
@@ -3145,7 +3213,9 @@ doesn't work
      ("X" vi/restart-and-execute-all-above "Restart & x"))
     "Fix"
     (("i" vi/ein-toggle-inlined-images "Toggle inlined images")
-     ("f" vi/ein-fix "Fix"))
+     ("f" vi/ein-fix "Fix")
+     ("N" ein:notebook-rename-command "Rename")
+     )
     )
    ))
   (add-hook! 'ein:notebook-mode-hook #'vi/ein-fix)
@@ -3174,7 +3244,7 @@ doesn't work
    ("S-<right>" . windmove-right)
    ("S-<up>" . windmove-up)
    ("S-<down>" . windmove-down)
-   ("C-r" . vterm-send-C-r)
+   ("C-c C-r" . vterm-send-C-r)
    )
   )
 
@@ -3227,11 +3297,12 @@ https://github.com/akermu/emacs-libvterm/issues/179
 
 #+begin_src emacs-lisp
 (use-package! flycheck
-  :after-call after-find-file
+  :after-call doom-first-buffer-hook
   :custom
   (flycheck-check-syntax-automatically '(mode-enabled save idle-change idle-buffer-switch))
   (flycheck-idle-change-delay 10)
   (flycheck-idle-buffer-switch-delay 5)
+  (flycheck-highlighting-style '(conditional 10 level-face (delimiters "" "")))
   :pretty-hydra
   (
    (:exit t)
@@ -3239,9 +3310,11 @@ https://github.com/akermu/emacs-libvterm/issues/179
     "Flycheck"
     (
     ("c" flycheck-buffer "check buffer")
-    ("l" flycheck-list-errors "file errors")
+    ("l" consult-lsp-diagnostics "file errors")
     ("p" flycheck-projectile-list-errors "project errors")
     ("L" consult-flycheck "consult")
+    ("d" (flycheck-mode -1) "Disable Flycheck")
+    ("e" (flycheck-mode) "Enable Flycheck")
     ("q" nil "quit")
      )
     )
@@ -3371,21 +3444,20 @@ https://gist.github.com/justinhj/5945047
   (lsp-completion-enable nil)
   (lsp-enable-snippet nil)
   (lsp-prefer-capf nil)
-
   ;; https://emacs-lsp.github.io/lsp-mode/page/settings/
   (lsp-auto-configure t)
   (lsp-enable-imenu t)
   (lsp-signature-auto-activate t)
   (lsp-headerline-breadcrumb-enable t)
+  (lsp-headerline-breadcrumb-enable-diagnostics nil)
   (lsp-keep-workspace-alive nil)
   (lsp-semantic-tokens-enable nil)      ;no semantic highlighting: rainbow-identifiers
   (lsp-symbol-highlighting-skip-current t)
   (lsp-enable-xref nil)
   (lsp-lens-enable t)
+  (lsp-disabled-clients '((python-mode . '(pyls pylsp mspyls))))
 
-  (setq lsp-disabled-clients '('pyls 'pylsp 'mspyls))
-
-  ;; This will disable the flycheck checkers.
+    ;; This will disable the flycheck checkers. (we use them directly to have better control)
   ;; (lsp-diagnostics-provider :flycheck)
 
   ;; https://github.com/emacs-lsp/lsp-mode#performance
@@ -3397,28 +3469,37 @@ https://gist.github.com/justinhj/5945047
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.mypy_cache\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]wandb\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]__pycache__\\'")
-  :after-call after-find-file
+
+  ;; Fix the hint diagnostic to display as faded out, not error  (https://github.com/emacs-lsp/lsp-mode/issues/3104)
+  ;; Unrelated error: Invalid face reference: lsp-flycheck-info-unnecessary (https://github.(com/emacs-lsp/lsp-mode/issues/2255)
+  (add-hook! 'lsp-diagnostics-updated-hook
+             ;; For some reason, this face is only defined after the
+             ;; lsp-diagnostics-updated-hook, so this will fail the first time
+             ;; through
+    (if (facep 'lsp-lsp-flycheck-info-unnecessary-face)
+        (set-face-attribute 'lsp-lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil)))
+
+  :pretty-hydra
+  ((
+    "LSP"
+    (("?" lsp-find-references "Find references")
+     ("." lsp-find-definition "Find definition")
+     ("," lsp-find-type-definition "Find type")
+     ("e" lsp-treemacs-errors-list "Errors"))
+    )
+   )
+  :after-call doom-first-buffer-hook
   :hook (
          (python-mode . lsp-deferred)
          (c++-mode . vi/setup-c++-lsp)
          (lsp-mode . lsp-enable-which-key-integration)
          (lsp-mode . lsp-treemacs-sync-mode)
          )
-  :commands (lsp lsp-deferred)
-  )
+  :commands (lsp lsp-deferred))
 
-(after! lsp
-  (pretty-hydra-define lsp-hydra (:exit t)
-    (
-     "LSP"
-     (("?" lsp-find-references "Find references")
-      ("." lsp-find-definition "Find definition")
-      ("," lsp-find-type-definition "Find type")
-      ("e" lsp-treemacs-errors-list "Errors")))
-    )
-  )
+
 (use-package! lsp-ui
-  :after-call after-find-file
+  :after-call doom-first-buffer-hook
   :custom
   ;; sideline
   (lsp-ui-sideline-enable t)
@@ -3447,7 +3528,7 @@ https://gist.github.com/justinhj/5945047
   )
 
 (use-package! lsp-treemacs
-  :after-call after-find-file
+  :after-call doom-first-buffer-hook
   :custom
   (lsp-treemacs-sync-mode 1)
   )
@@ -3495,10 +3576,8 @@ Lens shows refs for each variable in an overlay which is annoying. Also duplicat
 #+end_src
 * Python
 
-
 #+begin_src emacs-lisp
 (defun vi/setup-python-flycheck ()
-
   (setq-local flycheck-python-mypy-executable (concat (projectile-project-root) "/.venv/bin/mypy"))
   ;; This needs to happen after lsp else:
   ;; Error (python-mode-hook): Error running hook "vi/setup-python-flycheck" because: (user-error lsp is not a syntax checker)
@@ -3508,42 +3587,71 @@ Lens shows refs for each variable in an overlay which is annoying. Also duplicat
   (flycheck-add-next-checker 'lsp 'python-pycompile)
 
   ;; we could disable mypy as well, since pyright does most of it, but pyright doesn't support attrs yet?
-  ;; (flycheck-add-next-checker 'python-flake8-vi 'python-mypy-vi)
+  ;; (flycheck-add-next-checker-next-checker 'python-flake8-vi 'python-mypy-vi)
   ;; (flycheck-add-next-checker 'python-mypy-vi 'python-pycompile)
   (setq-local flycheck-disabled-checkers '(python-pylint python-mypy))
   )
+#+end_src
 
+** Diagnostics filter hints
+#+begin_src emacs-lisp
+(defun vi/diag-matches-p (d sev tag)
+  (and (equal sev (ht-get d "severity"))
+       ;; handle nil ~tag~; convert ~tags~ from vector to list
+       (if tag (-contains? (append (ht-get d "tags") nil) tag) t)))
 
-(add-hook! 'python-mode-hook
-           #'tree-sitter-hl-mode
-           (defun vi/setup-python-flycheck-after-lsp ()
-             ;; So that lsp is available as a checker
-             (add-hook! 'lsp-after-open-hook #'vi/setup-python-flycheck)
-             )
-           )
+(defun vi/filter-lsp-diagnostics (diag severity tag)
+  ;; ~diag~ will be a hash table with keys (diagnostics, uri) (ie. PublishDiagnosticsParams when called from lsp-diagnostic-filter)
+  ;;
+  ;; where each diagnostic is a hashtable with keys ~("range", "message", "severity", "tags", "source")~
+  ;;
+  ;; severity: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnosticSeverity
+  ;; tags: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnosticTag
+  ;;
+  ;; Note that ~(lsp-diagnostics)~ is not identical to PublishDiagnosticsParams:
+  ;;
+  ;; - PublishDiagnosticsParams has keys (uri, diagnostics), while lsp-diagnostics returns a hash table {uri: [diagnostics]}
+  ;; - PublishDiagnosticsParams[diagnostics] is a vector, not a list
+  ;;
+  ;; #+begin_example
+  ;; (ht-get* (-second-item (-second-item (ht-values (lsp-diagnostics)))) "message")
+  ;; #+end_example
+  ;;
 
-;; (setq-hook! 'python-mode-hook
-;;   lsp-diagnostic-filter
-;;   (lambda (param work)
-;;     (let
-;;         (
-;;          (diag (gethash "diagnostics" param))
-;;          (no_tags (cl-remove-if (lambda (d) (gethash "tags" d)) diag))
-;;          )
-;;       (puthash "diagnostics" no_tags param)
-;;       )
-;;     param)
-;;     (puthash
-;;      "diagnostics" (cl-remove-if (lambda (diag) (gethash "tags" diag)) (gethash "diagnostics" param))
-;;      param)
-;;     param))
-;; )
+  ;;
+  (require 'ht)
+  (require 'dash)
+  ;; mutate diag to remove any diagnostics that match severity/tag
+  ;; For each item in ~diag~:
+  (-let* ((diagnostics (append (ht-get diag "diagnostics") nil))
+          (filtered (--remove (vi/diag-matches-p it severity tag) diagnostics)))
+     ;; update diag with filtered list
+    (ht-set! diag "diagnostics" filtered)
+    diag))
+#+end_src
+
+** LSP setup
+#+begin_src emacs-lisp
+(defun vi/python-mode-lsp ()
+
+  ;;;; EDIT: this also filters out the visual rendering (https://discord.com/channels/789885435026604033/789890622424219658/993942950331551814)
+  ;;;; Filter out "lsp-info-flycheck-"
+  ;;;; severity=4 ("hint"), tag=1 ("unnecessary") -- see vi/filter-tag-diagnostics for reference
+  ;; (setq-local lsp-diagnostic-filter (lambda (param work) (vi/filter-lsp-diagnostics param 4 1)))
+
+  ;; So that lsp is available as a checker
+  (add-hook! 'lsp-after-open-hook #'vi/setup-python-flycheck)
+
+  ;; we prefer rainbow-delimiters-mode
+  ;; (tree-sitter-hl-mode)
+  )
+
+(add-hook! 'python-mode-hook #'vi/python-mode-lsp)
 
 ;; even switch-buffer is slow. and we use direnv anyway
 ;; (after! poetry
 ;;   (setq poetry-tracking-strategy 'switch-buffer)
 ;;   )
-
 #+end_src
 
 
@@ -3718,7 +3826,7 @@ set-formatter! can silently break the chain (?)
 (package! py-isort :disable t)
 #+end_src
 
-** COMMENT doom-emacs version
+** COMMENT format-all (doom-emacs version)
 
 This requires ~(format +onsave)~ to be uncommented in the ~doom!~ block
 
@@ -3740,8 +3848,6 @@ happen on save; only explicitly on ~+format/buffer~
 (setq-hook! 'python-mode-hook +format-with-lsp nil)
 (setq-hook! 'python-mode-hook +format-with 'isort)
 (add-hook! 'python-mode-hook #'python-black-on-save-mode)
-
-
 #+end_src
 
 *** docker
@@ -3789,7 +3895,7 @@ dockfmt does a bad job: rips out comments, uses tabs.
 
 #+begin_src emacs-lisp
 (use-package! apheleia
-  :after-call after-find-file
+  :after-call doom-first-buffer-hook
   :config
   (setf (alist-get 'isort apheleia-formatters) '("isort" "--profile=black" "--stdout" "-"))
   (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
@@ -3863,18 +3969,6 @@ format-all also requires unpinning doom's version. Let's try this if apheleia do
 (map! :map dired-mode-map "C-<return>" #'dired-open-file)
 #+end_src
 
-** COMMENT ranger
-
-Not clear why this is better than dired - seems to do a lot and I don't usually need to do all this in emacs
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! ranger)
-#+end_src
-
-- [ ] todo: add hydra?
-- [ ] try deer mode, override dired
-**
-
 * Firestarter
 
 Execute commands on save
@@ -3886,7 +3980,7 @@ https://github.com/emacsmirror/firestarter
 
 #+begin_src emacs-lisp
 (use-package! firestarter
-  :after-call after-find-file
+  :after-call doom-first-file-hook
   :custom
   (firestarter-mode)
   )
@@ -3970,7 +4064,7 @@ So we could:
 
 #+begin_src emacs-lisp
 (use-package! jsonnet-mode
-  :after-call after-find-file
+  :after-call doom-first-file-hook
   :mode ("\\.jsonnet\\'"
          "\\.libsonnet\\'"))
 #+end_src
@@ -4033,7 +4127,7 @@ Version 2016-01-08"
 #+end_src
 #+begin_src emacs-lisp
 (use-package! atomic-chrome
-  :after-call after-find-file
+  :after-call doom-first-file-hook
   :custom
   (atomic-chrome-default-major-mode 'python-mode)
   (atomic-chrome-url-major-mode-alist
@@ -4053,97 +4147,6 @@ Version 2016-01-08"
 - annot breaks things quite badly
 - bookmark+ is too convoluted, no inline display
 
-** COMMENT IPA
-
-- ipa.el's storage is not trustworthy -it loses or doubles annotations
-
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! ipa :recipe (:host github :repo "IdoMagal/ipa.el"))
-#+end_src
-
-
-
-#+begin_src emacs-lisp
-(use-package! ipa
-  :custom
-  (ipa-file-function 'ipa-get-sidecar-file)
-  :after-call after-find-file
-  :config
-  (defhydra hydra-ipa (:exit t :columns 2)
-    "IPA"
-    ("a" ipa-insert "Add")
-    ("e" ipa-edit "Edit")
-    ("t" ipa-toggle "Hide/Show")
-    )
-  )
-#+end_src
-
-** COMMENT bookmark-plus
-
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! bookmark+ :recipe (:host github :repo "emacsmirror/bookmark-plus"))
-#+end_src
-
-
-#+begin_src emacs-lisp
-(use-package! bookmark+)
-#+end_src
-
-** COMMENT annotate
-
-+OK, but sets the buffer to modified: https://github.com/bastibe/annotate.el/issues/74+
-
-#+begin_src emacs-lisp :tangle packages.el
-;; (package! annotate :recipe (:host github :repo "cage2/annotate.el" :branch "prevent-saving-empty-db"))
-(package! annotate :recipe (:host github :repo "bastibe/annotate.el"))
-#+end_src
-
-- [ ] Fix vi/setup-annotate to handle src buffers in org-mode (buffer-file-name is nil). What should this do? will the default file work?
-
-
-#+begin_src emacs-lisp
-(defun vi/setup-annotate ()
-  (when (buffer-file-name)
-    (setq-local annotate-file (expand-file-name (concat buffer-file-name ".annotate")))))
-
-;; No longer used: this was for https://github.com/bastibe/annotate.el/issues/104
-;; (defun vi/annotate-annotate ()
-;;   (interactive)
-;;   ;; Turn on annotate-mode if not already
-;;   (unless annotate-mode (annotate-mode))
-;;   (annotate-annotate)
-;;   )
-
-(use-package! annotate
-  :after-call after-find-file
-  :custom
-  (annotate-endline-annotate-whole-line t)
-  (annotate-database-confirm-deletion nil)
-  (annotate-use-echo-area nil)          ;shows in overlays
-  (annotate-use-messages nil)           ;No messages like "annotations loaded"
-  (annotate-annotation-max-size-not-place-new-line 200)
-  (annotate-annotation-position-policy :by-length)
-  :hook (
-         ;; disable in general prog-mode for time-being - leads to args-out-of-range errors in company? [Jan 24 2022]
-         ;; (prog-mode . annotate-mode)
-         (annotate-mode . vi/setup-annotate)
-         )
-  :config
-  (set-face-attribute 'annotate-annotation nil :foreground "red" :background "white")
-  (set-face-attribute 'annotate-annotation-secondary nil :foreground "red" :background "white")
-  (set-face-attribute 'annotate-highlight nil :underline "#51afef" :background "#2c3946")
-  (set-face-attribute 'annotate-highlight-secondary nil :underline "#51afef" :background "#2c3946")
-  (defhydra hydra-annotate (:exit t :columns 2)
-    "Annotate"
-    ("a" annotate-annotate "Add")
-    ("l" annotate-summary-of-file-from-current-pos "list")
-    )
-  )
-#+end_src
-
-
 ** TODO org-remark
 
 https://github.com/nobiot/org-remark
@@ -4158,7 +4161,7 @@ https://github.com/nobiot/org-remark
 
 #+begin_src emacs-lisp
 (use-package! keycast
-  :after-call pre-command-hook
+  :after-call doom-first-input-hook
   :config
   (define-minor-mode keycast-mode
     "Show current command and its key binding in the mode line (fix for use with doom-mode-line)."
@@ -4336,47 +4339,3 @@ seems to be broken in nativecomp emacs <2022-05-05 Thu>
   (explain-pause-mode)
   )
 #+end_src
-
-* COMMENT Github
-
-** COMMENT Clone git repo
-
-[[https://xenodium.com/emacs-clone-git-repo-from-clipboard/][Source]]
-
-#+begin_src emacs-lisp
-(defun vi/git-clone-clipboard-url ()
-  "Clone git URL in clipboard asynchronously and open in dired when finished."
-  (interactive)
-  (cl-assert (string-match-p "^\\(http\\|https\\|ssh\\)://" (current-kill 0)) nil "No URL in clipboard")
-  (let* ((url (current-kill 0))
-         (download-dir (expand-file-name "~/dev/"))
-         (project-dir (concat (file-name-as-directory download-dir)
-                              (file-name-base url)))
-         (default-directory download-dir)
-         (command (format "git clone %s" url))
-         (buffer (generate-new-buffer (format "*%s*" command)))
-         (proc))
-    (when (file-exists-p project-dir)
-      (if (y-or-n-p (format "%s exists. delete?" (file-name-base url)))
-          (delete-directory project-dir t)
-        (user-error "Bailed")))
-    (switch-to-buffer buffer)
-    (setq proc (start-process-shell-command (nth 0 (split-string command)) buffer command))
-    (with-current-buffer buffer
-      (setq default-directory download-dir)
-      (shell-command-save-pos-or-erase)
-      (require 'shell)
-      (shell-mode)
-      (view-mode +1))
-    (set-process-sentinel proc (lambda (process state)
-                                 (let ((output (with-current-buffer (process-buffer process)
-                                                 (buffer-string))))
-                                   (kill-buffer (process-buffer process))
-                                   (if (= (process-exit-status process) 0)
-                                       (progn
-                                         (message "finished: %s" command)
-                                         (dired project-dir))
-                                     (user-error (format "%s\n%s" command output))))))
-    (set-process-filter proc #'comint-output-filter)))
-#+end_src
-

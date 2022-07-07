@@ -32,7 +32,7 @@
        ;;layout            ; auie,ctsrnm is the superior home row
 
        :completion
-       company           ; the ultimate code completion backend
+       ;; company           ; the ultimate code completion backend
        ;;helm              ; the *other* search engine for love and life
        ;;ido               ; the other *other* search engine...
        ;;ivy               ; a search engine for love and life
@@ -107,7 +107,7 @@
        ;; docker
        editorconfig      ; let someone else argue about tabs vs spaces
        ein               ; tame Jupyter notebooks with emacs
-       (eval +overlay)     ; run code, run (also, repls)
+       eval     ; run code, run (also, repls) ;; +overlay disabled
        ;;gist              ; interacting with github gists
        (lookup +docsets)              ; navigate your code and its documentation
        (lsp +peek)               ; M-x vscode

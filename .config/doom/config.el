@@ -8,7 +8,6 @@
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
 
-
 ;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
 ;; are the three important ones:
 ;;
@@ -21,22 +20,6 @@
 ;; font string. You generally only need these two:
 ;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
 ;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
-
-;; There are two ways to load a theme. Both assume the theme is installed and
-;; available. You can either set `doom-theme' or manually load a theme with the
-;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-vibrant)
-(custom-set-faces!
-  '(font-lock-keyword-face :slant italic)
-  '(font-lock-doc-face :slant italic)
-  '(font-lock-comment-face :slant italic)
-  )
-
-(doom-themes-treemacs-config)
-(doom-themes-org-config)
-(doom-themes-visual-bell-config)
-
-
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
@@ -59,6 +42,32 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 ;; config.el:1 ends here
+
+;; Themes
+
+
+;; [[file:config.org::*Themes][Themes:1]]
+;; There are two ways to load a theme. Both assume the theme is installed and
+;; available. You can either set `doom-theme' or manually load a theme with the
+;; `load-theme' function. This is the default:
+
+(custom-set-faces!
+  '(font-lock-keyword-face :slant italic)
+  '(font-lock-doc-face :slant italic)
+  '(font-lock-comment-face :slant italic)
+  )
+
+(doom-themes-treemacs-config)
+(doom-themes-org-config)
+(doom-themes-visual-bell-config)
+;; Themes:1 ends here
+
+;; the actual theme we are using
+
+
+;; [[file:config.org::*the actual theme we are using][the actual theme we are using:1]]
+(setq doom-theme 'doom-one)
+;; the actual theme we are using:1 ends here
 
 ;; Basic config
 
@@ -144,14 +153,33 @@
       "M-z" #'end-of-buffer)
 ;; Global keybindings:1 ends here
 
+
+
+;; https://old.reddit.com/r/emacs/comments/qfhzjg/make_better_use_of_cx_ce/
+
+
+
+;; [[file:config.org::*Eval][Eval:2]]
+(use-package! pp+
+  :after-call doom-first-buffer-hook
+  :custom
+  (pp-max-tooltip-size nil) ;; (cons 40 20)) ;; tooltips are slowww
+  :config
+  (global-set-key [remap eval-expression] 'pp-eval-expression)
+  ;; (global-set-key [remap eros-eval-last-sexp] 'pp-eval-last-sexp)
+  (global-set-key [remap eval-last-sexp] 'pp-eval-last-sexp))
+;; Eval:2 ends here
+
 ;; [[file:config.org::*Mouse][Mouse:2]]
 (use-package! disable-mouse
+  :after-call doom-first-input-hook
   :config
   (global-disable-mouse-mode))
 ;; Mouse:2 ends here
 
 ;; [[file:config.org::*Chords][Chords:2]]
 (use-package! use-package-chords
+  :after-call doom-first-input-hook
   :custom
 
   ;; Max time delay between two key presses to be considered a key chord
@@ -167,7 +195,7 @@
 
 ;; [[file:config.org::*dim other buffers][dim other buffers:2]]
 (use-package! auto-dim-other-buffers
-  :after-call pre-command-hook
+  :after-call doom-first-buffer-hook
   :config
   (auto-dim-other-buffers-mode t)
   )
@@ -335,16 +363,20 @@
   )
 ;; Rainbow:2 ends here
 
-;; with smartparens-mode
+;; with parens-mode
 
-;; [[file:config.org::*with smartparens-mode][with smartparens-mode:1]]
-(after! smartparens
-  (show-smartparens-global-mode t)
-  (setq sp-show-pair-delay 1)
-  (setq show-pair-match-priority -50)
-  (set-face-attribute 'sp-show-pair-match-content-face nil :inherit nil :underline nil :background "midnight blue")
-  )
-;; with smartparens-mode:1 ends here
+
+;; [[file:config.org::*with parens-mode][with parens-mode:1]]
+(after! paren
+  (setq show-paren-style 'expression)
+  (setq show-paren-priority -25)
+  (setq show-paren-delay 0.5)
+  (custom-set-faces!
+    '(show-paren-match :inherit secondary-selection)
+    '(show-paren-match-expression :background "darkgreen")
+    '(show-paren-mismatch :weight bold :underline t :slant normal)
+    ))
+;; with parens-mode:1 ends here
 
 ;; Garbage collection
 
@@ -356,6 +388,16 @@
   (gcmh-high-cons-threshold 1000000000)
   )
 ;; Garbage collection:1 ends here
+
+;; [[file:config.org::*Find file][Find file:2]]
+(use-package! hardhat
+  :after-call doom-first-file-hook
+  :config
+  (add-to-list 'hardhat-fullpath-protected-regexps "/node_modules/")
+  (add-to-list 'hardhat-fullpath-protected-regexps "/straight/repos/")
+  (global-hardhat-mode 1)
+  )
+;; Find file:2 ends here
 
 ;; modeline
 
@@ -395,7 +437,7 @@
 
 ;; [[file:config.org::*Movement][Movement:2]]
 (use-package! windmove
-  :after-call pre-command-hook
+  :after-call doom-first-buffer-hook
   :custom
   (windmove-wrap-around t)
   :config
@@ -444,12 +486,19 @@
   )
 ;; Restore:2 ends here
 
+
+
+
+;; https://github.com/doomemacs/doomemacs/issues/2225
+
+
 ;; [[file:config.org::*zoom][zoom:2]]
 (use-package! zoom
-  :hook (after-init . zoom-mode)
+  ;; :hook (doom-first-buffer . zoom-mode)
   :custom
   (zoom-size '(0.618 . 0.618))
   (zoom-ignored-major-modes '(undo-tree-visualizer-mode vundo--mode))
+  (zoom-ignore-predicates (list (lambda () (< (count-lines (point-min) (point-max)) 20))))
   )
 ;; zoom:2 ends here
 
@@ -547,6 +596,7 @@
         '("\\*Messages\\*"
           "Output\\*$"
           "\\*Async Shell Command\\*"
+          "\\*doom eval\\*"
           help-mode
           comint-mode
           helpful-mode
@@ -559,6 +609,12 @@
           compilation-mode))
   (popper-mode +1)
   (popper-echo-mode +1))
+
+(after! popper
+  (add-hook! 'doom-escape-hook
+             (defun vi/close-popup()
+               ;; Return nil so the rest of the hooks do run
+               (progn (popper-close-latest) nil))))
 ;; Popups:2 ends here
 
 ;; Base config
@@ -619,17 +675,17 @@
 
 ;; [[file:config.org::*Kill/Yank/Mark regions][Kill/Yank/Mark regions:2]]
 (use-package! hungry-delete
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :config
   (global-hungry-delete-mode))
 
 (use-package! expand-region
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :commands (er/mark-inside-pairs er/mark-inside-quotes er/mark-outside-pairs er/mark-outside-quotes)
   )
 
 (use-package! easy-kill
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :custom
   ;; Used for first marking
   (easy-mark-try-things '(symbol line forward-line-edge sexp)) ;see easy-kill-alist
@@ -711,7 +767,7 @@
 
 ;; [[file:config.org::*clean-kill-ring][clean-kill-ring:2]]
 (use-package! clean-kill-ring
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :config
   (clean-kill-ring-mode)
   )
@@ -740,7 +796,7 @@
   ;; (vundo-glyph-alist vundo-ascii-symbols)
   :config
   (set-face-attribute 'vundo-default nil :family "DejaVu Sans Mono")
-  :after-call after-find-file
+  :after-call doom-first-buffer-hook
   :bind ("C-x u" . vundo))
 
 (add-hook! 'vundo-mode-hook
@@ -752,7 +808,8 @@
 ;; vundo:2 ends here
 
 ;; [[file:config.org::*Last change][Last change:2]]
-(after! goto-chg
+(use-package! goto-chg
+  :config
   (map!
    "C-." #'goto-last-change
    "C-," #'goto-last-change-reverse))
@@ -762,28 +819,28 @@
   )
 ;; Last change:2 ends here
 
-;; [[file:config.org::*Yankpad][Yankpad:2]]
+;; [[file:config.org::*Snippets][Snippets:2]]
 (after! yasnippet
   (setq yas-wrap-around-region t)
   (yas-global-mode 1))
 
 (use-package! yankpad
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :commands (yankpad-insert company-yankpad)
   :custom
   (yankpad-file "~/.config/doom/yankpad.org")
   :config
   (add-to-list 'hippie-expand-try-functions-list #'yankpad-expand)
   )
-;; Yankpad:2 ends here
+;; Snippets:2 ends here
 
 ;; [[file:config.org::*Fill][Fill:2]]
 (use-package! unfill
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :bind ("M-a" . unfill-paragraph))
 
 (use-package! fill-function-arguments
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :hook
   (prog-mode . (lambda () (local-set-key (kbd "M-q") #'fill-function-arguments-dwim)))
   (emacs-lisp-mode . (lambda ()
@@ -794,33 +851,30 @@
   )
 ;; Fill:2 ends here
 
-;; [[file:config.org::*Comment editing][Comment editing:2]]
+;; [[file:config.org::*Boxing][Boxing:2]]
 (use-package! rebox2
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :config
   (setq rebox-style-loop '(13 15 23 25 16 17 26 27 11 21))
   :bind
   (
-   ("M-:" . rebox-dwim)
+   ;; ("M-:" . rebox-dwim)
    :map rebox-mode-map ("M-q" . nil)
    )
   ;; (define-key rebox-mode-map (kbd "M-q") nil)
   )
+;; Boxing:2 ends here
 
-(defun python-mode-poporg-hook ()
-  (setq-local poporg-edit-hook '(sql-mode))
-  )
-
-(use-package! poporg
-  :after-call after-find-file
+;; [[file:config.org::*separedit][separedit:2]]
+(use-package! separedit
+  :after-call doom-first-input-hook
   :custom
-  ;; don't match * in common prefix - this will break C-style comments
-  ;; poporg but it is necessary to retain org headings
-  (poporg-comment-skip-regexp "[[:space:]]*")
-  :hook (python-mode . python-mode-poporg-hook)
-  :bind ("M-\\" . poporg-dwim)
+  (separedit-remove-trailing-spaces-in-comment t)
+  (separedit-default-mode 'org-mode)
+  :bind ("M-\\" . separedit)
+
   )
-;; Comment editing:2 ends here
+;; separedit:2 ends here
 
 ;; Shift regions
 
@@ -852,7 +906,7 @@
 
 ;; [[file:config.org::*Movement][Movement:2]]
 (use-package! mwim
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :bind
   ("C-a" . mwim-beginning)
   ("C-e" . mwim-end)
@@ -870,7 +924,7 @@
 
 ;; [[file:config.org::*smartscan][smartscan:2]]
 (use-package! smartscan
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :config
   (global-smartscan-mode 1)
 
@@ -879,28 +933,32 @@
   )
 ;; smartscan:2 ends here
 
-;; [[file:config.org::*ctrlf][ctrlf:2]]
+;; config
+
+;; [[file:config.org::*config][config:1]]
 (use-package! ctrlf
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :custom
   (ctrlf-auto-recenter t)
-  (ctrlf-mode-bindings '(
-                         ("C-s" . ctrlf-forward-fuzzy)
-                         ("C-r" . ctrlf-backward-fuzzy)
-                         ("C-M-s" . ctrlf-forward-regexp)
-                         ("C-M-r" . ctrlf-backward-regexp)
-                         )
-                       )
   :config
   (ctrlf-mode +1)
 
   (add-hook! 'pdf-isearch-minor-mode-hook (ctrlf-local-mode -1))
+  :bind
+  (
+   :map ctrlf-mode-map (
+                        ("C-s" . ctrlf-forward-fuzzy)
+                        ("C-r" . ctrlf-backward-fuzzy)
+                        ("C-M-s" . ctrlf-forward-regexp)
+                        ("C-M-r" . ctrlf-backward-regexp)
+                        )
+   )
   )
-;; ctrlf:2 ends here
+;; config:1 ends here
 
 ;; [[file:config.org::*Jumping][Jumping:2]]
 (use-package! smart-jump
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :config
   (smart-jump-setup-default-registers)
   :commands (smart-jump-go smart-jump-back smart-jump-references)
@@ -934,17 +992,93 @@
   )
 ;; Jumping:2 ends here
 
+;; [[file:config.org::*consult customization][consult customization:2]]
+(use-package! vicb
+  :config
+  (vicb-setup)
+  )
+
+(after! '(consult projectile)
+   (setq consult-project-function (lambda (_) (projectile-project-root)))
+   )
+
+;; (after! '(consult vicb)
+;;   ;; (consult-customize consult-buffer :group nil :sort t)
+;;   )
+;; consult customization:2 ends here
+
+;; embark
+
+
+
+;; [[file:config.org::*embark][embark:1]]
+(after! embark
+  ;; try out embark-mixed-indicator which is more verbose than embark-which-key-indicator
+  (setq! embark-indicators '(embark--vertico-indicator embark-mixed-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
+  )
+;; embark:1 ends here
+
+;; targets for buffer/file
+
+;; https://github.com/oantolin/embark/issues/231#issuecomment-854390476
+
+
+;; [[file:config.org::*targets for buffer/file][targets for buffer/file:1]]
+(after! embark
+   (defun embark-target-this-buffer-file ()
+     (cons 'this-buffer-file (or (buffer-file-name) (buffer-name))))
+
+   (add-to-list 'embark-target-finders #'embark-target-this-buffer-file 'append)
+
+   (add-to-list 'embark-keymap-alist '(this-buffer-file . this-buffer-file-map))
+
+   (embark-define-keymap this-buffer-file-map
+         "Commands to act on current file or buffer."
+         ("l" load-file)
+         ("b" byte-compile-file)
+         ;; ("S" sudo-find-file)
+         ;; ("U" 0x0-upload)
+         ("r" rename-file-and-buffer)
+         ("d" diff-buffer-with-file)
+         ("=" ediff-buffers)
+         ("C-=" ediff-files)
+         ("!" shell-command)
+         ("&" async-shell-command)
+         ("x" consult-file-externally)
+         ;; ("C-a" mml-attach-file)
+         ("c" copy-file)
+         ("k" kill-buffer)
+         ("z" bury-buffer)
+         ("|" embark-shell-command-on-buffer)
+         ("g" revert-buffer)))
+;; targets for buffer/file:1 ends here
+
 ;; Orderless
+
+;; https://github.com/oantolin/orderless#interactively-changing-the-configuration
+;; https://github.com/minad/vertico#completion-styles-and-tab-completion
 
 
 ;; [[file:config.org::*Orderless][Orderless:1]]
 (after! orderless
-  (setq orderless-matching-styles '(orderless-literal orderless-regexp orderless-flex)))
+  (setq orderless-matching-styles '(orderless-literal orderless-regexp)))
+                                                      ;;orderless-flex)))
+
+(after! (orderless vertico)
+  (defun vi/match-components-literally ()
+    "Components match literally for the rest of the session."
+    (interactive)
+    (setq-local orderless-matching-styles '(orderless-literal)
+                orderless-style-dispatchers nil))
+
+  ;; (define-key minibuffer-local-completion-map (kbd "C-l") #'vi/match-components-literally)
+  (define-key vertico-map (kbd "C-l") #'vi/match-components-literally)
+  )
 ;; Orderless:1 ends here
 
 ;; [[file:config.org::*Narrowing][Narrowing:2]]
 (use-package! recursive-narrow
-  :after-call after-find-file
+  :after-call doom-first-input-hook
   :commands (hydra-narrow/body recursive-narrow-or-widen-dwim recursive-widen)
   :config
   (defhydra hydra-narrow (:exit t :columns 2)
@@ -961,7 +1095,7 @@
 
 ;; [[file:config.org::*outline][outline:1]]
 (use-package! outline
-  :after-call after-find-file
+  :after-call doom-first-buffer-hook
   :hook (prog-mode . outline-minor-mode)
   :bind (:map outline-minor-mode-map
          ([C-tab] . outline-cycle)
@@ -976,29 +1110,10 @@
 (setq-hook! 'python-mode-hook outline-regexp (python-rx (* space) (or defun decorator)))
 ;; Python:1 ends here
 
-;; Completion
-
-
-
-;; [[file:config.org::*Completion][Completion:1]]
-(after! company
-  (setq company-idle-delay 0.0
-        company-selection-wrap-around t
-        company-minimum-prefix-length 1
-        company-tooltip-idle-delay 0.1
-        company-async-redisplay-delay 0.0
-        company-tooltip-align-annotations t)
-  )
-;; Completion:1 ends here
-
-;; [[file:config.org::*Prescient][Prescient:2]]
-(after! company #'company-prescient-mode)
-;; Prescient:2 ends here
-
 ;; [[file:config.org::*Tabnine][Tabnine:2]]
 (use-package! company-tabnine
-  :after company
-  :after-call after-find-file
+  :after-call doom-first-input-hook
+  :commands (company-tabnine)
   :config
   ;; https://github.com/TommyX12/company-tabnine#known-issues
   ;; workaround for company-transformers
@@ -1015,13 +1130,40 @@
     (apply func args))
 
   (advice-add #'company--transform-candidates :around #'my-company--transform-candidates)
-  (advice-add #'company-tabnine :around #'my-company-tabnine)
+  (advice-add #'company-tabnine :around #'my-company-tabnine))
+;; Tabnine:2 ends here
+
+;; [[file:config.org::*Corfu/Cape][Corfu/Cape:2]]
+(use-package! corfu
+  :after-call doom-first-input-hook
+  :custom
+  (corfu-auto t)
+  (corfu-quit-no-match 'separator)
+  (corfu-auto-delay 0.2)
+  (corfu-auto-prefix 2)
+  (completion-styles '(basic))
+  :config
+  (custom-set-faces! '(corfu-current :background "ivory4"))
+  (global-corfu-mode)
+  (corfu-history-mode 1)
   )
 
-;; We want these grouped so they are merged
-;; since they are prepended, and company uses only one (maybe grouped) backend, any others should be ignored.
-(set-company-backend! '(prog-mode conf-mode sh-mode text-mode) '(company-tabnine company-yankpad company-capf))
-;; Tabnine:2 ends here
+(after! corfu
+  (setq! corfu-terminal-disable-on-gui nil)
+  (corfu-terminal-mode)
+  )
+
+(use-package! cape
+  :after-call doom-first-input-hook
+  :config
+  (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
+  (defalias 'vi/cape-yankpad (cape-company-to-capf #'company-yankpad))
+
+  (setq-hook! '(prog-mode-hook conf-mode-hook sh-mode-hook text-mode-hook org-mode-hook)
+    completion-at-point-functions
+    (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad))
+  ))
+;; Corfu/Cape:2 ends here
 
 ;; [[file:config.org::*Iedit][Iedit:2]]
 (use-package! iedit
@@ -1071,7 +1213,8 @@
     ("SPC" major-mode-hydra "Major")
     ("c" flycheck-hydra/body "flycheck")
     ("n" hydra-narrow/body "narrow")
-    ("L" lsp-hydra/body "LSP")
+    ("L" lsp-mode-hydra/body "LSP")
+    ("e" ein-hydra/body "EIN")
     ("p" org-pomodoro "Pomodoro"))
    "Actions"
    (("A" org-agenda-list "Agenda")
@@ -1079,6 +1222,7 @@
     ("g" magit-status-here "magit")
     ("M-\\" edit-indirect-region "edit indirect region")
     ("d" consult-dir "dir" )
+    ("M-l" org-store-link "store link")
     )
    )
   )
@@ -1125,8 +1269,10 @@
                                  ("REVISIT" . +org-todo-onhold)
                                  ("SOMEDAY" . +org-todo-onhold)
                                  ("KILL" . +org-todo-cancel))
-        org-use-fast-todo-selection 'expert)
+        org-use-fast-todo-selection 'expert
 
+        ;; https://github.com/radian-software/ctrlf/issues/118
+        org-fold-core-style 'overlays)
 ;;  (pretty-hydra-define org-hydra
   (major-mode-hydra-define org-mode nil
     ("Subtree"
@@ -1152,24 +1298,6 @@
     )
   )
 ;; Org mode:1 ends here
-
-;; Company backends
-
-;; - company-tabnine is currently excluded because it always triggers (see
-;;   company-tabnine-always-trigger), and actually makes it annoying to type free
-;;   text.
-
-;; - It would be good to tweak some of these parameters specific to org-mode and
-;;   make it less noisy
-
-
-;; [[file:config.org::*Company backends][Company backends:1]]
-(after! org
-  ;; since they are prepended, and company uses only one (maybe grouped)
-  ;; backend, any others should be ignored.
-  (set-company-backend! 'org-mode '(company-yankpad company-capf))
-  )
-;; Company backends:1 ends here
 
 ;; Electric pairs
 
@@ -1197,7 +1325,7 @@
 
 ;; [[file:config.org::*Use auto-tangle][Use auto-tangle:2]]
 (use-package! org-auto-tangle
-  :after-call after-find-file
+  :after-call doom-first-buffer-hook
   :config
   (setq org-auto-tangle-default t)      ;this doesn't work with :custom
   :hook (org-mode . org-auto-tangle-mode))
@@ -1358,6 +1486,28 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 (advice-add 'org-babel-execute-src-block :around 'adviced:org-babel-execute-src-block)
 ;; org babel chaining:1 ends here
 
+;; calendar
+
+
+;; [[file:config.org::*calendar][calendar:1]]
+(after! org
+   (defmacro vi/org-in-calendar (command)
+     (let ((name (intern (format "vi/org-in-calendar-%s" command))))
+       `(progn
+          (defun ,name ()
+            (interactive)
+            (org-eval-in-calendar ,command))
+          #',name)))
+
+   (map! :map org-read-date-minibuffer-local-map
+         "<right>" (vi/org-in-calendar '(calendar-forward-day 1))
+         "<left>" (vi/org-in-calendar '(calendar-backward-day 1))
+         ">" (vi/org-in-calendar '(calendar-forward-month 1))
+         "<" (vi/org-in-calendar '(calendar-backward-month 1))
+         "." (vi/org-in-calendar '(calendar-goto-today)))
+)
+;; calendar:1 ends here
+
 ;; fontification
 
 ;; https://github.com/nnicandro/emacs-jupyter/issues/366#issuecomment-985758277
@@ -1383,7 +1533,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   )
 
 (use-package! ein
-  :after-call pre-command-hook
+  :after-call doom-first-buffer-hook
   :init
   (setq ein:polymode t)
   (setq ein:notebooklist-render-order '(render-opened-notebooks render-directory render-header))
@@ -1428,7 +1578,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
           (ein:notebook-open nurl npath)
           )))
 
-  :mode-hydra
+  :pretty-hydra
   (
    (
     "Connect"
@@ -1446,7 +1596,9 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
      ("X" vi/restart-and-execute-all-above "Restart & x"))
     "Fix"
     (("i" vi/ein-toggle-inlined-images "Toggle inlined images")
-     ("f" vi/ein-fix "Fix"))
+     ("f" vi/ein-fix "Fix")
+     ("N" ein:notebook-rename-command "Rename")
+     )
     )
    ))
   (add-hook! 'ein:notebook-mode-hook #'vi/ein-fix)
@@ -1467,7 +1619,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
    ("S-<right>" . windmove-right)
    ("S-<up>" . windmove-up)
    ("S-<down>" . windmove-down)
-   ("C-r" . vterm-send-C-r)
+   ("C-c C-r" . vterm-send-C-r)
    )
   )
 
@@ -1502,11 +1654,12 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; [[file:config.org::*Flycheck][Flycheck:1]]
 (use-package! flycheck
-  :after-call after-find-file
+  :after-call doom-first-buffer-hook
   :custom
   (flycheck-check-syntax-automatically '(mode-enabled save idle-change idle-buffer-switch))
   (flycheck-idle-change-delay 10)
   (flycheck-idle-buffer-switch-delay 5)
+  (flycheck-highlighting-style '(conditional 10 level-face (delimiters "" "")))
   :pretty-hydra
   (
    (:exit t)
@@ -1514,9 +1667,11 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
     "Flycheck"
     (
     ("c" flycheck-buffer "check buffer")
-    ("l" flycheck-list-errors "file errors")
+    ("l" consult-lsp-diagnostics "file errors")
     ("p" flycheck-projectile-list-errors "project errors")
     ("L" consult-flycheck "consult")
+    ("d" (flycheck-mode -1) "Disable Flycheck")
+    ("e" (flycheck-mode) "Enable Flycheck")
     ("q" nil "quit")
      )
     )
@@ -1637,21 +1792,20 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   (lsp-completion-enable nil)
   (lsp-enable-snippet nil)
   (lsp-prefer-capf nil)
-
   ;; https://emacs-lsp.github.io/lsp-mode/page/settings/
   (lsp-auto-configure t)
   (lsp-enable-imenu t)
   (lsp-signature-auto-activate t)
   (lsp-headerline-breadcrumb-enable t)
+  (lsp-headerline-breadcrumb-enable-diagnostics nil)
   (lsp-keep-workspace-alive nil)
   (lsp-semantic-tokens-enable nil)      ;no semantic highlighting: rainbow-identifiers
   (lsp-symbol-highlighting-skip-current t)
   (lsp-enable-xref nil)
   (lsp-lens-enable t)
+  (lsp-disabled-clients '((python-mode . '(pyls pylsp mspyls))))
 
-  (setq lsp-disabled-clients '('pyls 'pylsp 'mspyls))
-
-  ;; This will disable the flycheck checkers.
+    ;; This will disable the flycheck checkers. (we use them directly to have better control)
   ;; (lsp-diagnostics-provider :flycheck)
 
   ;; https://github.com/emacs-lsp/lsp-mode#performance
@@ -1663,28 +1817,37 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.mypy_cache\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]wandb\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]__pycache__\\'")
-  :after-call after-find-file
+
+  ;; Fix the hint diagnostic to display as faded out, not error  (https://github.com/emacs-lsp/lsp-mode/issues/3104)
+  ;; Unrelated error: Invalid face reference: lsp-flycheck-info-unnecessary (https://github.(com/emacs-lsp/lsp-mode/issues/2255)
+  (add-hook! 'lsp-diagnostics-updated-hook
+             ;; For some reason, this face is only defined after the
+             ;; lsp-diagnostics-updated-hook, so this will fail the first time
+             ;; through
+    (if (facep 'lsp-lsp-flycheck-info-unnecessary-face)
+        (set-face-attribute 'lsp-lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil)))
+
+  :pretty-hydra
+  ((
+    "LSP"
+    (("?" lsp-find-references "Find references")
+     ("." lsp-find-definition "Find definition")
+     ("," lsp-find-type-definition "Find type")
+     ("e" lsp-treemacs-errors-list "Errors"))
+    )
+   )
+  :after-call doom-first-buffer-hook
   :hook (
          (python-mode . lsp-deferred)
          (c++-mode . vi/setup-c++-lsp)
          (lsp-mode . lsp-enable-which-key-integration)
          (lsp-mode . lsp-treemacs-sync-mode)
          )
-  :commands (lsp lsp-deferred)
-  )
+  :commands (lsp lsp-deferred))
 
-(after! lsp
-  (pretty-hydra-define lsp-hydra (:exit t)
-    (
-     "LSP"
-     (("?" lsp-find-references "Find references")
-      ("." lsp-find-definition "Find definition")
-      ("," lsp-find-type-definition "Find type")
-      ("e" lsp-treemacs-errors-list "Errors")))
-    )
-  )
+
 (use-package! lsp-ui
-  :after-call after-find-file
+  :after-call doom-first-buffer-hook
   :custom
   ;; sideline
   (lsp-ui-sideline-enable t)
@@ -1713,7 +1876,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   )
 
 (use-package! lsp-treemacs
-  :after-call after-find-file
+  :after-call doom-first-buffer-hook
   :custom
   (lsp-treemacs-sync-mode 1)
   )
@@ -1750,10 +1913,8 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 ;; Python
 
 
-
 ;; [[file:config.org::*Python][Python:1]]
 (defun vi/setup-python-flycheck ()
-
   (setq-local flycheck-python-mypy-executable (concat (projectile-project-root) "/.venv/bin/mypy"))
   ;; This needs to happen after lsp else:
   ;; Error (python-mode-hook): Error running hook "vi/setup-python-flycheck" because: (user-error lsp is not a syntax checker)
@@ -1763,42 +1924,74 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   (flycheck-add-next-checker 'lsp 'python-pycompile)
 
   ;; we could disable mypy as well, since pyright does most of it, but pyright doesn't support attrs yet?
-  ;; (flycheck-add-next-checker 'python-flake8-vi 'python-mypy-vi)
+  ;; (flycheck-add-next-checker-next-checker 'python-flake8-vi 'python-mypy-vi)
   ;; (flycheck-add-next-checker 'python-mypy-vi 'python-pycompile)
   (setq-local flycheck-disabled-checkers '(python-pylint python-mypy))
   )
+;; Python:1 ends here
 
+;; Diagnostics filter hints
 
-(add-hook! 'python-mode-hook
-           #'tree-sitter-hl-mode
-           (defun vi/setup-python-flycheck-after-lsp ()
-             ;; So that lsp is available as a checker
-             (add-hook! 'lsp-after-open-hook #'vi/setup-python-flycheck)
-             )
-           )
+;; [[file:config.org::*Diagnostics filter hints][Diagnostics filter hints:1]]
+(defun vi/diag-matches-p (d sev tag)
+  (and (equal sev (ht-get d "severity"))
+       ;; handle nil ~tag~; convert ~tags~ from vector to list
+       (if tag (-contains? (append (ht-get d "tags") nil) tag) t)))
 
-;; (setq-hook! 'python-mode-hook
-;;   lsp-diagnostic-filter
-;;   (lambda (param work)
-;;     (let
-;;         (
-;;          (diag (gethash "diagnostics" param))
-;;          (no_tags (cl-remove-if (lambda (d) (gethash "tags" d)) diag))
-;;          )
-;;       (puthash "diagnostics" no_tags param)
-;;       )
-;;     param)
-;;     (puthash
-;;      "diagnostics" (cl-remove-if (lambda (diag) (gethash "tags" diag)) (gethash "diagnostics" param))
-;;      param)
-;;     param))
-;; )
+(defun vi/filter-lsp-diagnostics (diag severity tag)
+  ;; ~diag~ will be a hash table with keys (diagnostics, uri) (ie. PublishDiagnosticsParams when called from lsp-diagnostic-filter)
+  ;;
+  ;; where each diagnostic is a hashtable with keys ~("range", "message", "severity", "tags", "source")~
+  ;;
+  ;; severity: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnosticSeverity
+  ;; tags: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnosticTag
+  ;;
+  ;; Note that ~(lsp-diagnostics)~ is not identical to PublishDiagnosticsParams:
+  ;;
+  ;; - PublishDiagnosticsParams has keys (uri, diagnostics), while lsp-diagnostics returns a hash table {uri: [diagnostics]}
+  ;; - PublishDiagnosticsParams[diagnostics] is a vector, not a list
+  ;;
+  ;; #+begin_example
+  ;; (ht-get* (-second-item (-second-item (ht-values (lsp-diagnostics)))) "message")
+  ;; #+end_example
+  ;;
+
+  ;;
+  (require 'ht)
+  (require 'dash)
+  ;; mutate diag to remove any diagnostics that match severity/tag
+  ;; For each item in ~diag~:
+  (-let* ((diagnostics (append (ht-get diag "diagnostics") nil))
+          (filtered (--remove (vi/diag-matches-p it severity tag) diagnostics)))
+     ;; update diag with filtered list
+    (ht-set! diag "diagnostics" filtered)
+    diag))
+;; Diagnostics filter hints:1 ends here
+
+;; LSP setup
+
+;; [[file:config.org::*LSP setup][LSP setup:1]]
+(defun vi/python-mode-lsp ()
+
+  ;;;; EDIT: this also filters out the visual rendering (https://discord.com/channels/789885435026604033/789890622424219658/993942950331551814)
+  ;;;; Filter out "lsp-info-flycheck-"
+  ;;;; severity=4 ("hint"), tag=1 ("unnecessary") -- see vi/filter-tag-diagnostics for reference
+  ;; (setq-local lsp-diagnostic-filter (lambda (param work) (vi/filter-lsp-diagnostics param 4 1)))
+
+  ;; So that lsp is available as a checker
+  (add-hook! 'lsp-after-open-hook #'vi/setup-python-flycheck)
+
+  ;; we prefer rainbow-delimiters-mode
+  ;; (tree-sitter-hl-mode)
+  )
+
+(add-hook! 'python-mode-hook #'vi/python-mode-lsp)
 
 ;; even switch-buffer is slow. and we use direnv anyway
 ;; (after! poetry
 ;;   (setq poetry-tracking-strategy 'switch-buffer)
 ;;   )
-;; Python:1 ends here
+;; LSP setup:1 ends here
 
 ;; Define flake8 checkers (for file and project)
 
@@ -1962,7 +2155,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 
 ;; [[file:config.org::*apheleia][apheleia:2]]
 (use-package! apheleia
-  :after-call after-find-file
+  :after-call doom-first-buffer-hook
   :config
   (setf (alist-get 'isort apheleia-formatters) '("isort" "--profile=black" "--stdout" "-"))
   (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
@@ -2020,7 +2213,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 
 ;; [[file:config.org::*Firestarter][Firestarter:2]]
 (use-package! firestarter
-  :after-call after-find-file
+  :after-call doom-first-file-hook
   :custom
   (firestarter-mode)
   )
@@ -2058,7 +2251,7 @@ current buffer's, reload dir-locals."
 
 ;; [[file:config.org::*jsonnet][jsonnet:2]]
 (use-package! jsonnet-mode
-  :after-call after-find-file
+  :after-call doom-first-file-hook
   :mode ("\\.jsonnet\\'"
          "\\.libsonnet\\'"))
 ;; jsonnet:2 ends here
@@ -2109,7 +2302,7 @@ Version 2016-01-08"
 
 ;; [[file:config.org::*atomic chrome][atomic chrome:2]]
 (use-package! atomic-chrome
-  :after-call after-find-file
+  :after-call doom-first-file-hook
   :custom
   (atomic-chrome-default-major-mode 'python-mode)
   (atomic-chrome-url-major-mode-alist
@@ -2125,7 +2318,7 @@ Version 2016-01-08"
 
 ;; [[file:config.org::*Screencasts][Screencasts:2]]
 (use-package! keycast
-  :after-call pre-command-hook
+  :after-call doom-first-input-hook
   :config
   (define-minor-mode keycast-mode
     "Show current command and its key binding in the mode line (fix for use with doom-mode-line)."
