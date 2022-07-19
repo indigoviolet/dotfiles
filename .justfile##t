@@ -112,12 +112,30 @@ poetry_reinstall_git LIB:
     rev=$(dasel select -f pyproject.toml -s '.tool.poetry.dependencies.{{LIB}}.rev')
     poetry remove {{LIB}} && poetry lock && poetry add "git+$uri@$rev"
 
+
+# Fix ImageMagick resource exhausted errors (convert). Run with just sudo
+fix_imagemagick_resources POLICY_XML:
+    #!/usr/bin/env bash
+    # https://stackoverflow.com/a/66127712
+    set -x
+    set -euo pipefail
+
+    # this one is just to solve convertion from .tiff to pdf, you may need it some day
+    sed -i '/disable ghostscript format types/,+6d' {{POLICY_XML}}
+    sed -i -E 's/name="memory" value=".+"/name="memory" value="8GiB"/g' {{POLICY_XML}}
+    sed -i -E 's/name="map" value=".+"/name="map" value="8GiB"/g' {{POLICY_XML}}
+    sed -i -E 's/name="area" value=".+"/name="area" value="8GiB"/g' {{POLICY_XML}}
+    sed -i -E 's/name="disk" value=".+"/name="disk" value="8GiB"/g' {{POLICY_XML}}
+
 path := env_var('PATH')
 
 # Note: this won't work with set_init since $HOME/.bashrc isn't loaded
 # Run via sudo, preserving env and PATH
 sudo *CMD:
     sudo -E env PATH={{path}} just {{CMD}}
+
+
+
 # Local Variables:
 # mode: just
 # eval: (firestarter-mode)
