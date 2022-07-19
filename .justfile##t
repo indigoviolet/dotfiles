@@ -49,6 +49,10 @@ debug_suspend: (syslog_notice "Suspend")
 
 debug_hibernate: (syslog_notice "Hibernate")
     systemctl hibernate
+
+# Update calibre (run with just sudo update_calibre)
+update_calibre:
+    wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sh /dev/stdin
 {% endif %}
 
 {% if yadm.class == "gcp" %}
