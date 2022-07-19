@@ -1,9 +1,11 @@
 HOME := env_var('HOME')
 
+# set_init: see ~/.bashrc for definition (mainly set -x)
+
 set shell := ["bash", "-uc"]
 
 default:
-    just --choose
+    just --list
 
 {% if yadm.class == "personal" %}
 EMACSDIR := env_var('EMACSDIR')
@@ -106,6 +108,12 @@ poetry_reinstall_git LIB:
     rev=$(dasel select -f pyproject.toml -s '.tool.poetry.dependencies.{{LIB}}.rev')
     poetry remove {{LIB}} && poetry lock && poetry add "git+$uri@$rev"
 
+path := env_var('PATH')
+
+# Note: this won't work with set_init since $HOME/.bashrc isn't loaded
+# Run via sudo, preserving env and PATH
+sudo *CMD:
+    sudo -E env PATH={{path}} just {{CMD}}
 # Local Variables:
 # mode: just
 # eval: (firestarter-mode)
