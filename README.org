@@ -392,12 +392,13 @@ else
     git fetch
 fi
 
-for font in JetBrainsMono/Ligatures IBMPlexMono VictorMono; do
+for font in JetBrainsMono/Ligatures IBMPlexMono VictorMono Iosevka; do
     git sparse-checkout add patched-fonts/$font
     ./install.sh "${font%%/*}"
 done
 
-echo 'y' | emacs -l ~/.emacs.d/init.el --batch -f all-the-icons-install-fonts
+# Should we do this via doomscript? https://github.com/doomemacs/doomemacs/issues/6494
+echo 'y' | emacs -l ~/.config/doom/init.el --batch -f all-the-icons-install-fonts
 #+end_src
 
 
