@@ -57,7 +57,7 @@
        ophints           ; highlight the region an operation acts on
        ;; (popup +defaults)   ; tame sudden yet inevitable temporary windows
        ;;tabs              ; a tab bar for Emacs
-       treemacs          ; a project drawer, like neotree but cooler
+       ;; treemacs          ; a project drawer, like neotree but cooler
 
        ;; See [[*Why not use unicode-fonts][Why not use unicode-fonts]] <2022-03-23 Wed>
        ;; unicode           ; extended unicode support for various languages
@@ -214,11 +214,13 @@
 
 
 
+
+;; doom-debug-p renamed to init-file-debug (https://github.com/doomemacs/doomemacs/commit/14b239542414db812b32f9eca4fb58016d93d687)
 ;; ~emacs --debug-init~ to do profiling
 
 
 ;; [[file:config.org::*startup][startup:2]]
-(when doom-debug-p
+(when init-file-debug
   ;; https://github.com/dholm/benchmark-init-el/issues/15#issuecomment-766083560
   (define-advice define-obsolete-function-alias (:filter-args (ll) fix-obsolete)
     (let ((obsolete-name (pop ll))

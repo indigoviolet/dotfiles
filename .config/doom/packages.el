@@ -118,7 +118,7 @@
 
 
 ;; [[file:config.org::*Chords][Chords:1]]
-(package! use-package-chords)
+(package! key-chord)
 ;; Chords:1 ends here
 
 ;; dim other buffers
@@ -170,13 +170,12 @@
 (package! ts)
 ;; Libraries:1 ends here
 
-;; Find file
+;; Find file - mark readonly
 
 
-
-;; [[file:config.org::*Find file][Find file:1]]
+;; [[file:config.org::*Find file - mark readonly][Find file - mark readonly:1]]
 (package! hardhat :recipe (:host github :repo "rolandwalker/hardhat"))
-;; Find file:1 ends here
+;; Find file - mark readonly:1 ends here
 
 ;; minor modes
 
@@ -222,6 +221,13 @@
 ;; [[file:config.org::*Popups][Popups:1]]
 (package! popper)
 ;; Popups:1 ends here
+
+;; purpose
+
+
+;; [[file:config.org::*purpose][purpose:1]]
+(package! window-purpose)
+;; purpose:1 ends here
 
 ;; Adjust for display size change
 
@@ -270,14 +276,11 @@
 (package! yasnippet)
 ;; Snippets:1 ends here
 
-;; Fill
+;; unfill paragraphs
 
-
-
-;; [[file:config.org::*Fill][Fill:1]]
+;; [[file:config.org::*unfill paragraphs][unfill paragraphs:1]]
 (package! unfill)
-(package! fill-function-arguments)
-;; Fill:1 ends here
+;; unfill paragraphs:1 ends here
 
 ;; Boxing
 
@@ -332,11 +335,20 @@
 
 ;; consult customization
 
+;; # TODO: filter out dired-sidebar
+
 
 
 ;; [[file:config.org::*consult customization][consult customization:1]]
 (package! vi-consult-buffers :recipe (:host github :repo "indigoviolet/vi-consult-buffers"))
 ;; consult customization:1 ends here
+
+;; projectile
+
+
+;; [[file:config.org::*projectile][projectile:1]]
+(package! consult-projectile :recipe (:host gitlab :repo "OlMon/consult-projectile"))
+;; projectile:1 ends here
 
 ;; Narrowing
 
@@ -345,13 +357,6 @@
 ;; [[file:config.org::*Narrowing][Narrowing:1]]
 (package! recursive-narrow)
 ;; Narrowing:1 ends here
-
-;; Company
-
-
-;; [[file:config.org::*Company][Company:1]]
-(package! company)
-;; Company:1 ends here
 
 ;; Tabnine
 
@@ -409,9 +414,11 @@
 
 ;; The "After save hook" version is synchronous and has no problems.
 
+;; +<2022-07-08 Fri> Pinned to c208036 to see if 'max-lisp-eval-depth' errors were caused by https://github.com/yilkalargaw/org-auto-tangle/commit/5b6071c5649ed648c97cd2deebf74fe633f7f0d0+
+
 
 ;; [[file:config.org::*Use auto-tangle][Use auto-tangle:1]]
-(package! org-auto-tangle)
+(package! org-auto-tangle :recipe (:host github :repo "yilkalargaw/org-auto-tangle"))
 ;; Use auto-tangle:1 ends here
 
 ;; Images
@@ -452,28 +459,12 @@
 (package! ein :pin "6063cee")
 ;; ein:1 ends here
 
-;; vterm
-
-
-;; [[file:config.org::*vterm][vterm:1]]
-(package! multi-vterm :recipe (:host github :repo "suonlight/multi-vterm"))
-;; (package! vterm-toggle :recipe (:host github :repo "jixiuf/vterm-toggle"))
-;; vterm:1 ends here
-
 ;; flycheck-projectile
 
 
 ;; [[file:config.org::*flycheck-projectile][flycheck-projectile:1]]
 (package! flycheck-projectile)
 ;; flycheck-projectile:1 ends here
-
-;; LSP
-
-
-
-;; [[file:config.org::*LSP][LSP:1]]
-(package! lsp-treemacs)
-;; LSP:1 ends here
 
 ;; Tree sitter
 
@@ -514,6 +505,21 @@
 ;; [[file:config.org::*Javascript/Typescript][Javascript/Typescript:1]]
 (package! add-node-modules-path :recipe (:host github :repo "codesuki/add-node-modules-path"))
 ;; Javascript/Typescript:1 ends here
+
+;; sidebar
+
+
+;; [[file:config.org::*sidebar][sidebar:1]]
+(package! dired-sidebar)
+;; sidebar:1 ends here
+
+;; all the icons
+
+
+
+;; [[file:config.org::*all the icons][all the icons:1]]
+(package! all-the-icons-dired)
+;; all the icons:1 ends here
 
 ;; Firestarter
 
@@ -557,6 +563,14 @@
 (package! justl)
 ;; Just:1 ends here
 
+;; numbers commas
+
+
+
+;; [[file:config.org::*numbers commas][numbers commas:1]]
+(package! commify)
+;; numbers commas:1 ends here
+
 ;; atomic chrome
 
 
@@ -566,14 +580,18 @@
 (package! atomic-chrome)
 ;; atomic chrome:1 ends here
 
-;; Screencasts
+;; gif screencast
 
 
+;; [[file:config.org::*gif screencast][gif screencast:1]]
+(package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
+;; gif screencast:1 ends here
 
-;; [[file:config.org::*Screencasts][Screencasts:1]]
-(package! emacs-gif-screencast :recipe (:host github :repo "Ambrevar/emacs-gif-screencast"))
+;; Keycast
+
+;; [[file:config.org::*Keycast][Keycast:1]]
 (package! keycast :recipe (:host github :repo "tarsius/keycast"))
-;; Screencasts:1 ends here
+;; Keycast:1 ends here
 
 ;; Pomodoro
 
@@ -589,6 +607,14 @@
 ;; [[file:config.org::*dev-docs][dev-docs:1]]
 (package! devdocs)
 ;; dev-docs:1 ends here
+
+;; Keyfreq
+
+
+
+;; [[file:config.org::*Keyfreq][Keyfreq:1]]
+(package! keyfreq :recipe (:host github :repo "dacap/keyfreq"))
+;; Keyfreq:1 ends here
 
 ;; startup
 

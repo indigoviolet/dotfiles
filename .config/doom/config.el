@@ -57,7 +57,7 @@
   '(font-lock-comment-face :slant italic)
   )
 
-(doom-themes-treemacs-config)
+;; (doom-themes-treemacs-config)
 (doom-themes-org-config)
 (doom-themes-visual-bell-config)
 ;; Themes:1 ends here
@@ -66,13 +66,30 @@
 
 
 ;; [[file:config.org::*the actual theme we are using][the actual theme we are using:1]]
-(setq doom-theme 'doom-one)
+(setq doom-theme 'doom-one
+      doom-one-brighter-comments nil
+      doom-one-brighter-modeline nil)
 ;; the actual theme we are using:1 ends here
 
-;; Basic config
+;; Timestamped \*Messages\*
 
+;; https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_to_timestamp/
 
-;; [[file:config.org::*Basic config][Basic config:1]]
+;; [[file:config.org::*Timestamped \*Messages\*][Timestamped \*Messages\*:1]]
+;; timestamps in *Messages*
+
+(require 'ts)
+(defalias 'message-plain (symbol-function 'message))
+(defun message (fmt-string &rest args)
+  (apply
+   'message-plain
+   (concat (ts-format "[%Y-%m-%dT%T]: ") fmt-string)
+   args))
+;; Timestamped \*Messages\*:1 ends here
+
+;; General
+
+;; [[file:config.org::*General][General:1]]
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets.
 (setq user-full-name "Venky Iyer"
@@ -81,7 +98,6 @@
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type nil)
-
 
 ;; For some reason Doom disables auto-save and backup files by default. Let's reenable them.
 (setq auto-save-default t
@@ -101,21 +117,48 @@
 ;; https://stackoverflow.com/a/19782939/14044156
 (setq suggest-key-bindings nil)
 
-;; no line wrapping
+;; truncates lines so that when you scroll toward the end of one, the line
+;; itself moves to the left independently of the rest of the text.
+(setq auto-hscroll-mode 'current-line)
+
+
+;; line wrapping
+;; 
 (global-visual-line-mode t)
+(setq-hook! 'prog-mode-hook
+  visual-line-mode -1
+  truncate-partial-width-windows t)
+
+;; truncate-lines t)
+;; 
+
+
 (global-whitespace-mode +1)
 (global-git-gutter-mode t)
+
+;; https://christiantietze.de/posts/2022/03/hl-line-priority/
+(setq hl-line-overlay-priority -50)
+
 (setq! whitespace-style '(face tabs tab-mark trailing))
 
 (blink-cursor-mode)
-;; Basic config:1 ends here
+(repeat-mode 1)
+;; General:1 ends here
+
+;; specpdl size
+
+;; https://old.reddit.com/r/emacs/comments/9jp9zt/anyone_know_what_variable_binding_depth_exceeds/
+
+;; [[file:config.org::*specpdl size][specpdl size:1]]
+(setq max-specpdl-size 25000)
+;; specpdl size:1 ends here
 
 ;; Custom.el handling
 
 
 ;; [[file:config.org::*Custom.el handling][Custom.el handling:1]]
 ;; (setq custom-file (make-temp-file "emacs-custom"))
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(setq custom-file (expand-file-name "custom.el" doom-private-dir))
 ;; (setq custom-file "/tmp/emacs-custom")
 
 (load custom-file 'noerror)
@@ -142,6 +185,18 @@
 ;; [[file:config.org::*Prevent *Warnings* buffer from popping up][Prevent *Warnings* buffer from popping up:1]]
 (setq warning-minimum-level :error)
 ;; Prevent *Warnings* buffer from popping up:1 ends here
+
+;; Unadvice functions
+
+;; https://emacs.stackexchange.com/a/24658 -- not sure if this works?
+
+
+;; [[file:config.org::*Unadvice functions][Unadvice functions:1]]
+(defun advice-unadvice (sym)
+  "Remove all advices from symbol SYM."
+  (interactive "aFunction symbol: ")
+  (advice-mapc (lambda (advice _props) (advice-remove sym advice)) sym))
+;; Unadvice functions:1 ends here
 
 ;; Global keybindings
 
@@ -178,7 +233,10 @@
 ;; Mouse:2 ends here
 
 ;; [[file:config.org::*Chords][Chords:2]]
+;; distributed with use-package
 (use-package! use-package-chords
+  :after key-chord)
+(use-package! key-chord
   :after-call doom-first-input-hook
   :custom
 
@@ -363,6 +421,25 @@
   )
 ;; Rainbow:2 ends here
 
+;; ansi colors
+
+;; Changes the colors used for mapping from SGR codes to emacs colors, in the
+;; function ~ansi-color-apply~ in ansi-colors.el
+
+;; These are controlled by the variable ~ansi-color-normal-colors-vector~~ which
+;; lists a bunch of faces like ~ansi-color-red~
+
+;; This is used in ein:tb buffers to (presumably) display some server-side
+;; traceback in emacs, and ansi-color-yellow is particularly hard to read.
+;; (:background yellow3)
+
+
+;; [[file:config.org::*ansi colors][ansi colors:1]]
+(custom-set-faces!
+  '(ansi-color-yellow :background "orange4")
+  )
+;; ansi colors:1 ends here
+
 ;; with parens-mode
 
 
@@ -389,25 +466,89 @@
   )
 ;; Garbage collection:1 ends here
 
-;; [[file:config.org::*Find file][Find file:2]]
+
+
+;; Notes:
+
+;; - If a file is incorrectly marked read-only by hardhat, check variable ~~hardhat-reasons~~ (buffer-local), or ~hardhat-status~
+;; - ~hardhat-computed-regexps~ is _cached_. Clear using ~(puthash major-mode nil hardhat-computed-regexps)~ -- see the hook below
+;; - hardhat will only act after _the first interactive command in the buffer_
+
+
+;; [[file:config.org::*Find file - mark readonly][Find file - mark readonly:2]]
 (use-package! hardhat
   :after-call doom-first-file-hook
   :config
   (add-to-list 'hardhat-fullpath-protected-regexps "/node_modules/")
+  (add-to-list 'hardhat-fullpath-protected-regexps "/site-packages/")
   (add-to-list 'hardhat-fullpath-protected-regexps "/straight/repos/")
+
+  ;; ignoramus-file-exact-names matches this
+  ;; hardhat-fullpath-editable-regexps doesn't match it in all cases (eg. yadm/repo.git/COMMIT_EDITMSG)
+  (add-to-list 'hardhat-basename-editable-regexps "\\`COMMIT_EDITMSG\\'")
+
+  ;; (setq ignoramus-file-exact-names (remove "COMMIT_EDITMSG" ignoramus-file-exact-names))
+
+  ;; clear the cache upon toggling
+  (add-hook! 'hardhat-mode-hook (puthash major-mode nil hardhat-computed-regexps))
   (global-hardhat-mode 1)
   )
-;; Find file:2 ends here
+;; Find file - mark readonly:2 ends here
+
+;; Auto saving and backups
+
+;; https://pragmaticemacs.wordpress.com/2016/05/23/auto-save-and-backup-every-save/
+
+
+;; [[file:config.org::*Auto saving and backups][Auto saving and backups:1]]
+;; Every 20 characters
+(setq! auto-save-interval 20)
+;; Auto saving and backups:1 ends here
+
+;; backups
+
+
+;; [[file:config.org::*backups][backups:1]]
+(setq! kept-new-versions 20
+       vc-make-backup-files t
+       kept-old-versions 0)
+;; backups:1 ends here
 
 ;; modeline
 
+;; Debugging: look at mode-line-format, mode-line-misc-info
+
+;; TODO: would like to add a segment like anzu for iterm, ctrlf
 
 
 ;; [[file:config.org::*modeline][modeline:1]]
 (after! doom-modeline
   (setq mode-line-default-help-echo nil
         show-help-function nil
-        )
+        doom-modeline-persp-name t)
+
+  (doom-modeline-def-segment purpose
+    ;; Purpose-mode segment
+    (when (and purpose-mode (doom-modeline--active) (not doom-modeline--limited-width-p))
+      (format (if (purpose-window-purpose-dedicated-p) "[%s]*" "[%s]") (purpose-window-purpose))))
+
+
+  (doom-modeline-def-segment vi/window-info
+    ;; Useful for debugging: show window name in the modeline
+    (concat (doom-modeline-spc) (format "%s" (get-buffer-window))))
+
+  ;; best to name this 'main, since main gets set as the default in
+  ;; doom-modeline. other names don't seem to take effect as default..
+  (doom-modeline-def-modeline 'main
+    '(bar buffer-info-simple selection-info remote-host checker)
+    '(debug repl process lsp purpose persp-name minor-modes major-mode vcs))
+
+  (doom-modeline-def-modeline 'org-src
+    '(bar buffer-info-simple selection-info checker)
+    '(debug lsp purpose persp-name minor-modes major-mode))
+
+  ;; don't think we need this, since we modified 'main
+  ;;(add-hook! '(prog-mode-hook org-mode-hook) (doom-modeline-set-modeline 'main))
   )
 ;; modeline:1 ends here
 
@@ -417,16 +558,6 @@
   (minions-mode)
   )
 ;; minor modes:2 ends here
-
-;; anzu
-
-;; display isearch etc matches in the +modeline-matches segment of the +light modeline in :ui
-
-
-;; [[file:config.org::*anzu][anzu:1]]
-(after! anzu
-  (global-anzu-mode))
-;; anzu:1 ends here
 
 ;; delete-other-windows
 
@@ -485,6 +616,21 @@
   ("M-]" . winner-redo)
   )
 ;; Restore:2 ends here
+
+;; zygospore
+
+;; Reversible C-x 1: if there are multiple windows, it does a winner-undo. Otherwise, delete-other-windows.
+
+;; Inspired by https://github.com/LouisKottmann/zygospore.el
+
+
+;; [[file:config.org::*zygospore][zygospore:1]]
+(defun vi/zygospore ()
+  (interactive)
+  (if (= (count-windows) 1) (winner-undo) (delete-other-windows)))
+
+(map! :g "C-x 1" #'vi/zygospore)
+;; zygospore:1 ends here
 
 
 
@@ -602,7 +748,10 @@
           helpful-mode
           python-pytest-mode
           bufler-list-mode
-          vterm-mode
+
+          ;; we want to use a custom doom-modeline segment vterm-copy-mode
+          ;; vterm-mode ;; https://github.com/karthink/popper/issues/38
+
           flycheck-error-list-mode
           flycheck-projectile-error-list-mode
           inferior-python-mode
@@ -616,6 +765,48 @@
                ;; Return nil so the rest of the hooks do run
                (progn (popper-close-latest) nil))))
 ;; Popups:2 ends here
+
+;; [[file:config.org::*purpose][purpose:2]]
+(use-package! window-purpose
+  :custom
+  (purpose-user-mode-purposes '(
+                                (prog-mode . prog) (org-mode . prog)
+                                ;; Protect the minibuffer from opening things while previewing
+                                (minibuffer-mode . minibuf)
+                                (vterm-mode . term)))
+  (purpose-use-default-configuration nil)
+  :after-call doom-first-buffer-hook
+  :config
+
+  (purpose-compile-user-configuration)
+
+  ;; Dedicate all non-general windows so that they don't get other-purpose
+  ;; buffers in them
+  (defun vi/dedicate-if-purpose (&optional win)
+    (let ((win (or win (get-buffer-window))))
+      ;; (message (format "Fired dedication hook %s" win))
+      (when (and
+             ;; not already dedicated
+             (not (purpose-window-purpose-dedicated-p win))
+             ;; and not 'general
+             (not (eq (purpose-window-purpose win) default-purpose)))
+        ;; (message (format "Dedicating %s" win))
+        (purpose-set-window-purpose-dedicated-p win t)
+        )))
+
+  ;; I tried window-buffer-change-functions (got reset to doom-run-switch-buffer-hooks), purpose-display-buffer-functions --
+  ;; they didn't seem to work, but not sure
+  (add-hook! '(doom-switch-buffer-hook doom-switch-window-hook) #'vi/dedicate-if-purpose)
+
+  (purpose-mode)
+  )
+
+;; If we want consult preview to not open in different windows according to purpose
+(after! (consult window-purpose)
+  (defun without-purpose-advice (orig-fun &rest args)
+    (without-purpose (apply orig-fun args)))
+  (advice-add 'consult--with-preview-1 :around #'without-purpose-advice))
+;; purpose:2 ends here
 
 ;; Base config
 
@@ -785,6 +976,7 @@
   (map! "C--" #'undo-fu-only-undo)
   (map! "M--" #'undo-fu-only-redo)
   (map! "C-M--" #'undo-fu-only-redo-all)
+  (setq! undo-limit 80000000)
   )
 ;; Undo:1 ends here
 
@@ -826,7 +1018,7 @@
 
 (use-package! yankpad
   :after-call doom-first-input-hook
-  :commands (yankpad-insert company-yankpad)
+  :commands (yankpad-insert);;  company-yankpad)
   :custom
   (yankpad-file "~/.config/doom/yankpad.org")
   :config
@@ -834,22 +1026,11 @@
   )
 ;; Snippets:2 ends here
 
-;; [[file:config.org::*Fill][Fill:2]]
+;; [[file:config.org::*unfill paragraphs][unfill paragraphs:2]]
 (use-package! unfill
   :after-call doom-first-input-hook
   :bind ("M-a" . unfill-paragraph))
-
-(use-package! fill-function-arguments
-  :after-call doom-first-input-hook
-  :hook
-  (prog-mode . (lambda () (local-set-key (kbd "M-q") #'fill-function-arguments-dwim)))
-  (emacs-lisp-mode . (lambda ()
-                       (setq-local fill-function-arguments-first-argument-same-line t)
-                       (setq-local fill-function-arguments-second-argument-same-line t)
-                       (setq-local fill-function-arguments-last-argument-same-line t)
-                       (setq-local fill-function-arguments-argument-separator " ")))
-  )
-;; Fill:2 ends here
+;; unfill paragraphs:2 ends here
 
 ;; [[file:config.org::*Boxing][Boxing:2]]
 (use-package! rebox2
@@ -875,6 +1056,18 @@
 
   )
 ;; separedit:2 ends here
+
+;; Guides
+
+
+
+;; [[file:config.org::*Guides][Guides:1]]
+(use-package! highlight-indent-guides
+  :custom
+  (highlight-indent-guides-delay 1)
+  (highlight-indent-guides-method 'bitmap)
+  )
+;; Guides:1 ends here
 
 ;; Shift regions
 
@@ -942,15 +1135,14 @@
   (ctrlf-auto-recenter t)
   :config
   (ctrlf-mode +1)
-
   (add-hook! 'pdf-isearch-minor-mode-hook (ctrlf-local-mode -1))
   :bind
   (
    :map ctrlf-mode-map (
                         ("C-s" . ctrlf-forward-fuzzy)
                         ("C-r" . ctrlf-backward-fuzzy)
-                        ("C-M-s" . ctrlf-forward-regexp)
-                        ("C-M-r" . ctrlf-backward-regexp)
+                        ;; ("C-M-s" . ctrlf-forward-regexp)
+                        ;; ("C-M-r" . ctrlf-backward-regexp)
                         )
    )
   )
@@ -998,9 +1190,15 @@
   (vicb-setup)
   )
 
-(after! '(consult projectile)
-   (setq consult-project-function (lambda (_) (projectile-project-root)))
-   )
+(after! (consult projectile)
+   (setq consult-project-function (lambda (_) (projectile-project-root))))
+
+(after! consult-dir
+  (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
+
+  ;; this is normally find-file, but it's perhaps more useful to find any file
+  (setq consult-dir-default-command #'+vertico/consult-fd)
+  )
 
 ;; (after! '(consult vicb)
 ;;   ;; (consult-customize consult-buffer :group nil :sort t)
@@ -1038,8 +1236,8 @@
          ("b" byte-compile-file)
          ;; ("S" sudo-find-file)
          ;; ("U" 0x0-upload)
-         ("r" rename-file-and-buffer)
-         ("d" diff-buffer-with-file)
+         ;; ("r" rename-file-and-buffer)
+         ;; ("d" diff-buffer-with-file)
          ("=" ediff-buffers)
          ("C-=" ediff-files)
          ("!" shell-command)
@@ -1159,10 +1357,15 @@
   (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
   (defalias 'vi/cape-yankpad (cape-company-to-capf #'company-yankpad))
 
-  (setq-hook! '(prog-mode-hook conf-mode-hook sh-mode-hook text-mode-hook org-mode-hook)
+  (setq-hook! '(prog-mode-hook conf-mode-hook sh-mode-hook text-mode-hook)
     completion-at-point-functions
-    (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad))
-  ))
+    (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad)))
+
+  (setq-hook! '(org-mode-hook)
+    completion-at-point-functions
+    ;; dabbrev for variable names?
+    (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad #'cape-dabbrev)))
+  )
 ;; Corfu/Cape:2 ends here
 
 ;; [[file:config.org::*Iedit][Iedit:2]]
@@ -1172,8 +1375,10 @@
 ;; Iedit:2 ends here
 
 ;; [[file:config.org::*wgrep][wgrep:2]]
-(after! wgrep
-  (setq wgrep-auto-save-buffer t)
+(use-package! wgrep
+  :after doom-first-file-hook
+  :custom
+  (wgrep-auto-save-buffer t)
   )
 ;; wgrep:2 ends here
 
@@ -1182,7 +1387,9 @@
 
 ;; [[file:config.org::*Which-key][Which-key:1]]
 ;; Allow C-h to trigger which-key before it is done automatically
-(setq which-key-show-early-on-C-h t)
+(after! which-key
+  (setq which-key-show-early-on-C-h t)
+  )
 ;; Which-key:1 ends here
 
 ;; [[file:config.org::*Hydra][Hydra:2]]
@@ -1200,14 +1407,21 @@
    "Navigating"
    (("b" consult-buffer "Buffers")
     ("i" consult-outline "outlIne")
-    ("t" treemacs-select-window "treemacs")
-    ("T" +treemacs/toggle "Toggle treemacs")
+    ("t" dired-sidebar-jump-to-sidebar "Tree")
+    ("T" dired-sidebar-toggle-sidebar "Tree")
+    ;; ("t" treemacs-select-window "treemacs")
+    ;; ("T" +treemacs/toggle "Toggle treemacs")
     ("`" popper-toggle-latest "Latest Popup")
     ("'" popper-cycle "Popup cycles")
     )
    ""
-    (("v" multi-vterm-next "vterm-toggle")
-    ("V" multi-vterm "vterm"))
+    (
+     ;;("v" multi-vterm-next "vterm-toggle")
+     ;; ("V" multi-vterm "vterm")
+     ("v" +vterm/toggle "vterm toggle")
+     ("V" +vterm/here "vterm")
+
+    )
    "Modes"
    (;; ("a" hydra-annotate/body "Annotate")
     ("SPC" major-mode-hydra "Major")
@@ -1221,8 +1435,10 @@
     ("M-y" yankpad-insert "yankpad")
     ("g" magit-status-here "magit")
     ("M-\\" edit-indirect-region "edit indirect region")
-    ("d" consult-dir "dir" )
+    ;; ("d" consult-dir "dir" )
     ("M-l" org-store-link "store link")
+    ;; ("w" +workspace/cycle "next workspace")
+    ("w" persp-switch "next workspace")
     )
    )
   )
@@ -1429,7 +1645,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 
 ;; [[file:config.org::*Import from various formats into org][Import from various formats into org:2]]
-(use-package! org-pandoc-import :after-call after-find-file)
+(use-package! org-pandoc-import :after-call doom-first-file-hook)
 ;; Import from various formats into org:2 ends here
 
 
@@ -1553,17 +1769,18 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
   (defun vi/restart-and-execute-all-above ()
     (interactive)
+    ;; This is required for lexical-let
+    (eval-when-compile (require 'cl))
     (aif (ein:get-notebook)
         (lexical-let ((ws (ein:worksheet--get-ws-or-error)))
-                     (ein:kernel-delete-session
-                      (lambda (kernel)
-                        (ein:events-trigger (ein:$kernel-events kernel) 'status_restarting.Kernel)
-                        (ein:kernel-retrieve-session kernel 0
-                                                     (lambda (kernel)
-                                                       (ein:events-trigger (ein:$kernel-events kernel)
-                                                                           'status_restarted.Kernel)
-                                                       (ein:worksheet-execute-all-cells-above ws))))
-                      :kernel (ein:$notebook-kernel it)))
+          (ein:kernel-delete-session
+           (lambda (kernel)
+             (ein:events-trigger (ein:$kernel-events kernel) 'status_restarting.Kernel)
+             (ein:kernel-retrieve-session kernel 0
+                                          (lambda (kernel)
+                                            (ein:events-trigger (ein:$kernel-events kernel) 'status_restarted.Kernel)
+                                            (ein:worksheet-execute-all-cells-above ws))))
+           :kernel (ein:$notebook-kernel it)))
       (message "Not in notebook buffer!"))
     )
 
@@ -1601,10 +1818,22 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
      )
     )
    ))
-  (add-hook! 'ein:notebook-mode-hook #'vi/ein-fix)
+
+(add-hook! 'ein:notebook-mode-hook #'vi/ein-fix)
+
+;; Unsets M-n in ein polymode (which is normally bound to polymode-map) so that
+;; we can use our smartscan-mode bindings
+(map! :mode poly-ein-mode
+      :map polymode-mode-map
+      "M-n" nil)
 ;; ein:2 ends here
 
-;; [[file:config.org::*vterm][vterm:2]]
+;; vterm
+
+
+
+
+;; [[file:config.org::*vterm][vterm:1]]
 (setq vterm-module-cmake-args "-DUSE_SYSTEM_LIBVTERM=no")
 (use-package! vterm
   :custom
@@ -1623,31 +1852,39 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
    )
   )
 
+(after! (doom-modeline vterm)
+  (doom-modeline-def-segment vterm-copy-mode
+    "Returns 'Copy' when vterm-copy-mode is active"
+    (when
+        (and (eq major-mode 'vterm-mode) vterm-copy-mode)
+      (concat (doom-modeline-spc) "Copy")))
+
+
+  (doom-modeline-def-modeline 'vi/vterm
+    '(bar vterm-copy-mode selection-info remote-host)
+    '(purpose persp-name minor-modes major-mode))
+
+  (remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
+
+  ;; This actually doesn't work with popper because it restores it to the old format
+  (add-hook! 'vterm-mode-hook
+             (doom-modeline-set-modeline 'vi/vterm))
+
+  ;; (defun vi/vterm-copy ()
+  ;; ;; shows in the misc-info segment
+  ;; (add-to-list 'global-mode-string '(:eval (vi/vterm-copy)))
+  )
+
 (defun vi/vterm-hooks ()
   ;; linkify urls
-  (goto-address-mode)
+  ;; (goto-address-mode)
   ;; Don't highlight trailing whitespace
   (whitespace-mode -1)
   ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Query-Before-Exit.html
   (set-process-query-on-exit-flag (get-buffer-process (current-buffer)) nil)
   )
-
 (add-hook! 'vterm-mode-hook #'vi/vterm-hooks)
-(use-package! multi-vterm
-  :custom
-  (multi-vterm-buffer-name "vterm: %s")
-  :commands (multi-vterm-next multi-vterm))
-
-
-(remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
-(after! (:and doom-modeline vterm)
-  (defun vi/vterm-copy ()
-    "Returns 'Copy' when vterm-copy-mode is active"
-    (when (and (eq major-mode 'vterm-mode) vterm-copy-mode) "Copy"))
-  ;; shows in the misc-info segment
-  (add-to-list 'global-mode-string '(:eval (vi/vterm-copy)))
-  )
-;; vterm:2 ends here
+;; vterm:1 ends here
 
 ;; Flycheck
 
@@ -1667,7 +1904,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
     "Flycheck"
     (
     ("c" flycheck-buffer "check buffer")
-    ("l" consult-lsp-diagnostics "file errors")
+    ("l" (consult-lsp-diagnostics t) "file errors")
     ("p" flycheck-projectile-list-errors "project errors")
     ("L" consult-flycheck "consult")
     ("d" (flycheck-mode -1) "Disable Flycheck")
@@ -1694,38 +1931,22 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   )
 ;; magit/git:1 ends here
 
-;; Handle bare repos (yadm/$HOME)
-
-;; Yadm (yadm.io) keeps its git directory in .local/share/yadm/repo.git (found this
-;; by running =yadm=). This teaches Magit to use the right git directory for $HOME
-
-;; https://github.com/magit/magit/issues/460#issuecomment-837449105
+;; magit backups (wip)
 
 
-;; [[file:config.org::*Handle bare repos (yadm/$HOME)][Handle bare repos (yadm/$HOME):1]]
-(defun home-magit-process-environment (env)
-  "Add GIT_DIR and GIT_WORK_TREE to ENV when in a special directory.
-https://github.com/magit/magit/issues/460 (@cpitclaudel)."
-  (let ((default (file-name-as-directory (expand-file-name default-directory)))
-        (home (expand-file-name "~/")))
-    (when (string= default home)
-      (let ((gitdir (expand-file-name "~/.local/share/yadm/repo.git/")))
-        (push (format "GIT_WORK_TREE=%s" home) env)
-        (push (format "GIT_DIR=%s" gitdir) env))))
-  env)
+;; [[file:config.org::*magit backups (wip)][magit backups (wip):1]]
+(add-hook! 'doom-first-file-hook #'magit-wip-mode)
+;; magit backups (wip):1 ends here
 
-(advice-add 'magit-process-environment
-            :filter-return #'home-magit-process-environment)
-;; Handle bare repos (yadm/$HOME):1 ends here
-
-;; Another approach to magit/yadm
+;; Using Tramp for magit/yadm
 
 ;; See https://www.reddit.com/r/emacs/comments/gjukb3/yadm_magit/gasc8n6/
 
 
-
-;; [[file:config.org::*Another approach to magit/yadm][Another approach to magit/yadm:1]]
-(with-eval-after-load 'tramp
+;; [[file:config.org::*Using Tramp for magit/yadm][Using Tramp for magit/yadm:1]]
+(use-package! tramp
+  :after-call doom-first-input-hook
+  :config
   (add-to-list 'tramp-methods
                '("yadm"
                  (tramp-login-program "yadm")
@@ -1736,7 +1957,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
     (interactive)
     (require 'tramp)
     (with-current-buffer (magit-status "/yadm::"))))
-;; Another approach to magit/yadm:1 ends here
+;; Using Tramp for magit/yadm:1 ends here
 
 ;; Stage files from dired
 
@@ -1781,7 +2002,11 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
     (error (format "Not a Dired buffer \(%s\)" major-mode))))
 ;; Stage files from dired:1 ends here
 
-;; [[file:config.org::*LSP][LSP:2]]
+;; LSP
+
+
+
+;; [[file:config.org::*LSP][LSP:1]]
 (use-package! lsp-mode
   :init
   (setq lsp-keymap-prefix "C-c l")
@@ -1832,8 +2057,8 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
     "LSP"
     (("?" lsp-find-references "Find references")
      ("." lsp-find-definition "Find definition")
-     ("," lsp-find-type-definition "Find type")
-     ("e" lsp-treemacs-errors-list "Errors"))
+     ("," lsp-find-type-definition "Find type"))
+     ;; ("e" lsp-treemacs-errors-list "Errors"))
     )
    )
   :after-call doom-first-buffer-hook
@@ -1841,7 +2066,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
          (python-mode . lsp-deferred)
          (c++-mode . vi/setup-c++-lsp)
          (lsp-mode . lsp-enable-which-key-integration)
-         (lsp-mode . lsp-treemacs-sync-mode)
+         ;; (lsp-mode . lsp-treemacs-sync-mode)
          )
   :commands (lsp lsp-deferred))
 
@@ -1849,6 +2074,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 (use-package! lsp-ui
   :after-call doom-first-buffer-hook
   :custom
+
   ;; sideline
   (lsp-ui-sideline-enable t)
   (lsp-ui-sideline-show-hover nil)
@@ -1874,13 +2100,7 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   ;;   (window-preserve-size (get-buffer-window lsp-ui-imenu-buffer-name) t t)
   ;;   )
   )
-
-(use-package! lsp-treemacs
-  :after-call doom-first-buffer-hook
-  :custom
-  (lsp-treemacs-sync-mode 1)
-  )
-;; LSP:2 ends here
+;; LSP:1 ends here
 
 ;; ccls vs clangd
 
@@ -1919,13 +2139,17 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   ;; This needs to happen after lsp else:
   ;; Error (python-mode-hook): Error running hook "vi/setup-python-flycheck" because: (user-error lsp is not a syntax checker)
   (flycheck-select-checker 'lsp)
-  (flycheck-add-next-checker 'lsp 'python-flake8-vi)
+
+  ;; Not sure if we need flake8 - it pegs the CPU on some buffers
+  ;; (flycheck-add-next-checker 'lsp 'python-flake8-vi)
+
+  ;; Why do we still have mypy? The theory is that it gives some better messages complementary to pyright
   (flycheck-add-next-checker 'lsp 'python-mypy-vi)
+
+  ;; Check if the file is broken
   (flycheck-add-next-checker 'lsp 'python-pycompile)
 
   ;; we could disable mypy as well, since pyright does most of it, but pyright doesn't support attrs yet?
-  ;; (flycheck-add-next-checker-next-checker 'python-flake8-vi 'python-mypy-vi)
-  ;; (flycheck-add-next-checker 'python-mypy-vi 'python-pycompile)
   (setq-local flycheck-disabled-checkers '(python-pylint python-mypy))
   )
 ;; Python:1 ends here
@@ -2158,6 +2382,8 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
   :after-call doom-first-buffer-hook
   :config
   (setf (alist-get 'isort apheleia-formatters) '("isort" "--profile=black" "--stdout" "-"))
+  ;; Black uses config in ~/.config/black but not if a pyproject.toml is present (https://github.com/psf/black/issues/2863)
+  (setf (alist-get 'black apheleia-formatters) '("black" "--config" (substitute-in-file-name "$HOME/.config/black") "-"))
   (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
   (apheleia-global-mode)
   )
@@ -2182,21 +2408,12 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 (add-hook! '(typescript-mode-hook rjsx-mode-hook) #'add-node-modules-path)
 ;; Javascript/Typescript:2 ends here
 
-;; Treemacs
-
-
-
-;; [[file:config.org::*Treemacs][Treemacs:1]]
-(after! treemacs
-  (setq treemacs-show-hidden-files nil
-        treemacs-is-never-other-window nil)
-  (treemacs-project-follow-mode t)
-  (treemacs-follow-mode t)
-  )
-;; Treemacs:1 ends here
+;; [[file:config.org::*sidebar][sidebar:2]]
+(after! dired-sidebar
+  (add-hook! 'dired-sidebar-mode-hook  #'hide-mode-line-mode))
+;; sidebar:2 ends here
 
 ;; xdg open
-
 
 
 ;; [[file:config.org::*xdg open][xdg open:1]]
@@ -2210,6 +2427,33 @@ https://github.com/magit/magit/issues/460 (@cpitclaudel)."
 
 (map! :map dired-mode-map "C-<return>" #'dired-open-file)
 ;; xdg open:1 ends here
+
+;; wdired
+
+
+;; [[file:config.org::*wdired][wdired:1]]
+(map! :map dired-mode-map "w" #'wdired-change-to-wdired-mode)
+;; wdired:1 ends here
+
+
+;; https://old.reddit.com/r/emacs/comments/imy9f1/all_the_icons_dired_subtree/
+
+
+;; [[file:config.org::*all the icons][all the icons:2]]
+(use-package! all-the-icons-dired
+  :config
+  :hook (dired-mode . (lambda ()
+                       (interactive)
+                       (unless (file-remote-p default-directory)
+                         (all-the-icons-dired-mode)))))
+
+(use-package! dired-subtree
+  :config
+  (advice-add 'dired-subtree-toggle :after (lambda ()
+                                             (interactive)
+                                             (when all-the-icons-dired-mode
+                                               (revert-buffer)))))
+;; all the icons:2 ends here
 
 ;; [[file:config.org::*Firestarter][Firestarter:2]]
 (use-package! firestarter
@@ -2300,6 +2544,11 @@ Version 2016-01-08"
 (map! :g "M-c" #'cycle-letter-case)
 ;; case cycle:1 ends here
 
+;; [[file:config.org::*numbers commas][numbers commas:2]]
+(use-package! commify
+  :chords (",," . commify-toggle))
+;; numbers commas:2 ends here
+
 ;; [[file:config.org::*atomic chrome][atomic chrome:2]]
 (use-package! atomic-chrome
   :after-call doom-first-file-hook
@@ -2316,7 +2565,21 @@ Version 2016-01-08"
   )
 ;; atomic chrome:2 ends here
 
-;; [[file:config.org::*Screencasts][Screencasts:2]]
+
+
+;; Turn on gif-screencast to initiate these bindings
+
+
+;; [[file:config.org::*gif screencast][gif screencast:2]]
+(use-package! gif-screencast
+  :after-call doom-first-input-hook
+  :bind (:map gif-screencast-mode-map
+         (("<f8>" . #'gif-screencast-stop)
+          ("<f9>" . #'gif-screencast-toggle-pause)))
+  )
+;; gif screencast:2 ends here
+
+;; [[file:config.org::*Keycast][Keycast:2]]
 (use-package! keycast
   :after-call doom-first-input-hook
   :config
@@ -2325,10 +2588,22 @@ Version 2016-01-08"
     :global t
     (if keycast-mode
         (add-hook 'pre-command-hook 'keycast--update t)
-      (remove-hook 'pre-command-hook 'keycast--update))))
-(add-hook! keycast-mode-hook
-  (add-to-list 'global-mode-string '("" keycast-mode-line)))
-;; Screencasts:2 ends here
+      (remove-hook 'pre-command-hook 'keycast--update)))
+  )
+(after! (keycast doom-modeline)
+  ;; based on keycast-mode-line function
+  (doom-modeline-def-segment keycast
+    (and keycast-mode-line-window-predicate (keycast--format keycast-mode-line-format))
+    )
+  (doom-modeline-def-modeline 'vi/keycast
+    '(bar buffer-info keycast)
+    '(minor-modes major-mode)
+    )
+  (add-hook! 'keycast-mode-hook (doom-modeline-set-modeline 'vi/keycast))
+  )
+;; (add-hook! keycast-mode-hook
+;;   (add-to-list 'global-mode-string '("" keycast-mode-line)))
+;; Keycast:2 ends here
 
 ;; Rotation
 
@@ -2415,3 +2690,19 @@ rotate entire document."
     ("F" +lookup/file "file"))
    ))
 ;; hydra:1 ends here
+
+;; [[file:config.org::*Keyfreq][Keyfreq:2]]
+(use-package! keyfreq
+  :after-call doom-first-input-hook
+  :custom
+  (keyfreq-excluded-commands
+   '(self-insert-command
+     forward-char
+     backward-char
+     previous-line
+     next-line))
+  :config
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode 1)
+  )
+;; Keyfreq:2 ends here
