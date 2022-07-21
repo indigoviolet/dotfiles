@@ -299,7 +299,7 @@ We start by simply defining the standard headers used by the three files. These 
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/org/")
+(setq org-directory (file-truename "~/org/"))
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
@@ -494,7 +494,7 @@ here as-is for now, as it is quite well structured and clear.
        ;;ocaml             ; an objective camel
 
        ;; +pretty is quite slow! (org-superstar)
-       (org +dragndrop +jupyter)        ; organize your plain life in plain text
+       (org +dragndrop +jupyter +roam2)        ; organize your plain life in plain text
        ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
        ;;purescript        ; javascript, but functional
@@ -1563,11 +1563,8 @@ https://github.com/doomemacs/doomemacs/issues/2225
      ;; All buffers under "~/.emacs.d" (or wherever it is).
      (dir user-emacs-directory)
      (group
-      ;; Subgroup collecting buffers in `org-directory' (or "~/org" if
-      ;; `org-directory' is not yet defined).
-      (dir (if (bound-and-true-p org-directory)
-               org-directory
-             "~/org"))
+      ;; Subgroup collecting buffers in `org-directory'
+      (dir org-directory)
       (group
        ;; Subgroup collecting indirect Org buffers, grouping them by file.
        ;; This is very useful when used with `org-tree-to-indirect-buffer'.
@@ -1649,6 +1646,12 @@ https://github.com/doomemacs/doomemacs/issues/2225
                                 ;; Protect the minibuffer from opening things while previewing
                                 (minibuffer-mode . minibuf)
                                 (vterm-mode . term)))
+  (purpose-user-regexp-purposes '(
+                                  ;; Ein has some hidden buffers with the
+                                  ;; appropriate prog mode, but we want them in
+                                  ;; the same window
+                                  ("\\` ?\\*ein" . ein)
+                                  ))
   (purpose-use-default-configuration nil)
   :after-call doom-first-buffer-hook
   :config
@@ -2683,7 +2686,7 @@ doesn't do much, clutters
 (key-chord-define-global "hh" #'global-hydra/body)
 #+end_src
 
-* Org mode
+* Org
 
 #+begin_src emacs-lisp
 (after! org
@@ -2712,14 +2715,13 @@ doesn't do much, clutters
         org-refile-targets '(
                              ("~/org/personal.org" . (:maxlevel . 1))
                              ("~/org/ml.org" . (:maxlevel . 1))
+                             ("~/org/work.org" . (:maxlevel . 1))
                              )
         org-agenda-entry-types '(:deadline :scheduled)
         org-agenda-skip-scheduled-if-done t
-        org-todo-keywords '((sequence "TODO(t)" "WAIT(w!)" "SOMEDAY(s!)" "REVISIT(r!)" "|" "DONE(d!)" "KILL(k!)" ))
+        org-todo-keywords '((sequence "TODO(t)" "WAIT(w!)" "REVISIT(r!)" "|" "DONE(d!)" "KILL(k!)" ))
         org-todo-keyword-faces '(("WAIT" . +org-todo-onhold)
-                                 ("HOLD" . +org-todo-onhold)
-                                 ("REVISIT" . +org-todo-onhold)
-                                 ("SOMEDAY" . +org-todo-onhold)
+                                 ("SOMEDAY" . +org-todo-project)
                                  ("KILL" . +org-todo-cancel))
         org-use-fast-todo-selection 'expert
 
@@ -2737,8 +2739,12 @@ doesn't do much, clutters
      (("/" org-babel-demarcate-block "split src block")
       ("t" org-babel-tangle "tangle")
       )
-     "Links"
-     (("l" org-store-link "store link")
+     "Roam/Links"
+     (
+      ("n" consult-notes-org-roam-find-node "find node")
+      ("N" org-id-get-create "Make into node")
+      ("s" consult-notes-search-in-all-notes "search notes")
+      ("l" org-store-link "store link")
       ("i" org-insert-link "insert link")
       )
      "Misc"
@@ -3173,6 +3179,39 @@ disabled because it is noisy on startup, and used rarely (<2022-03-21 Mon>)
          "." (vi/org-in-calendar '(calendar-goto-today)))
 )
 #+end_src
+** Org Roam
+
+
+#+begin_src emacs-lisp
+(use-package! org-roam
+  :after-call doom-first-input-hook
+  :custom
+  (org-roam-directory org-directory)
+  (org-roam-db-node-include-function (lambda () (not (member "ATTACH" (org-get-tags)))))
+  :config
+  (org-roam-db-autosync-mode)
+  (require 'org-protocol)
+
+  )
+#+end_src
+*** consult-notes
+
+Alternative: https://github.com/jgru/consult-org-roam
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! consult-notes :recipe (:host github :repo "mclear-tools/consult-notes"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! consult-notes
+  :after-call doom-first-input-hook
+  :commands (consult-notes consult-notes-search-in-all-notes consult-notes-org-roam-find-node consult-notes-org-roam-find-node-relation)
+  :config
+  (consult-notes-org-roam-mode)
+  )
+#+end_src
+**
 
 * emacs-jupyter
 ** fontification

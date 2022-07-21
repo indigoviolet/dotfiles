@@ -168,7 +168,7 @@
        ;;ocaml             ; an objective camel
 
        ;; +pretty is quite slow! (org-superstar)
-       (org +dragndrop +jupyter)        ; organize your plain life in plain text
+       (org +dragndrop +jupyter +roam2)        ; organize your plain life in plain text
        ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
        ;;purescript        ; javascript, but functional

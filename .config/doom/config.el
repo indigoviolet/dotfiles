@@ -23,7 +23,7 @@
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/org/")
+(setq org-directory (file-truename "~/org/"))
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
@@ -700,11 +700,8 @@
      ;; All buffers under "~/.emacs.d" (or wherever it is).
      (dir user-emacs-directory)
      (group
-      ;; Subgroup collecting buffers in `org-directory' (or "~/org" if
-      ;; `org-directory' is not yet defined).
-      (dir (if (bound-and-true-p org-directory)
-               org-directory
-             "~/org"))
+      ;; Subgroup collecting buffers in `org-directory'
+      (dir org-directory)
       (group
        ;; Subgroup collecting indirect Org buffers, grouping them by file.
        ;; This is very useful when used with `org-tree-to-indirect-buffer'.
@@ -774,6 +771,12 @@
                                 ;; Protect the minibuffer from opening things while previewing
                                 (minibuffer-mode . minibuf)
                                 (vterm-mode . term)))
+  (purpose-user-regexp-purposes '(
+                                  ;; Ein has some hidden buffers with the
+                                  ;; appropriate prog mode, but we want them in
+                                  ;; the same window
+                                  ("\\` ?\\*ein" . ein)
+                                  ))
   (purpose-use-default-configuration nil)
   :after-call doom-first-buffer-hook
   :config
@@ -1446,10 +1449,10 @@
 (key-chord-define-global "hh" #'global-hydra/body)
 ;; Hydra:2 ends here
 
-;; Org mode
+;; Org
 
 
-;; [[file:config.org::*Org mode][Org mode:1]]
+;; [[file:config.org::*Org][Org:1]]
 (after! org
   ;; hide org markup indicators
   (setq org-hide-emphasis-markers t
@@ -1476,14 +1479,13 @@
         org-refile-targets '(
                              ("~/org/personal.org" . (:maxlevel . 1))
                              ("~/org/ml.org" . (:maxlevel . 1))
+                             ("~/org/work.org" . (:maxlevel . 1))
                              )
         org-agenda-entry-types '(:deadline :scheduled)
         org-agenda-skip-scheduled-if-done t
-        org-todo-keywords '((sequence "TODO(t)" "WAIT(w!)" "SOMEDAY(s!)" "REVISIT(r!)" "|" "DONE(d!)" "KILL(k!)" ))
+        org-todo-keywords '((sequence "TODO(t)" "WAIT(w!)" "REVISIT(r!)" "|" "DONE(d!)" "KILL(k!)" ))
         org-todo-keyword-faces '(("WAIT" . +org-todo-onhold)
-                                 ("HOLD" . +org-todo-onhold)
-                                 ("REVISIT" . +org-todo-onhold)
-                                 ("SOMEDAY" . +org-todo-onhold)
+                                 ("SOMEDAY" . +org-todo-project)
                                  ("KILL" . +org-todo-cancel))
         org-use-fast-todo-selection 'expert
 
@@ -1501,8 +1503,12 @@
      (("/" org-babel-demarcate-block "split src block")
       ("t" org-babel-tangle "tangle")
       )
-     "Links"
-     (("l" org-store-link "store link")
+     "Roam/Links"
+     (
+      ("n" consult-notes-org-roam-find-node "find node")
+      ("N" org-id-get-create "Make into node")
+      ("s" consult-notes-search-in-all-notes "search notes")
+      ("l" org-store-link "store link")
       ("i" org-insert-link "insert link")
       )
      "Misc"
@@ -1513,7 +1519,7 @@
      )
     )
   )
-;; Org mode:1 ends here
+;; Org:1 ends here
 
 ;; Electric pairs
 
@@ -1723,6 +1729,32 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
          "." (vi/org-in-calendar '(calendar-goto-today)))
 )
 ;; calendar:1 ends here
+
+;; Org Roam
+
+
+
+;; [[file:config.org::*Org Roam][Org Roam:1]]
+(use-package! org-roam
+  :after-call doom-first-input-hook
+  :custom
+  (org-roam-directory org-directory)
+  (org-roam-db-node-include-function (lambda () (not (member "ATTACH" (org-get-tags)))))
+  :config
+  (org-roam-db-autosync-mode)
+  (require 'org-protocol)
+
+  )
+;; Org Roam:1 ends here
+
+;; [[file:config.org::*consult-notes][consult-notes:2]]
+(use-package! consult-notes
+  :after-call doom-first-input-hook
+  :commands (consult-notes consult-notes-search-in-all-notes consult-notes-org-roam-find-node consult-notes-org-roam-find-node-relation)
+  :config
+  (consult-notes-org-roam-mode)
+  )
+;; consult-notes:2 ends here
 
 ;; fontification
 

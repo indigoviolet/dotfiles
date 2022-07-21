@@ -452,6 +452,15 @@
 (package! org-make-toc)
 ;; table of contents:1 ends here
 
+;; consult-notes
+
+;; Alternative: https://github.com/jgru/consult-org-roam
+
+
+;; [[file:config.org::*consult-notes][consult-notes:1]]
+(package! consult-notes :recipe (:host github :repo "mclear-tools/consult-notes"))
+;; consult-notes:1 ends here
+
 ;; ein
 
 
