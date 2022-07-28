@@ -81,10 +81,11 @@
 (require 'ts)
 (defalias 'message-plain (symbol-function 'message))
 (defun message (fmt-string &rest args)
-  (apply
-   'message-plain
-   (concat (ts-format "[%Y-%m-%dT%T]: ") fmt-string)
-   args))
+  (let ((message-truncate-lines t))
+    (apply
+     'message-plain
+     (concat (ts-format "[%Y-%m-%dT%T]: ") fmt-string)
+     args)))
 ;; Timestamped \*Messages\*:1 ends here
 
 ;; General
@@ -131,7 +132,7 @@
 
 ;; truncate-lines t)
 ;; 
-
+(setq message-truncate-lines t)
 
 (global-whitespace-mode +1)
 (global-git-gutter-mode t)
@@ -207,6 +208,20 @@
       "M-t" #'beginning-of-buffer
       "M-z" #'end-of-buffer)
 ;; Global keybindings:1 ends here
+
+;; digit-argument
+
+;; Unbind digit-argument keys across multiple maps -- we never use this and it's
+;; occupying keyspace
+
+
+;; [[file:config.org::*digit-argument][digit-argument:1]]
+(dolist (num (number-sequence 0 9))
+  (dolist (prefix (list "C-" "M-" "C-M-" "ESC "))
+    (let ((k (concat prefix (format "%s" num))))
+      (map! :map (global-map splash-screen-keymap) k nil)
+      )))
+;; digit-argument:1 ends here
 
 
 
@@ -580,9 +595,15 @@
 
 
 ;; [[file:config.org::*Splitting][Splitting:1]]
-(map! :g "C-x |" #'split-window-horizontally)
-(map! :g "C-x _" #'split-window-vertically)
-(map! :g "C-x /" #'delete-window)
+(map! :g
+      "C-x |" #'split-window-horizontally
+      "C-x _" #'split-window-vertically
+      "C-x /" #'delete-window)
+
+;; https://emacs.stackexchange.com/a/40517
+;; control splitting to prefer vertical? (see split-window-sensibly)
+(setq split-height-threshold 80)
+(setq split-width-threshold 30)
 ;; Splitting:1 ends here
 
 ;; Keep windows balanced
@@ -607,13 +628,19 @@
       "M-k" #'consult-buffer)
 ;; Switching:1 ends here
 
+
+
+;; See [[*digit-argument][digit-argument]] for unbinding
+
+
 ;; [[file:config.org::*Restore][Restore:2]]
 (use-package! winner
   :config
   (winner-mode)
   :bind
-  ("M-[" . winner-undo)
-  ("M-]" . winner-redo)
+  ;; relies on unbinding digit-argument
+  ("M-9" . winner-undo)
+  ("M-0" . winner-redo)
   )
 ;; Restore:2 ends here
 
@@ -732,9 +759,10 @@
   )
 ;; bufler:2 ends here
 
-;; [[file:config.org::*Popups][Popups:2]]
+;; [[file:config.org::*Popups][Popups:3]]
 (use-package! popper
   :init
+  (setq popper-mode-line " POP ")
   (setq popper-reference-buffers
         '("\\*Messages\\*"
           "Output\\*$"
@@ -747,7 +775,7 @@
           bufler-list-mode
 
           ;; we want to use a custom doom-modeline segment vterm-copy-mode
-          ;; vterm-mode ;; https://github.com/karthink/popper/issues/38
+          vterm-mode ;; https://github.com/karthink/popper/issues/38
 
           flycheck-error-list-mode
           flycheck-projectile-error-list-mode
@@ -761,7 +789,7 @@
              (defun vi/close-popup()
                ;; Return nil so the rest of the hooks do run
                (progn (popper-close-latest) nil))))
-;; Popups:2 ends here
+;; Popups:3 ends here
 
 ;; [[file:config.org::*purpose][purpose:2]]
 (use-package! window-purpose
@@ -809,7 +837,20 @@
   (defun without-purpose-advice (orig-fun &rest args)
     (without-purpose (apply orig-fun args)))
   (advice-add 'consult--with-preview-1 :around #'without-purpose-advice))
+
+(after! (embark window-purpose)
+  (map! :map embark-become-file+buffer-map "B" #'purpose-switch-buffer-overload)
+  )
 ;; purpose:2 ends here
+
+;; recentf
+
+;; Load recentf files on startup
+
+
+;; [[file:config.org::*recentf][recentf:1]]
+(add-hook! 'doom-first-input-hook #'recentf-mode)
+;; recentf:1 ends here
 
 ;; Base config
 
@@ -853,14 +894,15 @@
         ((equal disp '(3000 . 2000))    ; laptop @ 100%, 2000%
          (vi/set-font-size 13))
         ((equal disp '(4800 . 3200))    ; laptop @ 125%
-         (vi/set-font-size 13))
+         (vi/set-font-size 17))
         ((equal disp '(4002 . 2668))    ; laptop @ 150%
          (vi/set-font-size 23))
         ((equal disp '(3426 . 2284))    ; laptop @ 175%
-         (vi/set-font-size 13))
+         (vi/set-font-size 17))
         (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
 
-(use-package dispwatch
+(use-package! dispwatch
+  :after-call doom-first-buffer-hook
   :config
   (dispwatch-mode 1)
   (add-hook! 'dispwatch-display-change-hooks #'vi/adjust-font-size-for-display)
@@ -911,31 +953,36 @@
   ;;
   )
 
+;; Here we integrate some  expand-region marking as easy-kill candidates
 (after! easy-kill
-  (defun easy-kill-on-symbol (_n)
-    (when (er/mark-symbol)
-      (easy-kill-adjust-candidate 'symbol (mark) (point))))
+  (defsubst vi/did-mark (mark-fn)
+    ;; Did mark-fn succeed in setting the mark?
+    ;; Remove any existing mark
+    (deactivate-mark)
+    ;; Catch scan-error and deactivate-mark if we do
+    (save-excursion
+      (condition-case nil
+          (progn (funcall mark-fn) (region-active-p))
+        (scan-error (deactivate-mark)))))
 
-  (defun easy-kill-on-inside-pairs (_n)
-    (when (er/mark-inside-pairs)
-      (easy-kill-adjust-candidate 'inside-pairs (mark) (point))))
+  (defmacro vi/er-easy-kill (thing)
+    ;; create a function easy-kill-on-<thing> which tests er/mark-<thing> to see
+    ;; if it set the region, and if so, adjusts the easy kill candidate.
+    `(defun ,(intern (concat "easy-kill-on-" thing)) (_n)
+         (when (vi/did-mark #',(intern (concat "er/mark-" thing)))
+           (easy-kill-adjust-candidate ',(intern thing) (mark) (point)))
+    ))
 
-  (defun easy-kill-on-outside-pairs (_n)
-    (when (er/mark-outside-pairs)
-      (easy-kill-adjust-candidate 'outside-pairs (mark) (point))))
-
-  (defun easy-kill-on-inside-quotes (_n)
-    (when (er/mark-inside-quotes)
-      (easy-kill-adjust-candidate 'inside-quotes (mark) (point))))
-
-  (defun easy-kill-on-outside-quotes (_n)
-    (when (er/mark-outside-quotes)
-      (easy-kill-adjust-candidate 'outside-quotes (mark) (point))))
+  (vi/er-easy-kill "symbol")
+  (vi/er-easy-kill "inside-pairs")
+  (vi/er-easy-kill "outside-pairs")
+  (vi/er-easy-kill "inside-quotes")
+  (vi/er-easy-kill "outside-quotes")
 
   ;; These take arguments
   (setq easy-kill-cycle-ignored '(string-to-char-forward string-up-to-char-forward))
 
-  ;; easy-mark will cycle through things in this order
+  ;; easy-mark will cycle through things in this order (expect for easy-kill-cycle-ignored)
   (setq easy-kill-alist
         '((?w word " ")
           (?s symbol " ")
@@ -1131,23 +1178,19 @@
 
 ;; config
 
+;; https://github.com/radian-software/ctrlf#customization
+
+
 ;; [[file:config.org::*config][config:1]]
 (use-package! ctrlf
   :after-call doom-first-input-hook
   :custom
   (ctrlf-auto-recenter t)
+  (ctrlf-default-search-style 'fuzzy)   ;C-s
+  (ctrlf-alternate-search-style 'literal) ;C-M-s
   :config
   (ctrlf-mode +1)
   (add-hook! 'pdf-isearch-minor-mode-hook (ctrlf-local-mode -1))
-  :bind
-  (
-   :map ctrlf-mode-map (
-                        ("C-s" . ctrlf-forward-fuzzy)
-                        ("C-r" . ctrlf-backward-fuzzy)
-                        ;; ("C-M-s" . ctrlf-forward-regexp)
-                        ;; ("C-M-r" . ctrlf-backward-regexp)
-                        )
-   )
   )
 ;; config:1 ends here
 
@@ -1201,6 +1244,12 @@
 
   ;; this is normally find-file, but it's perhaps more useful to find any file
   (setq consult-dir-default-command #'+vertico/consult-fd)
+
+  ;; https://github.com/karthink/consult-dir/issues/20#issuecomment-1193087091
+  (map! :map minibuffer-local-map "C-c b" #'embark-become)
+  (map! :map embark-become-file+buffer-map
+        "d" #'dired
+        "D" #'consult-dir)
   )
 
 ;; (after! '(consult vicb)
@@ -1226,8 +1275,8 @@
 
 ;; [[file:config.org::*targets for buffer/file][targets for buffer/file:1]]
 (after! embark
-   (defun embark-target-this-buffer-file ()
-     (cons 'this-buffer-file (or (buffer-file-name) (buffer-name))))
+  (defun embark-target-this-buffer-file ()
+    (cons 'this-buffer-file (or (buffer-file-name) (buffer-name))))
 
    (add-to-list 'embark-target-finders #'embark-target-this-buffer-file 'append)
 
@@ -1404,7 +1453,7 @@
 (pretty-hydra-define global-hydra (:exit t)
   ("Searching"
    (;; ("f" +vertico/consult-fd "fd")
-    ("s" consult-ripgrep "rg in project")
+    ("s" +vertico/project-search "rg in project")
     ("l" consult-line "Line isearch")
     ("D" doc-hydra/body "Docs"))
    "Navigating"
@@ -1439,6 +1488,7 @@
     ("g" magit-status-here "magit")
     ("M-\\" edit-indirect-region "edit indirect region")
     ;; ("d" consult-dir "dir" )
+    ("r" consult-notes-org-roam-find-node "find node")
     ("M-l" org-store-link "store link")
     ;; ("w" +workspace/cycle "next workspace")
     ("w" persp-switch "next workspace")
@@ -1505,7 +1555,6 @@
       )
      "Roam/Links"
      (
-      ("n" consult-notes-org-roam-find-node "find node")
       ("N" org-id-get-create "Make into node")
       ("s" consult-notes-search-in-all-notes "search notes")
       ("l" org-store-link "store link")
@@ -1819,12 +1868,14 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   (defun vi/revert-notebook ()
     (interactive)
     (aif (ein:get-notebook)
-        (let (
-              (nurl (ein:$notebook-url-or-port it))
-              (npath (ein:$notebook-notebook-path it))
-              )
+        (let ((nurl (ein:$notebook-url-or-port it))
+              (npath (ein:$notebook-notebook-path it)))
           (ein:notebook-close it)
-          (ein:notebook-open nurl npath)
+          ;; Reopen, but put it in the same window we were in
+          (ein:notebook-open nurl npath nil
+                             (lambda (nb _)
+                               (without-purpose (switch-to-buffer (ein:notebook-buffer nb)))))
+
           )))
 
   :pretty-hydra
@@ -1889,18 +1940,17 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
     "Returns 'Copy' when vterm-copy-mode is active"
     (when
         (and (eq major-mode 'vterm-mode) vterm-copy-mode)
-      (concat (doom-modeline-spc) "Copy")))
+      (concat (doom-modeline-spc) "[Copy]")))
 
 
   (doom-modeline-def-modeline 'vi/vterm
-    '(bar vterm-copy-mode selection-info remote-host)
+    '(bar buffer-info-simple vterm-copy-mode selection-info remote-host)
     '(purpose persp-name minor-modes major-mode))
 
   (remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
 
   ;; This actually doesn't work with popper because it restores it to the old format
-  (add-hook! 'vterm-mode-hook
-             (doom-modeline-set-modeline 'vi/vterm))
+  (add-hook! 'vterm-mode-hook (doom-modeline-set-modeline 'vi/vterm))
 
   ;; (defun vi/vterm-copy ()
   ;; ;; shows in the misc-info segment
@@ -1937,7 +1987,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
     (
     ("c" flycheck-buffer "check buffer")
     ("l" (consult-lsp-diagnostics t) "file errors")
-    ("p" flycheck-projectile-list-errors "project errors")
+    ;; ("p" flycheck-projectile-list-errors "project errors")
     ("L" consult-flycheck "consult")
     ("d" (flycheck-mode -1) "Disable Flycheck")
     ("e" (flycheck-mode) "Enable Flycheck")
@@ -1947,6 +1997,72 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
    )
   )
 ;; Flycheck:1 ends here
+
+;; Check directory
+
+
+
+
+;; [[file:config.org::*Check directory][Check directory:1]]
+(defun endless/flycheck-dir (dir)
+  "Run flycheck for each file in current directory.
+Results are reported in a compilation buffer."
+  (interactive "DDirectory: ")
+  (displaying-byte-compile-warnings
+   (let ((p nil))
+     (with-current-buffer (get-buffer-create
+                           byte-compile-log-buffer)
+       (setq default-directory dir)
+       (unless (eq major-mode 'compilation-mode)
+         (compilation-mode))
+       (goto-char (point-max))
+       (let ((inhibit-read-only t))
+         (insert "\n\xc\n\n"))
+       (setq p (point)))
+     (dolist (file (directory-files "./" nil
+                                    "\\`[^\\.].*\\'"))
+       (endless/-flycheck-file file))
+     (with-selected-window (display-buffer
+                            byte-compile-log-buffer)
+       (goto-char p)
+       (recenter 1)))))
+
+(defun endless/-report-error (fmt &rest args)
+  "Print an error on `byte-compile-log-buffer'."
+  (let ((inhibit-read-only t)
+        (fill-prefix "    "))
+    (with-current-buffer byte-compile-log-buffer
+      (let ((l (point)))
+        (insert "\n" (apply #'format fmt args))
+        (fill-region (1+ l) (point))))))
+
+(defun endless/-flycheck-file (file)
+  "Check FILE and report to `byte-compile-log-buffer'."
+  (let ((was-visited (find-buffer-visiting file)))
+    (with-current-buffer (or was-visited
+                             (progn (find-file file)
+                                    (current-buffer)))
+      (when (ignore-errors (flycheck-buffer))
+        (while (flycheck-running-p)
+          (accept-process-output nil 0.1))
+        (pcase flycheck-last-status-change
+          ((or `errored `suspicious)
+           (endless/-report-error
+            "%s: Something wrong here!"
+            (file-name-nondirectory (buffer-file-name))))
+          (`finished
+           (dolist (e flycheck-current-errors)
+             (endless/-report-error
+              "%s:%s:%s:%s: %s"
+              (file-name-nondirectory (buffer-file-name))
+              (flycheck-error-line e)
+              (flycheck-error-column e)
+              (flycheck-error-level e)
+              (flycheck-error-message e))))))
+      (if was-visited
+          (bury-buffer was-visited)
+        (kill-buffer (current-buffer))))))
+;; Check directory:1 ends here
 
 ;; magit/git
 
@@ -2427,14 +2543,39 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; [[file:config.org::*Projectile][Projectile:1]]
 (use-package! projectile
+  :after-call doom-first-buffer-hook
   :custom
   (projectile-project-search-path '("~/dev"))
   (projectile-auto-discover t)
+  ;; Note:
+  ;;
+  ;; - no filtering will happen in Projectile if we use ~'alien~ -- everything
+  ;;   must be done via ~gitignore~
+  ;;
+  ;; - If projectile-enable-caching is t, use projectile-invalidate-cache first to
+  ;;   test changes in gitignore
+
   (projectile-indexing-method 'alien)
   :config
   (add-to-list 'projectile-project-root-files "pyproject.toml")
   )
 ;; Projectile:1 ends here
+
+;; open all project files
+
+
+;; [[file:config.org::*open all project files][open all project files:1]]
+(after! projectile
+  (defun vi/find-all-project-files ()
+    (interactive)
+    (let* (
+           (root (projectile-acquire-root))
+           (files (projectile-project-files root))
+           (filenames (--map (expand-file-name it root) files)))
+      (dolist-with-progress-reporter (f filenames) (format "Opening files in project [%s] " root) (find-file-noselect f))
+      ))
+  )
+;; open all project files:1 ends here
 
 ;; [[file:config.org::*Javascript/Typescript][Javascript/Typescript:2]]
 (add-hook! '(typescript-mode-hook rjsx-mode-hook) #'add-node-modules-path)

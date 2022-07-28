@@ -217,10 +217,15 @@
 ;; Popups
 
 
+;; https://github.com/karthink/popper/issues/38
 
 ;; [[file:config.org::*Popups][Popups:1]]
-(package! popper)
+(package! popper :recipe (:host github :repo "karthink/popper" :branch "local-mode-line-format"))
 ;; Popups:1 ends here
+
+;; [[file:config.org::*Popups][Popups:2]]
+;; (package! popper )
+;; Popups:2 ends here
 
 ;; purpose
 
@@ -467,13 +472,6 @@
 ;; [[file:config.org::*ein][ein:1]]
 (package! ein :pin "6063cee")
 ;; ein:1 ends here
-
-;; flycheck-projectile
-
-
-;; [[file:config.org::*flycheck-projectile][flycheck-projectile:1]]
-(package! flycheck-projectile)
-;; flycheck-projectile:1 ends here
 
 ;; Tree sitter
 

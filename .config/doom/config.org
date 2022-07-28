@@ -771,10 +771,11 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
 (require 'ts)
 (defalias 'message-plain (symbol-function 'message))
 (defun message (fmt-string &rest args)
-  (apply
-   'message-plain
-   (concat (ts-format "[%Y-%m-%dT%T]: ") fmt-string)
-   args))
+  (let ((message-truncate-lines t))
+    (apply
+     'message-plain
+     (concat (ts-format "[%Y-%m-%dT%T]: ") fmt-string)
+     args)))
 #+end_src
 
 ** General
@@ -820,7 +821,7 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
 
 ;; truncate-lines t)
 ;; 
-
+(setq message-truncate-lines t)
 
 (global-whitespace-mode +1)
 (global-git-gutter-mode t)
@@ -889,6 +890,20 @@ https://emacs.stackexchange.com/a/24658 -- not sure if this works?
       "M-t" #'beginning-of-buffer
       "M-z" #'end-of-buffer)
 #+end_src
+
+** digit-argument
+
+Unbind digit-argument keys across multiple maps -- we never use this and it's
+occupying keyspace
+
+#+begin_src emacs-lisp
+(dolist (num (number-sequence 0 9))
+  (dolist (prefix (list "C-" "M-" "C-M-" "ESC "))
+    (let ((k (concat prefix (format "%s" num))))
+      (map! :map (global-map splash-screen-keymap) k nil)
+      )))
+#+end_src
+
 
 ** Eval
 
@@ -1428,9 +1443,16 @@ https://orgmode.org/org.html#Conflicts
 ** Splitting
 
 #+begin_src emacs-lisp
-(map! :g "C-x |" #'split-window-horizontally)
-(map! :g "C-x _" #'split-window-vertically)
-(map! :g "C-x /" #'delete-window)
+(map! :g
+      "C-x |" #'split-window-horizontally
+      "C-x _" #'split-window-vertically
+      "C-x /" #'delete-window)
+
+;; https://emacs.stackexchange.com/a/40517
+;; control splitting to prefer vertical? (see split-window-sensibly)
+(setq split-height-threshold 80)
+(setq split-width-threshold 30)
+
 #+end_src
 
 *** Keep windows balanced
@@ -1459,13 +1481,16 @@ https://orgmode.org/org.html#Conflicts
 (package! winner)
 #+end_src
 
+See [[*digit-argument][digit-argument]] for unbinding
+
 #+begin_src emacs-lisp
 (use-package! winner
   :config
   (winner-mode)
   :bind
-  ("M-[" . winner-undo)
-  ("M-]" . winner-redo)
+  ;; relies on unbinding digit-argument
+  ("M-9" . winner-undo)
+  ("M-0" . winner-redo)
   )
 #+end_src
 
@@ -1597,13 +1622,19 @@ https://github.com/doomemacs/doomemacs/issues/2225
 ** Popups
 
 
+https://github.com/karthink/popper/issues/38
 #+begin_src emacs-lisp :tangle packages.el
-(package! popper)
+(package! popper :recipe (:host github :repo "karthink/popper" :branch "local-mode-line-format"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle packages.el
+;; (package! popper )
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package! popper
   :init
+  (setq popper-mode-line " POP ")
   (setq popper-reference-buffers
         '("\\*Messages\\*"
           "Output\\*$"
@@ -1616,7 +1647,7 @@ https://github.com/doomemacs/doomemacs/issues/2225
           bufler-list-mode
 
           ;; we want to use a custom doom-modeline segment vterm-copy-mode
-          ;; vterm-mode ;; https://github.com/karthink/popper/issues/38
+          vterm-mode ;; https://github.com/karthink/popper/issues/38
 
           flycheck-error-list-mode
           flycheck-projectile-error-list-mode
@@ -1685,9 +1716,20 @@ https://github.com/doomemacs/doomemacs/issues/2225
     (without-purpose (apply orig-fun args)))
   (advice-add 'consult--with-preview-1 :around #'without-purpose-advice))
 
+(after! (embark window-purpose)
+  (map! :map embark-become-file+buffer-map "B" #'purpose-switch-buffer-overload)
+  )
+
 #+end_src
 
-#+RESULTS[98dea3c02bba2388bb67e68e722d50a5d1fc1f8d]:
+
+** recentf
+
+Load recentf files on startup
+
+#+begin_src emacs-lisp
+(add-hook! 'doom-first-input-hook #'recentf-mode)
+#+end_src
 
 * Fonts
 
@@ -1853,14 +1895,15 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
         ((equal disp '(3000 . 2000))    ; laptop @ 100%, 2000%
          (vi/set-font-size 13))
         ((equal disp '(4800 . 3200))    ; laptop @ 125%
-         (vi/set-font-size 13))
+         (vi/set-font-size 17))
         ((equal disp '(4002 . 2668))    ; laptop @ 150%
          (vi/set-font-size 23))
         ((equal disp '(3426 . 2284))    ; laptop @ 175%
-         (vi/set-font-size 13))
+         (vi/set-font-size 17))
         (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
 
-(use-package dispwatch
+(use-package! dispwatch
+  :after-call doom-first-buffer-hook
   :config
   (dispwatch-mode 1)
   (add-hook! 'dispwatch-display-change-hooks #'vi/adjust-font-size-for-display)
@@ -1920,31 +1963,36 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
   ;;
   )
 
+;; Here we integrate some  expand-region marking as easy-kill candidates
 (after! easy-kill
-  (defun easy-kill-on-symbol (_n)
-    (when (er/mark-symbol)
-      (easy-kill-adjust-candidate 'symbol (mark) (point))))
+  (defsubst vi/did-mark (mark-fn)
+    ;; Did mark-fn succeed in setting the mark?
+    ;; Remove any existing mark
+    (deactivate-mark)
+    ;; Catch scan-error and deactivate-mark if we do
+    (save-excursion
+      (condition-case nil
+          (progn (funcall mark-fn) (region-active-p))
+        (scan-error (deactivate-mark)))))
 
-  (defun easy-kill-on-inside-pairs (_n)
-    (when (er/mark-inside-pairs)
-      (easy-kill-adjust-candidate 'inside-pairs (mark) (point))))
+  (defmacro vi/er-easy-kill (thing)
+    ;; create a function easy-kill-on-<thing> which tests er/mark-<thing> to see
+    ;; if it set the region, and if so, adjusts the easy kill candidate.
+    `(defun ,(intern (concat "easy-kill-on-" thing)) (_n)
+         (when (vi/did-mark #',(intern (concat "er/mark-" thing)))
+           (easy-kill-adjust-candidate ',(intern thing) (mark) (point)))
+    ))
 
-  (defun easy-kill-on-outside-pairs (_n)
-    (when (er/mark-outside-pairs)
-      (easy-kill-adjust-candidate 'outside-pairs (mark) (point))))
-
-  (defun easy-kill-on-inside-quotes (_n)
-    (when (er/mark-inside-quotes)
-      (easy-kill-adjust-candidate 'inside-quotes (mark) (point))))
-
-  (defun easy-kill-on-outside-quotes (_n)
-    (when (er/mark-outside-quotes)
-      (easy-kill-adjust-candidate 'outside-quotes (mark) (point))))
+  (vi/er-easy-kill "symbol")
+  (vi/er-easy-kill "inside-pairs")
+  (vi/er-easy-kill "outside-pairs")
+  (vi/er-easy-kill "inside-quotes")
+  (vi/er-easy-kill "outside-quotes")
 
   ;; These take arguments
   (setq easy-kill-cycle-ignored '(string-to-char-forward string-up-to-char-forward))
 
-  ;; easy-mark will cycle through things in this order
+  ;; easy-mark will cycle through things in this order (expect for easy-kill-cycle-ignored)
   (setq easy-kill-alist
         '((?w word " ")
           (?s symbol " ")
@@ -2285,23 +2333,19 @@ We don't use this in practice...
 #+end_src
 
 *** config
+
+https://github.com/radian-software/ctrlf#customization
+
 #+begin_src emacs-lisp
 (use-package! ctrlf
   :after-call doom-first-input-hook
   :custom
   (ctrlf-auto-recenter t)
+  (ctrlf-default-search-style 'fuzzy)   ;C-s
+  (ctrlf-alternate-search-style 'literal) ;C-M-s
   :config
   (ctrlf-mode +1)
   (add-hook! 'pdf-isearch-minor-mode-hook (ctrlf-local-mode -1))
-  :bind
-  (
-   :map ctrlf-mode-map (
-                        ("C-s" . ctrlf-forward-fuzzy)
-                        ("C-r" . ctrlf-backward-fuzzy)
-                        ;; ("C-M-s" . ctrlf-forward-regexp)
-                        ;; ("C-M-r" . ctrlf-backward-regexp)
-                        )
-   )
   )
 #+end_src
 ** regex-based searching, using python/pcre
@@ -2378,6 +2422,12 @@ We don't use this in practice...
 
   ;; this is normally find-file, but it's perhaps more useful to find any file
   (setq consult-dir-default-command #'+vertico/consult-fd)
+
+  ;; https://github.com/karthink/consult-dir/issues/20#issuecomment-1193087091
+  (map! :map minibuffer-local-map "C-c b" #'embark-become)
+  (map! :map embark-become-file+buffer-map
+        "d" #'dired
+        "D" #'consult-dir)
   )
 
 ;; (after! '(consult vicb)
@@ -2406,8 +2456,8 @@ https://github.com/oantolin/embark/issues/231#issuecomment-854390476
 
 #+begin_src emacs-lisp
 (after! embark
-   (defun embark-target-this-buffer-file ()
-     (cons 'this-buffer-file (or (buffer-file-name) (buffer-name))))
+  (defun embark-target-this-buffer-file ()
+    (cons 'this-buffer-file (or (buffer-file-name) (buffer-name))))
 
    (add-to-list 'embark-target-finders #'embark-target-this-buffer-file 'append)
 
@@ -2641,7 +2691,7 @@ doesn't do much, clutters
 (pretty-hydra-define global-hydra (:exit t)
   ("Searching"
    (;; ("f" +vertico/consult-fd "fd")
-    ("s" consult-ripgrep "rg in project")
+    ("s" +vertico/project-search "rg in project")
     ("l" consult-line "Line isearch")
     ("D" doc-hydra/body "Docs"))
    "Navigating"
@@ -2676,6 +2726,7 @@ doesn't do much, clutters
     ("g" magit-status-here "magit")
     ("M-\\" edit-indirect-region "edit indirect region")
     ;; ("d" consult-dir "dir" )
+    ("r" consult-notes-org-roam-find-node "find node")
     ("M-l" org-store-link "store link")
     ;; ("w" +workspace/cycle "next workspace")
     ("w" persp-switch "next workspace")
@@ -2741,7 +2792,6 @@ doesn't do much, clutters
       )
      "Roam/Links"
      (
-      ("n" consult-notes-org-roam-find-node "find node")
       ("N" org-id-get-create "Make into node")
       ("s" consult-notes-search-in-all-notes "search notes")
       ("l" org-store-link "store link")
@@ -3297,12 +3347,14 @@ doesn't work
   (defun vi/revert-notebook ()
     (interactive)
     (aif (ein:get-notebook)
-        (let (
-              (nurl (ein:$notebook-url-or-port it))
-              (npath (ein:$notebook-notebook-path it))
-              )
+        (let ((nurl (ein:$notebook-url-or-port it))
+              (npath (ein:$notebook-notebook-path it)))
           (ein:notebook-close it)
-          (ein:notebook-open nurl npath)
+          ;; Reopen, but put it in the same window we were in
+          (ein:notebook-open nurl npath nil
+                             (lambda (nb _)
+                               (without-purpose (switch-to-buffer (ein:notebook-buffer nb)))))
+
           )))
 
   :pretty-hydra
@@ -3338,6 +3390,8 @@ doesn't work
       "M-n" nil)
 #+end_src
 
+#+RESULTS[b7b6edef7cb91b0c0e1b65cbe64feb20bc01bfd8]:
+
 * vterm
 
 
@@ -3366,18 +3420,17 @@ doesn't work
     "Returns 'Copy' when vterm-copy-mode is active"
     (when
         (and (eq major-mode 'vterm-mode) vterm-copy-mode)
-      (concat (doom-modeline-spc) "Copy")))
+      (concat (doom-modeline-spc) "[Copy]")))
 
 
   (doom-modeline-def-modeline 'vi/vterm
-    '(bar vterm-copy-mode selection-info remote-host)
+    '(bar buffer-info-simple vterm-copy-mode selection-info remote-host)
     '(purpose persp-name minor-modes major-mode))
 
   (remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
 
   ;; This actually doesn't work with popper because it restores it to the old format
-  (add-hook! 'vterm-mode-hook
-             (doom-modeline-set-modeline 'vi/vterm))
+  (add-hook! 'vterm-mode-hook (doom-modeline-set-modeline 'vi/vterm))
 
   ;; (defun vi/vterm-copy ()
   ;; ;; shows in the misc-info segment
@@ -3453,7 +3506,7 @@ https://github.com/akermu/emacs-libvterm/issues/179
     (
     ("c" flycheck-buffer "check buffer")
     ("l" (consult-lsp-diagnostics t) "file errors")
-    ("p" flycheck-projectile-list-errors "project errors")
+    ;; ("p" flycheck-projectile-list-errors "project errors")
     ("L" consult-flycheck "consult")
     ("d" (flycheck-mode -1) "Disable Flycheck")
     ("e" (flycheck-mode) "Enable Flycheck")
@@ -3464,10 +3517,80 @@ https://github.com/akermu/emacs-libvterm/issues/179
   )
 #+end_src
 
-** flycheck-projectile
+** COMMENT flycheck-projectile
+
+superceded by consult-lsp-diagnostics for most usage.
+
+this does not look in files that are not open. Easier to open all files via dired (tree, mark, F)
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! flycheck-projectile)
+#+end_src
+
+
+** Check directory
+
+
+
+#+begin_src emacs-lisp
+(defun endless/flycheck-dir (dir)
+  "Run flycheck for each file in current directory.
+Results are reported in a compilation buffer."
+  (interactive "DDirectory: ")
+  (displaying-byte-compile-warnings
+   (let ((p nil))
+     (with-current-buffer (get-buffer-create
+                           byte-compile-log-buffer)
+       (setq default-directory dir)
+       (unless (eq major-mode 'compilation-mode)
+         (compilation-mode))
+       (goto-char (point-max))
+       (let ((inhibit-read-only t))
+         (insert "\n\xc\n\n"))
+       (setq p (point)))
+     (dolist (file (directory-files "./" nil
+                                    "\\`[^\\.].*\\'"))
+       (endless/-flycheck-file file))
+     (with-selected-window (display-buffer
+                            byte-compile-log-buffer)
+       (goto-char p)
+       (recenter 1)))))
+
+(defun endless/-report-error (fmt &rest args)
+  "Print an error on `byte-compile-log-buffer'."
+  (let ((inhibit-read-only t)
+        (fill-prefix "    "))
+    (with-current-buffer byte-compile-log-buffer
+      (let ((l (point)))
+        (insert "\n" (apply #'format fmt args))
+        (fill-region (1+ l) (point))))))
+
+(defun endless/-flycheck-file (file)
+  "Check FILE and report to `byte-compile-log-buffer'."
+  (let ((was-visited (find-buffer-visiting file)))
+    (with-current-buffer (or was-visited
+                             (progn (find-file file)
+                                    (current-buffer)))
+      (when (ignore-errors (flycheck-buffer))
+        (while (flycheck-running-p)
+          (accept-process-output nil 0.1))
+        (pcase flycheck-last-status-change
+          ((or `errored `suspicious)
+           (endless/-report-error
+            "%s: Something wrong here!"
+            (file-name-nondirectory (buffer-file-name))))
+          (`finished
+           (dolist (e flycheck-current-errors)
+             (endless/-report-error
+              "%s:%s:%s:%s: %s"
+              (file-name-nondirectory (buffer-file-name))
+              (flycheck-error-line e)
+              (flycheck-error-column e)
+              (flycheck-error-level e)
+              (flycheck-error-message e))))))
+      (if was-visited
+          (bury-buffer was-visited)
+        (kill-buffer (current-buffer))))))
 #+end_src
 
 * magit/git
@@ -3688,6 +3811,9 @@ https://gist.github.com/justinhj/5945047
 #+end_src
 
 ** COMMENT treemacs/lsp
+
+we prefer to use dired-sidebar
+
 #+begin_src emacs-lisp :tangle packages.el
 (package! lsp-treemacs)
 #+end_src
@@ -4082,14 +4208,39 @@ dockfmt does a bad job: rips out comments, uses tabs.
 
 #+begin_src emacs-lisp
 (use-package! projectile
+  :after-call doom-first-buffer-hook
   :custom
   (projectile-project-search-path '("~/dev"))
   (projectile-auto-discover t)
+  ;; Note:
+  ;;
+  ;; - no filtering will happen in Projectile if we use ~'alien~ -- everything
+  ;;   must be done via ~gitignore~
+  ;;
+  ;; - If projectile-enable-caching is t, use projectile-invalidate-cache first to
+  ;;   test changes in gitignore
+
   (projectile-indexing-method 'alien)
   :config
   (add-to-list 'projectile-project-root-files "pyproject.toml")
   )
 #+end_src
+
+** open all project files
+
+#+begin_src emacs-lisp
+(after! projectile
+  (defun vi/find-all-project-files ()
+    (interactive)
+    (let* (
+           (root (projectile-acquire-root))
+           (files (projectile-project-files root))
+           (filenames (--map (expand-file-name it root) files)))
+      (dolist-with-progress-reporter (f filenames) (format "Opening files in project [%s] " root) (find-file-noselect f))
+      ))
+  )
+#+end_src
+
 * Javascript/Typescript
 
 #+begin_src emacs-lisp :tangle packages.el
