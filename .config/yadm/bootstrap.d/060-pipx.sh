@@ -5,7 +5,7 @@
 
 # We use .pipx.json which is created by
 
-# =pipx list --json > ~/.pipx.json=
+# ~just pipx_update_list~
 
 # Note that .pipx.json is an alt file
 

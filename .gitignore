@@ -14,6 +14,8 @@ fin-app*
 .dmypy.json
 .ipynb_checkpoints/
 __pycache__/
+.log/
+
 # Local Variables:
 # mode: gitignore
 # End:

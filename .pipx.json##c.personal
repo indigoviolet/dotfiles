@@ -1,6 +1,57 @@
 {
     "pipx_spec_version": "0.1",
     "venvs": {
+        "autoimport": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/autoimport/bin/autoimport",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "autoflake": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/autoimport/bin/autoflake",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "maison": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/autoimport/bin/maison",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pyflakes": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/autoimport/bin/pyflakes",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "autoimport"
+                    ],
+                    "apps_of_dependencies": [
+                        "autoflake",
+                        "pyflakes",
+                        "maison"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "autoimport",
+                    "package_or_url": "autoimport",
+                    "package_version": "1.2.2",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.12",
+                "venv_args": []
+            }
+        },
         "black": {
             "metadata": {
                 "injected_packages": {},
@@ -11,10 +62,6 @@
                             "__type__": "Path"
                         },
                         {
-                            "__Path__": "/home/venky/.local/pipx/venvs/black/bin/black-primer",
-                            "__type__": "Path"
-                        },
-                        {
                             "__Path__": "/home/venky/.local/pipx/venvs/black/bin/blackd",
                             "__type__": "Path"
                         }
@@ -22,7 +69,6 @@
                     "app_paths_of_dependencies": {},
                     "apps": [
                         "black",
-                        "black-primer",
                         "blackd"
                     ],
                     "apps_of_dependencies": [],
@@ -30,12 +76,12 @@
                     "include_dependencies": false,
                     "package": "black",
                     "package_or_url": "black",
-                    "package_version": "22.1.0",
+                    "package_version": "22.6.0",
                     "pip_args": [],
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.8.1",
+                "python_version": "Python 3.9.12",
                 "venv_args": []
             }
         },
@@ -82,7 +128,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.8.1",
+                "python_version": "Python 3.9.12",
                 "venv_args": []
             }
         },
@@ -110,7 +156,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.8.1",
+                "python_version": "Python 3.9.12",
                 "venv_args": []
             }
         },
@@ -154,7 +200,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.8.1",
+                "python_version": "Python 3.9.12",
                 "venv_args": []
             }
         },
@@ -219,51 +265,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.8.1",
-                "venv_args": []
-            }
-        },
-        "flake8": {
-            "metadata": {
-                "injected_packages": {},
-                "main_package": {
-                    "app_paths": [
-                        {
-                            "__Path__": "/home/venky/.local/pipx/venvs/flake8/bin/flake8",
-                            "__type__": "Path"
-                        }
-                    ],
-                    "app_paths_of_dependencies": {
-                        "pycodestyle": [
-                            {
-                                "__Path__": "/home/venky/.local/pipx/venvs/flake8/bin/pycodestyle",
-                                "__type__": "Path"
-                            }
-                        ],
-                        "pyflakes": [
-                            {
-                                "__Path__": "/home/venky/.local/pipx/venvs/flake8/bin/pyflakes",
-                                "__type__": "Path"
-                            }
-                        ]
-                    },
-                    "apps": [
-                        "flake8"
-                    ],
-                    "apps_of_dependencies": [
-                        "pycodestyle",
-                        "pyflakes"
-                    ],
-                    "include_apps": true,
-                    "include_dependencies": false,
-                    "package": "flake8",
-                    "package_or_url": "flake8",
-                    "package_version": "4.0.1",
-                    "pip_args": [],
-                    "suffix": ""
-                },
-                "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.8.1",
+                "python_version": "Python 3.9.12",
                 "venv_args": []
             }
         },
@@ -296,7 +298,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.8.1",
+                "python_version": "Python 3.9.12",
                 "venv_args": []
             }
         },
@@ -324,7 +326,75 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.8.1",
+                "python_version": "Python 3.9.12",
+                "venv_args": []
+            }
+        },
+        "jupytext": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/jupytext/bin/jupytext",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "jsonschema": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/jupytext/bin/jsonschema",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "jupyter-core": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/jupytext/bin/jupyter",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/jupytext/bin/jupyter-migrate",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/jupytext/bin/jupyter-troubleshoot",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "markdown-it-py": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/jupytext/bin/markdown-it",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "nbformat": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/jupytext/bin/jupyter-trust",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "jupytext"
+                    ],
+                    "apps_of_dependencies": [
+                        "jupyter-trust",
+                        "jsonschema",
+                        "jupyter",
+                        "jupyter-migrate",
+                        "jupyter-troubleshoot",
+                        "markdown-it"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "jupytext",
+                    "package_or_url": "jupytext",
+                    "package_version": "1.14.0",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.12",
                 "venv_args": []
             }
         },
@@ -457,12 +527,12 @@
                     "include_dependencies": true,
                     "package": "notebook",
                     "package_or_url": "notebook",
-                    "package_version": "6.4.8",
+                    "package_version": "6.4.10",
                     "pip_args": [],
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.8.1",
+                "python_version": "Python 3.9.12",
                 "venv_args": []
             }
         },
@@ -523,7 +593,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.8.1",
+                "python_version": "Python 3.9.12",
                 "venv_args": []
             }
         },
@@ -551,7 +621,99 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.8.1",
+                "python_version": "Python 3.9.12",
+                "venv_args": []
+            }
+        },
+        "pyflyby": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/pyflyby/bin/collect-exports",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/pyflyby/bin/collect-imports",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/pyflyby/bin/find-import",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/pyflyby/bin/list-bad-xrefs",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/pyflyby/bin/prune-broken-imports",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/pyflyby/bin/py",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/pyflyby/bin/py3",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/pyflyby/bin/pyflyby-diff",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/pyflyby/bin/reformat-imports",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/pyflyby/bin/replace-star-imports",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/pyflyby/bin/tidy-imports",
+                            "__type__": "Path"
+                        },
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/pyflyby/bin/transform-imports",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "pyflakes": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/pyflyby/bin/pyflakes",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "collect-exports",
+                        "collect-imports",
+                        "find-import",
+                        "list-bad-xrefs",
+                        "prune-broken-imports",
+                        "py",
+                        "py3",
+                        "pyflyby-diff",
+                        "reformat-imports",
+                        "replace-star-imports",
+                        "tidy-imports",
+                        "transform-imports"
+                    ],
+                    "apps_of_dependencies": [
+                        "pyflakes"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "pyflyby",
+                    "package_or_url": "pyflyby",
+                    "package_version": "1.7.6",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.12",
                 "venv_args": []
             }
         },
@@ -579,7 +741,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.8.1",
+                "python_version": "Python 3.9.12",
                 "venv_args": []
             }
         },
@@ -616,7 +778,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.8.1",
+                "python_version": "Python 3.9.12",
                 "venv_args": []
             }
         },
@@ -658,7 +820,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.8.1",
+                "python_version": "Python 3.9.12",
                 "venv_args": []
             }
         },
@@ -686,7 +848,7 @@
                     "suffix": ""
                 },
                 "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.8.1",
+                "python_version": "Python 3.9.12",
                 "venv_args": []
             }
         }
