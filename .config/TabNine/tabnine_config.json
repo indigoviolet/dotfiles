@@ -53,5 +53,6 @@
   "snippets_enabled_v2": null,
   "inline_suggestions_mode_clients": null,
   "tabnine_hub_port": null,
-  "manually_selected_model": null
+  "manually_selected_model": null,
+  "hybrid_rendering_mode": null
 }
