@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # [[file:../../../README.org::*build deps][build deps:2]]
-set -eux
+set_init
 sudo apt-get update
 sudo apt-get install --no-install-recommends -y clang
 sudo apt-get install --no-install-recommends -y \

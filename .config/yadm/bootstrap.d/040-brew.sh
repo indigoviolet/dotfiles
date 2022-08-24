@@ -9,7 +9,7 @@
 
 
 # [[file:../../../README.org::*Brew][Brew:1]]
-set -eux
+set_init
 
 # install items
 if [[ -e ~/.Brewfile ]]; then

@@ -7,7 +7,7 @@
 
 
 # [[file:../../../README.org::*build deps][build deps:1]]
-set -eux
+set_init
 sudo apt-get update
 sudo apt-get install --no-install-recommends -y clang
 sudo apt-get install --no-install-recommends -y \

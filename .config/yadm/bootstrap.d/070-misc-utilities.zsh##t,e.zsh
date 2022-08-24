@@ -3,7 +3,7 @@
 
 
 # [[file:../../../README.org::*Misc utilities][Misc utilities:1]]
-set -eux
+set_init
 
 # https://scriptingosx.com/2019/11/associative-arrays-in-zsh/
 declare -A utils
