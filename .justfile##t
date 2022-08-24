@@ -52,7 +52,7 @@ debug-hibernate: (syslog-notice "Hibernate")
     systemctl hibernate
 
 # Update calibre (run with just sudo update-calibre)
-update-calibre:
+update-calibre: ensure-sudo
     wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sh /dev/stdin
 {% endif %}
 
@@ -104,7 +104,7 @@ show-kernelspec:
     set_init
     cd {{ invocation_directory() }}
     basename=${PWD##*/}
-    jupyter kernelspec list --json | jq '.kernelspecs."'"$basename"'"'
+    jupyter kernelspec list --json | dasel -p json '.kernelspecs.'"${basename}"
 
 
 # https://github.com/python-poetry/poetry/issues/3958
@@ -124,7 +124,7 @@ poetry-reinstall-git LIB:
 
 
 # Fix ImageMagick resource exhausted errors (convert). Run with just sudo
-fix-imagemagick-resources POLICY_XML:
+fix-imagemagick-resources POLICY_XML: ensure-sudo
     #!/usr/bin/env bash
     # https://stackoverflow.com/a/66127712
     set -x
@@ -150,9 +150,25 @@ jupytext-sync NBFILE:
     #!/usr/bin/env bash
     set_init
     cd {{ invocation_directory() }}
+
     nbfile=$(realpath {{ NBFILE }})
-    pyfile="$(basename $nbfile .ipynb).py"
-    watchexec -w $nbfile -w $pyfile --no-meta -p "jupytext --sync $nbfile"
+    [[ -e "$nbfile" ]] || (echo "$nbfile not found" && exit 1)
+    
+    pyfile=$(dirname $nbfile)/"$(basename $nbfile .ipynb).py"
+    [[ -e "$pyfile" ]] || jupytext --set-formats ipynb,py:percent --sync --use-source-timestamp --output "$pyfile" --quiet "$nbfile"
+
+    watchexec -w "$nbfile" -w "$pyfile" --no-meta --watch-when-idle --postpone 'parallel --verbose --delimiter : "jupytext --update --quiet --use-source-timestamp --sync $WATCHEXEC_COMMON_PATH/{}" ::: $WATCHEXEC_WRITTEN_PATH'
+    # watchexec -w $nbfile -w $pyfile --no-meta -p "jupytext --sync $nbfile"
+
+
+ensure-sudo:
+    #!/usr/bin/env bash
+    if [[ $EUID -ne 0 ]]; then
+        echo "Invoke with 'just sudo CMD'"
+        exit 1
+    fi
+
+
 
 
 
