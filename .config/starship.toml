@@ -1,3 +1,5 @@
+## Get symbols from: https://www.nerdfonts.com/cheat-sheet
+
 [gcloud]
 # For some reason there's a spurious block space character in the default
 symbol = " "
