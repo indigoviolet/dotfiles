@@ -39,6 +39,8 @@ brew "git-delta"
 brew "go-jsonnet"
 # Graph visualization software from AT&T and Bell Labs
 brew "graphviz"
+# Tool for glamorous shell scripts
+brew "gum"
 # Improved top (interactive process viewer)
 brew "htop"
 # Command-line benchmarking tool
