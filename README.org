@@ -696,6 +696,15 @@ and kernels installed from each project via ipykernel installed in each project
 it would be better to inject ipykernel into the pipx ipython project, but
 currently we don't have a way to reproduce that via pipx.json (but this is easy
 to create)
+** jupyter_notebook_config.json
+
+#+begin_src shell
+jupyter notebook password
+#+end_src
+
+will write this file with the hashed password, and new jupyter servers will use
+the password
+
 * Switching python version
 
 ** install
