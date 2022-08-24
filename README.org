@@ -1,6 +1,7 @@
 :DOC-CONFIG:
 #+property: header-args :mkdirp yes :comments both
 #+property: header-args:bash :results output
+#+auto_tangle: nil
 :END:
 
 * Todos [12/14]
@@ -56,7 +57,7 @@ GITHUB_PAT='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'
 
 
 #+begin_src shell :tangle ~/.config/yadm/start.sh :shebang "#!/usr/bin/env bash" :noweb tangle
-set -eux
+set_init
 <<start.sh>>
 #+end_src
 
@@ -136,7 +137,7 @@ https://raw.githubusercontent.com/TheLocehiliosan/yadm/master/contrib/bootstrap/
 # execute all executable files (excluding templates and editor backups) in the
 # ~/.config/yadm/bootstrap.d directory when run.
 
-set -eu
+set_init
 
 # Directory to look for bootstrap executables in
 BOOTSTRAP_D="${BASH_SOURCE[0]}.d"
@@ -173,7 +174,7 @@ distro_family is not always present and can't be overridden: https://github.com/
 #+end_src
 
 #+begin_src shell :noweb-ref build-deps.sh
-set -eux
+set_init
 sudo apt-get update
 sudo apt-get install --no-install-recommends -y clang
 sudo apt-get install --no-install-recommends -y \
@@ -210,7 +211,7 @@ distro_family is not always present and can't be overridden: https://github.com/
 #+end_src
 
 #+begin_src shell :noweb-ref login-shell-zsh.sh
-set -eux
+set_init
 
 sudo apt-get install --no-install-recommends -y zsh && sudo chsh -s $(which zsh) $(whoami)
 #+end_src
@@ -231,7 +232,7 @@ just =brew-dump-leaves >! ~/.Brewfile=
 Note that .Brewfile is an alt file
 
 #+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/040-brew.sh
-set -eux
+set_init
 
 # install items
 if [[ -e ~/.Brewfile ]]; then
@@ -376,14 +377,14 @@ sudo dpkg -i $gcm_deb && rm $gcm_deb -f
 *** chemacs
 
 #+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/080-chemacs.sh##c.personal,e.sh
-set -eux
+set_init
 { git clone https://github.com/plexus/chemacs.git "${HOME}/.local/chemacs" && $HOME/.local/chemacs/install.sh; } || exit 0
 #+end_src
 
 *** Doom emacs
 
 #+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/090-doom-emacs.sh##c.personal,e.sh
-set -eux
+set_init
 { git clone https://github.com/hlissner/doom-emacs "${HOME}/.emacs.d" && $HOME/.emacs.d/bin/doom install; } || exit 0
 #+end_src
 
@@ -415,7 +416,7 @@ set -ux
 On Darwin we would do this with brew
 
 #+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/130-fonts.sh##c.personal,e.sh
-set -euxo pipefail
+set_init
 
 # Jetbrains Mono patched (https://github.com/ryanoasis/nerd-fonts#option-5-clone-the-repo)
 if [[ ! -d  $HOME/dev/nerd-fonts ]]; then
@@ -441,7 +442,7 @@ echo 'y' | emacs -l ~/.config/doom/init.el --batch -f all-the-icons-install-font
 *** Gcloud
 
 #+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/140-gcloud.sh##c.personal,e.sh
-set -eux
+set_init
 
 sudo apt-get install apt-transport-https ca-certificates gnupg
 echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list

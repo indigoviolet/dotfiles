@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # [[file:../../README.org::*Get started][Get started:2]]
-set -eux
+set_init
 yes '' | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 brew install yadm

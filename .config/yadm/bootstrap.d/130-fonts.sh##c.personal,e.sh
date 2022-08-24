@@ -5,7 +5,7 @@
 
 
 # [[file:../../../README.org::*Fonts][Fonts:1]]
-set -euxo pipefail
+set_init
 
 # Jetbrains Mono patched (https://github.com/ryanoasis/nerd-fonts#option-5-clone-the-repo)
 if [[ ! -d  $HOME/dev/nerd-fonts ]]; then
