@@ -215,7 +215,7 @@ set -eux
 sudo apt-get install --no-install-recommends -y zsh && sudo chsh -s $(which zsh) $(whoami)
 #+end_src
 
-To check:
+To check (Might need to reboot to get it to work on login??):
 
 #+begin_src
 grep $(whoami) /etc/passwd
@@ -332,7 +332,7 @@ pipx install youtube-dl
 
 *** Misc utilities
 
-#+begin_src shell :shebang "#!/bin/zsh" :tangle ~/.config/yadm/bootstrap.d/070-misc-utilities.zsh##t,e.zsh
+#+begin_src shell :shebang "#!/usr/bin/env zsh" :tangle ~/.config/yadm/bootstrap.d/070-misc-utilities.zsh##t,e.zsh
 set -eux
 
 # https://scriptingosx.com/2019/11/associative-arrays-in-zsh/
@@ -367,7 +367,7 @@ poetry completions zsh > ~/.zprezto/modules/completion/external/src/_poetry
 ## GCM core git credential helper (see https://blog.djnavarro.net/posts/2021-08-08_git-credential-helpers/)
 gcm_latest_release=$(
     curl -s https://api.github.com/repos/GitCredentialManager/git-credential-manager/releases/latest |
-        jq -cr '.assets[] | select(.content_type | contains("deb")) | .browser_download_url')
+        jq -cr '.assets[] | select(.name | contains("deb")) | .browser_download_url')
 gcm_deb=$(curl -sw '%{filename_effective}' -LO $gcm_latest_release --output-dir /tmp)
 sudo dpkg -i $gcm_deb && rm $gcm_deb -f
 #+end_src

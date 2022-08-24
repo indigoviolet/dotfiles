@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 # Misc utilities
 
 
@@ -37,7 +37,7 @@ poetry completions zsh > ~/.zprezto/modules/completion/external/src/_poetry
 ## GCM core git credential helper (see https://blog.djnavarro.net/posts/2021-08-08_git-credential-helpers/)
 gcm_latest_release=$(
     curl -s https://api.github.com/repos/GitCredentialManager/git-credential-manager/releases/latest |
-        jq -cr '.assets[] | select(.content_type | contains("deb")) | .browser_download_url')
+        jq -cr '.assets[] | select(.name | contains("deb")) | .browser_download_url')
 gcm_deb=$(curl -sw '%{filename_effective}' -LO $gcm_latest_release --output-dir /tmp)
 sudo dpkg -i $gcm_deb && rm $gcm_deb -f
 # Misc utilities:1 ends here
