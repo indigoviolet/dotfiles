@@ -16,21 +16,21 @@
 # zmodload zsh/zprof
 
 if [[ "$TERM" == "dumb" || "$TERM" == "tramp" ]]; then
-	unsetopt zle
-	unsetopt prompt_cr
-	unsetopt prompt_subst
-	if whence -w precmd >/dev/null; then
-		unfunction precmd
-	fi
-	if whence -w preexec >/dev/null; then
-		unfunction preexec
-	fi
-	PS1='$ '
-	return
+    unsetopt zle
+    unsetopt prompt_cr
+    unsetopt prompt_subst
+    if whence -w precmd >/dev/null; then
+        unfunction precmd
+    fi
+    if whence -w preexec >/dev/null; then
+        unfunction preexec
+    fi
+    PS1='$ '
+    return
 fi
 
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
-	source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+    source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
 # Customize to your needs...

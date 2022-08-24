@@ -1,6 +1,6 @@
 # User specific aliases and functions
 
-alias -g sort="sort -S 75%"
+alias sort="sort -S 75%"
 alias beep="echo -n '\a'"
 alias c="clear"
 alias cp="cp -pv"

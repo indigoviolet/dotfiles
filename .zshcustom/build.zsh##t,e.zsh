@@ -5,7 +5,11 @@
 
 {% if yadm.distro == "Ubuntu" %}
 # For libpng (pdf-tools), emacs build etc.
-export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
+BREW_PREFIX=$(brew --prefix)
+
+export BREW_PKG_CONFIG=$BREW_PREFIX/lib/pkgconfig:$BREW_PREFIX/share/pkgconfig
+
+export PKG_CONFIG_PATH=$BREW_PKG_CONFIG:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
 
 #
 # * For python-build, use Brew (libffi.so.8)
@@ -19,8 +23,7 @@ export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
 # unset it like so:
 #
 # > CC= <command>
-export CC="$(brew --prefix gcc)/bin/gcc-11"
-
+export CC="$(brew --prefix gcc)/bin/gcc-12"
 
 # PIPX_DEFAULT_PYTHON: see `pipx install -h`. By default this is a vendored Python, we use it from asdf
 export PIPX_DEFAULT_PYTHON=$HOME/.asdf/shims/python

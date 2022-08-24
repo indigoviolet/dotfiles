@@ -11,7 +11,7 @@ export EDITOR="emacsclient"
 {% endif %}
 
 {% if yadm.class == "gcp" %}
-export EDITOR="micro"           # installed via brew
+export EDITOR="micro" # installed via brew
 {% endif %}
 
 {% if yadm.os == "Darwin" %}
@@ -22,15 +22,24 @@ export VISUAL=$EDITOR # for zsh edit-command-line
 export GIT_EDITOR=$EDITOR
 
 export FZF_TMUX=0
-export SAVEHIST=10000000
+
+export HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history
+export HISTSIZE=10000000        # per session
+export SAVEHIST=10000000        # history file
 
 setopt INC_APPEND_HISTORY
+# https://github.com/sorin-ionescu/prezto/tree/master/modules/history
 setopt HIST_SAVE_NO_DUPS
 setopt HIST_REDUCE_BLANKS
 setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_FIND_NO_DUPS
 setopt SHARE_HISTORY
+setopt HIST_IGNORE_SPACE
+
+
+# TODO: see https://github.com/indigoviolet/zsh-history-filter/blob/master/zsh-history-filter.plugin.zsh#L28 -- we should change this to be a regexp, and turn on zsh's PCRE support
+# export HISTORY_FILTER_EXCLUDE=("fc", "history")
 
 path[1,0]=$HOME/.local/bin/
 path[1,0]=$HOME/.cargo/bin/
@@ -38,9 +47,14 @@ path[1,0]=$HOME/.cargo/bin/
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#808080,underline"
 export ZSH_AUTOSUGGEST_STRATEGY=(completion history)
 
-
 export PYFLYBY_PATH=~/.pyflyby:.../.pyflyby
 
 # https://stackoverflow.com/a/55893600/14044156
 # Force bash scripts to execute ~/.bashrc
 export BASH_ENV=$HOME/.bashrc
+
+# Apheleia -> shfmt formats path[1,0] with a space, which breaks it
+
+# Local Variables:
+# eval: (apheleia-mode -1)
+# End:

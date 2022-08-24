@@ -1,6 +1,6 @@
 # https://github.com/akermu/emacs-libvterm#shell-side-configuration
-function vterm_printf(){
-    if [ -n "$TMUX" ] && ([ "${TERM%%-*}" = "tmux" ] || [ "${TERM%%-*}" = "screen" ] ); then
+function vterm_printf() {
+    if [ -n "$TMUX" ] && ([ "${TERM%%-*}" = "tmux" ] || [ "${TERM%%-*}" = "screen" ]); then
         # Tell tmux to pass the escape sequences through
         printf "\ePtmux;\e\e]%s\007\e\\" "$1"
     elif [ "${TERM%%-*}" = "screen" ]; then
@@ -15,7 +15,6 @@ if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
     alias clear='vterm_printf "51;Evterm-clear-scrollback";tput clear'
 fi
 
-
 # Also see prompt.zsh
 vterm_prompt_end() {
     # On a remote machine, this is how vterm can set `default-directory`, which
@@ -26,7 +25,7 @@ vterm_prompt_end() {
     # alias used to log into it, and so might not work with `ssh <...>` - for
     # ex., on gcp `hostname` will return `<INSTANCE_NAME>`, but `gcloud compute
     # config-ssh` will create aliases of the form `<NAME>.<ZONE>.<PROJECT>`
-    vterm_printf "51;A$(whoami)@$(hostname):$(pwd)";
+    vterm_printf "51;A$(whoami)@$(hostname):$(pwd)"
 }
 
 vterm_cmd() {
@@ -43,7 +42,12 @@ find_file() {
     vterm_cmd find-file "$(realpath "${@:-.}")"
 }
 
-
-dired () {
+dired() {
     find_file
+}
+
+# https://github.com/akermu/emacs-libvterm#vterm-enable-manipulate-selection-data-by-osc52
+vterm_cp() {
+    local input="$([[ -p /dev/stdin ]] && cat - || echo "$@")"
+    printf "\e]52;c;$(printf '%s' $input | base64)\a"
 }
