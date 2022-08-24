@@ -29,7 +29,7 @@ brew "just"
 # Modern and intuitive terminal-based text editor
 brew "micro"
 # Execute binaries from Python packages in isolated environments
-brew "pipx", args: ["HEAD"]
+brew "pipx"
 # Search tool like grep and The Silver Searcher
 brew "ripgrep"
 # Cross-shell prompt for astronauts
