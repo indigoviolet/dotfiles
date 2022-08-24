@@ -18,8 +18,8 @@ utils=(
 {% endif %}
 
 {% if yadm.class == "gcp" %}
-    # not present in brew
-    [nvtop]=nvtop
+    # not present in brew/Debian
+    # [nvtop]=nvtop
     [netstat]=net-tools
 {% endif %}
 )

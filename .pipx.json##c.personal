@@ -269,6 +269,116 @@
                 "venv_args": []
             }
         },
+        "glances": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/glances/bin/glances",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "bottle": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/glances/bin/bottle.py",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "charset-normalizer": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/glances/bin/normalizer",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "chevron": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/glances/bin/chevron",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "future": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/glances/bin/futurize",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/glances/bin/pasteurize",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "py3nvml": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/glances/bin/py3smi",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygal": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/glances/bin/pygal_gen.py",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pysmi": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/glances/bin/mibcopy.py",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/glances/bin/mibdump.py",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "sparklines": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/glances/bin/sparklines",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "websocket-client": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/glances/bin/wsdump",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "wifi": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/glances/bin/wifi",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "glances"
+                    ],
+                    "apps_of_dependencies": [
+                        "futurize",
+                        "pasteurize",
+                        "chevron",
+                        "normalizer",
+                        "wsdump",
+                        "pygal_gen.py",
+                        "mibcopy.py",
+                        "mibdump.py",
+                        "sparklines",
+                        "bottle.py",
+                        "wifi",
+                        "py3smi"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "glances",
+                    "package_or_url": "glances[all]",
+                    "package_version": "3.2.7",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.12",
+                "venv_args": []
+            }
+        },
         "isort": {
             "metadata": {
                 "injected_packages": {},
