@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Fonts
 
 # On Darwin we would do this with brew

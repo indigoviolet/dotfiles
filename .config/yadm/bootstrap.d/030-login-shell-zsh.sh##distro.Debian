@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # [[file:../../../README.org::*zsh login shell][zsh login shell:2]]
 set -eux
 

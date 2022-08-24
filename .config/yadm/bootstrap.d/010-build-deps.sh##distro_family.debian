@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # build deps
 
 # for pyenv builds https://github.com/pyenv/pyenv/wiki/common-build-problems (which also affect asdf)

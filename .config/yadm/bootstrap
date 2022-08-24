@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Dispatcher
 
 # https://raw.githubusercontent.com/TheLocehiliosan/yadm/master/contrib/bootstrap/bootstrap-in-dir

@@ -49,13 +49,13 @@ Use ~gcpvm~ from indigoviolet/gcloud:
 
 ~./gcpvm --dotenv-filename deeplearning-1-vm ssh "bash-s" < get-start.sh~
 
-#+begin_src shell :tangle ~/.config/yadm/run-start.sh :shebang #!/bin/bash
+#+begin_src shell :tangle ~/.config/yadm/run-start.sh :shebang "#!/usr/bin/env bash"
 GITHUB_PAT='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'
 /bin/bash -c "$(curl -fsSL https://$GITHUB_PAT@raw.githubusercontent.com/indigoviolet/dotfiles/master/.config/yadm/start.sh)"
 #+end_src
 
 
-#+begin_src shell :tangle ~/.config/yadm/start.sh :shebang "#!/bin/bash" :noweb tangle
+#+begin_src shell :tangle ~/.config/yadm/start.sh :shebang "#!/usr/bin/env bash" :noweb tangle
 set -eux
 <<start.sh>>
 #+end_src
@@ -131,7 +131,7 @@ Configures which files are encrypted
 
 https://raw.githubusercontent.com/TheLocehiliosan/yadm/master/contrib/bootstrap/bootstrap-in-dir
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap
 # Save this file as ~/.config/yadm/bootstrap and make it executable. It will
 # execute all executable files (excluding templates and editor backups) in the
 # ~/.config/yadm/bootstrap.d directory when run.
@@ -164,11 +164,11 @@ for pyenv builds https://github.com/pyenv/pyenv/wiki/common-build-problems (whic
 
 distro_family is not always present and can't be overridden: https://github.com/TheLocehiliosan/yadm/issues/430
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/010-build-deps.sh##distro_family.debian :noweb tangle
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/010-build-deps.sh##distro_family.debian :noweb tangle
 <<build-deps.sh>>
 #+end_src
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/010-build-deps.sh##distro.Debian :noweb tangle
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/010-build-deps.sh##distro.Debian :noweb tangle
 <<build-deps.sh>>
 #+end_src
 
@@ -189,7 +189,7 @@ sudo apt-get install --no-install-recommends -y \
 
 *** Prezto
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/020-prezto.sh
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/020-prezto.sh
 set -ux
 git clone --recursive https://github.com/sorin-ionescu/prezto.git "${HOME}/.zprezto"
 git clone --recurse-submodules https://github.com/belak/prezto-contrib "${HOME}/.zprezto/contrib"
@@ -201,11 +201,11 @@ cd ~/.zprezto/contrib && git pull
 
 distro_family is not always present and can't be overridden: https://github.com/TheLocehiliosan/yadm/issues/430
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro_family.debian :noweb tangle
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro_family.debian :noweb tangle
 <<login-shell-zsh.sh>>
 #+end_src
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro.Debian :noweb tangle
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro.Debian :noweb tangle
 <<login-shell-zsh.sh>>
 #+end_src
 
@@ -230,7 +230,7 @@ just =brew-dump-leaves >! ~/.Brewfile=
 
 Note that .Brewfile is an alt file
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/040-brew.sh
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/040-brew.sh
 set -eux
 
 # install items
@@ -243,7 +243,7 @@ fi
 *** Asdf
 
 asdf installed with Brew
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/050-asdf.sh
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/050-asdf.sh
 set -ux
 
 ## https://github.com/asdf-vm/asdf/issues/276#issuecomment-907063520
@@ -264,7 +264,7 @@ We use .pipx.json which is created by
 
 Note that .pipx.json is an alt file
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/060-pipx.sh
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/060-pipx.sh
 set -ux
 if [[ -e ~/.pipx.json ]]; then
     for p in $(cat ~/.pipx.json | jq -r '.venvs[].metadata.main_package.package_or_url'); do
@@ -375,21 +375,21 @@ sudo dpkg -i $gcm_deb && rm $gcm_deb -f
 
 *** chemacs
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/080-chemacs.sh##c.personal,e.sh
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/080-chemacs.sh##c.personal,e.sh
 set -eux
 { git clone https://github.com/plexus/chemacs.git "${HOME}/.local/chemacs" && $HOME/.local/chemacs/install.sh; } || exit 0
 #+end_src
 
 *** Doom emacs
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/090-doom-emacs.sh##c.personal,e.sh
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/090-doom-emacs.sh##c.personal,e.sh
 set -eux
 { git clone https://github.com/hlissner/doom-emacs "${HOME}/.emacs.d" && $HOME/.emacs.d/bin/doom install; } || exit 0
 #+end_src
 
 *** git completion
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/100-git-completion.sh
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/100-git-completion.sh
 set -ux
 curl -o ${ZSH_CUSTOM_DIR}/git-completion.bash https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
 curl -o ${ZSH_CUSTOM_DIR}/_git https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh
@@ -398,14 +398,14 @@ curl -o ${ZSH_CUSTOM_DIR}/_git https://raw.githubusercontent.com/git/git/master/
 *** Leechblock
 
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/110-leechblock.sh##c.personal,e.sh
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/110-leechblock.sh##c.personal,e.sh
 set -ux
 { mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone indigoviolet/LeechBlockNG-chrome && cd LeechBlockNG-chrome && ./install-jquery.sh; } || exit 0
 #+end_src
 
 *** paywall
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/120-paywall.sh##c.personal,e.sh
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/120-paywall.sh##c.personal,e.sh
 set -ux
 { mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone iamadamdev/bypass-paywalls-chrome; } || exit 0
 #+end_src
@@ -414,7 +414,7 @@ set -ux
 
 On Darwin we would do this with brew
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/130-fonts.sh##c.personal,e.sh
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/130-fonts.sh##c.personal,e.sh
 set -euxo pipefail
 
 # Jetbrains Mono patched (https://github.com/ryanoasis/nerd-fonts#option-5-clone-the-repo)
@@ -440,7 +440,7 @@ echo 'y' | emacs -l ~/.config/doom/init.el --batch -f all-the-icons-install-font
 
 *** Gcloud
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/140-gcloud.sh##c.personal,e.sh
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/140-gcloud.sh##c.personal,e.sh
 set -eux
 
 sudo apt-get install apt-transport-https ca-certificates gnupg

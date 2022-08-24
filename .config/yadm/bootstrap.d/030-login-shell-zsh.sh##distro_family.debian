@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # zsh login shell
 
 # distro_family is not always present and can't be overridden: https://github.com/TheLocehiliosan/yadm/issues/430

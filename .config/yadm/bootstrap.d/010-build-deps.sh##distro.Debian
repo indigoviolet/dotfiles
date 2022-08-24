@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # [[file:../../../README.org::*build deps][build deps:2]]
 set -eux
 sudo apt-get update

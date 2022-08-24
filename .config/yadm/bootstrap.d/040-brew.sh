@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Brew
 
 # +brew bundle dump --force --describe --casks --file=-+ See [[file:.zshcustom/brew.zsh::function brew-dump-leaves () {][brew-dump-leaves]] instead
