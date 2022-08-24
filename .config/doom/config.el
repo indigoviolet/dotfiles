@@ -124,14 +124,15 @@
 
 
 ;; line wrapping
-;; 
+;;
 (global-visual-line-mode t)
-(setq-hook! 'prog-mode-hook
-  visual-line-mode -1
-  truncate-partial-width-windows t)
+(add-hook! '(prog-mode-hook bufler-list-mode-hook)
+           (defun vi/truncate-lines ()
+             (setq-local truncate-partial-width-windows t)
+             (visual-line-mode -1)))
 
 ;; truncate-lines t)
-;; 
+;;
 (setq message-truncate-lines t)
 
 (global-whitespace-mode +1)
@@ -144,6 +145,12 @@
 
 (blink-cursor-mode)
 (repeat-mode 1)
+
+;; https://pragmaticemacs.wordpress.com/2016/11/07/add-the-system-clipboard-to-the-emacs-kill-ring/
+;; Save whatever’s in the current (system) clipboard before
+;; replacing it with the Emacs’ text.
+;; https://github.com/dakrone/eos/blob/master/eos.org
+(setq save-interprogram-paste-before-kill t)
 ;; General:1 ends here
 
 ;; specpdl size
@@ -455,6 +462,21 @@
   )
 ;; ansi colors:1 ends here
 
+;; vterm
+
+;; solaire breaks ~rich~ (test with ~python -m rich.diagnose~), and therefore ~nbterm~
+
+;; Hence we turn off solaire-mode in vterm by calling vterm buffers "real"
+
+
+;; [[file:config.org::*vterm][vterm:1]]
+(defun vi/solaire-real-buffer-p ()
+  (if (memq major-mode '(vterm-mode)) t
+    (solaire-mode-real-buffer-p))
+  )
+(setq solaire-mode-real-buffer-fn #'vi/solaire-real-buffer-p)
+;; vterm:1 ends here
+
 ;; with parens-mode
 
 
@@ -480,6 +502,41 @@
   (gcmh-high-cons-threshold 1000000000)
   )
 ;; Garbage collection:1 ends here
+
+;; Debug hooks
+
+
+;; [[file:config.org::*Debug hooks][Debug hooks:1]]
+(defun vi/call-logging-hooks (command &optional verbose)
+  "Call COMMAND, reporting every hook run in the process.
+Interactively, prompt for a command to execute.
+
+Return a list of the hooks run, in the order they were run.
+Interactively, or with optional argument VERBOSE, also print a
+message listing the hooks."
+  (interactive "CCommand to log hooks: \np")
+  (let* ((log nil)
+         (logger (lambda (&rest hooks)
+                   (setq log (append log hooks nil)))))
+    (vi/with-advice 'run-hooks :before logger
+                    (call-interactively command))
+    (when verbose
+      (message
+       (if log "Hooks run during execution of %s:"
+         "No hooks run during execution of %s.")
+       command)
+      (dolist (hook log)
+        (message "> %s" hook)))
+    log))
+
+
+(defmacro vi/with-advice (func where adfunc body)
+  `(unwind-protect
+       (progn
+         (advice-add ,func ,where ,adfunc '((name . "vi/with-advice")))
+         ,body)
+     (advice-remove ,func "vi/with-advice")))
+;; Debug hooks:1 ends here
 
 
 
@@ -609,7 +666,6 @@
 ;; Keep windows balanced
 
 ;; [[file:config.org::*Keep windows balanced][Keep windows balanced:1]]
-(setq split-width-threshold nil)
 (defadvice split-window-below (after restore-balance-below activate)
   (balance-windows))
 
@@ -680,7 +736,8 @@
   :commands (bufler bufler-switch-buffer)
   :custom
   (bufler-vc-state nil)
-  (bufler-columns '("Name" "VC" "Path"))
+  (bufler-workspace-mode nil)
+  (bufler-columns '("Name" "VC" "Path" "Mode"))
   (bufler-filter-buffer-modes '(bufler-list-mode calendar-mode
                                                  magit-diff-mode magit-process-mode magit-revision-mode magit-section-mode
                                                  special-mode timer-list-mode))
@@ -753,7 +810,7 @@
      )
    )
   :config
-  (bufler-mode)
+  ;;(bufler-mode)
   :bind
   ("C-x C-b" . bufler)
   )
@@ -891,14 +948,14 @@
   (message "rejiggering for %s" disp)
   (cond ((equal disp '(3440 . 1440))   ; LG monitor
          (vi/set-font-size 13))
-        ((equal disp '(3000 . 2000))    ; laptop @ 100%, 2000%
+        ((equal disp '(3000 . 2000))    ; laptop @ 100%, 200%
          (vi/set-font-size 13))
         ((equal disp '(4800 . 3200))    ; laptop @ 125%
          (vi/set-font-size 17))
         ((equal disp '(4002 . 2668))    ; laptop @ 150%
-         (vi/set-font-size 23))
-        ((equal disp '(3426 . 2284))    ; laptop @ 175%
          (vi/set-font-size 17))
+        ((equal disp '(3426 . 2284))    ; laptop @ 175%
+         (vi/set-font-size 13))
         (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
 
 (use-package! dispwatch
@@ -1243,12 +1300,14 @@
   (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
 
   ;; this is normally find-file, but it's perhaps more useful to find any file
-  (setq consult-dir-default-command #'+vertico/consult-fd)
+  ;; (setq consult-dir-default-command #'+vertico/consult-fd)
+  (setq consult-dir-default-command #'consult-dir-dired)
 
   ;; https://github.com/karthink/consult-dir/issues/20#issuecomment-1193087091
   (map! :map minibuffer-local-map "C-c b" #'embark-become)
   (map! :map embark-become-file+buffer-map
         "d" #'dired
+        "S" #'+vertico/consult-fd
         "D" #'consult-dir)
   )
 
@@ -1360,6 +1419,10 @@
 (setq-hook! 'python-mode-hook outline-regexp (python-rx (* space) (or defun decorator)))
 ;; Python:1 ends here
 
+;; [[file:config.org::*ts-fold][ts-fold:2]]
+(add-hook! 'tree-sitter-mode-hook #'fringe-mode #'ts-fold-mode) ;; #'ts-fold-indicators-mode)
+;; ts-fold:2 ends here
+
 ;; [[file:config.org::*Tabnine][Tabnine:2]]
 (use-package! company-tabnine
   :after-call doom-first-input-hook
@@ -1470,8 +1533,14 @@
     (
      ;;("v" multi-vterm-next "vterm-toggle")
      ;; ("V" multi-vterm "vterm")
-     ("v" +vterm/toggle "vterm toggle")
-     ("V" +vterm/here "vterm")
+
+
+     ;; TODO: handle no project case
+     ;; ("v" multi-vterm-project "vterm toggle")
+     ;; ("V" multi-vterm "vterm")
+
+     ("v" vi/vterm-project-or-here "vterm-toggle")
+     ("V" (vi/vterm-project-or-here t) "vterm")
 
     )
    "Modes"
@@ -1530,6 +1599,7 @@
                              ("~/org/personal.org" . (:maxlevel . 1))
                              ("~/org/ml.org" . (:maxlevel . 1))
                              ("~/org/work.org" . (:maxlevel . 1))
+                             ("~/org/learning.org" . (:maxlevel . 1))
                              )
         org-agenda-entry-types '(:deadline :scheduled)
         org-agenda-skip-scheduled-if-done t
@@ -1914,14 +1984,13 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 ;; vterm
 
 
-
-
 ;; [[file:config.org::*vterm][vterm:1]]
 (setq vterm-module-cmake-args "-DUSE_SYSTEM_LIBVTERM=no")
 (use-package! vterm
   :custom
   (vterm-max-scrollback 100000)
-  (vterm-buffer-name-string "vterm: %s")
+  (vterm-buffer-name-string "vterm %s")
+  (vterm-enable-manipulate-selection-data-by-osc52 t)
   :bind
   (
    :map vterm-mode-map
@@ -1967,6 +2036,37 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   )
 (add-hook! 'vterm-mode-hook #'vi/vterm-hooks)
 ;; vterm:1 ends here
+
+;; Home grown
+
+
+;; [[file:config.org::*Home grown][Home grown:1]]
+(defsubst vi/vterm-dir ()
+  (or (projectile-project-root) default-directory))
+
+(defsubst vi/create-vterm-in-dir (dir)
+  (let ((default-directory dir))
+    (setq vterm-buf (vterm))
+    (with-current-buffer vterm-buf
+      (setq-local vi/vterm--created-with-dir default-directory))))
+
+(defsubst vi/existing-vterms-created-with (dir)
+  (seq-filter
+   (lambda (elt)
+     (and
+      (eq (buffer-local-value 'major-mode elt) #'vterm-mode)
+      (buffer-local-boundp 'vi/vterm--created-with-dir elt)
+      (file-equal-p dir (buffer-local-value 'vi/vterm--created-with-dir elt))))
+   (buffer-list)))
+
+(defun vi/vterm-project-or-here (&optional force-create)
+  (interactive)
+  (if-let* ((dir (vi/vterm-dir))
+            (check-existing (not force-create))
+            (existing-vterm (seq-first (vi/existing-vterms-created-with dir))))
+      (pop-to-buffer existing-vterm)
+    (vi/create-vterm-in-dir dir)))
+;; Home grown:1 ends here
 
 ;; Flycheck
 
@@ -2249,6 +2349,14 @@ Results are reported in a compilation buffer."
   ;;   )
   )
 ;; LSP:1 ends here
+
+;; [[file:config.org::*Tree sitter][Tree sitter:2]]
+(add-hook! '(python-mode-hook) #'tree-sitter-mode)
+
+;;; global wants to use it in org-mode and keeps complaining
+;; (use-package! tree-sitter
+;;   :config (global-tree-sitter-mode))
+;; Tree sitter:2 ends here
 
 ;; ccls vs clangd
 
@@ -2628,6 +2736,83 @@ Results are reported in a compilation buffer."
                                                (revert-buffer)))))
 ;; all the icons:2 ends here
 
+;; hydra
+
+
+;; [[file:config.org::*hydra][hydra:1]]
+(major-mode-hydra-define dired-mode (:hint nil :color pink)
+    (
+     "Act"
+     (
+      ("+" dired-create-directory "mkdir")
+      ("C" dired-do-copy "Copy")        ;; Copy all marked files
+      ("D" dired-do-delete "Delete")
+      ("R" dired-do-rename "mv")
+      ("$" diredp-hide-subdir-nomove "hide-subdir")
+      ("i" dired-maybe-insert-subdir "insert subdir")
+      ("w" dired-kill-subdir "kill subdir")
+      ("M-d" vi/dired-popup-dragon "Drag with dragon")
+      )
+     "view"
+     (
+      ("v" dired-view-file "view")      ;; q to exit, s to search, = gets line #
+      ("o" dired-find-file-other-window "open other")
+      ("O" dired-display-file "view other")
+      ("F" dired-do-find-marked-files "find marked")
+      ("A" dired-do-find-regexp "find rx")
+      ("Q" dired-do-find-regexp-and-replace "rx replace")
+      )
+     "listing"
+     (
+      ("(" dired-hide-details-mode "details")
+      (")" dired-omit-mode "omit-mode")
+      ("s" dired-sort-toggle-or-edit "sort")
+      ("?" dired-summary "summary")
+      ("l" dired-do-redisplay "redisplay")   ;; relist the marked or singel directory
+      )
+     "mark"
+     (
+      ("m" dired-mark "mark")
+      ("u" dired-unmark "unmark")
+      ("t" dired-toggle-marks "toggle")
+      ("U" dired-unmark-all-marks "unmark all")
+      ("E" dired-mark-extension "mark ext")
+      )
+
+     "Misc"
+     (
+      ("z" diredp-compress-this-file "Compress file")
+      ("Z" dired-do-compress "Compress")
+      ("Y" dired-do-relsymlink "rel symlink")
+      ("S" dired-do-symlink "symlink")
+      ("M" dired-do-chmod "chmod")
+      ("G" dired-do-chgrp "chgrp")
+      )
+     )
+    )
+;; hydra:1 ends here
+
+;; drag and drop
+
+;; brew install indigoviolet/tap/dragon
+
+;; https://old.reddit.com/r/emacs/comments/uq6gxy/drag_files_from_dired_to_other_applications/i8xyxsn/
+
+
+;; [[file:config.org::*drag and drop][drag and drop:1]]
+(defun vi/dired-popup-dragon (&optional arg)
+  "Open xdragon with the marked files or the file at point.
+With optional prefix argument ARG, drag all the files at once."
+  (interactive "P")
+  ;; xdragon rename is a nix thing, pretty sure.
+  (make-process
+   :name "dragon"
+   :command (append '("dragon")
+                    (when arg '("-a"))
+                    (dired-get-marked-files))
+   :noquery t))
+;; drag and drop:1 ends here
+
 ;; [[file:config.org::*Firestarter][Firestarter:2]]
 (use-package! firestarter
   :after-call doom-first-file-hook
@@ -2672,6 +2857,10 @@ current buffer's, reload dir-locals."
   :mode ("\\.jsonnet\\'"
          "\\.libsonnet\\'"))
 ;; jsonnet:2 ends here
+
+;; [[file:config.org::*Just][Just:2]]
+(setq-hook! '(just-mode-hook) comment-start "# ")
+;; Just:2 ends here
 
 ;; Cuda mode doesn't inherit from prog-mode?
 

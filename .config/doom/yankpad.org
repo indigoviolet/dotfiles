@@ -70,18 +70,33 @@ import ipdb
 ipdb.set_trace()
 #+end_src
 
-** script-cell: :src:
+** ein-script-cell: :src:
 
 #+begin_src
 %%script echo ${1:nope}
 #+end_src
 
-** first-cell: :src:
+** ein-first-cell: :src:
 
 
 #+begin_src python
 %reload_ext autoreload
 %autoreload 2
+
+from IPython.core.interactiveshell import InteractiveShell
+
+InteractiveShell.ast_node_interactivity = "all"
+#+end_src
+
+** ein-pd-display: :src:
+#+begin_src python
+with pd.option_context('display.max_rows', 100, 'display.max_columns', 10):
+#+end_src
+
+** ein-matplotlib: :src:
+
+
+#+begin_src python
 %matplotlib inline
 
 import matplotlib as mpl
@@ -89,10 +104,6 @@ import matplotlib as mpl
 mpl.rcParams["figure.facecolor"] = "white"
 mpl.rcParams["axes.facecolor"] = "white"
 mpl.rcParams["savefig.facecolor"] = "white"
-
-from IPython.core.interactiveshell import InteractiveShell
-
-InteractiveShell.ast_node_interactivity = "all"
 #+end_src
 
 

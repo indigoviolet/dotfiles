@@ -363,6 +363,21 @@
 (package! recursive-narrow)
 ;; Narrowing:1 ends here
 
+;; ts-fold
+
+;; TODO: keybindings, but best if we have cycling like outline-cycle https://github.com/jcs-elpa/ts-fold/issues/29
+
+;; See implementation of `outline-cycle` or `outline-cycle-buffer` to diy this
+
+;; WARN: ts-fold might be causing some font rendering glitches, at least with Iosevka and ts-fold-indicators-mode
+;; WARN: ts-fold-close-all is surprisingly slow
+;; WARN: ts-fold-indicators-mode is very slow
+
+
+;; [[file:config.org::*ts-fold][ts-fold:1]]
+(package! ts-fold :recipe (:host github :repo "jcs-elpa/ts-fold"))
+;; ts-fold:1 ends here
+
 ;; Tabnine
 
 
@@ -420,6 +435,10 @@
 ;; The "After save hook" version is synchronous and has no problems.
 
 ;; +<2022-07-08 Fri> Pinned to c208036 to see if 'max-lisp-eval-depth' errors were caused by https://github.com/yilkalargaw/org-auto-tangle/commit/5b6071c5649ed648c97cd2deebf74fe633f7f0d0+
+
+;; Also see https://tecosaur.github.io/emacs-config/config.html#asynchronous-config-tangling
+
+;; We'd like to set a timeout and fall through to synchronous tangle?
 
 
 ;; [[file:config.org::*Use auto-tangle][Use auto-tangle:1]]
