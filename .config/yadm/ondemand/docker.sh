@@ -1,1 +1,0 @@
-docker.sh##distro.Ubuntu,e.sh
