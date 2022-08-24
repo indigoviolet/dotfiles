@@ -40,4 +40,5 @@ gcm_latest_release=$(
         jq -cr '.assets[] | select(.name | contains("deb")) | .browser_download_url')
 gcm_deb=$(curl -sw '%{filename_effective}' -LO $gcm_latest_release --output-dir /tmp)
 sudo dpkg -i $gcm_deb && rm $gcm_deb -f
+git credential-manager-core configure
 # Misc utilities:1 ends here

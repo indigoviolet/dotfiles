@@ -15,7 +15,7 @@ sudo apt-get install --no-install-recommends -y \
     libssl-dev zlib1g-dev libbz2-dev \
     libreadline-dev libsqlite3-dev \
     wget llvm \
-    libncurses5-dev \
+    libncurses5 libncurses5-dev libncursesw5 \
     xz-utils tk-dev \
     libxml2-dev libffi-dev \
     libxmlsec1-dev liblzma-dev
