@@ -3,13 +3,14 @@
 symbol = " "
 
 [python]
-symbol = " "
+symbol = " "
 
 [package]
-symbol = " "
+symbol = " "
 
 [docker_context]
 symbol = " "
 
 [hostname]
+symbol = " "
 style = "bold inverted bright-green"
