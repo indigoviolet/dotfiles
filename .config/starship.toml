@@ -12,5 +12,5 @@ symbol = " "
 symbol = " "
 
 [hostname]
-symbol = " "
+ssh_symbol = " "
 style = "bold inverted bright-green"

@@ -6,9 +6,10 @@
   "creation_time": "2019-08-20T20:59:40.146546948Z",
   "guuid": null,
   "semantic_status": {
-    "org": "Suppressed",
+    "go": "Enabled",
     "python": "Enabled",
     "typescript": "Enabled",
+    "org": "Suppressed",
     "unknown": "Enabled"
   },
   "enable_telemetry": false,
