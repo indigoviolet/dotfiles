@@ -162,7 +162,7 @@ done
 
 for pyenv builds https://github.com/pyenv/pyenv/wiki/common-build-problems (which also affect asdf)
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/010-build-deps.sh##distro.Ubuntu
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/010-build-deps.sh##distro_family.debian
 set -eux
 sudo apt-get update
 sudo apt-get install --no-install-recommends -y clang
@@ -189,7 +189,7 @@ cd ~/.zprezto/contrib && git pull
 
 *** zsh login shell
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro.Ubuntu
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro_family.debian
 set -eux
 
 sudo apt-get install --no-install-recommends -y zsh && sudo chsh -s $(which zsh) $(whoami)
