@@ -15,8 +15,13 @@
 ** DONE Handle fin alts
 ** DONE Handle union of personal&gcp
 ** DONE id_rsa and id_rsa.pub -> encrypt and add?
+
+** Convert bootstrap to just script
+
 ** TODO Build pipx json installer
 ** TODO j2cli (pipx) https://github.com/kolypto/j2cli for templating
+
+*** can use j2cli/jinja for inclusion
 
 ** DONE Create a direnv cacher
 :LOGBOOK:
@@ -28,8 +33,6 @@
 :LOGBOOK:
 - State "DONE"       from              [2022-03-12 Sat 15:37]
 :END:
-
-** can use j2cli/jinja for inclusion
 
 ** DONE netstat from apt net-tools
 :LOGBOOK:
@@ -371,6 +374,7 @@ gcm_latest_release=$(
         jq -cr '.assets[] | select(.name | contains("deb")) | .browser_download_url')
 gcm_deb=$(curl -sw '%{filename_effective}' -LO $gcm_latest_release --output-dir /tmp)
 sudo dpkg -i $gcm_deb && rm $gcm_deb -f
+git credential-manager-core configure
 #+end_src
 
 
