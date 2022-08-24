@@ -3,7 +3,7 @@
 
 # Build flags etc. This is not in env.zsh because env.zsh is sourced in .zprofile as well
 
-{% if yadm.distro == "Ubuntu" %}
+{% if yadm.os == "Linux" %}
 # For libpng (pdf-tools), emacs build etc.
 BREW_PREFIX=$(brew --prefix)
 

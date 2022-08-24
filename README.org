@@ -162,7 +162,17 @@ done
 
 for pyenv builds https://github.com/pyenv/pyenv/wiki/common-build-problems (which also affect asdf)
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/010-build-deps.sh##distro_family.debian
+distro_family is not always present and can't be overridden: https://github.com/TheLocehiliosan/yadm/issues/430
+
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/010-build-deps.sh##distro_family.debian :noweb tangle
+<<build-deps.sh>>
+#+end_src
+
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/010-build-deps.sh##distro.Debian :noweb tangle
+<<build-deps.sh>>
+#+end_src
+
+#+begin_src shell :noweb-ref build-deps.sh
 set -eux
 sudo apt-get update
 sudo apt-get install --no-install-recommends -y clang
@@ -189,7 +199,17 @@ cd ~/.zprezto/contrib && git pull
 
 *** zsh login shell
 
-#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro_family.debian
+distro_family is not always present and can't be overridden: https://github.com/TheLocehiliosan/yadm/issues/430
+
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro_family.debian :noweb tangle
+<<login-shell-zsh.sh>>
+#+end_src
+
+#+begin_src shell :shebang "#!/bin/bash" :tangle ~/.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro.Debian :noweb tangle
+<<login-shell-zsh.sh>>
+#+end_src
+
+#+begin_src shell :noweb-ref login-shell-zsh.sh
 set -eux
 
 sudo apt-get install --no-install-recommends -y zsh && sudo chsh -s $(which zsh) $(whoami)

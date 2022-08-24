@@ -1,6 +1,8 @@
 #!/bin/bash
 # zsh login shell
 
+# distro_family is not always present and can't be overridden: https://github.com/TheLocehiliosan/yadm/issues/430
+
 
 # [[file:../../../README.org::*zsh login shell][zsh login shell:1]]
 set -eux

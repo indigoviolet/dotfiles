@@ -1,12 +1,5 @@
 #!/bin/bash
-# build deps
-
-# for pyenv builds https://github.com/pyenv/pyenv/wiki/common-build-problems (which also affect asdf)
-
-# distro_family is not always present and can't be overridden: https://github.com/TheLocehiliosan/yadm/issues/430
-
-
-# [[file:../../../README.org::*build deps][build deps:1]]
+# [[file:../../../README.org::*build deps][build deps:2]]
 set -eux
 sudo apt-get update
 sudo apt-get install --no-install-recommends -y clang
@@ -19,4 +12,4 @@ sudo apt-get install --no-install-recommends -y \
     xz-utils tk-dev \
     libxml2-dev libffi-dev \
     libxmlsec1-dev liblzma-dev
-# build deps:1 ends here
+# build deps:2 ends here

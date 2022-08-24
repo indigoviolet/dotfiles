@@ -1,0 +1,6 @@
+#!/bin/bash
+# [[file:../../../README.org::*zsh login shell][zsh login shell:2]]
+set -eux
+
+sudo apt-get install --no-install-recommends -y zsh && sudo chsh -s $(which zsh) $(whoami)
+# zsh login shell:2 ends here
