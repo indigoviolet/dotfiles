@@ -127,6 +127,7 @@ Configures which files are encrypted
 .ssh/id_rsa.pub\#\#c.personal filter=crypt diff=crypt merge=crypt
 .ssh/id_rsa\#\#c.personal filter=crypt diff=crypt merge=crypt
 .config/TabNine/registration_key filter=crypt diff=crypt merge=crypt
+.config/rclone/rclone.conf filter=crypt diff=crypt merge=crypt
 #+end_src
 
 ** Yadm Bootstrap
