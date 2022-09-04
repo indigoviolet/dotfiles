@@ -213,7 +213,8 @@
 ;; [[file:config.org::*Global keybindings][Global keybindings:1]]
 (map! "M-i" #'delete-indentation
       "M-t" #'beginning-of-buffer
-      "M-z" #'end-of-buffer)
+      "M-z" #'end-of-buffer
+      "<f5>" (cmd! (revert-buffer t t)))
 ;; Global keybindings:1 ends here
 
 ;; digit-argument
