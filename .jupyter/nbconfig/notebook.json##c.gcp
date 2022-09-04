@@ -1,0 +1,27 @@
+{
+  "load_extensions": {
+    "jupytext/index": true,
+    "jupyter-js-widgets/extension": true,
+    "nbextensions_configurator/config_menu/main": true,
+    "contrib_nbextensions_help_item/main": true,
+    "toc2/main": true,
+    "collapsible_headings/main": true,
+    "execute_time/ExecuteTime": true,
+    "freeze/main": false,
+    "init_cell/main": true,
+    "notify/notify": true
+  },
+  "toc2": {
+    "navigate_menu": false,
+    "collapse_to_match_collapsible_headings": true
+  },
+  "collapsible_headings": {
+    "add_all_cells_button": true,
+    "collapse_to_match_toc": true
+  },
+  "ExecuteTime": {
+    "clear_timings_on_clear_output": true,
+    "clear_timings_on_kernel_restart": true,
+    "display_right_aligned": true
+  }
+}
