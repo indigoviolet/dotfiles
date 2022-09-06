@@ -78,6 +78,10 @@ brew-list-dependencies:
     # # https://www.thingy-ma-jig.co.uk/blog/22-09-2014/homebrew-list-packages-and-what-uses-them
     # brew list -1 | while read cask; do echo -ne "\x1B[1;34m $cask \x1B[0m"; brew deps $cask --installed | awk '{printf(" %s ", $0)}'; echo ""; done
 
+# We could use this snippet to get <package> <*injected> and then use a just recipe to install
+# ❯ cat ~/.pipx.json | jq -cr '.venvs | map_values(.metadata.injected_packages | keys) | to_entries | map(.key + " " + (.value|join(",")))'
+# Also see https://github.com/pypa/pipx/issues/687
+
 pipx-update-list:
     pipx list --json > ~/.pipx.json
 
