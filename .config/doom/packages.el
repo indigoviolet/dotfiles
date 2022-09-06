@@ -71,13 +71,12 @@
 (package! pp+ :recipe (:host github :repo "emacsmirror/pp-plus"))
 ;; Eval:1 ends here
 
-;; Mouse
+;; (Disable) Mouse
 
 
-
-;; [[file:config.org::*Mouse][Mouse:1]]
+;; [[file:config.org::*(Disable) Mouse][(Disable) Mouse:1]]
 (package! disable-mouse)
-;; Mouse:1 ends here
+;; (Disable) Mouse:1 ends here
 
 ;; Chords
 
@@ -147,6 +146,13 @@
 (package! rainbow-delimiters)
 (package! rainbow-identifiers)
 ;; Rainbow:1 ends here
+
+;; hl-line+
+
+
+;; [[file:config.org::*hl-line+][hl-line+:1]]
+(package! hl-line+ :recipe (:host github :repo "emacsmirror/hl-line-plus"))
+;; hl-line+:1 ends here
 
 ;; Environment
 
@@ -273,6 +279,14 @@
 (package! goto-chg :recipe (:host github :repo "emacs-evil/goto-chg"))
 ;; Last change:1 ends here
 
+;; point
+
+
+
+;; [[file:config.org::*point][point:1]]
+(package! point-undo :recipe (:host github :repo "emacsmirror/point-undo"))
+;; point:1 ends here
+
 ;; Snippets
 
 
@@ -338,15 +352,11 @@
 (package! rg)                           ;For smart-jump-find-references-with-rg
 ;; Jumping:1 ends here
 
-;; consult customization
+;; vicb
 
-;; # TODO: filter out dired-sidebar
-
-
-
-;; [[file:config.org::*consult customization][consult customization:1]]
+;; [[file:config.org::*vicb][vicb:1]]
 (package! vi-consult-buffers :recipe (:host github :repo "indigoviolet/vi-consult-buffers"))
-;; consult customization:1 ends here
+;; vicb:1 ends here
 
 ;; projectile
 
@@ -355,6 +365,14 @@
 (package! consult-projectile :recipe (:host gitlab :repo "OlMon/consult-projectile"))
 ;; projectile:1 ends here
 
+;; avy
+
+
+
+;; [[file:config.org::*avy][avy:1]]
+(package! avy)
+;; avy:1 ends here
+
 ;; Narrowing
 
 
@@ -362,6 +380,15 @@
 ;; [[file:config.org::*Narrowing][Narrowing:1]]
 (package! recursive-narrow)
 ;; Narrowing:1 ends here
+
+;; outline faces
+
+;; - clutters in prog-mode, but probably useful in ein:notebook-mode
+
+
+;; [[file:config.org::*outline faces][outline faces:1]]
+(package! outline-minor-faces :recipe (:host github :repo "tarsius/outline-minor-faces"))
+;; outline faces:1 ends here
 
 ;; ts-fold
 
@@ -491,14 +518,6 @@
 ;; [[file:config.org::*ein][ein:1]]
 (package! ein :pin "6063cee")
 ;; ein:1 ends here
-
-;; Tree sitter
-
-
-;; [[file:config.org::*Tree sitter][Tree sitter:1]]
-(package! tree-sitter)
-(package! tree-sitter-langs)
-;; Tree sitter:1 ends here
 
 ;; Formatting
 

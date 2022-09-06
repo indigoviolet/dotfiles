@@ -138,12 +138,21 @@
 (global-whitespace-mode +1)
 (global-git-gutter-mode t)
 
-;; https://christiantietze.de/posts/2022/03/hl-line-priority/
-(setq hl-line-overlay-priority -50)
-
 (setq! whitespace-style '(face tabs tab-mark trailing))
 
 (blink-cursor-mode)
+
+;; (defun pulse-line (&rest _)
+;;       "Pulse the current line."
+;;       (pulse-momentary-highlight-one-line (point)))
+;;
+;; Addition to nav-flash
+(dolist (command '(scroll-up-command scroll-down-command previous-line next-line
+                   recenter-top-bottom other-window))
+  ;; (advice-add command :after #'pulse-line)
+  (advice-add command :after #'+nav-flash-delayed-blink-cursor-h)
+  )
+
 (repeat-mode 1)
 
 ;; https://pragmaticemacs.wordpress.com/2016/11/07/add-the-system-clipboard-to-the-emacs-kill-ring/
@@ -214,6 +223,7 @@
 (map! "M-i" #'delete-indentation
       "M-t" #'beginning-of-buffer
       "M-z" #'end-of-buffer
+      "C-x k" #'kill-buffer-and-window
       "<f5>" (cmd! (revert-buffer t t)))
 ;; Global keybindings:1 ends here
 
@@ -248,12 +258,12 @@
   (global-set-key [remap eval-last-sexp] 'pp-eval-last-sexp))
 ;; Eval:2 ends here
 
-;; [[file:config.org::*Mouse][Mouse:2]]
+;; [[file:config.org::*(Disable) Mouse][(Disable) Mouse:2]]
 (use-package! disable-mouse
   :after-call doom-first-input-hook
   :config
   (global-disable-mouse-mode))
-;; Mouse:2 ends here
+;; (Disable) Mouse:2 ends here
 
 ;; [[file:config.org::*Chords][Chords:2]]
 ;; distributed with use-package
@@ -478,6 +488,29 @@
 (setq solaire-mode-real-buffer-fn #'vi/solaire-real-buffer-p)
 ;; vterm:1 ends here
 
+;; hl-line
+
+
+
+;; [[file:config.org::*hl-line][hl-line:1]]
+;; https://christiantietze.de/posts/2022/03/hl-line-priority/
+(setq hl-line-overlay-priority -100)
+;; hl-line:1 ends here
+
+;; [[file:config.org::*hl-line+][hl-line+:2]]
+(use-package! hl-line+
+  :hook
+  (window-scroll-functions . hl-line-flash)
+  (focus-in . hl-line-flash)
+  (post-command . hl-line-flash)
+
+  :custom
+  ;;(global-hl-line-mode nil)
+  (hl-line-flash-show-period 0.5)
+  ;; (hl-line-inhibit-highlighting-for-modes '(dired-mode))
+  )
+;; hl-line+:2 ends here
+
 ;; with parens-mode
 
 
@@ -555,6 +588,9 @@ message listing the hooks."
   (add-to-list 'hardhat-fullpath-protected-regexps "/node_modules/")
   (add-to-list 'hardhat-fullpath-protected-regexps "/site-packages/")
   (add-to-list 'hardhat-fullpath-protected-regexps "/straight/repos/")
+
+  ;; We want to edit Jupytext files via ein/Jupyter
+  (add-to-list 'hardhat-bof-content-protected-regexps '(python-mode . "^# +jupytext:"))
 
   ;; ignoramus-file-exact-names matches this
   ;; hardhat-fullpath-editable-regexps doesn't match it in all cases (eg. yadm/repo.git/COMMIT_EDITMSG)
@@ -681,8 +717,8 @@ message listing the hooks."
 
 
 ;; [[file:config.org::*Switching][Switching:1]]
-(map! "M-j" #'consult-buffer
-      "M-k" #'consult-buffer)
+;; (map! "M-k" #'consult-buffer)
+(map! "M-k" #'purpose-switch-buffer-with-purpose)
 ;; Switching:1 ends here
 
 
@@ -833,7 +869,7 @@ message listing the hooks."
           bufler-list-mode
 
           ;; we want to use a custom doom-modeline segment vterm-copy-mode
-          vterm-mode ;; https://github.com/karthink/popper/issues/38
+          ;; vterm-mode ;; https://github.com/karthink/popper/issues/38
 
           flycheck-error-list-mode
           flycheck-projectile-error-list-mode
@@ -862,6 +898,8 @@ message listing the hooks."
                                   ;; appropriate prog mode, but we want them in
                                   ;; the same window
                                   ("\\` ?\\*ein" . ein)
+                                  ("\\` " . hidden)
+                                  ("\\*" . special)
                                   ))
   (purpose-use-default-configuration nil)
   :after-call doom-first-buffer-hook
@@ -941,6 +979,8 @@ message listing the hooks."
 (defun vi/set-font-size (sz)
   (setq doom-font (font-spec :size sz))
   (doom/reload-font)
+  (message "Setting font size to: %s" sz)
+  sz
   )
 
 ;; see (dispwatch--get-display)
@@ -954,10 +994,17 @@ message listing the hooks."
         ((equal disp '(4800 . 3200))    ; laptop @ 125%
          (vi/set-font-size 17))
         ((equal disp '(4002 . 2668))    ; laptop @ 150%
-         (vi/set-font-size 17))
+         (vi/set-font-size 19))
         ((equal disp '(3426 . 2284))    ; laptop @ 175%
          (vi/set-font-size 13))
         (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
+
+(defun vi/trigger-dispwatch ()
+  (interactive)
+  (vi/adjust-font-size-for-display
+   ;; extract dotted pair from display info
+   (apply #'cons (-take-last 2 (nth 1 dispwatch-current-display))))
+  )
 
 (use-package! dispwatch
   :after-call doom-first-buffer-hook
@@ -1095,7 +1142,9 @@ message listing the hooks."
   (vundo-glyph-alist vundo-unicode-symbols)
   ;; (vundo-glyph-alist vundo-ascii-symbols)
   :config
-  (set-face-attribute 'vundo-default nil :family "DejaVu Sans Mono")
+  ;; different fonts at different sizes mess up the alignment in vundo
+  ;; Iosevka 13 seems to be ok
+  ;; (set-face-attribute 'vundo-default nil :family "DejaVu Sans Mono")
   :after-call doom-first-buffer-hook
   :bind ("C-x u" . vundo))
 
@@ -1118,6 +1167,14 @@ message listing the hooks."
   (map! :map org-mode-map "C-," nil)
   )
 ;; Last change:2 ends here
+
+;; [[file:config.org::*point][point:2]]
+(use-package! point-undo
+  :config
+  (map!
+   "s-." #'point-undo
+   "s-," #'point-redo))
+;; point:2 ends here
 
 ;; [[file:config.org::*Snippets][Snippets:2]]
 (after! yasnippet
@@ -1161,7 +1218,6 @@ message listing the hooks."
   (separedit-remove-trailing-spaces-in-comment t)
   (separedit-default-mode 'org-mode)
   :bind ("M-\\" . separedit)
-
   )
 ;; separedit:2 ends here
 
@@ -1288,15 +1344,18 @@ message listing the hooks."
   )
 ;; Jumping:2 ends here
 
-;; [[file:config.org::*consult customization][consult customization:2]]
-(use-package! vicb
-  :config
-  (vicb-setup)
-  )
+;; consult customization
 
-(after! (consult projectile)
-   (setq consult-project-function (lambda (_) (projectile-project-root))))
+;; # TODO: filter out dired-sidebar
 
+
+;; [[file:config.org::*consult customization][consult customization:1]]
+(add-hook! 'consult-after-jump-hook #'recenter-top-bottom)
+;; consult customization:1 ends here
+
+;; consult-dir
+
+;; [[file:config.org::*consult-dir][consult-dir:1]]
 (after! consult-dir
   (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
 
@@ -1311,11 +1370,23 @@ message listing the hooks."
         "S" #'+vertico/consult-fd
         "D" #'consult-dir)
   )
+;; consult-dir:1 ends here
+
+;; [[file:config.org::*vicb][vicb:2]]
+(use-package! vicb
+  :config
+  (vicb-setup)
+  )
 
 ;; (after! '(consult vicb)
 ;;   ;; (consult-customize consult-buffer :group nil :sort t)
 ;;   )
-;; consult customization:2 ends here
+;; vicb:2 ends here
+
+;; [[file:config.org::*projectile][projectile:2]]
+(after! (consult projectile)
+   (setq consult-project-function (lambda (_) (projectile-project-root))))
+;; projectile:2 ends here
 
 ;; embark
 
@@ -1374,7 +1445,7 @@ message listing the hooks."
   (setq orderless-matching-styles '(orderless-literal orderless-regexp)))
                                                       ;;orderless-flex)))
 
-(after! (orderless vertico)
+(after! vertico
   (defun vi/match-components-literally ()
     "Components match literally for the rest of the session."
     (interactive)
@@ -1382,9 +1453,64 @@ message listing the hooks."
                 orderless-style-dispatchers nil))
 
   ;; (define-key minibuffer-local-completion-map (kbd "C-l") #'vi/match-components-literally)
-  (define-key vertico-map (kbd "C-l") #'vi/match-components-literally)
+    (map! :map vertico-map
+          "C-l" #'vi/match-components-literally
+          "M-j" #'vertico-quick-jump)
   )
 ;; Orderless:1 ends here
+
+;; [[file:config.org::*avy][avy:2]]
+(use-package! avy
+  :custom
+  (avy-single-candidate-jump t)
+  (avy-all-windows t)
+  (avy-timeout-seconds 0.2)
+  :bind (
+         ("M-j" . avy-goto-char-timer)
+         ("M-J" . avy-resume))
+  )
+;; avy:2 ends here
+
+;; embark
+
+
+;; [[file:config.org::*embark][embark:1]]
+(after! avy
+  (defun avy-action-embark (pt)
+    (unwind-protect
+        (save-excursion
+          (goto-char pt)
+          (embark-act))
+      (select-window
+       (cdr (ring-ref avy-ring 0))))
+    t)
+
+  (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark))
+;; embark:1 ends here
+
+;; isearch/ctrlf
+
+;; [[file:config.org::*isearch/ctrlf][isearch/ctrlf:1]]
+;; this isn't useful since we use ctrlf
+(map! :map isearch-mode-map "M-j" #'avy-isearch)
+
+(after! ctrlf
+  (defun vi/avy-ctrlf ()
+    "Jump to one of the current ctrlf candidates. (based on avy-isearch)"
+    (interactive)
+    (require 'avy)
+    (with-selected-window (get-mru-window)
+      (avy-with avy-isearch
+        (let ((avy-background nil)
+              (avy-case-fold-search case-fold-search))
+          (avy-process
+           (avy--regex-candidates ctrlf--last-input)))))
+    (exit-minibuffer)
+    )
+
+  (map! :map ctrlf-minibuffer-mode-map "M-j" #'vi/avy-ctrlf)
+  )
+;; isearch/ctrlf:1 ends here
 
 ;; [[file:config.org::*Narrowing][Narrowing:2]]
 (use-package! recursive-narrow
@@ -1406,10 +1532,24 @@ message listing the hooks."
 ;; [[file:config.org::*outline][outline:1]]
 (use-package! outline
   :after-call doom-first-buffer-hook
-  :hook (prog-mode . outline-minor-mode)
+  :hook (
+         (prog-mode . outline-minor-mode)
+         (ein:notebook-mode . outline-minor-mode)
+         )
   :bind (:map outline-minor-mode-map
          ([C-tab] . outline-cycle)
+         ("C-<iso-lefttab>" . outline-hide-other) ;C-S-<tab>
          ([s-tab] . outline-cycle-buffer))) ; win-tab
+
+
+(after! outline
+  ;; Customize the distracting folding markers.
+  (set-display-table-slot
+   standard-display-table
+   'selective-display
+   (let ((face-offset (* (face-id 'shadow) (lsh 1 22))))
+     (vconcat (mapcar (lambda (c) (+ face-offset c)) " 祈"))))
+  )
 ;; outline:1 ends here
 
 ;; Python
@@ -1419,6 +1559,12 @@ message listing the hooks."
 ;; [[file:config.org::*Python][Python:1]]
 (setq-hook! 'python-mode-hook outline-regexp (python-rx (* space) (or defun decorator)))
 ;; Python:1 ends here
+
+;; [[file:config.org::*outline faces][outline faces:2]]
+(use-package! outline-minor-faces
+  :hook (ein:notebook-mode . outline-minor-faces-mode)
+  )
+;; outline faces:2 ends here
 
 ;; [[file:config.org::*ts-fold][ts-fold:2]]
 (add-hook! 'tree-sitter-mode-hook #'fringe-mode #'ts-fold-mode) ;; #'ts-fold-indicators-mode)
@@ -1511,26 +1657,45 @@ message listing the hooks."
 ;; [[file:config.org::*Hydra][Hydra:2]]
 (after! major-mode-hydra
   (setq major-mode-hydra-invisible-quit-key "q")
+
+  (defun vi/get-major-mode ()
+    (cond
+     ((and (boundp 'ein:notebook-mode) ein:notebook-mode) 'ein:notebook-mode)
+     (major-mode)
+     ))
+
+  (defun vi/major-mode-hydra ()
+    (interactive)
+    (major-mode-hydra-dispatch (vi/get-major-mode)))
   )
 
 
-(pretty-hydra-define global-hydra (:exit t)
+(pretty-hydra-define global-hydra (:exit t :quit-key ("q" "C-g"))
   ("Searching"
    (;; ("f" +vertico/consult-fd "fd")
     ("s" +vertico/project-search "rg in project")
     ("l" consult-line "Line isearch")
     ("D" doc-hydra/body "Docs"))
-   "Navigating"
+   "Buffers"
    (("b" consult-buffer "Buffers")
-    ("i" consult-outline "outlIne")
-    ("t" dired-sidebar-jump-to-sidebar "Tree")
-    ("T" dired-sidebar-toggle-sidebar "Tree")
+    ("t" dired-sidebar-jump-to-sidebar "Goto Tree")
+    ("T" dired-sidebar-toggle-sidebar "Toggle tree")
+    ;; ("w" +workspace/cycle "next workspace")
+    ("w" persp-switch "next workspace")
     ;; ("t" treemacs-select-window "treemacs")
     ;; ("T" +treemacs/toggle "Toggle treemacs")
     ("`" popper-toggle-latest "Latest Popup")
-    ("'" popper-cycle "Popup cycles")
+    ("'" popper-cycle "Popup cycles" :exit nil)
     )
-   ""
+   "Intra-buffer"
+   (
+     ("i" consult-outline "outlIne")
+     ;; ("." push-mark-command "Push Mark")
+     ;; ("m" consult-mark "consult-mark")
+     ;; ("M" consult-global-mark "global-mark")
+     ;;("f" fold-active-region "fold region")
+    )
+   "vterms"
     (
      ;;("v" multi-vterm-next "vterm-toggle")
      ;; ("V" multi-vterm "vterm")
@@ -1542,31 +1707,33 @@ message listing the hooks."
 
      ("v" vi/vterm-project-or-here "vterm-toggle")
      ("V" (vi/vterm-project-or-here t) "vterm")
-
+     ("M-v" vterm "vanilla vterm")
     )
    "Modes"
    (;; ("a" hydra-annotate/body "Annotate")
-    ("SPC" major-mode-hydra "Major")
+    ("SPC" vi/major-mode-hydra "Major")
     ("c" flycheck-hydra/body "flycheck")
     ("n" hydra-narrow/body "narrow")
     ("L" lsp-mode-hydra/body "LSP")
-    ("e" ein-hydra/body "EIN")
-    ("p" org-pomodoro "Pomodoro"))
+    ;; ("e" ein-hydra/body "EIN")
+    ("p" org-pomodoro "Pomodoro")
+    ("M-m" minions-minor-modes-menu "Minor modes")
+    )
    "Actions"
-   (("A" org-agenda-list "Agenda")
+   (
     ("M-y" yankpad-insert "yankpad")
     ("g" magit-status-here "magit")
     ("M-\\" edit-indirect-region "edit indirect region")
     ;; ("d" consult-dir "dir" )
     ("r" consult-notes-org-roam-find-node "find node")
     ("M-l" org-store-link "store link")
-    ;; ("w" +workspace/cycle "next workspace")
-    ("w" persp-switch "next workspace")
+    ("A" org-agenda-list "Agenda")
     )
    )
   )
 
 (key-chord-define-global "hh" #'global-hydra/body)
+(key-chord-define-global "jj" #'vi/major-mode-hydra)
 ;; Hydra:2 ends here
 
 ;; Org
@@ -1612,13 +1779,13 @@ message listing the hooks."
 
         ;; https://github.com/radian-software/ctrlf/issues/118
         org-fold-core-style 'overlays)
-;;  (pretty-hydra-define org-hydra
-  (major-mode-hydra-define org-mode nil
+
+  (major-mode-hydra-define org-mode (:quit-key ("q" "C-g") :title "test")
     ("Subtree"
      (("k" org-cut-subtree "cut")
       ("y" org-paste-subtree "paste")
-      ("<up>" org-promote-subtree "promote")
-      ("<down>" org-demote-subtree "demote")
+      ("<up>" org-promote-subtree "promote" :exit nil)
+      ("<down>" org-demote-subtree "demote" :exit nil)
       )
      "Src"
      (("/" org-babel-demarcate-block "split src block")
@@ -1633,24 +1800,16 @@ message listing the hooks."
       )
      "Misc"
      (
-      ("x" org-toggle-checkbox "List [x]")
+      ;; https://stackoverflow.com/a/6156444
+      ;; '(4) is prefix (C-u)
+      ;; '(16) is double-prefix C-u C-u
+      ("x" (org-toggle-checkbox '(4)) "List [x]")
       ("Y" org-download-clipboard "pbpaste")
       )
      )
     )
   )
 ;; Org:1 ends here
-
-;; Electric pairs
-
-
-;; [[file:config.org::*Electric pairs][Electric pairs:1]]
-(after! smartparens
-  (sp-local-pair 'org-mode "~" "~")
-  ;; (sp-local-pair 'org-mode "=" "=")
-  ;; (sp-local-pair 'org-mode "$" "$")
-  )
-;; Electric pairs:1 ends here
 
 ;; [[file:config.org::*show delimiters][show delimiters:2]]
 (use-package! org-appear
@@ -1907,13 +2066,34 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   (setq ein:notebooklist-render-order '(render-opened-notebooks render-directory render-header))
   (setq ein:truncate-long-cell-output 10000)
   (setq ein:cell-max-num-outputs 10000)
-  (setq markdown-header-scaling t)
+  (setq ein:markdown-header-scaling nil)    ;this leads to variable pitch faces for
+                                        ;markdown headers, which doesn't work so
+                                        ;well with fontlocking (and outline-minor-faces-mode)
   (setq ein:output-area-inlined-images t)
   (setq ein:url-or-port '("http://localhost:8888"))
   (setq ein:jupyter-server-args '("--no-browser" "--port=8889"))
   ;; https://github.com/millejoh/emacs-ipython-notebook/issues/423#issuecomment-458254069
   (setq ein:query-timeout nil)
   :config
+
+  (custom-set-faces!
+    '(ein:cell-output-area :background "MidnightBlue" :extend t)
+    '(ein:cell-output-area-error :background "OrangeRed4" :extend t)
+    '(ein:codecell-input-area-face :background "#23272e" :extend t)
+    '(ein:codecell-input-prompt-face :foreground "black" :background "cyan" :extend t)
+    ;; '(ein:markdowncell-input-prompt-face :foreground "LightPink" :background "black" :extend t)
+    '(ein:markdowncell-input-prompt-face :foreground nil :background nil :extend t)
+    '(ein:markdowncell-input-area-face :background nil :extend t)
+    '(ein:markdown-header-face-1 :inherit nil)
+    '(ein:markdown-header-face-2 :inherit nil)
+    '(ein:markdown-header-face-3 :inherit nil)
+    '(ein:markdown-header-face-4 :inherit nil)
+    '(ein:markdown-header-face-5 :inherit nil)
+    '(ein:markdown-header-face-6 :inherit nil)
+    ;; '(ein:markdown-header-face :foreground "snow" :weight bold)
+    ;; '(ein:markdown-header-face :foreground nil :weight normal)
+    )
+
   (defun vi/ein-toggle-inlined-images ()
     (interactive)
     (setq ein:output-area-inlined-images (if ein:output-area-inlined-images nil t))
@@ -1948,12 +2128,13 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
                                (without-purpose (switch-to-buffer (ein:notebook-buffer nb)))))
 
           )))
+  )
 
-  :pretty-hydra
-  (
+;; ein-hydra
+(major-mode-hydra-define (ein:notebook-mode) (:quit-key ("q" "C-g") :exit t :foreign-keys run)
    (
     "Connect"
-    (("n" ein:notebooklist-open "Notebook list")
+    (("b" ein:notebooklist-open "Notebook list")
      ("l" ein:notebooklist-login "Login")
      ("s" ein:jupyter-server-start "Start")
      ("t" ein:jupyter-server-stop "Stop"))
@@ -1963,15 +2144,25 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
      ("z" ein:notebook-kernel-interrupt-command "interrupt")
      ("v" vi/revert-notebook "Revert"))
     "Exec"
-    (("x" ein:worksheet-execute-all-cells-above "Execute all above")
+    (
+     ("p" ein:worksheet-goto-prev-input-km "Prev Cell" :exit nil)
+     ("n" ein:worksheet-goto-next-input-km "Next Cell" :exit nil)
+     ("o" ein:worksheet-toggle-output "Toggle output")
+     ("O" (ein:worksheet-set-output-visibility-all (ein:worksheet--get-ws-or-error) t) "Hide all output")
+     ("M-o" ein:worksheet-set-output-visibility-all "Show all output")
+     ("x" ein:worksheet-execute-all-cells-above "Execute all above")
      ("X" vi/restart-and-execute-all-above "Restart & x"))
     "Fix"
     (("i" vi/ein-toggle-inlined-images "Toggle inlined images")
-     ("f" vi/ein-fix "Fix")
+     ("M-f" vi/ein-fix "Fix")
      ("N" ein:notebook-rename-command "Rename")
      )
-    )
-   ))
+    ))
+
+;; (setq scroll-preserve-screen-position t
+;;       scroll-conservatively 0
+;;       maximum-scroll-margin 0.5
+;;       scroll-margin 99999)
 
 (add-hook! 'ein:notebook-mode-hook #'vi/ein-fix)
 
@@ -1980,6 +2171,18 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 (map! :mode poly-ein-mode
       :map polymode-mode-map
       "M-n" nil)
+
+(map! :map ein:notebook-mode-map
+      "C-n" #'ein:worksheet-goto-next-input-km
+      "C-p" #'ein:worksheet-goto-prev-input-km
+      )
+
+
+  ;; (advice-add 'json-parse-buffer :around
+  ;;             (lambda (orig &rest rest)
+  ;;               (while (re-search-forward "\\u0000" nil t)
+  ;;                 (replace-match ""))
+  ;;               (apply orig rest)))
 ;; ein:2 ends here
 
 ;; vterm
@@ -2043,6 +2246,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; [[file:config.org::*Home grown][Home grown:1]]
 (defsubst vi/vterm-dir ()
+  ;; TODO: if this is TRAMP, don't return default-directory
   (or (projectile-project-root) default-directory))
 
 (defsubst vi/create-vterm-in-dir (dir)
@@ -2350,14 +2554,6 @@ Results are reported in a compilation buffer."
   ;;   )
   )
 ;; LSP:1 ends here
-
-;; [[file:config.org::*Tree sitter][Tree sitter:2]]
-(add-hook! '(python-mode-hook) #'tree-sitter-mode)
-
-;;; global wants to use it in org-mode and keeps complaining
-;; (use-package! tree-sitter
-;;   :config (global-tree-sitter-mode))
-;; Tree sitter:2 ends here
 
 ;; ccls vs clangd
 

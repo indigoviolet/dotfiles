@@ -40,25 +40,65 @@ https://github.com/hlissner/doom-emacs/issues/310#issuecomment-354424413
 
 which keys? (ctrl is taken, caps is not reachable,)
 how to define on ubuntu?
-** DONE edit-indirect (separedit),
+** [[*combobulate][combobulate]]
 
-** fence-edit,
+** Fonts
 
+figure out why polars utf8 tables don't render correctly (even in vterm -- this is an emacs-wide problem, not ein only)
 
+** edit-indirect (separedit),
 
+sometimes edit-indirect seems to remember separedit comment-removal
 
-** polymode (justfile?)
-** TODO Unpin ein
+** ein
 
-** https://framagit.org/steckerhalter/discover-my-major
+*** font-locking
 
-** WAIT code-cells
+try to write a function that "updates" font-locking on all (markdown/code) cells
+
+^ may be unncessary with outline-minor-faces-mode and removing all font attributes on markdown faces
+
+*** firestarter + jupytext on save sync?
+
+may not be necessary if we use jupyter-ascending
+
+*** last execution time in ein
+
+https://github.com/millejoh/emacs-ipython-notebook/blob/old-master/lisp/ein-timestamp.el
+
+*** WAIT code-cells
 :LOGBOOK:
 - State "WAIT"       from              [2022-07-02 Sat 11:47]
 :END:
 
 cons: outputs aren't saved; this is not using polymode so that markdown isn't
 supported (see https://github.com/polymode/polymode/issues/305 also)
+
+*** fence-edit,
+
+
+
+
+*** TODO Unpin ein
+
+*** Create folding for ein notebooks using origami
+
+https://github.com/elp-revive/origami.el
+
+See for examples: https://github.com/elp-revive/origami.el/blob/master/origami-parsers.el
+*** undo is disabled?
+
+[2022-09-04T01:34:19]: Warning (ein): Disabling undo for undo-fu-only-undo Disable showing Disable logging
+
+*** unknown errors on login
+
+
+[2022-09-04T01:34:12]: Wrong type argument: ein:$notebook, nil: defaulting language to python [2 times]
+
+
+
+** polymode (justfile?)
+** https://framagit.org/steckerhalter/discover-my-major
 
 ** Insert item below isn't good
 
@@ -68,9 +108,16 @@ We could try to create +org/insert-item-below with -above + shift down
 
 We could create a better org-return-dwim using (org-at-item-p), (org-in-item-p) and friends
 
-** See if we can use https://gitlab.com/jjzmajic/hercules.el to make simpler hydras
+** KILL Better hydras?
+:LOGBOOK:
+- State "KILL"       from              [2022-09-03 Sat 14:40]
+:END:
 
-** Use transient to make expand-region more like easy-mark
+Punt for now: pretty/major-hydra is quite good
+
+*** See if we can use https://gitlab.com/jjzmajic/hercules.el to make simpler hydras
+
+*** Use transient to make expand-region more like easy-mark
 
 https://www.reddit.com/r/emacs/comments/f3o0v8/anyone_have_good_examples_for_transient/
 
@@ -94,8 +141,14 @@ er/mark-<foo> to recreate easy-mark, with active region.
 https://github.com/alexluigit/dirvish
 ** Tramp issues
 
-*** treemacs freaks out in tramp?
 *** Figure out how to efficiently handle vterm, find-file in the presence of tramp
+
+(+vterm/here seems to look for default-directory -- maybe we can fix that)
+
+*** KILL treemacs freaks out in tramp?
+:LOGBOOK:
+- State "KILL"       from              [2022-09-03 Sat 14:41]
+:END:
 
 ** Ideas from [[https://github.com/zzamboni/dot-doom/blob/master/doom.org][zzamboni]]
 *** Jump to matching parens
@@ -554,211 +607,6 @@ above.
 curl https://raw.githubusercontent.com/hlissner/doom-emacs/master/init.example.el
 #+end_src
 
-#+results:
-#+begin_src emacs-lisp
-;;; init.el -*- lexical-binding: t; -*-
-
-;; This file controls what Doom modules are enabled and what order they load
-;; in. Remember to run 'doom sync' after modifying it!
-
-;; NOTE Press 'SPC h d h' (or 'C-h d h' for non-vim users) to access Doom's
-;;      documentation. There you'll find a link to Doom's Module Index where all
-;;      of our modules are listed, including what flags they support.
-
-;; NOTE Move your cursor over a module's name (or its flags) and press 'K' (or
-;;      'C-c c k' for non-vim users) to view its documentation. This works on
-;;      flags as well (those symbols that start with a plus).
-;;
-;;      Alternatively, press 'gd' (or 'C-c c d') on a module to browse its
-;;      directory (for easy access to its source code).
-
-(doom! :input
-       ;;chinese
-       ;;japanese
-       ;;layout            ; auie,ctsrnm is the superior home row
-
-       :completion
-       company           ; the ultimate code completion backend
-       ;;helm              ; the *other* search engine for love and life
-       ;;ido               ; the other *other* search engine...
-       ;;ivy               ; a search engine for love and life
-       vertico           ; the search engine of the future
-
-       :ui
-       ;;deft              ; notational velocity for Emacs
-       doom              ; what makes DOOM look the way it does
-       doom-dashboard    ; a nifty splash screen for Emacs
-       ;;doom-quit         ; DOOM quit-message prompts when you quit Emacs
-       ;;(emoji +unicode)  ; 🙂
-       hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
-       ;;hydra
-       ;;indent-guides     ; highlighted indent columns
-       ;;ligatures         ; ligatures and symbols to make your code pretty again
-       ;;minimap           ; show a map of the code on the side
-       modeline          ; snazzy, Atom-inspired modeline, plus API
-       ;;nav-flash         ; blink cursor line after big motions
-       ;;neotree           ; a project drawer, like NERDTree for vim
-       ophints           ; highlight the region an operation acts on
-       (popup +defaults)   ; tame sudden yet inevitable temporary windows
-       ;;tabs              ; a tab bar for Emacs
-       ;;treemacs          ; a project drawer, like neotree but cooler
-       ;;unicode           ; extended unicode support for various languages
-       vc-gutter         ; vcs diff in the fringe
-       vi-tilde-fringe   ; fringe tildes to mark beyond EOB
-       ;;window-select     ; visually switch windows
-       workspaces        ; tab emulation, persistence & separate workspaces
-       ;;zen               ; distraction-free coding or writing
-
-       :editor
-       (evil +everywhere); come to the dark side, we have cookies
-       file-templates    ; auto-snippets for empty files
-       fold              ; (nigh) universal code folding
-       ;;(format +onsave)  ; automated prettiness
-       ;;god               ; run Emacs commands without modifier keys
-       ;;lispy             ; vim for lisp, for people who don't like vim
-       ;;multiple-cursors  ; editing in many places at once
-       ;;objed             ; text object editing for the innocent
-       ;;parinfer          ; turn lisp into python, sort of
-       ;;rotate-text       ; cycle region at point between text candidates
-       snippets          ; my elves. They type so I don't have to
-       ;;word-wrap         ; soft wrapping with language-aware indent
-
-       :emacs
-       dired             ; making dired pretty [functional]
-       electric          ; smarter, keyword-based electric-indent
-       ;;ibuffer         ; interactive buffer management
-       undo              ; persistent, smarter undo for your inevitable mistakes
-       vc                ; version-control and Emacs, sitting in a tree
-
-       :term
-       ;;eshell            ; the elisp shell that works everywhere
-       ;;shell             ; simple shell REPL for Emacs
-       ;;term              ; basic terminal emulator for Emacs
-       ;;vterm             ; the best terminal emulation in Emacs
-
-       :checkers
-       syntax              ; tasing you for every semicolon you forget
-       ;;(spell +flyspell) ; tasing you for misspelling mispelling
-       ;;grammar           ; tasing grammar mistake every you make
-
-       :tools
-       ;;ansible
-       ;;biblio            ; Writes a PhD for you (citation needed)
-       ;;debugger          ; FIXME stepping through code, to help you add bugs
-       ;;direnv
-       ;;docker
-       ;;editorconfig      ; let someone else argue about tabs vs spaces
-       ;;ein               ; tame Jupyter notebooks with emacs
-       (eval +overlay)     ; run code, run (also, repls)
-       ;;gist              ; interacting with github gists
-       lookup              ; navigate your code and its documentation
-       ;;lsp               ; M-x vscode
-       magit             ; a git porcelain for Emacs
-       ;;make              ; run make tasks from Emacs
-       ;;pass              ; password manager for nerds
-       ;;pdf               ; pdf enhancements
-       ;;prodigy           ; FIXME managing external services & code builders
-       ;;rgb               ; creating color strings
-       ;;taskrunner        ; taskrunner for all your projects
-       ;;terraform         ; infrastructure as code
-       ;;tmux              ; an API for interacting with tmux
-       ;;upload            ; map local to remote projects via ssh/ftp
-
-       :os
-       (:if IS-MAC macos)  ; improve compatibility with macOS
-       ;;tty               ; improve the terminal Emacs experience
-
-       :lang
-       ;;agda              ; types of types of types of types...
-       ;;beancount         ; mind the GAAP
-       ;;(cc +lsp)         ; C > C++ == 1
-       ;;clojure           ; java with a lisp
-       ;;common-lisp       ; if you've seen one lisp, you've seen them all
-       ;;coq               ; proofs-as-programs
-       ;;crystal           ; ruby at the speed of c
-       ;;csharp            ; unity, .NET, and mono shenanigans
-       ;;data              ; config/data formats
-       ;;(dart +flutter)   ; paint ui and not much else
-       ;;dhall
-       ;;elixir            ; erlang done right
-       ;;elm               ; care for a cup of TEA?
-       emacs-lisp        ; drown in parentheses
-       ;;erlang            ; an elegant language for a more civilized age
-       ;;ess               ; emacs speaks statistics
-       ;;factor
-       ;;faust             ; dsp, but you get to keep your soul
-       ;;fortran           ; in FORTRAN, GOD is REAL (unless declared INTEGER)
-       ;;fsharp            ; ML stands for Microsoft's Language
-       ;;fstar             ; (dependent) types and (monadic) effects and Z3
-       ;;gdscript          ; the language you waited for
-       ;;(go +lsp)         ; the hipster dialect
-       ;;(graphql +lsp)    ; Give queries a REST
-       ;;(haskell +lsp)    ; a language that's lazier than I am
-       ;;hy                ; readability of scheme w/ speed of python
-       ;;idris             ; a language you can depend on
-       ;;json              ; At least it ain't XML
-       ;;(java +lsp)       ; the poster child for carpal tunnel syndrome
-       ;;javascript        ; all(hope(abandon(ye(who(enter(here))))))
-       ;;julia             ; a better, faster MATLAB
-       ;;kotlin            ; a better, slicker Java(Script)
-       ;;latex             ; writing papers in Emacs has never been so fun
-       ;;lean              ; for folks with too much to prove
-       ;;ledger            ; be audit you can be
-       ;;lua               ; one-based indices? one-based indices
-       markdown          ; writing docs for people to ignore
-       ;;nim               ; python + lisp at the speed of c
-       ;;nix               ; I hereby declare "nix geht mehr!"
-       ;;ocaml             ; an objective camel
-       org               ; organize your plain life in plain text
-       ;;php               ; perl's insecure younger brother
-       ;;plantuml          ; diagrams for confusing people more
-       ;;purescript        ; javascript, but functional
-       ;;python            ; beautiful is better than ugly
-       ;;qt                ; the 'cutest' gui framework ever
-       ;;racket            ; a DSL for DSLs
-       ;;raku              ; the artist formerly known as perl6
-       ;;rest              ; Emacs as a REST client
-       ;;rst               ; ReST in peace
-       ;;(ruby +rails)     ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
-       ;;rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
-       ;;scala             ; java, but good
-       ;;(scheme +guile)   ; a fully conniving family of lisps
-       sh                ; she sells {ba,z,fi}sh shells on the C xor
-       ;;sml
-       ;;solidity          ; do you need a blockchain? No.
-       ;;swift             ; who asked for emoji variables?
-       ;;terra             ; Earth and Moon in alignment for performance.
-       ;;web               ; the tubes
-       ;;yaml              ; JSON, but readable
-       ;;zig               ; C, but simpler
-
-       :email
-       ;;(mu4e +org +gmail)
-       ;;notmuch
-       ;;(wanderlust +gmail)
-
-       :app
-       ;;calendar
-       ;;emms
-       ;;everywhere        ; *leave* Emacs!? You must be joking
-       ;;irc               ; how neckbeards socialize
-       ;;(rss +org)        ; emacs as an RSS reader
-       ;;twitter           ; twitter client https://twitter.com/vnought
-
-       :config
-       ;;literate
-       (default +bindings +smartparens))
-#+end_src
-
-
-
-
-
-
-
-
-
-
 * Disabled packages
 
 magit-todos: was slow on the startup, unused
@@ -834,12 +682,21 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
 (global-whitespace-mode +1)
 (global-git-gutter-mode t)
 
-;; https://christiantietze.de/posts/2022/03/hl-line-priority/
-(setq hl-line-overlay-priority -50)
-
 (setq! whitespace-style '(face tabs tab-mark trailing))
 
 (blink-cursor-mode)
+
+;; (defun pulse-line (&rest _)
+;;       "Pulse the current line."
+;;       (pulse-momentary-highlight-one-line (point)))
+;;
+;; Addition to nav-flash
+(dolist (command '(scroll-up-command scroll-down-command previous-line next-line
+                   recenter-top-bottom other-window))
+  ;; (advice-add command :after #'pulse-line)
+  (advice-add command :after #'+nav-flash-delayed-blink-cursor-h)
+  )
+
 (repeat-mode 1)
 
 ;; https://pragmaticemacs.wordpress.com/2016/11/07/add-the-system-clipboard-to-the-emacs-kill-ring/
@@ -903,6 +760,7 @@ https://emacs.stackexchange.com/a/24658 -- not sure if this works?
 (map! "M-i" #'delete-indentation
       "M-t" #'beginning-of-buffer
       "M-z" #'end-of-buffer
+      "C-x k" #'kill-buffer-and-window
       "<f5>" (cmd! (revert-buffer t t)))
 #+end_src
 
@@ -940,8 +798,7 @@ https://old.reddit.com/r/emacs/comments/qfhzjg/make_better_use_of_cx_ce/
   (global-set-key [remap eval-last-sexp] 'pp-eval-last-sexp))
 #+end_src
 
-* Mouse
-
+* (Disable) Mouse
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! disable-mouse)
@@ -1014,7 +871,7 @@ https://dzone.com/articles/rare-letter-combinations-and
   )
 #+end_src
 
-* Colors
+* Colors/display
 ** dim other buffers
 
 +Leads to all kinds of hell -- errors everywhere. unclear what this is conflicting with.
@@ -1208,6 +1065,7 @@ https://dzone.com/articles/rare-letter-combinations-and
   :hook
   (prog-mode . rainbow-identifiers-mode)
   )
+
 #+end_src
 
 ** ansi colors
@@ -1245,6 +1103,36 @@ Hence we turn off solaire-mode in vterm by calling vterm buffers "real"
     (solaire-mode-real-buffer-p))
   )
 (setq solaire-mode-real-buffer-fn #'vi/solaire-real-buffer-p)
+#+end_src
+** hl-line
+
+
+#+begin_src emacs-lisp
+
+;; https://christiantietze.de/posts/2022/03/hl-line-priority/
+(setq hl-line-overlay-priority -100)
+#+end_src
+
+*** hl-line+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! hl-line+ :recipe (:host github :repo "emacsmirror/hl-line-plus"))
+#+end_src
+
+
+
+#+begin_src emacs-lisp
+(use-package! hl-line+
+  :hook
+  (window-scroll-functions . hl-line-flash)
+  (focus-in . hl-line-flash)
+  (post-command . hl-line-flash)
+
+  :custom
+  ;;(global-hl-line-mode nil)
+  (hl-line-flash-show-period 0.5)
+  ;; (hl-line-inhibit-highlighting-for-modes '(dired-mode))
+  )
 #+end_src
 
 * Parens
@@ -1373,6 +1261,9 @@ Notes:
   (add-to-list 'hardhat-fullpath-protected-regexps "/node_modules/")
   (add-to-list 'hardhat-fullpath-protected-regexps "/site-packages/")
   (add-to-list 'hardhat-fullpath-protected-regexps "/straight/repos/")
+
+  ;; We want to edit Jupytext files via ein/Jupyter
+  (add-to-list 'hardhat-bof-content-protected-regexps '(python-mode . "^# +jupytext:"))
 
   ;; ignoramus-file-exact-names matches this
   ;; hardhat-fullpath-editable-regexps doesn't match it in all cases (eg. yadm/repo.git/COMMIT_EDITMSG)
@@ -1540,8 +1431,8 @@ https://orgmode.org/org.html#Conflicts
 ** Switching
 
 #+begin_src emacs-lisp
-(map! "M-j" #'consult-buffer
-      "M-k" #'consult-buffer)
+;; (map! "M-k" #'consult-buffer)
+(map! "M-k" #'purpose-switch-buffer-with-purpose)
 #+end_src
 
 ** Restore
@@ -1717,7 +1608,7 @@ https://github.com/karthink/popper/issues/38
           bufler-list-mode
 
           ;; we want to use a custom doom-modeline segment vterm-copy-mode
-          vterm-mode ;; https://github.com/karthink/popper/issues/38
+          ;; vterm-mode ;; https://github.com/karthink/popper/issues/38
 
           flycheck-error-list-mode
           flycheck-projectile-error-list-mode
@@ -1752,6 +1643,8 @@ https://github.com/karthink/popper/issues/38
                                   ;; appropriate prog mode, but we want them in
                                   ;; the same window
                                   ("\\` ?\\*ein" . ein)
+                                  ("\\` " . hidden)
+                                  ("\\*" . special)
                                   ))
   (purpose-use-default-configuration nil)
   :after-call doom-first-buffer-hook
@@ -1954,6 +1847,8 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
 (defun vi/set-font-size (sz)
   (setq doom-font (font-spec :size sz))
   (doom/reload-font)
+  (message "Setting font size to: %s" sz)
+  sz
   )
 
 ;; see (dispwatch--get-display)
@@ -1967,10 +1862,17 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
         ((equal disp '(4800 . 3200))    ; laptop @ 125%
          (vi/set-font-size 17))
         ((equal disp '(4002 . 2668))    ; laptop @ 150%
-         (vi/set-font-size 17))
+         (vi/set-font-size 19))
         ((equal disp '(3426 . 2284))    ; laptop @ 175%
          (vi/set-font-size 13))
         (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
+
+(defun vi/trigger-dispwatch ()
+  (interactive)
+  (vi/adjust-font-size-for-display
+   ;; extract dotted pair from display info
+   (apply #'cons (-take-last 2 (nth 1 dispwatch-current-display))))
+  )
 
 (use-package! dispwatch
   :after-call doom-first-buffer-hook
@@ -2165,7 +2067,9 @@ seems to make things slow?
   (vundo-glyph-alist vundo-unicode-symbols)
   ;; (vundo-glyph-alist vundo-ascii-symbols)
   :config
-  (set-face-attribute 'vundo-default nil :family "DejaVu Sans Mono")
+  ;; different fonts at different sizes mess up the alignment in vundo
+  ;; Iosevka 13 seems to be ok
+  ;; (set-face-attribute 'vundo-default nil :family "DejaVu Sans Mono")
   :after-call doom-first-buffer-hook
   :bind ("C-x u" . vundo))
 
@@ -2194,6 +2098,20 @@ seems to make things slow?
   ;; goto-last-change-reverse
   (map! :map org-mode-map "C-," nil)
   )
+#+end_src
+** point
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! point-undo :recipe (:host github :repo "emacsmirror/point-undo"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! point-undo
+  :config
+  (map!
+   "s-." #'point-undo
+   "s-," #'point-redo))
 #+end_src
 
 * Snippets
@@ -2309,7 +2227,6 @@ We don't use this in practice...
   (separedit-remove-trailing-spaces-in-comment t)
   (separedit-default-mode 'org-mode)
   :bind ("M-\\" . separedit)
-
   )
 #+end_src
 
@@ -2473,20 +2390,12 @@ https://github.com/radian-software/ctrlf#customization
 
 # TODO: filter out dired-sidebar
 
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! vi-consult-buffers :recipe (:host github :repo "indigoviolet/vi-consult-buffers"))
+#+begin_src emacs-lisp
+(add-hook! 'consult-after-jump-hook #'recenter-top-bottom)
 #+end_src
 
+*** consult-dir
 #+begin_src emacs-lisp
-(use-package! vicb
-  :config
-  (vicb-setup)
-  )
-
-(after! (consult projectile)
-   (setq consult-project-function (lambda (_) (projectile-project-root))))
-
 (after! consult-dir
   (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
 
@@ -2502,14 +2411,36 @@ https://github.com/radian-software/ctrlf#customization
         "D" #'consult-dir)
   )
 
+#+end_src
+
+*** vicb
+#+begin_src emacs-lisp :tangle packages.el
+(package! vi-consult-buffers :recipe (:host github :repo "indigoviolet/vi-consult-buffers"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! vicb
+  :config
+  (vicb-setup)
+  )
+
 ;; (after! '(consult vicb)
 ;;   ;; (consult-customize consult-buffer :group nil :sort t)
 ;;   )
+
 #+end_src
+
+
 *** projectile
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! consult-projectile :recipe (:host gitlab :repo "OlMon/consult-projectile"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(after! (consult projectile)
+   (setq consult-project-function (lambda (_) (projectile-project-root))))
 #+end_src
 
 ** embark
@@ -2565,7 +2496,7 @@ https://github.com/minad/vertico#completion-styles-and-tab-completion
   (setq orderless-matching-styles '(orderless-literal orderless-regexp)))
                                                       ;;orderless-flex)))
 
-(after! (orderless vertico)
+(after! vertico
   (defun vi/match-components-literally ()
     "Components match literally for the rest of the session."
     (interactive)
@@ -2573,9 +2504,73 @@ https://github.com/minad/vertico#completion-styles-and-tab-completion
                 orderless-style-dispatchers nil))
 
   ;; (define-key minibuffer-local-completion-map (kbd "C-l") #'vi/match-components-literally)
-  (define-key vertico-map (kbd "C-l") #'vi/match-components-literally)
+    (map! :map vertico-map
+          "C-l" #'vi/match-components-literally
+          "M-j" #'vertico-quick-jump)
   )
 #+end_src
+** avy
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! avy)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! avy
+  :custom
+  (avy-single-candidate-jump t)
+  (avy-all-windows t)
+  (avy-timeout-seconds 0.2)
+  :bind (
+         ("M-j" . avy-goto-char-timer)
+         ("M-J" . avy-resume))
+  )
+#+end_src
+
+*** embark
+
+#+begin_src emacs-lisp
+(after! avy
+  (defun avy-action-embark (pt)
+    (unwind-protect
+        (save-excursion
+          (goto-char pt)
+          (embark-act))
+      (select-window
+       (cdr (ring-ref avy-ring 0))))
+    t)
+
+  (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark))
+#+end_src
+
+
+*** isearch/ctrlf
+#+begin_src emacs-lisp
+
+;; this isn't useful since we use ctrlf
+(map! :map isearch-mode-map "M-j" #'avy-isearch)
+
+(after! ctrlf
+  (defun vi/avy-ctrlf ()
+    "Jump to one of the current ctrlf candidates. (based on avy-isearch)"
+    (interactive)
+    (require 'avy)
+    (with-selected-window (get-mru-window)
+      (avy-with avy-isearch
+        (let ((avy-background nil)
+              (avy-case-fold-search case-fold-search))
+          (avy-process
+           (avy--regex-candidates ctrlf--last-input)))))
+    (exit-minibuffer)
+    )
+
+  (map! :map ctrlf-minibuffer-mode-map "M-j" #'vi/avy-ctrlf)
+  )
+#+end_src
+
+
 * Narrowing
 
 
@@ -2604,10 +2599,25 @@ https://github.com/minad/vertico#completion-styles-and-tab-completion
 #+begin_src emacs-lisp
 (use-package! outline
   :after-call doom-first-buffer-hook
-  :hook (prog-mode . outline-minor-mode)
+  :hook (
+         (prog-mode . outline-minor-mode)
+         (ein:notebook-mode . outline-minor-mode)
+         )
   :bind (:map outline-minor-mode-map
          ([C-tab] . outline-cycle)
+         ("C-<iso-lefttab>" . outline-hide-other) ;C-S-<tab>
          ([s-tab] . outline-cycle-buffer))) ; win-tab
+
+
+(after! outline
+  ;; Customize the distracting folding markers.
+  (set-display-table-slot
+   standard-display-table
+   'selective-display
+   (let ((face-offset (* (face-id 'shadow) (lsh 1 22))))
+     (vconcat (mapcar (lambda (c) (+ face-offset c)) " 祈"))))
+  )
+
 #+end_src
 
 *** Python
@@ -2617,20 +2627,19 @@ https://old.reddit.com/r/emacs/comments/e2u5n9/code_folding_with_outlineminormod
 (setq-hook! 'python-mode-hook outline-regexp (python-rx (* space) (or defun decorator)))
 #+end_src
 
-*** COMMENT outline faces
+*** outline faces
 
-doesn't do much, clutters
-
+- clutters in prog-mode, but probably useful in ein:notebook-mode
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! outline-minor-faces :recipe (:host github :repo "tarsius/outline-minor-faces"))
 #+end_src
 
+
 #+begin_src emacs-lisp
 (use-package! outline-minor-faces
-  :after outline
-  :config (add-hook 'outline-minor-mode-hook
-		      #'outline-minor-faces-mode))
+  :hook (ein:notebook-mode . outline-minor-faces-mode)
+  )
 #+end_src
 
 ** ts-fold
@@ -2650,6 +2659,31 @@ WARN: ts-fold-indicators-mode is very slow
 
 #+begin_src emacs-lisp
 (add-hook! 'tree-sitter-mode-hook #'fringe-mode #'ts-fold-mode) ;; #'ts-fold-indicators-mode)
+#+end_src
+** COMMENT fold-this
+
+TODOs:
+
+- fold-this persistent mode only operates on buffers backed by files (https://github.com/magnars/fold-this.el/blob/master/fold-this.el#L298)
+  - Only saves locations for the folded overlay
+- Only saves on killing buffer/emacs (https://github.com/magnars/fold-this.el/blob/master/fold-this.el#L377)
+- Written to operate on all buffers at once (https://github.com/magnars/fold-this.el/blob/master/fold-this.el#L294)
+- perhaps it's worth changing to update the alist for the current buffer when folds are modified?
+- maybe it can be expanded to handle folding for ein notebooks, but the alist format would have to be cell identifiers.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! fold-this)
+#+end_src
+
+#+begin_src emacs-lisp
+(add-hook! '(prog-mode-hook ein:notebook-mode-hook) (fold-this-mode fold-this-persistent-mode))
+#+end_src
+** COMMENT outshine
+
+has unwieldy keybindings. unclear we need this over outline-minor-mode (in the context of ein:notebook)
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! outshine)
 #+end_src
 
 * Completion
@@ -2765,7 +2799,7 @@ WARN: ts-fold-indicators-mode is very slow
   )
 #+end_src
 
-* Hydra
+** Hydra
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! pretty-hydra)
@@ -2775,26 +2809,45 @@ WARN: ts-fold-indicators-mode is very slow
 #+begin_src emacs-lisp
 (after! major-mode-hydra
   (setq major-mode-hydra-invisible-quit-key "q")
+
+  (defun vi/get-major-mode ()
+    (cond
+     ((and (boundp 'ein:notebook-mode) ein:notebook-mode) 'ein:notebook-mode)
+     (major-mode)
+     ))
+
+  (defun vi/major-mode-hydra ()
+    (interactive)
+    (major-mode-hydra-dispatch (vi/get-major-mode)))
   )
 
 
-(pretty-hydra-define global-hydra (:exit t)
+(pretty-hydra-define global-hydra (:exit t :quit-key ("q" "C-g"))
   ("Searching"
    (;; ("f" +vertico/consult-fd "fd")
     ("s" +vertico/project-search "rg in project")
     ("l" consult-line "Line isearch")
     ("D" doc-hydra/body "Docs"))
-   "Navigating"
+   "Buffers"
    (("b" consult-buffer "Buffers")
-    ("i" consult-outline "outlIne")
-    ("t" dired-sidebar-jump-to-sidebar "Tree")
-    ("T" dired-sidebar-toggle-sidebar "Tree")
+    ("t" dired-sidebar-jump-to-sidebar "Goto Tree")
+    ("T" dired-sidebar-toggle-sidebar "Toggle tree")
+    ;; ("w" +workspace/cycle "next workspace")
+    ("w" persp-switch "next workspace")
     ;; ("t" treemacs-select-window "treemacs")
     ;; ("T" +treemacs/toggle "Toggle treemacs")
     ("`" popper-toggle-latest "Latest Popup")
-    ("'" popper-cycle "Popup cycles")
+    ("'" popper-cycle "Popup cycles" :exit nil)
     )
-   ""
+   "Intra-buffer"
+   (
+     ("i" consult-outline "outlIne")
+     ;; ("." push-mark-command "Push Mark")
+     ;; ("m" consult-mark "consult-mark")
+     ;; ("M" consult-global-mark "global-mark")
+     ;;("f" fold-active-region "fold region")
+    )
+   "vterms"
     (
      ;;("v" multi-vterm-next "vterm-toggle")
      ;; ("V" multi-vterm "vterm")
@@ -2806,34 +2859,37 @@ WARN: ts-fold-indicators-mode is very slow
 
      ("v" vi/vterm-project-or-here "vterm-toggle")
      ("V" (vi/vterm-project-or-here t) "vterm")
-
+     ("M-v" vterm "vanilla vterm")
     )
    "Modes"
    (;; ("a" hydra-annotate/body "Annotate")
-    ("SPC" major-mode-hydra "Major")
+    ("SPC" vi/major-mode-hydra "Major")
     ("c" flycheck-hydra/body "flycheck")
     ("n" hydra-narrow/body "narrow")
     ("L" lsp-mode-hydra/body "LSP")
-    ("e" ein-hydra/body "EIN")
-    ("p" org-pomodoro "Pomodoro"))
+    ;; ("e" ein-hydra/body "EIN")
+    ("p" org-pomodoro "Pomodoro")
+    ("M-m" minions-minor-modes-menu "Minor modes")
+    )
    "Actions"
-   (("A" org-agenda-list "Agenda")
+   (
     ("M-y" yankpad-insert "yankpad")
     ("g" magit-status-here "magit")
     ("M-\\" edit-indirect-region "edit indirect region")
     ;; ("d" consult-dir "dir" )
     ("r" consult-notes-org-roam-find-node "find node")
     ("M-l" org-store-link "store link")
-    ;; ("w" +workspace/cycle "next workspace")
-    ("w" persp-switch "next workspace")
+    ("A" org-agenda-list "Agenda")
     )
    )
   )
 
 (key-chord-define-global "hh" #'global-hydra/body)
+(key-chord-define-global "jj" #'vi/major-mode-hydra)
+
 #+end_src
 
-* Org
+*** Org
 
 #+begin_src emacs-lisp
 (after! org
@@ -2875,13 +2931,13 @@ WARN: ts-fold-indicators-mode is very slow
 
         ;; https://github.com/radian-software/ctrlf/issues/118
         org-fold-core-style 'overlays)
-;;  (pretty-hydra-define org-hydra
-  (major-mode-hydra-define org-mode nil
+
+  (major-mode-hydra-define org-mode (:quit-key ("q" "C-g") :title "test")
     ("Subtree"
      (("k" org-cut-subtree "cut")
       ("y" org-paste-subtree "paste")
-      ("<up>" org-promote-subtree "promote")
-      ("<down>" org-demote-subtree "demote")
+      ("<up>" org-promote-subtree "promote" :exit nil)
+      ("<down>" org-demote-subtree "demote" :exit nil)
       )
      "Src"
      (("/" org-babel-demarcate-block "split src block")
@@ -2896,7 +2952,10 @@ WARN: ts-fold-indicators-mode is very slow
       )
      "Misc"
      (
-      ("x" org-toggle-checkbox "List [x]")
+      ;; https://stackoverflow.com/a/6156444
+      ;; '(4) is prefix (C-u)
+      ;; '(16) is double-prefix C-u C-u
+      ("x" (org-toggle-checkbox '(4)) "List [x]")
       ("Y" org-download-clipboard "pbpaste")
       )
      )
@@ -2904,17 +2963,23 @@ WARN: ts-fold-indicators-mode is very slow
   )
 #+end_src
 
-** Electric pairs
+**** COMMENT Electric pairs
+
+To remove:
+(sp-local-pair 'org-mode "~" nil :actions :rem)
+
+https://smartparens.readthedocs.io/en/latest/pair-management.html
 
 #+begin_src emacs-lisp
 (after! smartparens
+
   (sp-local-pair 'org-mode "~" "~")
   ;; (sp-local-pair 'org-mode "=" "=")
   ;; (sp-local-pair 'org-mode "$" "$")
   )
 #+end_src
 
-** show delimiters
+**** show delimiters
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! org-appear :recipe (:host github :repo "awth13/org-appear"))
@@ -2934,9 +2999,9 @@ WARN: ts-fold-indicators-mode is very slow
   )
 #+end_src
 
-** tangle on save
+**** tangle on save
 
-*** Use auto-tangle
+***** Use auto-tangle
 
 +Fails with /sudo tangle files https://github.com/yilkalargaw/org-auto-tangle/issues/9+
 
@@ -2964,13 +3029,13 @@ We'd like to set a timeout and fall through to synchronous tangle?
   :hook (org-mode . org-auto-tangle-mode))
 #+end_src
 
-*** COMMENT After save hook
+***** COMMENT After save hook
 #+begin_src emacs-lisp
 (add-hook! org-mode :append
   (add-hook! after-save :append :local #'org-babel-tangle))
 #+end_src
 
-**** COMMENT Fall through from auto-tangle to org-babel-tangle
+****** COMMENT Fall through from auto-tangle to org-babel-tangle
 
 See https://github.com/yilkalargaw/org-auto-tangle/issues/9#issuecomment-1048465648 && https://github.com/yilkalargaw/org-auto-tangle/issues/11
 
@@ -2995,7 +3060,7 @@ started:
                             (if (equal will_auto_tangle "nil") nil will_auto_tangle)
   )
 #+end_src
-** Images
+**** Images
 
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -3011,7 +3076,7 @@ started:
         org-startup-with-inline-images t
         org-image-actual-width 300))
 #+end_src
-** Reformatting an Org buffer
+**** Reformatting an Org buffer
 
 (originally:
 https://zzamboni.org/post/my-doom-emacs-configuration-with-commentary/ A
@@ -3029,9 +3094,9 @@ internal parsed representation. Quite amazing.)
         (goto-char (point-min))))))
 #+end_src
 
-** Useful functions
+**** Useful functions
 
-*** misc
+***** misc
 #+begin_src emacs-lisp
 (after! org
   ;; http://emacs.stackexchange.com/a/10712/115
@@ -3078,7 +3143,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 )
 #+end_src
 
-*** Archive all done tasks
+***** Archive all done tasks
 #+begin_src emacs-lisp
 (after! org
   ;; https://stackoverflow.com/questions/6997387/how-to-archive-all-the-done-tasks-using-a-single-command
@@ -3092,7 +3157,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 )
 #+end_src
 
-*** COMMENT org-return-dwim
+***** COMMENT org-return-dwim
 https://github.com/alphapapa/unpackaged.el#org-return-dwim
 
 +Bound to "M-RET" in org-mode-map+ some weird error with org-at-heading-p
@@ -3196,10 +3261,10 @@ appropriate.  In tables, insert a new row or end the table."
         ;; All other cases: call `org-return'.
         (org-return)))))
 #+end_src
-*** org-insert-below
+***** org-insert-below
 
 
-** Import from various formats into org
+**** Import from various formats into org
 
 
 
@@ -3213,7 +3278,7 @@ Needs ~brew install pandoc~
 (use-package! org-pandoc-import :after-call doom-first-file-hook)
 #+end_src
 
-** literate calc
+**** literate calc
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! literate-calc-mode)
@@ -3226,7 +3291,7 @@ Let's use this with file-locals instead
 #+end_src
 
 
-*** COMMENT poly-literate-calc
+***** COMMENT poly-literate-calc
 
 
 
@@ -3241,7 +3306,7 @@ Let's use this with file-locals instead
 #+end_src
 
 
-** COMMENT super-agenda
+**** COMMENT super-agenda
 
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -3254,7 +3319,7 @@ Let's use this with file-locals instead
   (org-super-agenda-mode)
   )
 #+end_src
-** sh-mode src blocks
+**** sh-mode src blocks
 
 sh-mode uses $SHELL by default: https://list.orgmode.org/87eeg0tz6t.fsf@gmail.com/T/
 
@@ -3268,7 +3333,7 @@ sh-mode uses $SHELL by default: https://list.orgmode.org/87eeg0tz6t.fsf@gmail.co
   )
 #+end_src
 
-** org babel chaining
+**** org babel chaining
 
 https://xenodium.com/emacs-chaining-org-babel-blocks/
 
@@ -3299,13 +3364,13 @@ https://xenodium.com/emacs-chaining-org-babel-blocks/
 
 #+results[b30c1b41ccddc21305a1d13530fcaa6911029689]:
 
-** table of contents
+**** table of contents
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! org-make-toc)
 #+end_src
 
-*** COMMENT minor mode
+***** COMMENT minor mode
 
 disabled because it is noisy on startup, and used rarely (<2022-03-21 Mon>)
 #+begin_src emacs-lisp
@@ -3313,7 +3378,7 @@ disabled because it is noisy on startup, and used rarely (<2022-03-21 Mon>)
   (add-hook! org-mode #'org-make-toc-mode))
 #+end_src
 
-** calendar
+**** calendar
 
 #+begin_src emacs-lisp
 (after! org
@@ -3333,7 +3398,7 @@ disabled because it is noisy on startup, and used rarely (<2022-03-21 Mon>)
          "." (vi/org-in-calendar '(calendar-goto-today)))
 )
 #+end_src
-** Org Roam
+**** Org Roam
 
 
 #+begin_src emacs-lisp
@@ -3348,7 +3413,7 @@ disabled because it is noisy on startup, and used rarely (<2022-03-21 Mon>)
 
   )
 #+end_src
-*** consult-notes
+***** consult-notes
 
 Alternative: https://github.com/jgru/consult-org-roam
 
@@ -3419,13 +3484,34 @@ doesn't work
   (setq ein:notebooklist-render-order '(render-opened-notebooks render-directory render-header))
   (setq ein:truncate-long-cell-output 10000)
   (setq ein:cell-max-num-outputs 10000)
-  (setq markdown-header-scaling t)
+  (setq ein:markdown-header-scaling nil)    ;this leads to variable pitch faces for
+                                        ;markdown headers, which doesn't work so
+                                        ;well with fontlocking (and outline-minor-faces-mode)
   (setq ein:output-area-inlined-images t)
   (setq ein:url-or-port '("http://localhost:8888"))
   (setq ein:jupyter-server-args '("--no-browser" "--port=8889"))
   ;; https://github.com/millejoh/emacs-ipython-notebook/issues/423#issuecomment-458254069
   (setq ein:query-timeout nil)
   :config
+
+  (custom-set-faces!
+    '(ein:cell-output-area :background "MidnightBlue" :extend t)
+    '(ein:cell-output-area-error :background "OrangeRed4" :extend t)
+    '(ein:codecell-input-area-face :background "#23272e" :extend t)
+    '(ein:codecell-input-prompt-face :foreground "black" :background "cyan" :extend t)
+    ;; '(ein:markdowncell-input-prompt-face :foreground "LightPink" :background "black" :extend t)
+    '(ein:markdowncell-input-prompt-face :foreground nil :background nil :extend t)
+    '(ein:markdowncell-input-area-face :background nil :extend t)
+    '(ein:markdown-header-face-1 :inherit nil)
+    '(ein:markdown-header-face-2 :inherit nil)
+    '(ein:markdown-header-face-3 :inherit nil)
+    '(ein:markdown-header-face-4 :inherit nil)
+    '(ein:markdown-header-face-5 :inherit nil)
+    '(ein:markdown-header-face-6 :inherit nil)
+    ;; '(ein:markdown-header-face :foreground "snow" :weight bold)
+    ;; '(ein:markdown-header-face :foreground nil :weight normal)
+    )
+
   (defun vi/ein-toggle-inlined-images ()
     (interactive)
     (setq ein:output-area-inlined-images (if ein:output-area-inlined-images nil t))
@@ -3460,12 +3546,13 @@ doesn't work
                                (without-purpose (switch-to-buffer (ein:notebook-buffer nb)))))
 
           )))
+  )
 
-  :pretty-hydra
-  (
+;; ein-hydra
+(major-mode-hydra-define (ein:notebook-mode) (:quit-key ("q" "C-g") :exit t :foreign-keys run)
    (
     "Connect"
-    (("n" ein:notebooklist-open "Notebook list")
+    (("b" ein:notebooklist-open "Notebook list")
      ("l" ein:notebooklist-login "Login")
      ("s" ein:jupyter-server-start "Start")
      ("t" ein:jupyter-server-stop "Stop"))
@@ -3475,15 +3562,25 @@ doesn't work
      ("z" ein:notebook-kernel-interrupt-command "interrupt")
      ("v" vi/revert-notebook "Revert"))
     "Exec"
-    (("x" ein:worksheet-execute-all-cells-above "Execute all above")
+    (
+     ("p" ein:worksheet-goto-prev-input-km "Prev Cell" :exit nil)
+     ("n" ein:worksheet-goto-next-input-km "Next Cell" :exit nil)
+     ("o" ein:worksheet-toggle-output "Toggle output")
+     ("O" (ein:worksheet-set-output-visibility-all (ein:worksheet--get-ws-or-error) t) "Hide all output")
+     ("M-o" ein:worksheet-set-output-visibility-all "Show all output")
+     ("x" ein:worksheet-execute-all-cells-above "Execute all above")
      ("X" vi/restart-and-execute-all-above "Restart & x"))
     "Fix"
     (("i" vi/ein-toggle-inlined-images "Toggle inlined images")
-     ("f" vi/ein-fix "Fix")
+     ("M-f" vi/ein-fix "Fix")
      ("N" ein:notebook-rename-command "Rename")
      )
-    )
-   ))
+    ))
+
+;; (setq scroll-preserve-screen-position t
+;;       scroll-conservatively 0
+;;       maximum-scroll-margin 0.5
+;;       scroll-margin 99999)
 
 (add-hook! 'ein:notebook-mode-hook #'vi/ein-fix)
 
@@ -3492,9 +3589,20 @@ doesn't work
 (map! :mode poly-ein-mode
       :map polymode-mode-map
       "M-n" nil)
+
+(map! :map ein:notebook-mode-map
+      "C-n" #'ein:worksheet-goto-next-input-km
+      "C-p" #'ein:worksheet-goto-prev-input-km
+      )
+
+
+  ;; (advice-add 'json-parse-buffer :around
+  ;;             (lambda (orig &rest rest)
+  ;;               (while (re-search-forward "\\u0000" nil t)
+  ;;                 (replace-match ""))
+  ;;               (apply orig rest)))
 #+end_src
 
-#+RESULTS[b7b6edef7cb91b0c0e1b65cbe64feb20bc01bfd8]:
 
 * vterm
 
@@ -3557,31 +3665,32 @@ doesn't work
 *** Home grown
 
 #+begin_src emacs-lisp
-  (defsubst vi/vterm-dir ()
-    (or (projectile-project-root) default-directory))
+(defsubst vi/vterm-dir ()
+  ;; TODO: if this is TRAMP, don't return default-directory
+  (or (projectile-project-root) default-directory))
 
-  (defsubst vi/create-vterm-in-dir (dir)
-    (let ((default-directory dir))
-      (setq vterm-buf (vterm))
-      (with-current-buffer vterm-buf
-        (setq-local vi/vterm--created-with-dir default-directory))))
+(defsubst vi/create-vterm-in-dir (dir)
+  (let ((default-directory dir))
+    (setq vterm-buf (vterm))
+    (with-current-buffer vterm-buf
+      (setq-local vi/vterm--created-with-dir default-directory))))
 
-  (defsubst vi/existing-vterms-created-with (dir)
-    (seq-filter
-     (lambda (elt)
-       (and
-        (eq (buffer-local-value 'major-mode elt) #'vterm-mode)
-        (buffer-local-boundp 'vi/vterm--created-with-dir elt)
-        (file-equal-p dir (buffer-local-value 'vi/vterm--created-with-dir elt))))
-     (buffer-list)))
+(defsubst vi/existing-vterms-created-with (dir)
+  (seq-filter
+   (lambda (elt)
+     (and
+      (eq (buffer-local-value 'major-mode elt) #'vterm-mode)
+      (buffer-local-boundp 'vi/vterm--created-with-dir elt)
+      (file-equal-p dir (buffer-local-value 'vi/vterm--created-with-dir elt))))
+   (buffer-list)))
 
-  (defun vi/vterm-project-or-here (&optional force-create)
-    (interactive)
-    (if-let* ((dir (vi/vterm-dir))
-              (check-existing (not force-create))
-              (existing-vterm (seq-first (vi/existing-vterms-created-with dir))))
-        (pop-to-buffer existing-vterm)
-      (vi/create-vterm-in-dir dir)))
+(defun vi/vterm-project-or-here (&optional force-create)
+  (interactive)
+  (if-let* ((dir (vi/vterm-dir))
+            (check-existing (not force-create))
+            (existing-vterm (seq-first (vi/existing-vterms-created-with dir))))
+      (pop-to-buffer existing-vterm)
+    (vi/create-vterm-in-dir dir)))
 
 #+end_src
 *** COMMENT multi-vterm
@@ -3621,7 +3730,7 @@ does this matter - https://github.com/suonlight/multi-vterm/issues/12 - projecti
 
 https://github.com/akermu/emacs-libvterm/issues/179
 
-- can set `vterm-min-window-width` to 1000 and `toggle-truncate-lines`
+- can set `vterm-min-window-width` to 1000 and `toggle-truncate-lines` https://github.com/akermu/emacs-libvterm/issues/435
 - but this makes `ls`, `fzf`, `htop` etc weird
 - so we can run `stty cols 250` before running such commands
 - we cannot get the current emacs window width (https://github.com/akermu/emacs-libvterm/issues/577)
@@ -3632,6 +3741,11 @@ https://github.com/akermu/emacs-libvterm/issues/179
 
   Also see https://github.com/cyrus-and/zoom for information on
   `window-size-fixed` and preventing zoom from resizing?
+
+
+another idea: force vterm buffers to have an enforced min width: https://emacs.stackexchange.com/questions/71018/how-can-i-keep-windows-from-being-shrunk-past-their-fill-columns
+
+and hardcode that as vterm-min-window-width
 
 
 
@@ -3975,13 +4089,15 @@ we prefer to use dired-sidebar
   (lsp-treemacs-sync-mode 1)
   )
 #+end_src
-* Tree sitter
+* COMMENT Tree sitter
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! tree-sitter)
 (package! tree-sitter-langs)
 #+end_src
 
+
+tree-sitter is slow as crap (tree-sitter--after-change) -- atleast in ein python cells
 
 #+begin_src emacs-lisp
 (add-hook! '(python-mode-hook) #'tree-sitter-mode)
@@ -3991,7 +4107,24 @@ we prefer to use dired-sidebar
 ;;   :config (global-tree-sitter-mode))
 #+end_src
 
+** combobulate
 
+This seems useful, but needs better bindings. We want to navigate to things
+quickly (avy seems fine), and move them up/down (only through hydra, not good). Needs further investigation
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! combobulate :recipe (:host github :repo "mickeynp/combobulate"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! combobulate
+  :hook ((python-mode . combobulate-mode)
+         (js-mode . combobulate-mode)
+         (typescript-mode . combobulate-mode)
+         )
+  )
+#+end_src
 
 * C++
 
