@@ -145,20 +145,36 @@ sudo *CMD:
     sudo -E env PATH={{path}} just {{CMD}}
 
 
+# - this seems to be problematic and I haven't figure out how to make it work well:
+#
+#   1. --use-source-timestamp is essential or it updates the file, and is then triggered by that update
+#
+#   2. watching both files and syncing them in the command will also lead to
+#      infinite loop. no combination of --on-busy-update, --debounce,
+#      --watch-when-idle etc seems to fix it
+#
+#   3. sometimes there is a change which isn't in the variables we're passing into parallel, and then parallel will think it's reading stdin and break
+#
+# A better approach is probably to use on-save hooks in Emacs
+#
 # Sync a Jupyter nb file to a Python file using Jupytext
-jupytext-sync NBFILE:
-    #!/usr/bin/env bash
-    set_init
-    cd {{ invocation_directory() }}
-
-    nbfile=$(realpath {{ NBFILE }})
-    [[ -e "$nbfile" ]] || (echo "$nbfile not found" && exit 1)
-    
-    pyfile=$(dirname $nbfile)/"$(basename $nbfile .ipynb).py"
-    [[ -e "$pyfile" ]] || jupytext --set-formats ipynb,py:percent --sync --use-source-timestamp --output "$pyfile" --quiet "$nbfile"
-
-    watchexec -w "$nbfile" -w "$pyfile" --no-meta --watch-when-idle --postpone 'parallel --verbose --delimiter : "jupytext --update --quiet --use-source-timestamp --sync $WATCHEXEC_COMMON_PATH/{}" ::: $WATCHEXEC_WRITTEN_PATH'
-    # watchexec -w $nbfile -w $pyfile --no-meta -p "jupytext --sync $nbfile"
+# jupytext-sync NBFILE meta=env_var_or_default('meta', 'true') poll=env_var_or_default('poll', '2000'):
+#     #!/usr/bin/env bash
+#     set_init
+#     cd {{ invocation_directory() }}
+#
+#     nbfile=$(realpath {{ NBFILE }})
+#     [[ -e "$nbfile" ]] || (echo "$nbfile not found" && exit 1)
+#
+#     pyfile=$(dirname $nbfile)/"$(basename $nbfile .ipynb).py"
+#     jupytext --set-formats ipynb,py:percent --sync --quiet --output "$pyfile" "$nbfile" && echo "Revert the notebook or it won't be synced"
+#
+#     meta_opt="{{ if meta == 'true' { '' } else { '--no-meta' } }}"
+#     poll_opt="{{ if poll == '0' { '' } else { '--force-poll ' + poll } }}"
+#     add_vars_to_watch="{{ if meta == 'true' { '\$WATCHEXEC_META_CHANGED_PATH' } else { '' }  }}"
+#
+#     watchexec -w "$nbfile" -w "$pyfile" ${meta_opt} --watch-when-idle --postpone --on-busy-update=do-nothing --print-events ${poll_opt} 'parallel --verbose --delimiter : "jupytext --update --quiet --sync --use-source-timestamp $WATCHEXEC_COMMON_PATH/{}" ::: $WATCHEXEC_WRITTEN_PATH '${add_vars_to_watch}
+#     # watchexec -w $nbfile -w $pyfile --no-meta -p "jupytext --sync $nbfile"
 
 
 ensure-sudo:

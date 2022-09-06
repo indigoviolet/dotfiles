@@ -712,7 +712,7 @@ Commandline: apt install git-lfs
 
 * Jupyter/ipython notes
 
-** <2022-02-20 Sun>
+** IPykernel
 Currently we are following this: https://jkinred.github.io/post/using-jupyter/
 
 with emacs-jupyter or ein
@@ -722,7 +722,22 @@ and kernels installed from each project via ipykernel installed in each project
 it would be better to inject ipykernel into the pipx ipython project, but
 currently we don't have a way to reproduce that via pipx.json (but this is easy
 to create)
-** jupyter_notebook_config.json
+
+** Jupyter notebook
+
+
+#+begin_src shell
+pipx install jupyter-core notebook
+
+# colab compatibity
+pipx inject jupyter-core jupyter-http-over-ws
+
+# jupytext
+pipx inject jupyter-core jupytext
+#+end_src
+
+
+*** jupyter_notebook_config.json
 
 #+begin_src shell
 jupyter notebook password
@@ -730,6 +745,53 @@ jupyter notebook password
 
 will write this file with the hashed password, and new jupyter servers will use
 the password
+
+
+*** Jupytext
+
+~jupyter nbextension enable --py jupytext~
+
+https://github.com/mwouts/jupytext/blob/main/docs/install.md
+
+which then allows opening *.py files from ein!
+
+*** Ipywidgets
+
+https://ipywidgets.readthedocs.io/en/stable/user_install.html
+
+You need ipywidgets in the _kernel_ environment (ie not in pipx), similar to ipykernel
+
+~poetry add -D ipywidgets~
+
+You might need ~jupyter nbextension enable --py widgetsnbextension~ ?
+
+*** tqdm
+
+In terminal: you need ~from tqdm import tqdm~
+
+In Jupyter notebook: you need ~from tqdm.notebook import tqdm~
+
+*** TODO: auto-reload?
+
+https://github.com/mwouts/jupytext/issues/406
+https://github.com/untitled-ai/jupyter_ascending
+*** extensions
+
+
+#+begin_src shell
+pipx inject jupyter-core jupyter_contrib_nbextensions
+jupyter contrib nbextension install --user
+#+end_src
+
+** Jupyter lab
+
+- Requires ~pipx install jupyterlab~
+- Jupyter lab works with ein
+  (https://github.com/millejoh/emacs-ipython-notebook/issues/803) - but the web
+  interface doesn't see EIN sessions, so they don't share variables
+
+- ~jupyter lab password~ writes ~jupyter_server_config.json~ with a hashed password
+
 
 * Switching python version
 
