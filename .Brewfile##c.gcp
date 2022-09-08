@@ -4,20 +4,22 @@ tap "jesseduffield/lazydocker"
 tap "mutagen-io/mutagen"
 # Extendable version manager with support for Ruby, Node.js, Erlang & more
 brew "asdf"
-# New way to see and navigate directory trees
-brew "broot"
 # Get a file from an HTTP, HTTPS or FTP server
 brew "curl"
 # JSON, YAML, TOML, XML, and CSV query and modification tool
 brew "dasel"
 # Load/unload environment variables based on $PWD
 brew "direnv"
+# HTTP load testing application written in Rust
+brew "drill"
 # Simple, fast and user-friendly alternative to find
 brew "fd"
 # Command-line fuzzy finder written in Go
 brew "fzf"
 # GNU compiler collection
 brew "gcc"
+# GitHub command-line tool
+brew "gh"
 # Git extension for versioning large files
 brew "git-lfs"
 # Improved top (interactive process viewer)
