@@ -51,6 +51,9 @@ export PYFLYBY_PATH=~/.pyflyby:.../.pyflyby
 
 # https://stackoverflow.com/a/55893600/14044156
 # Force bash scripts to execute ~/.bashrc
+
+export LANG='en_US.UTF-8'
+export LC_ALL='en_US.UTF-8'
 export BASH_ENV=$HOME/.bashrc
 
 # Apheleia -> shfmt formats path[1,0] with a space, which breaks it

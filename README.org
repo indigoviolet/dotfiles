@@ -369,12 +369,16 @@ mkdir -p ~/.local/bin && curl -fsSL https://raw.githubusercontent.com/gitbits/gi
 ## poetry installed with asdf
 poetry completions zsh > ~/.zprezto/modules/completion/external/src/_poetry
 
+## Handy way to install things from github
+gh extension install redraw/gh-install
+
 ## GCM core git credential helper (see https://blog.djnavarro.net/posts/2021-08-08_git-credential-helpers/)
-gcm_latest_release=$(
-    curl -s https://api.github.com/repos/GitCredentialManager/git-credential-manager/releases/latest |
-        jq -cr '.assets[] | select(.name | contains("deb")) | .browser_download_url')
-gcm_deb=$(curl -sw '%{filename_effective}' -LO $gcm_latest_release --output-dir /tmp)
-sudo dpkg -i $gcm_deb && rm $gcm_deb -f
+
+# this is interactive
+# gh install GitCredentialManager/git-credential-manager
+
+TEMPDIR=$(mktemp -d)
+gh release download -p '*.deb' -R GitCredentialManager/git-credential-manager --clobber -D $TEMPDIR && sudo dpkg -i $TEMPDIR/gcm*.deb
 git credential-manager-core configure
 #+end_src
 
