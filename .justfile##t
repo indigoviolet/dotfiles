@@ -56,18 +56,12 @@ update-calibre: ensure-sudo
     wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sh /dev/stdin
 {% endif %}
 
-{% if yadm.class == "gcp" %}
-# Start devr jupyter notebook in a Tmux
-jupyter-start:
-    cd ~/dev/devr/py/nbs && tmux new-session -d -s jupyter jupyter notebook
-{% endif %}
-
 
 # Brew capture manually installed "leaves"
 brew-dump-leaves:
     #!/usr/bin/env bash
     set_init
-    { brew leaves --installed-on-request; echo "^tap"; } | rg --file - <(brew bundle dump --describe --file=-) --before-context 1 --no-line-number --no-context-separator --word-regexp --color=never
+    { brew leaves --installed-on-request; echo "^tap"; } | rg --file - <(brew bundle dump --describe --file=-) --before-context 1 --no-line-number --no-context-separator --word-regexp --color=never > ~/.Brewfile
 
 brew-list-used-by:
     # # https://www.thingy-ma-jig.co.uk/blog/22-09-2014/homebrew-list-packages-and-what-uses-them
@@ -84,6 +78,30 @@ brew-list-dependencies:
 
 pipx-update-list:
     pipx list --json > ~/.pipx.json
+
+
+{% if yadm.class == "personal" %}
+# Can be reversed w/ dconf load
+dconf-dump:
+    dconf dump / > ~/.config/dconf/dump.ini
+
+# Reinstalling programmatically seems non-trivial (see
+# https://github.com/brunelli/gnome-shell-extension-installer). This atleast
+# captures the list
+extension-list-dump:
+    #!/usr/bin/env bash
+    set_x
+    EXTENSION_DIR=$HOME/.local/share/gnome-shell/extensions
+    cd $EXTENSION_DIR
+    fd 'metadata.json' --max-depth 2 -L -x cat | jq -crs > $HOME/.config/gnome-shell-extensions-metadata.json
+    fd "^.git$" -uuu --type d --regex --max-depth 2 -L -x bash -c "echo -n {//} ' '; cd {//} && git rev-parse --short HEAD" > $HOME/.config/gnome-shell-extensions-git-revs
+
+save-settings: pipx-update-list brew-dump-leaves dconf-dump
+{% else %}
+save-settings: pipx-update-list brew-dump-leaves
+{% endif %}
+
+
 
 yadm-checkpoint:
     cd {{ HOME }} && yadm add -u && yadm ci -m "checkpoint" && yadm push
