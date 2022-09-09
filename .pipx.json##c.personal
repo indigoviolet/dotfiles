@@ -1,57 +1,6 @@
 {
     "pipx_spec_version": "0.1",
     "venvs": {
-        "autoimport": {
-            "metadata": {
-                "injected_packages": {},
-                "main_package": {
-                    "app_paths": [
-                        {
-                            "__Path__": "/home/venky/.local/pipx/venvs/autoimport/bin/autoimport",
-                            "__type__": "Path"
-                        }
-                    ],
-                    "app_paths_of_dependencies": {
-                        "autoflake": [
-                            {
-                                "__Path__": "/home/venky/.local/pipx/venvs/autoimport/bin/autoflake",
-                                "__type__": "Path"
-                            }
-                        ],
-                        "maison": [
-                            {
-                                "__Path__": "/home/venky/.local/pipx/venvs/autoimport/bin/maison",
-                                "__type__": "Path"
-                            }
-                        ],
-                        "pyflakes": [
-                            {
-                                "__Path__": "/home/venky/.local/pipx/venvs/autoimport/bin/pyflakes",
-                                "__type__": "Path"
-                            }
-                        ]
-                    },
-                    "apps": [
-                        "autoimport"
-                    ],
-                    "apps_of_dependencies": [
-                        "autoflake",
-                        "pyflakes",
-                        "maison"
-                    ],
-                    "include_apps": true,
-                    "include_dependencies": false,
-                    "package": "autoimport",
-                    "package_or_url": "autoimport",
-                    "package_version": "1.2.2",
-                    "pip_args": [],
-                    "suffix": ""
-                },
-                "pipx_metadata_version": "0.2",
-                "python_version": "Python 3.9.12",
-                "venv_args": []
-            }
-        },
         "black": {
             "metadata": {
                 "injected_packages": {},
