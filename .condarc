@@ -1,0 +1,7 @@
+channels:
+  - pytorch
+  - conda-forge
+  - nodefaults
+changeps1: false
+channel_priority: flexible
+experimental_solver: libmamba
