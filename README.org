@@ -265,8 +265,9 @@ https://github.com/conda-forge/miniforge#non-interactive-install
 
 #+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/051-mamba-conda.sh
 set -ux
+cd /tmp
 wget -O Mambaforge.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
-bash Mambaforge.sh -b
+bash Mambaforge.sh -b -p $HOME/.local/mambaforge
 #+end_src
 
 *** Pipx
