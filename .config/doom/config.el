@@ -717,8 +717,20 @@ message listing the hooks."
 
 
 ;; [[file:config.org::*Switching][Switching:1]]
+(defmacro minibuffer-quit-and-run (&rest body)
+  "Quit the minibuffer and run BODY afterwards."
+  `(progn
+     (put 'quit 'error-message "")
+     (run-at-time nil nil
+                  (lambda ()
+                    (put 'quit 'error-message "Quit")
+                    ,@body))
+     (minibuffer-keyboard-quit)))
+
+
 ;; (map! "M-k" #'consult-buffer)
 (map! "M-k" #'purpose-switch-buffer-with-purpose)
+(map! :map minibuffer-local-map "M-k" (cmd! (minibuffer-quit-and-run (consult-buffer))))
 ;; Switching:1 ends here
 
 
@@ -1383,10 +1395,13 @@ message listing the hooks."
 ;;   )
 ;; vicb:2 ends here
 
-;; [[file:config.org::*projectile][projectile:2]]
+;; projectile
+
+;; [[file:config.org::*projectile][projectile:1]]
 (after! (consult projectile)
-   (setq consult-project-function (lambda (_) (projectile-project-root))))
-;; projectile:2 ends here
+   (setq consult-project-function (lambda (_) (projectile-project-root)))
+   )
+;; projectile:1 ends here
 
 ;; embark
 
@@ -1531,15 +1546,18 @@ message listing the hooks."
 
 ;; [[file:config.org::*outline][outline:1]]
 (use-package! outline
+  :custom
+  (outline-minor-mode-cycle t)
+  (outline-minor-mode-use-buttons t)
   :after-call doom-first-buffer-hook
   :hook (
          (prog-mode . outline-minor-mode)
-         (ein:notebook-mode . outline-minor-mode)
          )
   :bind (:map outline-minor-mode-map
          ([C-tab] . outline-cycle)
          ("C-<iso-lefttab>" . outline-hide-other) ;C-S-<tab>
-         ([s-tab] . outline-cycle-buffer))) ; win-tab
+         ([s-tab] . outline-cycle-buffer)); win-tab
+  )
 
 
 (after! outline
@@ -1559,12 +1577,6 @@ message listing the hooks."
 ;; [[file:config.org::*Python][Python:1]]
 (setq-hook! 'python-mode-hook outline-regexp (python-rx (* space) (or defun decorator)))
 ;; Python:1 ends here
-
-;; [[file:config.org::*outline faces][outline faces:2]]
-(use-package! outline-minor-faces
-  :hook (ein:notebook-mode . outline-minor-faces-mode)
-  )
-;; outline faces:2 ends here
 
 ;; [[file:config.org::*ts-fold][ts-fold:2]]
 (add-hook! 'tree-sitter-mode-hook #'fringe-mode #'ts-fold-mode) ;; #'ts-fold-indicators-mode)
@@ -1707,7 +1719,7 @@ message listing the hooks."
 
      ("v" vi/vterm-project-or-here "vterm-toggle")
      ("V" (vi/vterm-project-or-here t) "vterm")
-     ("M-v" vterm "vanilla vterm")
+     ("M-v" vi/vterm "local vterm")
     )
    "Modes"
    (;; ("a" hydra-annotate/body "Annotate")
@@ -1715,7 +1727,7 @@ message listing the hooks."
     ("c" flycheck-hydra/body "flycheck")
     ("n" hydra-narrow/body "narrow")
     ("L" lsp-mode-hydra/body "LSP")
-    ;; ("e" ein-hydra/body "EIN")
+    ("e" ein-global-hydra/body "EIN")
     ("p" org-pomodoro "Pomodoro")
     ("M-m" minions-minor-modes-menu "Minor modes")
     )
@@ -1724,7 +1736,7 @@ message listing the hooks."
     ("M-y" yankpad-insert "yankpad")
     ("g" magit-status-here "magit")
     ("M-\\" edit-indirect-region "edit indirect region")
-    ;; ("d" consult-dir "dir" )
+    ("d" dired-jump "dired" )
     ("r" consult-notes-org-roam-find-node "find node")
     ("M-l" org-store-link "store link")
     ("A" org-agenda-list "Agenda")
@@ -1789,14 +1801,17 @@ message listing the hooks."
       )
      "Src"
      (("/" org-babel-demarcate-block "split src block")
-      ("t" org-babel-tangle "tangle")
+      ("T" org-babel-tangle "tangle")
       )
      "Roam/Links"
      (
       ("N" org-id-get-create "Make into node")
       ("s" consult-notes-search-in-all-notes "search notes")
-      ("l" org-store-link "store link")
+      ;; ("l" org-store-link "store link")
       ("i" org-insert-link "insert link")
+      ("t" org-roam-tag-add "tag")
+      ("X" org-roam-extract-subtree "Extract to node")
+      ("w" org-roam-refile "refile")
       )
      "Misc"
      (
@@ -1804,6 +1819,8 @@ message listing the hooks."
       ;; '(4) is prefix (C-u)
       ;; '(16) is double-prefix C-u C-u
       ("x" (org-toggle-checkbox '(4)) "List [x]")
+      ("*" org-toggle-heading "Toggle heading")
+      ("-" org-toggle-item "Toggle item")
       ("Y" org-download-clipboard "pbpaste")
       )
      )
@@ -1940,6 +1957,14 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; [[file:config.org::*literate calc][literate calc:2]]
 ;; (add-hook! org-mode #'literate-calc-minor-mode)
+
+(after! calc
+  ;; converts
+  (defalias 'calcFunc-uconv 'math-convert-units)
+
+  ;; usimplify() simplifies units, alias to U
+  (defalias 'calcFunc-U 'calcFunc-usimplify)
+)
 ;; literate calc:2 ends here
 
 ;; sh-mode src blocks
@@ -2012,17 +2037,25 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 ;; Org Roam
 
 
+;; - <2022-09-09 Fri> If we set org-roam-directory to ~org-directory~, syncing is
+;;   much faster; but we can't convert things outside of that directory into Nodes
+
+;;   by doing org-id-get-create. Let's see if this is a problem
+
+;; - <2022-09-11 Sun> Yes it is a problem: startup is very slow and lots of direnv
+;;   shit, dir-locals gets executed. We might have to use org-roam-refile
+
 
 ;; [[file:config.org::*Org Roam][Org Roam:1]]
 (use-package! org-roam
   :after-call doom-first-input-hook
   :custom
+  ;; (org-roam-directory (getenv "HOME"))
   (org-roam-directory org-directory)
   (org-roam-db-node-include-function (lambda () (not (member "ATTACH" (org-get-tags)))))
   :config
   (org-roam-db-autosync-mode)
   (require 'org-protocol)
-
   )
 ;; Org Roam:1 ends here
 
@@ -2050,15 +2083,6 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 ;; fontification:1 ends here
 
 ;; [[file:config.org::*ein][ein:2]]
-(defun vi/ein-fix ()
-  (interactive)
-  ;; (set-face-extend 'ein:cell-input-area t)
-  (setq ein:worksheet-enable-undo t)
-  (buffer-enable-undo)
-  ;; (turn-on-undo-tree-mode)
-  (setq outline-regexp "##+")           ;capture markdown headings, excluding level 1 for comments
-  )
-
 (use-package! ein
   :after-call doom-first-buffer-hook
   :init
@@ -2131,13 +2155,16 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   )
 
 ;; ein-hydra
-(major-mode-hydra-define (ein:notebook-mode) (:quit-key ("q" "C-g") :exit t :foreign-keys run)
-   (
-    "Connect"
+(pretty-hydra-define ein-global-hydra (:exit t :quit-key ("q" "C-g"))
+  ("Connect"
     (("b" ein:notebooklist-open "Notebook list")
      ("l" ein:notebooklist-login "Login")
      ("s" ein:jupyter-server-start "Start")
-     ("t" ein:jupyter-server-stop "Stop"))
+     ("t" ein:jupyter-server-stop "Stop")))
+  )
+
+(major-mode-hydra-define (ein:notebook-mode) (:quit-key ("q" "C-g") :exit t :foreign-keys run)
+   (
     "Reconnect"
     (("r" ein:notebook-reconnect-session-command "Reconnect")
      ("R" ein:notebook-restart-session-command "Restart")
@@ -2145,17 +2172,29 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
      ("v" vi/revert-notebook "Revert"))
     "Exec"
     (
+     ("x" ein:worksheet-execute-all-cells-above "Execute all above")
+     ("X" vi/restart-and-execute-all-above "Restart & x")
+     )
+    "Nav"
+    (
      ("p" ein:worksheet-goto-prev-input-km "Prev Cell" :exit nil)
      ("n" ein:worksheet-goto-next-input-km "Next Cell" :exit nil)
+     ("/" ein:notebook-scratchsheet-open-km "Scratch")
+     )
+    "Output"
+    (
      ("o" ein:worksheet-toggle-output "Toggle output")
      ("O" (ein:worksheet-set-output-visibility-all (ein:worksheet--get-ws-or-error) t) "Hide all output")
      ("M-o" ein:worksheet-set-output-visibility-all "Show all output")
-     ("x" ein:worksheet-execute-all-cells-above "Execute all above")
-     ("X" vi/restart-and-execute-all-above "Restart & x"))
+     )
     "Fix"
     (("i" vi/ein-toggle-inlined-images "Toggle inlined images")
-     ("M-f" vi/ein-fix "Fix")
+     ;; ("M-f" vi/ein-fix "Fix")
      ("N" ein:notebook-rename-command "Rename")
+     )
+    "Python"
+    (
+     ("f" python-black-partial-dwim "Format")
      )
     ))
 
@@ -2164,7 +2203,24 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 ;;       maximum-scroll-margin 0.5
 ;;       scroll-margin 99999)
 
-(add-hook! 'ein:notebook-mode-hook #'vi/ein-fix)
+;; (defun vi/ein-fix ()
+;;   (interactive)
+;;   ;; (set-face-extend 'ein:cell-input-area t)
+;;   (setq ein:worksheet-enable-undo t)
+;;   (buffer-enable-undo)
+;;   ;; (turn-on-undo-tree-mode)
+;;   )
+
+
+;; outline-minor-faces-mode seems to cause some glitches with C-c C-b/a
+(add-hook! 'ein:notebook-mode-hook
+           #'outline-minor-mode
+           ;; ein disables everything but basic undo
+           ;; https://github.com/millejoh/emacs-ipython-notebook/issues/841#issuecomment-1129176534
+           (undo-fu-mode -1)) ;; #'outline-minor-faces-mode)
+(setq-hook! 'ein:notebook-mode-hook outline-regexp "##+")           ;capture markdown headings, excluding level 1 for comments
+
+
 
 ;; Unsets M-n in ein polymode (which is normally bound to polymode-map) so that
 ;; we can use our smartscan-mode bindings
@@ -2239,6 +2295,12 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   (set-process-query-on-exit-flag (get-buffer-process (current-buffer)) nil)
   )
 (add-hook! 'vterm-mode-hook #'vi/vterm-hooks)
+
+;; handle opening in tramp
+(defun vi/vterm-local ()
+  (interactive)
+  (let ((default-directory (getenv "HOME")))
+    (vterm)))
 ;; vterm:1 ends here
 
 ;; Home grown
@@ -2378,10 +2440,16 @@ Results are reported in a compilation buffer."
   (setq magit-log-margin '(t "%Y-%m-%d %H:%M " magit-log-margin-width t 18))
 
   ;; Add ignored files section to magit status
+  ;; This makes yadm-status very slow: https://github.com/magit/magit/discussions/4750
   (magit-add-section-hook 'magit-status-sections-hook
                           'magit-insert-ignored-files       ;insert this one
                           'magit-insert-unstaged-changes t) ;after this one
   )
+
+(map! :map magit-mode-map
+      "s-<tab>" #'magit-section-cycle-diffs
+      "M-<tab>" nil
+      )
 ;; magit/git:1 ends here
 
 ;; magit backups (wip)
@@ -2802,7 +2870,7 @@ Results are reported in a compilation buffer."
 
 
 ;; [[file:config.org::*Hydra][Hydra:1]]
-(major-mode-hydra-define (python-mode python-pytest-mode) nil
+(major-mode-hydra-define (python-mode python-pytest-mode) (:exit t :quit-key ("q" "C-g"))
   (
    "Pytest"
    (
@@ -2817,6 +2885,8 @@ Results are reported in a compilation buffer."
 
 ;; Pyflyby
 
+;; pipx install pyflyby
+;; pipx inject pyflyby 'black[jupyter]'
 
 
 ;; [[file:config.org::*Pyflyby][Pyflyby:1]]
@@ -2825,7 +2895,8 @@ Results are reported in a compilation buffer."
   :config
   (defun vi/pyflyby-tidy-imports ()
     (interactive "*")
-    (pyflyby-transform-region-with-command "tidy-imports" "--align=0" "--from-spaces=1")
+    ;; even with this, it will drop comments https://github.com/deshaw/pyflyby/issues/154
+    (pyflyby-transform-region-with-command "tidy-imports" "--black");;  "--align=0" "--from-spaces=1")
     )
   )
 ;; Pyflyby:1 ends here
@@ -2837,50 +2908,15 @@ Results are reported in a compilation buffer."
   (setf (alist-get 'isort apheleia-formatters) '("isort" "--profile=black" "--stdout" "-"))
   ;; Black uses config in ~/.config/black but not if a pyproject.toml is present (https://github.com/psf/black/issues/2863)
   (setf (alist-get 'black apheleia-formatters) '("black" "--config" (substitute-in-file-name "$HOME/.config/black") "-"))
-  (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
+
+  ;; isort messes up type:ignore on imports (eg: https://github.com/psf/black/issues/997)
+  ;; pyflyby does this step anyway
+  ;; (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
+
+  (setf (alist-get 'python-mode apheleia-mode-alist) '(black))
   (apheleia-global-mode)
   )
 ;; apheleia:2 ends here
-
-;; Projectile
-
-
-
-;; [[file:config.org::*Projectile][Projectile:1]]
-(use-package! projectile
-  :after-call doom-first-buffer-hook
-  :custom
-  (projectile-project-search-path '("~/dev"))
-  (projectile-auto-discover t)
-  ;; Note:
-  ;;
-  ;; - no filtering will happen in Projectile if we use ~'alien~ -- everything
-  ;;   must be done via ~gitignore~
-  ;;
-  ;; - If projectile-enable-caching is t, use projectile-invalidate-cache first to
-  ;;   test changes in gitignore
-
-  (projectile-indexing-method 'alien)
-  :config
-  (add-to-list 'projectile-project-root-files "pyproject.toml")
-  )
-;; Projectile:1 ends here
-
-;; open all project files
-
-
-;; [[file:config.org::*open all project files][open all project files:1]]
-(after! projectile
-  (defun vi/find-all-project-files ()
-    (interactive)
-    (let* (
-           (root (projectile-acquire-root))
-           (files (projectile-project-files root))
-           (filenames (--map (expand-file-name it root) files)))
-      (dolist-with-progress-reporter (f filenames) (format "Opening files in project [%s] " root) (find-file-noselect f))
-      ))
-  )
-;; open all project files:1 ends here
 
 ;; [[file:config.org::*Javascript/Typescript][Javascript/Typescript:2]]
 (add-hook! '(typescript-mode-hook rjsx-mode-hook) #'add-node-modules-path)
@@ -3009,6 +3045,47 @@ With optional prefix argument ARG, drag all the files at once."
                     (dired-get-marked-files))
    :noquery t))
 ;; drag and drop:1 ends here
+
+;; Projectile
+
+
+
+;; [[file:config.org::*Projectile][Projectile:1]]
+(use-package! projectile
+  :after-call doom-first-buffer-hook
+  :custom
+  (projectile-project-search-path '("~/dev"))
+  (projectile-auto-discover t)
+  (projectile-file-exists-local-cache-expire (* 12 60))
+  ;; Note:
+  ;;
+  ;; - no filtering will happen in Projectile if we use ~'alien~ -- everything
+  ;;   must be done via ~gitignore~
+  ;;
+  ;; - If projectile-enable-caching is t, use projectile-invalidate-cache first to
+  ;;   test changes in gitignore
+
+  (projectile-indexing-method 'alien)
+  :config
+  (add-to-list 'projectile-project-root-files "pyproject.toml")
+  )
+;; Projectile:1 ends here
+
+;; open all project files
+
+
+;; [[file:config.org::*open all project files][open all project files:1]]
+(after! projectile
+  (defun vi/find-all-project-files ()
+    (interactive)
+    (let* (
+           (root (projectile-acquire-root))
+           (files (projectile-project-files root))
+           (filenames (--map (expand-file-name it root) files)))
+      (dolist-with-progress-reporter (f filenames) (format "Opening files in project [%s] " root) (find-file-noselect f))
+      ))
+  )
+;; open all project files:1 ends here
 
 ;; [[file:config.org::*Firestarter][Firestarter:2]]
 (use-package! firestarter

@@ -358,13 +358,6 @@
 (package! vi-consult-buffers :recipe (:host github :repo "indigoviolet/vi-consult-buffers"))
 ;; vicb:1 ends here
 
-;; projectile
-
-
-;; [[file:config.org::*projectile][projectile:1]]
-(package! consult-projectile :recipe (:host gitlab :repo "OlMon/consult-projectile"))
-;; projectile:1 ends here
-
 ;; avy
 
 
@@ -543,6 +536,15 @@
 ;; [[file:config.org::*apheleia][apheleia:1]]
 (package! apheleia)
 ;; apheleia:1 ends here
+
+;; python-black
+
+;; For ein notebooks. this requires black-macchiato via pipx
+
+
+;; [[file:config.org::*python-black][python-black:1]]
+(package! python-black)
+;; python-black:1 ends here
 
 ;; Javascript/Typescript
 
