@@ -210,6 +210,9 @@ glances plugins=env_var_or_default("plugins", "") *args='':
     glances --sparkline --disable-plugin all --enable-plugins=quicklook,cpu,gpu,mem,load,processcount,processlist,docker,{{plugins}} {{ args }}
 
 
+dl *cmd:
+    ~/dev/gcloud/gcpvm --dotenv-filename ~/dev/gcloud/deeplearning-1-vm.env {{ cmd }}
+
 
 # Local Variables:
 # mode: just
