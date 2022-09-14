@@ -4,7 +4,7 @@
 #+auto_tangle: nil
 :END:
 
-* Todos [12/14]
+* Todos [12/15]
 
 ** DONE Dispatcher
 ** DONE Bootstrap script from dotbot
@@ -16,7 +16,7 @@
 ** DONE Handle union of personal&gcp
 ** DONE id_rsa and id_rsa.pub -> encrypt and add?
 
-** Convert bootstrap to just script
+** TODO Convert bootstrap to just script
 
 ** TODO Build pipx json installer
 ** TODO j2cli (pipx) https://github.com/kolypto/j2cli for templating
@@ -259,6 +259,16 @@ cut -d' ' -f1 .tool-versions | xargs -i asdf plugin add {}
 ASDF_POETRY_INSTALL_URL=https://install.python-poetry.org asdf install
 #+end_src
 
+*** Mamba (conda)
+
+https://github.com/conda-forge/miniforge#non-interactive-install
+
+#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/051-mamba-conda.sh
+set -ux
+wget -O Mambaforge.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
+bash Mambaforge.sh -b
+#+end_src
+
 *** Pipx
 
 pipx is installed with Brew
@@ -281,6 +291,8 @@ exit 0
 
 **** Handle injected packages?
 
+
+
 Long-term it would be nice to just have a comprehensive way to handle the exported json
 
 For example, we'd like to inject ipykernel into ipython, so that ipykernel
@@ -292,47 +304,11 @@ pipx list --json \
      | jq -r '"pipx install \(.main_package)", if .injected != null then "pipx inject \(.main_package) \(.injected)" else "" end'
 #+end_src
 
-#+RESULTS:
-:results:
-pipx install black
+Another version:
 
-pipx install black-macchiato
-
-pipx install cleanpy
-
-pipx install cookiecutter
-
-pipx install docker-compose
-
-pipx install flake8
-
-pipx install ipython
-
-pipx install isort
-
-pipx install j2cli[yaml]
-
-pipx install jupyter-core
-
-pipx install notebook
-
-pipx install git+https://github.com/indigoviolet/pomodoro_beeminder
-
-pipx install pre-commit
-
-pipx install pyflakes
-
-pipx install pyment
-
-pipx install termdown
-
-pipx install tox
-
-pipx install youtube-dl
-
-:end:
-
-
+#+begin_example shell
+cat ~/.pipx.json | jq -cr '.venvs | map_values(.metadata.injected_packages | keys) | to_entries | map(.key + " " + (.value|join(",")))'
+#+end_example
 
 
 *** Misc utilities
@@ -531,294 +507,6 @@ requires more investigation/configuration to replicate paperwm setup
 - https://github.com/kwin-scripts/kwin-tiling
 - https://github.com/esjeon/krohnkite (dead?)
 - https://github.com/Bismuth-Forge/bismuth --> v3 not yet available in ppas?
-* Identify apt manually installed packages
-
-#+begin_src shell :results raw drawer
-zcat /var/log/apt/history.log.*.gz | cat - /var/log/apt/history.log | grep -B1 -P 'apt.*?install'
-#+end_src
-
-#+RESULTS:
-:results:
-Start-Date: 2021-04-08  15:26:51
-Commandline: apt-get install gnome-session-flashback
---
-Start-Date: 2021-04-13  19:21:16
-Commandline: apt-get install clangd
---
-Start-Date: 2021-04-19  16:01:56
-Commandline: apt-get install doxygen
---
-Start-Date: 2021-04-20  11:47:16
-Commandline: apt-get install fish
---
-Start-Date: 2021-03-20  16:11:43
-Commandline: apt install python3-bluez bluez libbluetooth-dev python3-dev
---
-Start-Date: 2021-03-26  14:22:11
-Commandline: apt-get install autoconf automake g++ gcc libpng-dev libpoppler-dev libpoppler-glib-dev libpoppler-private-dev libz-dev make pkg-config
---
-Start-Date: 2021-03-26  14:51:06
-Commandline: apt-get install --reinstall libpng-dev
---
-Start-Date: 2021-02-04  14:41:08
-Commandline: apt-get install --no-install-recommends -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
---
-Start-Date: 2021-02-10  10:50:52
-Commandline: apt-get install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
---
-Start-Date: 2021-02-10  10:57:36
-Commandline: apt-get install docker-ce docker-ce-cli containerd.io
---
-Start-Date: 2021-02-10  14:34:22
-Commandline: apt-get install nvidia-docker2
---
-Start-Date: 2021-02-11  17:48:30
-Commandline: apt-get install docker-compose
---
-Start-Date: 2021-02-12  12:08:08
-Commandline: apt-get install libusb-dev
---
-Start-Date: 2022-01-10  14:26:35
-Commandline: apt-get install cups-browsed
---
-Start-Date: 2022-01-10  14:27:58
-Commandline: apt-get install cups-browsed
---
-Start-Date: 2022-01-28  15:32:54
-Commandline: apt-get install google-cloud-sdk
---
-Start-Date: 2021-10-20  17:00:37
-Commandline: apt install trimage
---
-Start-Date: 2021-10-07  21:03:09
-Commandline: apt-get install gpodder
---
-Start-Date: 2021-08-15  23:07:09
-Commandline: apt-get install speedtest-cli
---
-Start-Date: 2021-07-05  18:15:03
-Commandline: apt-get install --yes clang
---
-Start-Date: 2021-07-05  18:15:07
-Commandline: apt-get install --no-install-recommends -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
---
-Start-Date: 2021-06-08  18:05:30
-Commandline: apt-get install debootstrap
---
-Start-Date: 2021-05-18  16:38:00
-Commandline: apt-get install clangd
---
-Start-Date: 2021-05-18  17:46:07
-Commandline: apt-get install clang-format
---
-Start-Date: 2021-05-24  13:16:21
-Commandline: apt-get install clangd
---
-Start-Date: 2021-05-24  16:07:03
-Commandline: apt-get install bear
---
-Start-Date: 2021-05-24  16:51:36
-Commandline: apt-get install nvidia-cuda-toolkit
---
-Start-Date: 2021-05-25  16:45:39
-Commandline: apt-get install ninja-build
---
-Start-Date: 2022-02-02  18:59:27
-Commandline: apt install w3m
---
-Start-Date: 2022-02-04  16:56:34
-Commandline: apt-get install apt-file
---
-Start-Date: 2022-02-08  17:17:37
-Commandline: apt-get install git-lfs
---
-Start-Date: 2022-02-08  17:23:11
-Commandline: apt-get install ubuntu-minimal
---
-Start-Date: 2022-02-08  17:23:27
-Commandline: apt-get install ubuntu-desktop-minimal
---
-Start-Date: 2022-02-08  17:24:00
-Commandline: apt-get install --no-install-recommends ubuntu-gnome-desktop
---
-Start-Date: 2022-02-09  14:20:15
-Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
---
-Start-Date: 2022-02-09  14:20:31
-Commandline: apt-get install -y -qq docker-ce-rootless-extras
---
-Start-Date: 2022-02-09  14:25:12
-Commandline: apt-get install --no-install-recommends -y nvidia-docker2
---
-Start-Date: 2022-02-09  15:52:43
-Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
---
-Start-Date: 2022-02-09  15:53:23
-Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
---
-Start-Date: 2022-02-09  17:23:18
-Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
---
-Start-Date: 2022-02-09  17:23:57
-Commandline: apt-get install -y --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
---
-Start-Date: 2022-02-09  17:24:17
-Commandline: apt-get install -y --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
---
-Start-Date: 2022-02-09  17:30:27
-Commandline: apt-get install -y --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
---
-Start-Date: 2022-02-09  17:31:18
-Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
---
-Start-Date: 2022-02-09  17:31:38
-Commandline: apt-get install -y --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
---
-Start-Date: 2022-02-09  17:31:55
-Commandline: apt-get install -y --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
---
-Start-Date: 2022-02-09  17:32:25
-Commandline: apt-get install -y --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
---
-Start-Date: 2022-02-09  17:33:07
-Commandline: apt-get install --no-install-recommends -y uidmap
---
-Start-Date: 2022-02-09  17:34:44
-Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
---
-Start-Date: 2022-02-09  17:38:57
-Commandline: apt-get install -y -qq apt-transport-https ca-certificates curl
---
-Start-Date: 2022-02-09  17:39:45
-Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
---
-Start-Date: 2022-02-09  17:40:20
-Commandline: apt-get install -y -qq apt-transport-https ca-certificates curl
---
-Start-Date: 2022-02-09  17:42:47
-Commandline: apt-get install -y --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
---
-Start-Date: 2022-02-09  18:51:27
-Commandline: apt-get install -y -qq apt-transport-https ca-certificates curl
---
-Start-Date: 2022-02-09  18:54:17
-Commandline: apt-get install --no-install-recommends -y nvidia-docker2
---
-Start-Date: 2022-02-10  17:44:53
-Commandline: apt-get install -y -qq --no-install-recommends docker-ce-cli docker-scan-plugin docker-ce
---
-Start-Date: 2022-02-10  18:00:46
-Commandline: apt-get install cuda libnvidia-extra-510 nvidia-kernel-common-510 nvidia-kernel-source-510
---
-Start-Date: 2022-02-22  21:06:01
-Commandline: apt install git-lfs
-:end:
-
-* Jupyter/ipython notes
-
-** IPykernel
-Currently we are following this: https://jkinred.github.io/post/using-jupyter/
-
-with emacs-jupyter or ein
-
-and kernels installed from each project via ipykernel installed in each project
-
-it would be better to inject ipykernel into the pipx ipython project, but
-currently we don't have a way to reproduce that via pipx.json (but this is easy
-to create)
-
-** Jupyter notebook
-
-
-#+begin_src shell
-pipx install jupyter-core notebook
-
-# colab compatibity
-pipx inject jupyter-core jupyter-http-over-ws
-
-# jupytext
-pipx inject jupyter-core jupytext
-#+end_src
-
-
-*** jupyter_notebook_config.json
-
-#+begin_src shell
-jupyter notebook password
-#+end_src
-
-will write this file with the hashed password, and new jupyter servers will use
-the password
-
-
-*** Jupytext
-
-~jupyter nbextension enable --py jupytext~
-
-https://github.com/mwouts/jupytext/blob/main/docs/install.md
-
-which then allows opening *.py files from ein!
-
-*** Ipywidgets
-
-https://ipywidgets.readthedocs.io/en/stable/user_install.html
-
-You need ipywidgets in the _kernel_ environment (ie not in pipx), similar to ipykernel
-
-~poetry add -D ipywidgets~
-
-You might need ~jupyter nbextension enable --py widgetsnbextension~ ?
-
-*** tqdm
-
-In terminal: you need ~from tqdm import tqdm~
-
-In Jupyter notebook: you need ~from tqdm.notebook import tqdm~
-
-*** TODO: auto-reload?
-
-https://github.com/mwouts/jupytext/issues/406
-https://github.com/untitled-ai/jupyter_ascending
-*** extensions
-
-
-#+begin_src shell
-pipx inject jupyter-core jupyter_contrib_nbextensions
-jupyter contrib nbextension install --user
-#+end_src
-
-** Jupyter lab
-
-- Requires ~pipx install jupyterlab~
-- Jupyter lab works with ein
-  (https://github.com/millejoh/emacs-ipython-notebook/issues/803) - but the web
-  interface doesn't see EIN sessions, so they don't share variables
-
-- ~jupyter lab password~ writes ~jupyter_server_config.json~ with a hashed password
-
-
-* Switching python version
-
-** install
-#+begin_src emacs-lisp
-asdf install python 3.9.12
-#+end_src
-
-** Edit .tool-versions for gcp and personal
-
-** fix pipx installs
-
-#+begin_src emacs-lisp
-pipx reinstall-all
-#+end_src
-
-** For each project
-
-- edit :: pyproject.toml, .tool-versions
-- update env :: direnv cache:: rm .env && direnv reload
-- cleanup :: cleanpy -a .
-- reinstall :: rm poetry.lock && poetry install
-- check ipykernel ::
 * Audio (Pipewire instead of Pulseaudio)
 
 Goal was to get better sound quality in the HSP/HFP mode (with microphone)
@@ -831,6 +519,11 @@ https://askubuntu.com/a/1339897
 https://www.tuxtips.info/linux/how-to-make-grub-remember-my-last-choice
 
 * Hardware
+:PROPERTIES:
+:ID:       676a6c50-5792-440b-8ab7-5c9c8c0effbc
+:END:
+
+
 ** Keyboard shortcuts
 
 *** Use xev to identify keys being pressed
@@ -1341,268 +1034,3 @@ tlp-stat -g
 
 
 
-* Notes on administration
-
-
-** Which ubuntu
-
-
-#+begin_src bash :results output
-lsb_release -a
-#+end_src
-
-#+RESULTS:
-: Distributor ID:	Ubuntu
-: Description:	Ubuntu 21.04
-: Release:	21.04
-: Codename:	hirsute
-
-** Virtual consoles
-
-With Gnome
-
-- C-M-F[1-6]
-- tty1 is some kind of graphical (fast user switching?) session
-- tty2 is the usual Gnome GUI
-- tty3-6 are virtual consoles
-
-
-** Logs
-
-#+begin_src bash :results output :dir "/sudo::/"
-dmesg --level=err
-#+end_src
-
-*** What’s in these Linux Logs?
-https://www.plesk.com/blog/featured/linux-logs-explained/
-
-- */var/log/syslog* or /var/log/messages: Shows general messages and info
-  regarding the system. Basically a data log of all activity throughout the
-  global system. Know that everything that happens on Redhat-based systems, like
-  CentOS or Rhel, will go in messages. *Whereas for Ubuntu and other Debian
-  systems, they go in Syslog*.
-- /var/log/boot.log: start-up messages and boot info.
-- /var/log/dmesg: a repository for device driver messages. Use dmesg to see
-  messages in this file.
-- /var/log/kern: keeps in Kernel logs and warning info. Also useful to fix
-  problems with custom kernels.
-
-------------
-
-- /var/log/auth.log or /var/log/secure:Keep authentication logs for both
-  successful or failed logins, and authentication processes. Storage depends on
-  system type. For Debian/Ubuntu, look in /var/log/auth.log. For Redhat/CentrOS,
-  go to /var/log/secure.
-- /var/log/maillog or var/log/mail.log: is for mail server logs, handy for
-  postfix, smtpd, or email-related services info running on your server.
-- /var/log/faillog: records info on failed logins. Hence, handy for examining
-  potential security breaches like login credential hacks and brute-force
-  attacks.
-- /var/log/cron: keeps a record of Crond-related messages (cron jobs). Like when
-  the cron daemon started a job.
-- /var/log/daemon.log: keeps track of running background services but doesn’t
-  represent them graphically.
-- /var/log/btmp: keeps a note of all failed login attempts.
-- /var/log/utmp: current login state by user.
-- /var/log/wtmp: record of each login/logout.
-- /var/log/lastlog: holds every user’s last login. A binary file you can read
-  via lastlog command.
-- /var/log/yum.log: holds data on any package installations that used the yum
-  command. So you can check if all went well.
-- /var/log/httpd/: a directory containing error_log and access_log files of the
-  Apache httpd daemon. Every error that httpd comes across is kept in the
-  error_log file. Think of memory problems and other system-related errors.
-  access_log logs all requests which come in via HTTP.
-- /var/log/mysqld.log or /var/log/mysql.log : MySQL log file that records every
-  debug, failure and success message, including starting, stopping and
-  restarting of MySQL daemon mysqld. The system decides on the directory.
-  RedHat, CentOS, Fedora, and other RedHat-based systems use
-  /var/log/mariadb/mariadb.log. However, Debian/Ubuntu use
-  /var/log/mysql/error.log directory.
-- /var/log/pureftp.log: monitors for FTP connections using the pureftp process.
-  Find data on every connection, FTP login, and authentication failure here.
-- /var/log/spooler: Usually contains nothing, except rare messages from USENET.
-- /var/log/xferlog: keeps FTP file transfer sessions. Includes info like file
-  names and user-initiated FTP transfers.
-
-** nvidia-powerd.service
-
-In dmesg:
-
-#+begin_example
-[FAILED] Failed to start nvidia-powerd service.
-See 'systemctl status nvidia-powerd.service' for details.
-#+end_example
-
-So I disabled:
-
-#+begin_example
-❯ systemctl status nvidia-powerd.service
-● nvidia-powerd.service - nvidia-powerd service
-     Loaded: loaded (/lib/systemd/system/nvidia-powerd.service; enabled; vendor preset: enabled)
-     Active: failed (Result: exit-code) since Tue 2022-03-29 13:48:45 PDT; 32min ago
-    Process: 1091 ExecStart=/usr/bin/nvidia-powerd (code=exited, status=1/FAILURE)
-   Main PID: 1091 (code=exited, status=1/FAILURE)
-
-Mar 29 13:48:45 venky-mxp systemd[1]: Starting nvidia-powerd service...
-Mar 29 13:48:45 venky-mxp /usr/bin/nvidia-powerd[1091]: nvidia-powerd version:1.0(build 1)
-Mar 29 13:48:45 venky-mxp /usr/bin/nvidia-powerd[1091]: SBIOS support not found for NVPCF GET_SUPPORTED function
-Mar 29 13:48:45 venky-mxp /usr/bin/nvidia-powerd[1091]: No matching GPU found
-Mar 29 13:48:45 venky-mxp /usr/bin/nvidia-powerd[1091]: Failed to initialize RM Client
-Mar 29 13:48:45 venky-mxp systemd[1]: nvidia-powerd.service: Main process exited, code=exited, status=1/FAILURE
-Mar 29 13:48:45 venky-mxp systemd[1]: nvidia-powerd.service: Failed with result 'exit-code'.
-Mar 29 13:48:45 venky-mxp systemd[1]: Failed to start nvidia-powerd service.
-
-❯ sudo systemctl disable nvidia-powerd.service
-[sudo] password for venky:
-Removed /etc/systemd/system/multi-user.target.wants/nvidia-powerd.service.
-
-#+end_example
-** List of login sessions
-
-#+begin_src bash :results output :dir "/sudo::/"
-tail -n+1 /usr/share/xsessions/*
-#+end_src
-
-#+RESULTS:
-#+begin_example
-==> /usr/share/xsessions/gnome-xorg.desktop <==
-[Desktop Entry]
-Name=GNOME on Xorg
-Comment=This session logs you into GNOME
-Exec=/usr/bin/gnome-session --session=gnome
-TryExec=/usr/bin/gnome-session
-Type=Application
-DesktopNames=GNOME
-X-GDM-SessionRegisters=true
-X-Ubuntu-Gettext-Domain=gnome-session-3.0
-
-==> /usr/share/xsessions/plasma.desktop <==
-[Desktop Entry]
-Type=XSession
-Exec=/usr/bin/startplasma-x11
-TryExec=/usr/bin/startplasma-x11
-DesktopNames=KDE
-Name=Plasma (X11)
-Name[ast]=Plasma (X11)
-Name[az]=Plasma (X11)
-Name[ca]=Plasma (X11)
-Name[cs]=Plasma (X11)
-Name[de]=Plasma (X11)
-Name[en_GB]=Plasma (X11)
-Name[es]=Plasma (X11)
-Name[eu]=Plasma (X11)
-Name[fi]=Plasma (X11)
-Name[fr]=Plasma (X11)
-Name[hu]=Plasma (X11)
-Name[ia]=Plasma (X11)
-Name[id]=Plasma (X11)
-Name[it]=Plasma (X11)
-Name[nl]=Plasma (X11)
-Name[nn]=Plasma (X11)
-Name[pa]=ਪਲਾਜ਼ਮਾ (X11)
-Name[pl]=Plazma (X11)
-Name[pt]=Plasma (X11)
-Name[pt_BR]=Plasma (X11)
-Name[ru]=Plasma (X11)
-Name[sk]=Plasma (X11)
-Name[sl]=Plasma (X11)
-Name[sv]=Plasma (X11)
-Name[uk]=Плазма (X11)
-Name[vi]=Plasma (X11)
-Name[x-test]=xxPlasma (X11)xx
-Name[zh_CN]=Plasma (X11)
-Comment=Plasma by KDE
-Comment[ar]=بلازما كدي
-Comment[ast]=Plasma por KDE
-Comment[az]=KDE Plasma
-Comment[bs]=Plazma od strane KDe
-Comment[ca]=Plasma, creat per la comunitat KDE
-Comment[ca@valencia]=Plasma, creat per la comunitat KDE
-Comment[cs]=Plasma z KDE
-Comment[da]=Plasma fra KDE
-Comment[de]=Plasma von KDE
-Comment[el]=Plasma από το KDE
-Comment[en_GB]=Plasma by KDE
-Comment[es]=Plasma, por KDE
-Comment[et]=KDE Plasma
-Comment[eu]=KDEren Plasma
-Comment[fi]=Plasma KDE:ltä
-Comment[fr]=Plasma, par KDE
-Comment[gl]=Plasma, fornecido por KDE.
-Comment[he]=פלזמה באמצעות KDE
-Comment[hu]=Plasma a KDE-től
-Comment[ia]=Plasma per KDE
-Comment[id]=Plasma oleh KDE
-Comment[is]=Plasma frá KDE
-Comment[it]=Plasma di KDE
-Comment[ja]=Plasma by KDE
-Comment[ko]=KDE Plasma
-Comment[lt]=Plasma pagal KDE
-Comment[nb]=Plasma av KDE
-Comment[nds]=Plasma vun KDE
-Comment[nl]=Plasma door KDE
-Comment[nn]=Plasma frå KDE
-Comment[pa]=KDE ਵਲੋਂ ਪਲਾਜ਼ਮਾ
-Comment[pl]=Plazma dzięki KDE
-Comment[pt]=Plasma do KDE
-Comment[pt_BR]=Plasma do KDE
-Comment[ro]=Plasma, de către KDE
-Comment[ru]=KDE Plasma
-Comment[sk]=Plasma od KDE
-Comment[sl]=KDE Plasma
-Comment[sr]=Плазма од КДЕ‑а
-Comment[sr@ijekavian]=Плазма од КДЕ‑а
-Comment[sr@ijekavianlatin]=Plasma od KDE‑a
-Comment[sr@latin]=Plasma od KDE‑a
-Comment[sv]=Plasma av KDE
-Comment[tg]=Plasma аз ҷониби KDE
-Comment[tr]=KDE Plasma
-Comment[uk]=Плазма KDE
-Comment[vi]=Plasma, do KDE
-Comment[x-test]=xxPlasma by KDExx
-Comment[zh_CN]=KDE Plasma
-Comment[zh_TW]=Plasma by KDE
-X-KDE-PluginInfo-Version=5.21.4
-
-==> /usr/share/xsessions/ubuntu.desktop <==
-[Desktop Entry]
-Name=Ubuntu
-Comment=This session logs you into Ubuntu
-Exec=env GNOME_SHELL_SESSION_MODE=ubuntu /usr/bin/gnome-session --session=ubuntu
-TryExec=/usr/bin/gnome-shell
-Type=Application
-DesktopNames=ubuntu:GNOME
-X-GDM-SessionRegisters=true
-X-Ubuntu-Gettext-Domain=gnome-session-3.0
-
-==> /usr/share/xsessions/ubuntu-xorg.desktop <==
-[Desktop Entry]
-Name=Ubuntu on Xorg
-Comment=This session logs you into Ubuntu
-Exec=env GNOME_SHELL_SESSION_MODE=ubuntu /usr/bin/gnome-session --session=ubuntu
-TryExec=/usr/bin/gnome-shell
-Type=Application
-DesktopNames=ubuntu:GNOME
-X-GDM-SessionRegisters=true
-X-Ubuntu-Gettext-Domain=gnome-session-3.0
-#+end_example
-
---session=<gnome|ubuntu> refers to:
-
-#+begin_src bash :results output :dir "/sudo::/"
-ls /usr/share/gnome-session/sessions
-#+end_src
-
-#+RESULTS:
-: exwm-gnome-flashback.session  gnome-initial-setup.session  gnome.session
-: gnome-dummy.session	      gnome-login.session	   ubuntu.session
-** USB devices
-
-- ~sudo usb-devices~ is like ~lsusb~ but with better/more info
-
-#+begin_src bash
-lsusb | grep HD | perl -lne '/([0-9a-f]{4}):([0-9a-f]{4})/; print "$1"' | grep -f - /sys/bus/usb/devices/*/idVendor
-#+end_src
-
-- Power management of usb devices ~tlp-stat -u~

@@ -1,14 +1,18 @@
 # Used only on gcloud
 #
 # Copied out of zshrc (conda init zsh) and modified after install
-# wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-# chmod +x Miniconda-latest-Linux-x86_64.sh
-# ./Miniconda-latest-Linux-x86_64.sh
+#
+# (https://aseifert.com/p/python-environments/)
 
-function conda_initialize()  {
+# curl -LO https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
+# chmod +x Mambaforge-Linux-x86_64.sh
+# ./Mambaforge-Linux-x86_64.sh
+
+# Required for mamba activate/deactivate
+function conda_initialize() {
     # >>> conda initialize >>>
     # !! Contents within this block are managed by 'conda init' !!
-    __conda_setup="$('$CONDA_PATH/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+    __conda_setup="$('$CONDA_PATH/bin/conda' 'shell.zsh' 'hook' 2>/dev/null)"
     if [ $? -eq 0 ]; then
         eval "$__conda_setup"
     else
@@ -19,8 +23,14 @@ function conda_initialize()  {
         fi
     fi
     unset __conda_setup
+
+    if [ -f "$CONDA_PATH/etc/profile.d/mamba.sh" ]; then
+        . "$CONDA_PATH/etc/profile.d/mamba.sh"
+    fi
+
+    conda config --set changeps1 False
     # <<< conda initialize <<<
 }
 
-CONDA_PATH="/home/venky/miniconda3"
+CONDA_PATH="/home/venky/.local/mambaforge"
 test -d $CONDA_PATH && conda_initialize
