@@ -111,12 +111,13 @@ poetry-install-ipykernel:
     #!/usr/bin/env bash
     set_init
     cd {{ invocation_directory() }}
-    if [[ ${POETRY_ACTIVE:-0} -ne 1 ]]; then
-        echo "Poetry is not active"
-        exit 1
-    fi
-    poetry add -D ipykernel
-    poetry install
+    # In conda environments, we can't test for POETRY_ACTIVE.
+    # if [[ ${POETRY_ACTIVE:-0} -ne 1 ]]; then
+    #     echo "Poetry is not active"
+    #     exit 1
+    # fi
+    # poetry add -D ipykernel
+    # poetry install
     basename=${PWD##*/}
     python -m ipykernel install --user --name="$basename"
 

@@ -4,13 +4,12 @@
 # to execute in bash scripts (ie non-interactive contexts) by setting BASH_ENV
 # in the parent zsh environment
 
-
-set_init () {
+set_init() {
     set_x
     set -euo pipefail
 }
 
-set_x () {
+set_x() {
     # Color xtrace prompts, useful in bash scripts
     # https://stackoverflow.com/a/58068110/14044156
     #
