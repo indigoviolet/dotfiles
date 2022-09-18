@@ -533,6 +533,7 @@
 (use-package! gcmh
   :custom
   ;; (gcmh-verbose t)
+  (gcmh-idle-delay 30)                  ;'auto)
   (gcmh-high-cons-threshold 1000000000)
   )
 ;; Garbage collection:1 ends here
@@ -667,6 +668,10 @@ message listing the hooks."
   (minions-mode)
   )
 ;; minor modes:2 ends here
+
+;; [[file:config.org::*mode minder][mode minder:2]]
+(use-package! mode-minder)
+;; mode minder:2 ends here
 
 ;; delete-other-windows
 
@@ -1233,17 +1238,15 @@ message listing the hooks."
   )
 ;; separedit:2 ends here
 
-;; Guides
-
-
-
-;; [[file:config.org::*Guides][Guides:1]]
+;; [[file:config.org::*Guides][Guides:2]]
 (use-package! highlight-indent-guides
+  :after-call doom-first-buffer-hook
   :custom
   (highlight-indent-guides-delay 1)
   (highlight-indent-guides-method 'bitmap)
+  :hook (prog-mode . highlight-indent-guides-mode)
   )
-;; Guides:1 ends here
+;; Guides:2 ends here
 
 ;; Shift regions
 
@@ -1620,10 +1623,10 @@ message listing the hooks."
   (corfu-history-mode 1)
   )
 
-(after! corfu
-  (setq! corfu-terminal-disable-on-gui nil)
-  (corfu-terminal-mode)
-  )
+;; (after! corfu
+;;   (setq! corfu-terminal-disable-on-gui nil)
+;;   (corfu-terminal-mode)
+;  )
 
 (use-package! cape
   :after-call doom-first-input-hook
@@ -1830,33 +1833,33 @@ message listing the hooks."
 
 ;; [[file:config.org::*show delimiters][show delimiters:2]]
 (use-package! org-appear
-  :after org
-  :custom (
-           (org-appear-autoemphasis t)
-           (org-appear-autolinks t)
-           (org-appear-autosubmarkers t)
-           (org-appear-autoentities t)
-           )
-  :hook (org-mode . org-appear-mode)
-  )
+ :after org
+ :custom (
+          (org-appear-autoemphasis t)
+          (org-appear-autolinks t)
+          (org-appear-autosubmarkers t)
+          (org-appear-autoentities t)
+          )
+ :hook (org-mode . org-appear-mode)
+ )
 ;; show delimiters:2 ends here
 
 ;; [[file:config.org::*Use auto-tangle][Use auto-tangle:2]]
 (use-package! org-auto-tangle
-  :after-call doom-first-buffer-hook
-  :config
-  (setq org-auto-tangle-default t)      ;this doesn't work with :custom
-  :hook (org-mode . org-auto-tangle-mode))
+ :after-call doom-first-buffer-hook
+ :config
+ (setq org-auto-tangle-default t)      ;this doesn't work with :custom
+ :hook (org-mode . org-auto-tangle-mode))
 ;; Use auto-tangle:2 ends here
 
 ;; [[file:config.org::*Images][Images:2]]
 (after! org
-  (setq org-download-method 'directory
-        org-download-image-dir "org-images"
-        org-download-heading-lvl nil
-        org-download-timestamp "%Y%m%d-%H%M%S_"
-        org-startup-with-inline-images t
-        org-image-actual-width 300))
+ (setq org-download-method 'directory
+       org-download-image-dir "org-images"
+       org-download-heading-lvl nil
+       org-download-timestamp "%Y%m%d-%H%M%S_"
+       org-startup-with-inline-images t
+       org-image-actual-width 300))
 ;; Images:2 ends here
 
 ;; Reformatting an Org buffer
@@ -1869,60 +1872,60 @@ message listing the hooks."
 
 ;; [[file:config.org::*Reformatting an Org buffer][Reformatting an Org buffer:1]]
 (after! org
-  (defun vi/org-reformat-buffer ()
-    (interactive)
-    (when (y-or-n-p "Really format current buffer? ")
-      (let ((document (org-element-interpret-data (org-element-parse-buffer))))
-        (erase-buffer)
-        (insert document)
-        (goto-char (point-min))))))
+ (defun vi/org-reformat-buffer ()
+   (interactive)
+   (when (y-or-n-p "Really format current buffer? ")
+     (let ((document (org-element-interpret-data (org-element-parse-buffer))))
+       (erase-buffer)
+       (insert document)
+       (goto-char (point-min))))))
 ;; Reformatting an Org buffer:1 ends here
 
 ;; misc
 
 ;; [[file:config.org::*misc][misc:1]]
 (after! org
-  ;; http://emacs.stackexchange.com/a/10712/115
-  (defun modi/org-delete-link ()
-    "Replace an Org link of the format [[LINK][DESCRIPTION]] with DESCRIPTION.
+ ;; http://emacs.stackexchange.com/a/10712/115
+ (defun modi/org-delete-link ()
+   "Replace an Org link of the format [[LINK][DESCRIPTION]] with DESCRIPTION.
 If the link is of the format [[LINK]], delete the whole Org link.
 
 In both the cases, save the LINK to the kill-ring.
 
 Execute this command while the point is on or after the hyper-linked Org link."
-    (interactive)
-    (when (derived-mode-p 'org-mode)
-      (let ((search-invisible t) start end)
-        (save-excursion
-          (when (re-search-backward "\\[\\[" nil :noerror)
-            (when (re-search-forward "\\[\\[\\(.*?\\)\\(\\]\\[.*?\\)*\\]\\]"
-                                     nil :noerror)
-              (setq start (match-beginning 0))
-              (setq end   (match-end 0))
-              (kill-new (match-string-no-properties 1)) ;Save link to kill-ring
-              (replace-regexp "\\[\\[.*?\\(\\]\\[\\(.*?\\)\\)*\\]\\]" "\\2"
-                              nil start end)))))))
+   (interactive)
+   (when (derived-mode-p 'org-mode)
+     (let ((search-invisible t) start end)
+       (save-excursion
+         (when (re-search-backward "\\[\\[" nil :noerror)
+           (when (re-search-forward "\\[\\[\\(.*?\\)\\(\\]\\[.*?\\)*\\]\\]"
+                                    nil :noerror)
+             (setq start (match-beginning 0))
+             (setq end   (match-end 0))
+             (kill-new (match-string-no-properties 1)) ;Save link to kill-ring
+             (replace-regexp "\\[\\[.*?\\(\\]\\[\\(.*?\\)\\)*\\]\\]" "\\2"
+                             nil start end)))))))
 
-  (defun modi/lower-case-org-keywords ()
-    "Lower case Org keywords and block identifiers.
+ (defun modi/lower-case-org-keywords ()
+   "Lower case Org keywords and block identifiers.
 
 Example: \"#+TITLE\" -> \"#+title\"
-         \"#+BEGIN_EXAMPLE\" -> \"#+begin_example\"
+        \"#+BEGIN_EXAMPLE\" -> \"#+begin_example\"
 
 Inspiration:
 https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c1210daf0."
-    (interactive)
-    (save-excursion
-      (goto-char (point-min))
-      (let ((case-fold-search nil)
-            (count 0))
-        ;; Match examples: "#+FOO bar", "#+FOO:", "=#+FOO=", "~#+FOO~",
-        ;;                 "‘#+FOO’", "“#+FOO”", ",#+FOO bar",
-        ;;                 "#+FOO_bar<eol>", "#+FOO<eol>".
-        (while (re-search-forward "\\(?1:#\\+[A-Z_]+\\(?:_[[:alpha:]]+\\)*\\)\\(?:[ :=~’”]\\|$\\)" nil :noerror)
-          (setq count (1+ count))
-          (replace-match (downcase (match-string-no-properties 1)) :fixedcase nil nil 1))
-        (message "Lower-cased %d matches" count))))
+   (interactive)
+   (save-excursion
+     (goto-char (point-min))
+     (let ((case-fold-search nil)
+           (count 0))
+       ;; Match examples: "#+FOO bar", "#+FOO:", "=#+FOO=", "~#+FOO~",
+       ;;                 "‘#+FOO’", "“#+FOO”", ",#+FOO bar",
+       ;;                 "#+FOO_bar<eol>", "#+FOO<eol>".
+       (while (re-search-forward "\\(?1:#\\+[A-Z_]+\\(?:_[[:alpha:]]+\\)*\\)\\(?:[ :=~’”]\\|$\\)" nil :noerror)
+         (setq count (1+ count))
+         (replace-match (downcase (match-string-no-properties 1)) :fixedcase nil nil 1))
+       (message "Lower-cased %d matches" count))))
 )
 ;; misc:1 ends here
 
@@ -1930,14 +1933,14 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; [[file:config.org::*Archive all done tasks][Archive all done tasks:1]]
 (after! org
-  ;; https://stackoverflow.com/questions/6997387/how-to-archive-all-the-done-tasks-using-a-single-command
-  (defun vi/org-archive-done-tasks ()
-    (interactive)
-    (org-map-entries
-     (lambda ()
-       (org-archive-subtree)
-       (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
-     "/DONE" 'tree))
+ ;; https://stackoverflow.com/questions/6997387/how-to-archive-all-the-done-tasks-using-a-single-command
+ (defun vi/org-archive-done-tasks ()
+   (interactive)
+   (org-map-entries
+    (lambda ()
+      (org-archive-subtree)
+      (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+    "/DONE" 'tree))
 )
 ;; Archive all done tasks:1 ends here
 
@@ -1959,11 +1962,11 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 ;; (add-hook! org-mode #'literate-calc-minor-mode)
 
 (after! calc
-  ;; converts
-  (defalias 'calcFunc-uconv 'math-convert-units)
+ ;; converts
+ (defalias 'calcFunc-uconv 'math-convert-units)
 
-  ;; usimplify() simplifies units, alias to U
-  (defalias 'calcFunc-U 'calcFunc-usimplify)
+ ;; usimplify() simplifies units, alias to U
+ (defalias 'calcFunc-U 'calcFunc-usimplify)
 )
 ;; literate calc:2 ends here
 
@@ -1974,12 +1977,12 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; [[file:config.org::*sh-mode src blocks][sh-mode src blocks:1]]
 (after! org
-  (defun org-babel-bash-mode ()
-    (sh-mode)
-    (sh-set-shell "bash"))
+ (defun org-babel-bash-mode ()
+   (sh-mode)
+   (sh-set-shell "bash"))
 
-  (add-to-list 'org-src-lang-modes '("bash" . org-babel-bash))
-  )
+ (add-to-list 'org-src-lang-modes '("bash" . org-babel-bash))
+ )
 ;; sh-mode src blocks:1 ends here
 
 ;; org babel chaining
@@ -1989,25 +1992,25 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; [[file:config.org::*org babel chaining][org babel chaining:1]]
 (defun adviced:org-babel-execute-src-block (&optional orig-fun arg info params)
-  (let ((body (nth 1 info))
-        (include (assoc :include (nth 2 info)))
-        (named-blocks (org-element-map (org-element-parse-buffer)
-                          'src-block (lambda (item)
-                                       (when (org-element-property :name item)
-                                         (cons (org-element-property :name item)
-                                               item))))))
-    (while include
-      (unless (cdr include)
-        (user-error ":include without value" (cdr include)))
-      (unless (assoc (cdr include) named-blocks)
-        (user-error "source block \"%s\" not found" (cdr include)))
-      (setq body (concat (org-element-property :value (cdr (assoc (cdr include) named-blocks)))
-                         body))
-      (setf (nth 1 info) body)
-      (setq include (assoc :include
-                           (org-babel-parse-header-arguments
-                            (org-element-property :parameters (cdr (assoc (cdr include) named-blocks)))))))
-    (funcall orig-fun arg info params)))
+ (let ((body (nth 1 info))
+       (include (assoc :include (nth 2 info)))
+       (named-blocks (org-element-map (org-element-parse-buffer)
+                         'src-block (lambda (item)
+                                      (when (org-element-property :name item)
+                                        (cons (org-element-property :name item)
+                                              item))))))
+   (while include
+     (unless (cdr include)
+       (user-error ":include without value" (cdr include)))
+     (unless (assoc (cdr include) named-blocks)
+       (user-error "source block \"%s\" not found" (cdr include)))
+     (setq body (concat (org-element-property :value (cdr (assoc (cdr include) named-blocks)))
+                        body))
+     (setf (nth 1 info) body)
+     (setq include (assoc :include
+                          (org-babel-parse-header-arguments
+                           (org-element-property :parameters (cdr (assoc (cdr include) named-blocks)))))))
+   (funcall orig-fun arg info params)))
 
 (advice-add 'org-babel-execute-src-block :around 'adviced:org-babel-execute-src-block)
 ;; org babel chaining:1 ends here
@@ -2017,20 +2020,20 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; [[file:config.org::*calendar][calendar:1]]
 (after! org
-   (defmacro vi/org-in-calendar (command)
-     (let ((name (intern (format "vi/org-in-calendar-%s" command))))
-       `(progn
-          (defun ,name ()
-            (interactive)
-            (org-eval-in-calendar ,command))
-          #',name)))
+  (defmacro vi/org-in-calendar (command)
+    (let ((name (intern (format "vi/org-in-calendar-%s" command))))
+      `(progn
+         (defun ,name ()
+           (interactive)
+           (org-eval-in-calendar ,command))
+         #',name)))
 
-   (map! :map org-read-date-minibuffer-local-map
-         "<right>" (vi/org-in-calendar '(calendar-forward-day 1))
-         "<left>" (vi/org-in-calendar '(calendar-backward-day 1))
-         ">" (vi/org-in-calendar '(calendar-forward-month 1))
-         "<" (vi/org-in-calendar '(calendar-backward-month 1))
-         "." (vi/org-in-calendar '(calendar-goto-today)))
+  (map! :map org-read-date-minibuffer-local-map
+        "<right>" (vi/org-in-calendar '(calendar-forward-day 1))
+        "<left>" (vi/org-in-calendar '(calendar-backward-day 1))
+        ">" (vi/org-in-calendar '(calendar-forward-month 1))
+        "<" (vi/org-in-calendar '(calendar-backward-month 1))
+        "." (vi/org-in-calendar '(calendar-goto-today)))
 )
 ;; calendar:1 ends here
 
@@ -2038,25 +2041,25 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 
 ;; - <2022-09-09 Fri> If we set org-roam-directory to ~org-directory~, syncing is
-;;   much faster; but we can't convert things outside of that directory into Nodes
+;;  much faster; but we can't convert things outside of that directory into Nodes
 
-;;   by doing org-id-get-create. Let's see if this is a problem
+;;  by doing org-id-get-create. Let's see if this is a problem
 
 ;; - <2022-09-11 Sun> Yes it is a problem: startup is very slow and lots of direnv
-;;   shit, dir-locals gets executed. We might have to use org-roam-refile
+;;  shit, dir-locals gets executed. We might have to use org-roam-refile
 
 
 ;; [[file:config.org::*Org Roam][Org Roam:1]]
 (use-package! org-roam
-  :after-call doom-first-input-hook
-  :custom
-  ;; (org-roam-directory (getenv "HOME"))
-  (org-roam-directory org-directory)
-  (org-roam-db-node-include-function (lambda () (not (member "ATTACH" (org-get-tags)))))
-  :config
-  (org-roam-db-autosync-mode)
-  (require 'org-protocol)
-  )
+ :after-call doom-first-input-hook
+ :custom
+ ;; (org-roam-directory (getenv "HOME"))
+ (org-roam-directory org-directory)
+ (org-roam-db-node-include-function (lambda () (not (member "ATTACH" (org-get-tags)))))
+ :config
+ (org-roam-db-autosync-mode)
+ (require 'org-protocol)
+ )
 ;; Org Roam:1 ends here
 
 ;; [[file:config.org::*consult-notes][consult-notes:2]]
@@ -2067,6 +2070,10 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   (consult-notes-org-roam-mode)
   )
 ;; consult-notes:2 ends here
+
+;; [[file:config.org::*org-modern-indent][org-modern-indent:2]]
+(add-hook! 'org-mode-hook #'org-modern-indent-mode)
+;; org-modern-indent:2 ends here
 
 ;; fontification
 
@@ -3124,6 +3131,18 @@ current buffer's, reload dir-locals."
                 (let (before-save-hook after-save-hook)
                   (save-buffer))))))
 ;; docker:2 ends here
+
+;; Tramp
+
+
+
+;; [[file:config.org::*Tramp][Tramp:1]]
+(use-package! tramp
+  :custom
+  ;; set in .ssh/config
+  (tramp-use-ssh-controlmaster-options nil)
+  )
+;; Tramp:1 ends here
 
 ;; [[file:config.org::*jsonnet][jsonnet:2]]
 (use-package! jsonnet-mode

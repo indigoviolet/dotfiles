@@ -434,7 +434,7 @@ here as-is for now, as it is quite well structured and clear.
        ;;(emoji +unicode)  ; 🙂
        hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
        hydra
-       indent-guides     ; highlighted indent columns
+       ;; indent-guides     ; highlighted indent columns
        ;;ligatures         ; ligatures and symbols to make your code pretty again
        ;;minimap           ; show a map of the code on the side
 
@@ -556,7 +556,7 @@ here as-is for now, as it is quite well structured and clear.
        ;;ocaml             ; an objective camel
 
        ;; +pretty is quite slow! (org-superstar)
-       (org +dragndrop +jupyter +roam2 +pretty)        ; organize your plain life in plain text
+       (org +dragndrop +jupyter +roam2);; +pretty)        ; organize your plain life in plain text
        ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
        ;;purescript        ; javascript, but functional
@@ -1182,6 +1182,7 @@ show-smartparens mode is slower than show-paren mode
 (use-package! gcmh
   :custom
   ;; (gcmh-verbose t)
+  (gcmh-idle-delay 30)                  ;'auto)
   (gcmh-high-cons-threshold 1000000000)
   )
 #+end_src
@@ -1348,6 +1349,18 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
   (minions-mode)
   )
 #+end_src
+
+*** mode minder
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! mode-minder :recipe (:host github :repo "jdtsmith/mode-minder"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! mode-minder)
+#+end_src
+
+
 
 * window/Buffer management
 
@@ -2252,12 +2265,19 @@ We don't use this in practice...
 
 ** Guides
 
+Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact badly with org-indent-modern
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! highlight-indent-guides)
+#+end_src
 
 #+begin_src emacs-lisp
 (use-package! highlight-indent-guides
+  :after-call doom-first-buffer-hook
   :custom
   (highlight-indent-guides-delay 1)
   (highlight-indent-guides-method 'bitmap)
+  :hook (prog-mode . highlight-indent-guides-mode)
   )
 #+end_src
 
@@ -2286,6 +2306,8 @@ We don't use this in practice...
 
 (map! :g "M->" #'vi/shift-right)
 (map! :g "M-<" #'vi/shift-left)
+
+
 #+end_src
 
 * Movement
@@ -2465,6 +2487,15 @@ This is not very useful in practice: doom has built in support for project switc
 (package! consult-projectile :recipe (:host gitlab :repo "OlMon/consult-projectile"))
 #+end_src
 
+
+
+*** COMMENT consult-jump-project
+
+This looks great but has no projectile support
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! consult-jump-project :recipe (:host github :repo "jdtsmith/consult-jump-project"))
+#+end_src
 
 
 
@@ -2764,10 +2795,10 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
   (corfu-history-mode 1)
   )
 
-(after! corfu
-  (setq! corfu-terminal-disable-on-gui nil)
-  (corfu-terminal-mode)
-  )
+;; (after! corfu
+;;   (setq! corfu-terminal-disable-on-gui nil)
+;;   (corfu-terminal-mode)
+;  )
 
 (use-package! cape
   :after-call doom-first-input-hook
@@ -2991,7 +3022,7 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
   )
 #+end_src
 
-**** COMMENT Electric pairs
+*** COMMENT Electric pairs
 
 To remove:
 (sp-local-pair 'org-mode "~" nil :actions :rem)
@@ -3001,13 +3032,13 @@ https://smartparens.readthedocs.io/en/latest/pair-management.html
 #+begin_src emacs-lisp
 (after! smartparens
 
-  (sp-local-pair 'org-mode "~" "~")
-  ;; (sp-local-pair 'org-mode "=" "=")
-  ;; (sp-local-pair 'org-mode "$" "$")
-  )
+ (sp-local-pair 'org-mode "~" "~")
+ ;; (sp-local-pair 'org-mode "=" "=")
+ ;; (sp-local-pair 'org-mode "$" "$")
+ )
 #+end_src
 
-**** show delimiters
+*** show delimiters
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! org-appear :recipe (:host github :repo "awth13/org-appear"))
@@ -3016,18 +3047,18 @@ https://smartparens.readthedocs.io/en/latest/pair-management.html
 
 #+begin_src emacs-lisp
 (use-package! org-appear
-  :after org
-  :custom (
-           (org-appear-autoemphasis t)
-           (org-appear-autolinks t)
-           (org-appear-autosubmarkers t)
-           (org-appear-autoentities t)
-           )
-  :hook (org-mode . org-appear-mode)
-  )
+ :after org
+ :custom (
+          (org-appear-autoemphasis t)
+          (org-appear-autolinks t)
+          (org-appear-autosubmarkers t)
+          (org-appear-autoentities t)
+          )
+ :hook (org-mode . org-appear-mode)
+ )
 #+end_src
 
-**** tangle on save
+*** tangle on save
 
 ***** Use auto-tangle
 
@@ -3051,16 +3082,16 @@ We'd like to set a timeout and fall through to synchronous tangle?
 
 #+begin_src emacs-lisp
 (use-package! org-auto-tangle
-  :after-call doom-first-buffer-hook
-  :config
-  (setq org-auto-tangle-default t)      ;this doesn't work with :custom
-  :hook (org-mode . org-auto-tangle-mode))
+ :after-call doom-first-buffer-hook
+ :config
+ (setq org-auto-tangle-default t)      ;this doesn't work with :custom
+ :hook (org-mode . org-auto-tangle-mode))
 #+end_src
 
 ***** COMMENT After save hook
 #+begin_src emacs-lisp
 (add-hook! org-mode :append
-  (add-hook! after-save :append :local #'org-babel-tangle))
+ (add-hook! after-save :append :local #'org-babel-tangle))
 #+end_src
 
 ****** COMMENT Fall through from auto-tangle to org-babel-tangle
@@ -3073,22 +3104,22 @@ started:
 
 #+begin_src emacs-lisp
 (let ((will_auto_tangle (let (
-                            (auto_tangle_extracted_assoc
-                             ;; uniquify auto_tangle; org-collect-keywords capitalizes; returns ("AUTO_TANGLE" . "nil") or ("AUTO_TANGLE" . "t")
-                             (assoc "AUTO_TANGLE" (org-collect-keywords '("auto_tangle") '("auto_tangle"))))
-                            )
-                            (if
-                                (eq auto_tangle_extracted_assoc nil)    ;not found
-                                org-auto-tangle-default           ;default
-                              (cdr auto_tangle_extracted_assoc)         ;else whatever was found
-                              )
-                            )
-                            ))
-                                        ;can be nil or "nil" or "t" or t, convert "nil" to nil
-                            (if (equal will_auto_tangle "nil") nil will_auto_tangle)
-  )
+                           (auto_tangle_extracted_assoc
+                            ;; uniquify auto_tangle; org-collect-keywords capitalizes; returns ("AUTO_TANGLE" . "nil") or ("AUTO_TANGLE" . "t")
+                            (assoc "AUTO_TANGLE" (org-collect-keywords '("auto_tangle") '("auto_tangle"))))
+                           )
+                           (if
+                               (eq auto_tangle_extracted_assoc nil)    ;not found
+                               org-auto-tangle-default           ;default
+                             (cdr auto_tangle_extracted_assoc)         ;else whatever was found
+                             )
+                           )
+                           ))
+                                       ;can be nil or "nil" or "t" or t, convert "nil" to nil
+                           (if (equal will_auto_tangle "nil") nil will_auto_tangle)
+ )
 #+end_src
-**** Images
+*** Images
 
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -3097,14 +3128,14 @@ started:
 
 #+begin_src emacs-lisp
 (after! org
-  (setq org-download-method 'directory
-        org-download-image-dir "org-images"
-        org-download-heading-lvl nil
-        org-download-timestamp "%Y%m%d-%H%M%S_"
-        org-startup-with-inline-images t
-        org-image-actual-width 300))
+ (setq org-download-method 'directory
+       org-download-image-dir "org-images"
+       org-download-heading-lvl nil
+       org-download-timestamp "%Y%m%d-%H%M%S_"
+       org-startup-with-inline-images t
+       org-image-actual-width 300))
 #+end_src
-**** Reformatting an Org buffer
+*** Reformatting an Org buffer
 
 (originally:
 https://zzamboni.org/post/my-doom-emacs-configuration-with-commentary/ A
@@ -3113,75 +3144,75 @@ internal parsed representation. Quite amazing.)
 
 #+begin_src emacs-lisp
 (after! org
-  (defun vi/org-reformat-buffer ()
-    (interactive)
-    (when (y-or-n-p "Really format current buffer? ")
-      (let ((document (org-element-interpret-data (org-element-parse-buffer))))
-        (erase-buffer)
-        (insert document)
-        (goto-char (point-min))))))
+ (defun vi/org-reformat-buffer ()
+   (interactive)
+   (when (y-or-n-p "Really format current buffer? ")
+     (let ((document (org-element-interpret-data (org-element-parse-buffer))))
+       (erase-buffer)
+       (insert document)
+       (goto-char (point-min))))))
 #+end_src
 
-**** Useful functions
+*** Useful functions
 
 ***** misc
 #+begin_src emacs-lisp
 (after! org
-  ;; http://emacs.stackexchange.com/a/10712/115
-  (defun modi/org-delete-link ()
-    "Replace an Org link of the format [[LINK][DESCRIPTION]] with DESCRIPTION.
+ ;; http://emacs.stackexchange.com/a/10712/115
+ (defun modi/org-delete-link ()
+   "Replace an Org link of the format [[LINK][DESCRIPTION]] with DESCRIPTION.
 If the link is of the format [[LINK]], delete the whole Org link.
 
 In both the cases, save the LINK to the kill-ring.
 
 Execute this command while the point is on or after the hyper-linked Org link."
-    (interactive)
-    (when (derived-mode-p 'org-mode)
-      (let ((search-invisible t) start end)
-        (save-excursion
-          (when (re-search-backward "\\[\\[" nil :noerror)
-            (when (re-search-forward "\\[\\[\\(.*?\\)\\(\\]\\[.*?\\)*\\]\\]"
-                                     nil :noerror)
-              (setq start (match-beginning 0))
-              (setq end   (match-end 0))
-              (kill-new (match-string-no-properties 1)) ;Save link to kill-ring
-              (replace-regexp "\\[\\[.*?\\(\\]\\[\\(.*?\\)\\)*\\]\\]" "\\2"
-                              nil start end)))))))
+   (interactive)
+   (when (derived-mode-p 'org-mode)
+     (let ((search-invisible t) start end)
+       (save-excursion
+         (when (re-search-backward "\\[\\[" nil :noerror)
+           (when (re-search-forward "\\[\\[\\(.*?\\)\\(\\]\\[.*?\\)*\\]\\]"
+                                    nil :noerror)
+             (setq start (match-beginning 0))
+             (setq end   (match-end 0))
+             (kill-new (match-string-no-properties 1)) ;Save link to kill-ring
+             (replace-regexp "\\[\\[.*?\\(\\]\\[\\(.*?\\)\\)*\\]\\]" "\\2"
+                             nil start end)))))))
 
-  (defun modi/lower-case-org-keywords ()
-    "Lower case Org keywords and block identifiers.
+ (defun modi/lower-case-org-keywords ()
+   "Lower case Org keywords and block identifiers.
 
 Example: \"#+TITLE\" -> \"#+title\"
-         \"#+BEGIN_EXAMPLE\" -> \"#+begin_example\"
+        \"#+BEGIN_EXAMPLE\" -> \"#+begin_example\"
 
 Inspiration:
 https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c1210daf0."
-    (interactive)
-    (save-excursion
-      (goto-char (point-min))
-      (let ((case-fold-search nil)
-            (count 0))
-        ;; Match examples: "#+FOO bar", "#+FOO:", "=#+FOO=", "~#+FOO~",
-        ;;                 "‘#+FOO’", "“#+FOO”", ",#+FOO bar",
-        ;;                 "#+FOO_bar<eol>", "#+FOO<eol>".
-        (while (re-search-forward "\\(?1:#\\+[A-Z_]+\\(?:_[[:alpha:]]+\\)*\\)\\(?:[ :=~’”]\\|$\\)" nil :noerror)
-          (setq count (1+ count))
-          (replace-match (downcase (match-string-no-properties 1)) :fixedcase nil nil 1))
-        (message "Lower-cased %d matches" count))))
+   (interactive)
+   (save-excursion
+     (goto-char (point-min))
+     (let ((case-fold-search nil)
+           (count 0))
+       ;; Match examples: "#+FOO bar", "#+FOO:", "=#+FOO=", "~#+FOO~",
+       ;;                 "‘#+FOO’", "“#+FOO”", ",#+FOO bar",
+       ;;                 "#+FOO_bar<eol>", "#+FOO<eol>".
+       (while (re-search-forward "\\(?1:#\\+[A-Z_]+\\(?:_[[:alpha:]]+\\)*\\)\\(?:[ :=~’”]\\|$\\)" nil :noerror)
+         (setq count (1+ count))
+         (replace-match (downcase (match-string-no-properties 1)) :fixedcase nil nil 1))
+       (message "Lower-cased %d matches" count))))
 )
 #+end_src
 
 ***** Archive all done tasks
 #+begin_src emacs-lisp
 (after! org
-  ;; https://stackoverflow.com/questions/6997387/how-to-archive-all-the-done-tasks-using-a-single-command
-  (defun vi/org-archive-done-tasks ()
-    (interactive)
-    (org-map-entries
-     (lambda ()
-       (org-archive-subtree)
-       (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
-     "/DONE" 'tree))
+ ;; https://stackoverflow.com/questions/6997387/how-to-archive-all-the-done-tasks-using-a-single-command
+ (defun vi/org-archive-done-tasks ()
+   (interactive)
+   (org-map-entries
+    (lambda ()
+      (org-archive-subtree)
+      (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+    "/DONE" 'tree))
 )
 #+end_src
 
@@ -3192,107 +3223,107 @@ https://github.com/alphapapa/unpackaged.el#org-return-dwim
 
 #+begin_src emacs-lisp
 (after! org
-  (defun unpackaged/org-element-descendant-of (type element)
-    "Return non-nil if ELEMENT is a descendant of TYPE.
+ (defun unpackaged/org-element-descendant-of (type element)
+   "Return non-nil if ELEMENT is a descendant of TYPE.
 TYPE should be an element type, like `item' or `paragraph'.
 ELEMENT should be a list like that returned by `org-element-context'."
-    ;; MAYBE: Use `org-element-lineage'.
-    (when-let* ((parent (org-element-property :parent element)))
-      (or (eq type (car parent))
-          (unpackaged/org-element-descendant-of type parent))))
+   ;; MAYBE: Use `org-element-lineage'.
+   (when-let* ((parent (org-element-property :parent element)))
+     (or (eq type (car parent))
+         (unpackaged/org-element-descendant-of type parent))))
 
-  ;;;###autoload
-  (defun unpackaged/org-return-dwim (&optional default)
-    "A helpful replacement for `org-return'.  With prefix, call `org-return'.
+ ;;;###autoload
+ (defun unpackaged/org-return-dwim (&optional default)
+   "A helpful replacement for `org-return'.  With prefix, call `org-return'.
 
 On headings, move point to position after entry content.  In
 lists, insert a new item or end the list, with checkbox if
 appropriate.  In tables, insert a new row or end the table."
-    ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
-    (interactive "P")
-    (if default
-        (org-return)
-      (cond
-       ;; Act depending on context around point.
+   ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
+   (interactive "P")
+   (if default
+       (org-return)
+     (cond
+      ;; Act depending on context around point.
 
-       ;; NOTE: I prefer RET to not follow links, but by uncommenting this block, links will be
-       ;; followed.
+      ;; NOTE: I prefer RET to not follow links, but by uncommenting this block, links will be
+      ;; followed.
 
-       ;; ((eq 'link (car (org-element-context)))
-       ;;  ;; Link: Open it.
-       ;;  (org-open-at-point-global)
+      ;; ((eq 'link (car (org-element-context)))
+      ;;  ;; Link: Open it.
+      ;;  (org-open-at-point-global)
 )
-       ((org-at-heading-p)
-        ;; Heading: Move to position after entry content.
-        ;; NOTE: This is probably the most interesting feature of this function.
-        (let ((heading-start (org-entry-beginning-position)))
-          (goto-char (org-entry-end-position))
-          (cond ((and (org-at-heading-p)
-                      (= heading-start (org-entry-beginning-position)))
-                 ;; Entry ends on its heading; add newline after
-                 (end-of-line)
-                 (insert "\n\n"))
-                (t
-                 ;; Entry ends after its heading; back up
-                 (forward-line -1)
-                 (end-of-line)
-                 (when (org-at-heading-p)
-                   ;; At the same heading
-                   (forward-line)
-                   (insert "\n")
-                   (forward-line -1))
-                 ;; FIXME: looking-back is supposed to be called with more arguments.
-                 (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n")))))
-                   (insert "\n"))
-                 (forward-line -1)))))
+      ((org-at-heading-p)
+       ;; Heading: Move to position after entry content.
+       ;; NOTE: This is probably the most interesting feature of this function.
+       (let ((heading-start (org-entry-beginning-position)))
+         (goto-char (org-entry-end-position))
+         (cond ((and (org-at-heading-p)
+                     (= heading-start (org-entry-beginning-position)))
+                ;; Entry ends on its heading; add newline after
+                (end-of-line)
+                (insert "\n\n"))
+               (t
+                ;; Entry ends after its heading; back up
+                (forward-line -1)
+                (end-of-line)
+                (when (org-at-heading-p)
+                  ;; At the same heading
+                  (forward-line)
+                  (insert "\n")
+                  (forward-line -1))
+                ;; FIXME: looking-back is supposed to be called with more arguments.
+                (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n")))))
+                  (insert "\n"))
+                (forward-line -1)))))
 
-       ((org-at-item-checkbox-p)
-        ;; Checkbox: Insert new item with checkbox.
-        (org-insert-todo-heading nil))
+      ((org-at-item-checkbox-p)
+       ;; Checkbox: Insert new item with checkbox.
+       (org-insert-todo-heading nil))
 
-       ((org-in-item-p)
-        ;; Plain list.  Yes, this gets a little complicated...
-        (let ((context (org-element-context)))
-          (if (or (eq 'plain-list (car context))  ; First item in list
-                  (and (eq 'item (car context))
-                       (not (eq (org-element-property :contents-begin context)
-                                (org-element-property :contents-end context))))
-                  (unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
-              ;; Non-empty item: Add new item.
-              (org-insert-item)
-            ;; Empty item: Close the list.
-            ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
-            (delete-region (line-beginning-position) (line-end-position))
-            (insert "\n"))))
+      ((org-in-item-p)
+       ;; Plain list.  Yes, this gets a little complicated...
+       (let ((context (org-element-context)))
+         (if (or (eq 'plain-list (car context))  ; First item in list
+                 (and (eq 'item (car context))
+                      (not (eq (org-element-property :contents-begin context)
+                               (org-element-property :contents-end context))))
+                 (unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
+             ;; Non-empty item: Add new item.
+             (org-insert-item)
+           ;; Empty item: Close the list.
+           ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
+           (delete-region (line-beginning-position) (line-end-position))
+           (insert "\n"))))
 
-       ((when (fboundp 'org-inlinetask-in-task-p)
-          (org-inlinetask-in-task-p))
-        ;; Inline task: Don't insert a new heading.
-        (org-return))
+      ((when (fboundp 'org-inlinetask-in-task-p)
+         (org-inlinetask-in-task-p))
+       ;; Inline task: Don't insert a new heading.
+       (org-return))
 
-       ((org-at-table-p)
-        (cond ((save-excursion
-                 (beginning-of-line)
-                 ;; See `org-table-next-field'.
-                 (cl-loop with end = (line-end-position)
-                          for cell = (org-element-table-cell-parser)
-                          always (equal (org-element-property :contents-begin cell)
-                                        (org-element-property :contents-end cell))
-                          while (re-search-forward "|" end t)))
-               ;; Empty row: end the table.
-               (delete-region (line-beginning-position) (line-end-position))
-               (org-return))
-              (t
-               ;; Non-empty row: call `org-return'.
-               (org-return))))
-       (t
-        ;; All other cases: call `org-return'.
-        (org-return)))))
+      ((org-at-table-p)
+       (cond ((save-excursion
+                (beginning-of-line)
+                ;; See `org-table-next-field'.
+                (cl-loop with end = (line-end-position)
+                         for cell = (org-element-table-cell-parser)
+                         always (equal (org-element-property :contents-begin cell)
+                                       (org-element-property :contents-end cell))
+                         while (re-search-forward "|" end t)))
+              ;; Empty row: end the table.
+              (delete-region (line-beginning-position) (line-end-position))
+              (org-return))
+             (t
+              ;; Non-empty row: call `org-return'.
+              (org-return))))
+      (t
+       ;; All other cases: call `org-return'.
+       (org-return)))))
 #+end_src
 ***** org-insert-below
 
 
-**** Import from various formats into org
+*** Import from various formats into org
 
 
 
@@ -3306,7 +3337,7 @@ Needs ~brew install pandoc~
 (use-package! org-pandoc-import :after-call doom-first-file-hook)
 #+end_src
 
-**** literate calc
+*** literate calc
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! literate-calc-mode)
@@ -3318,11 +3349,11 @@ Let's use this with file-locals instead
 ;; (add-hook! org-mode #'literate-calc-minor-mode)
 
 (after! calc
-  ;; converts
-  (defalias 'calcFunc-uconv 'math-convert-units)
+ ;; converts
+ (defalias 'calcFunc-uconv 'math-convert-units)
 
-  ;; usimplify() simplifies units, alias to U
-  (defalias 'calcFunc-U 'calcFunc-usimplify)
+ ;; usimplify() simplifies units, alias to U
+ (defalias 'calcFunc-U 'calcFunc-usimplify)
 )
 #+end_src
 
@@ -3333,7 +3364,7 @@ Let's use this with file-locals instead
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! poly-literate-calc
-  :recipe (:local-repo "lisp/poly-literate-calc" :build (:not compile)));; :host github :repo "indigoviolet/poly-literate-calc"))
+ :recipe (:local-repo "lisp/poly-literate-calc" :build (:not compile)));; :host github :repo "indigoviolet/poly-literate-calc"))
 #+end_src
 
 
@@ -3342,7 +3373,7 @@ Let's use this with file-locals instead
 #+end_src
 
 
-**** COMMENT super-agenda
+*** COMMENT super-agenda
 
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -3352,55 +3383,55 @@ Let's use this with file-locals instead
 
 #+begin_src emacs-lisp
 (after! org
-  (org-super-agenda-mode)
-  )
+ (org-super-agenda-mode)
+ )
 #+end_src
-**** sh-mode src blocks
+*** sh-mode src blocks
 
 sh-mode uses $SHELL by default: https://list.orgmode.org/87eeg0tz6t.fsf@gmail.com/T/
 
 #+begin_src emacs-lisp
 (after! org
-  (defun org-babel-bash-mode ()
-    (sh-mode)
-    (sh-set-shell "bash"))
+ (defun org-babel-bash-mode ()
+   (sh-mode)
+   (sh-set-shell "bash"))
 
-  (add-to-list 'org-src-lang-modes '("bash" . org-babel-bash))
-  )
+ (add-to-list 'org-src-lang-modes '("bash" . org-babel-bash))
+ )
 #+end_src
 
-**** org babel chaining
+*** org babel chaining
 
 https://xenodium.com/emacs-chaining-org-babel-blocks/
 
 #+begin_src emacs-lisp
 (defun adviced:org-babel-execute-src-block (&optional orig-fun arg info params)
-  (let ((body (nth 1 info))
-        (include (assoc :include (nth 2 info)))
-        (named-blocks (org-element-map (org-element-parse-buffer)
-                          'src-block (lambda (item)
-                                       (when (org-element-property :name item)
-                                         (cons (org-element-property :name item)
-                                               item))))))
-    (while include
-      (unless (cdr include)
-        (user-error ":include without value" (cdr include)))
-      (unless (assoc (cdr include) named-blocks)
-        (user-error "source block \"%s\" not found" (cdr include)))
-      (setq body (concat (org-element-property :value (cdr (assoc (cdr include) named-blocks)))
-                         body))
-      (setf (nth 1 info) body)
-      (setq include (assoc :include
-                           (org-babel-parse-header-arguments
-                            (org-element-property :parameters (cdr (assoc (cdr include) named-blocks)))))))
-    (funcall orig-fun arg info params)))
+ (let ((body (nth 1 info))
+       (include (assoc :include (nth 2 info)))
+       (named-blocks (org-element-map (org-element-parse-buffer)
+                         'src-block (lambda (item)
+                                      (when (org-element-property :name item)
+                                        (cons (org-element-property :name item)
+                                              item))))))
+   (while include
+     (unless (cdr include)
+       (user-error ":include without value" (cdr include)))
+     (unless (assoc (cdr include) named-blocks)
+       (user-error "source block \"%s\" not found" (cdr include)))
+     (setq body (concat (org-element-property :value (cdr (assoc (cdr include) named-blocks)))
+                        body))
+     (setf (nth 1 info) body)
+     (setq include (assoc :include
+                          (org-babel-parse-header-arguments
+                           (org-element-property :parameters (cdr (assoc (cdr include) named-blocks)))))))
+   (funcall orig-fun arg info params)))
 
 (advice-add 'org-babel-execute-src-block :around 'adviced:org-babel-execute-src-block)
 #+end_src
 
 #+results[b30c1b41ccddc21305a1d13530fcaa6911029689]:
 
-**** table of contents
+*** table of contents
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! org-make-toc)
@@ -3411,53 +3442,53 @@ https://xenodium.com/emacs-chaining-org-babel-blocks/
 disabled because it is noisy on startup, and used rarely (<2022-03-21 Mon>)
 #+begin_src emacs-lisp
 (after! org
-  (add-hook! org-mode #'org-make-toc-mode))
+ (add-hook! org-mode #'org-make-toc-mode))
 #+end_src
 
-**** calendar
+*** calendar
 
 #+begin_src emacs-lisp
 (after! org
-   (defmacro vi/org-in-calendar (command)
-     (let ((name (intern (format "vi/org-in-calendar-%s" command))))
-       `(progn
-          (defun ,name ()
-            (interactive)
-            (org-eval-in-calendar ,command))
-          #',name)))
+  (defmacro vi/org-in-calendar (command)
+    (let ((name (intern (format "vi/org-in-calendar-%s" command))))
+      `(progn
+         (defun ,name ()
+           (interactive)
+           (org-eval-in-calendar ,command))
+         #',name)))
 
-   (map! :map org-read-date-minibuffer-local-map
-         "<right>" (vi/org-in-calendar '(calendar-forward-day 1))
-         "<left>" (vi/org-in-calendar '(calendar-backward-day 1))
-         ">" (vi/org-in-calendar '(calendar-forward-month 1))
-         "<" (vi/org-in-calendar '(calendar-backward-month 1))
-         "." (vi/org-in-calendar '(calendar-goto-today)))
+  (map! :map org-read-date-minibuffer-local-map
+        "<right>" (vi/org-in-calendar '(calendar-forward-day 1))
+        "<left>" (vi/org-in-calendar '(calendar-backward-day 1))
+        ">" (vi/org-in-calendar '(calendar-forward-month 1))
+        "<" (vi/org-in-calendar '(calendar-backward-month 1))
+        "." (vi/org-in-calendar '(calendar-goto-today)))
 )
 #+end_src
-**** Org Roam
+*** Org Roam
 
 
 - <2022-09-09 Fri> If we set org-roam-directory to ~org-directory~, syncing is
-  much faster; but we can't convert things outside of that directory into Nodes
+ much faster; but we can't convert things outside of that directory into Nodes
 
-  by doing org-id-get-create. Let's see if this is a problem
+ by doing org-id-get-create. Let's see if this is a problem
 
 - <2022-09-11 Sun> Yes it is a problem: startup is very slow and lots of direnv
-  shit, dir-locals gets executed. We might have to use org-roam-refile
+ shit, dir-locals gets executed. We might have to use org-roam-refile
 
 #+begin_src emacs-lisp
 (use-package! org-roam
-  :after-call doom-first-input-hook
-  :custom
-  ;; (org-roam-directory (getenv "HOME"))
-  (org-roam-directory org-directory)
-  (org-roam-db-node-include-function (lambda () (not (member "ATTACH" (org-get-tags)))))
-  :config
-  (org-roam-db-autosync-mode)
-  (require 'org-protocol)
-  )
+ :after-call doom-first-input-hook
+ :custom
+ ;; (org-roam-directory (getenv "HOME"))
+ (org-roam-directory org-directory)
+ (org-roam-db-node-include-function (lambda () (not (member "ATTACH" (org-get-tags)))))
+ :config
+ (org-roam-db-autosync-mode)
+ (require 'org-protocol)
+ )
 #+end_src
-***** consult-notes
+**** consult-notes
 
 Alternative: https://github.com/jgru/consult-org-roam
 
@@ -3474,7 +3505,35 @@ Alternative: https://github.com/jgru/consult-org-roam
   (consult-notes-org-roam-mode)
   )
 #+end_src
-**
+
+*** org-modern-indent
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-modern-indent :recipe (:host github :repo "jdtsmith/org-modern-indent"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(add-hook! 'org-mode-hook #'org-modern-indent-mode)
+#+end_src
+*** COMMENT org-modern
+
+checkboxes are tiny, and they can be fixed by adjusting faces but this just doesn't do much for me
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-modern)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! org-modern
+  :after-call doom-first-buffer-hook
+  :custom
+  (org-modern-hide-stars nil)           ;adds extra indentation
+  :hook (org-mode . global-org-modern-mode))
+
+#+end_src
 
 * emacs-jupyter
 ** fontification
@@ -4868,6 +4927,16 @@ So we could:
 # End:
 #+end_example
 
+* Tramp
+
+
+#+begin_src emacs-lisp
+(use-package! tramp
+  :custom
+  ;; set in .ssh/config
+  (tramp-use-ssh-controlmaster-options nil)
+  )
+#+end_src
 
 * Misc
 
