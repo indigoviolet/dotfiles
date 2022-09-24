@@ -154,6 +154,13 @@
 (package! hl-line+ :recipe (:host github :repo "emacsmirror/hl-line-plus"))
 ;; hl-line+:1 ends here
 
+;; wrap region
+
+
+;; [[file:config.org::*wrap region][wrap region:1]]
+(package! wrap-region)
+;; wrap region:1 ends here
+
 ;; Environment
 
 
@@ -188,6 +195,13 @@
 ;; [[file:config.org::*minor modes][minor modes:1]]
 (package! minions)
 ;; minor modes:1 ends here
+
+;; mode minder
+
+
+;; [[file:config.org::*mode minder][mode minder:1]]
+(package! mode-minder :recipe (:host github :repo "jdtsmith/mode-minder"))
+;; mode minder:1 ends here
 
 ;; Movement
 
@@ -314,6 +328,15 @@
 (package! separedit)
 ;; separedit:1 ends here
 
+;; Guides
+
+;; Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact badly with org-indent-modern
+
+
+;; [[file:config.org::*Guides][Guides:1]]
+(package! highlight-indent-guides)
+;; Guides:1 ends here
+
 ;; Movement
 
 
@@ -357,6 +380,17 @@
 ;; [[file:config.org::*vicb][vicb:1]]
 (package! vi-consult-buffers :recipe (:host github :repo "indigoviolet/vi-consult-buffers"))
 ;; vicb:1 ends here
+
+;; consult-projectile
+
+;; +This is not very useful in practice:+ doom has built in support for project
+;; switching that works better with workspaces; but we can use just the find-file
+;; function, which is better than +doom-project-find-file
+
+
+;; [[file:config.org::*consult-projectile][consult-projectile:1]]
+(package! consult-projectile :recipe (:host gitlab :repo "OlMon/consult-projectile"))
+;; consult-projectile:1 ends here
 
 ;; avy
 
@@ -505,12 +539,27 @@
 (package! consult-notes :recipe (:host github :repo "mclear-tools/consult-notes"))
 ;; consult-notes:1 ends here
 
+;; org-modern-indent
+
+
+
+;; [[file:config.org::*org-modern-indent][org-modern-indent:1]]
+(package! org-modern-indent :recipe (:host github :repo "jdtsmith/org-modern-indent"))
+;; org-modern-indent:1 ends here
+
 ;; ein
 
 
 ;; [[file:config.org::*ein][ein:1]]
 (package! ein :pin "6063cee")
 ;; ein:1 ends here
+
+;; vterm
+
+
+;; [[file:config.org::*vterm][vterm:1]]
+(unpin! vterm)
+;; vterm:1 ends here
 
 ;; Formatting
 
@@ -567,6 +616,14 @@
 ;; [[file:config.org::*all the icons][all the icons:1]]
 (package! all-the-icons-dired)
 ;; all the icons:1 ends here
+
+;; sudo
+
+
+
+;; [[file:config.org::*sudo][sudo:1]]
+(package! dired-togle-sudo :recipe (:host github :repo "renard/dired-toggle-sudo"))
+;; sudo:1 ends here
 
 ;; Firestarter
 

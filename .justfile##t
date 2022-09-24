@@ -35,11 +35,16 @@ doom-rebuild-vterm:
 doom-tangle-config:
     emacs --batch -Q --eval "(require 'org)" --eval '(org-babel-tangle-file "{{ DOOMDIR }}/config.org")'
 
-mutagen-project-start:
-    mutagen project start -f ~/dev/ml-west.yml
+mutagen-project-start project:
+    mutagen project start -f ~/dev/{{ project }}.yml
 
-mutagen-project-terminate:
-    mutagen project terminate -f ~/dev/ml-west.yml
+mutagen-project-terminate project:
+    mutagen project terminate -f ~/dev/{{ project }}.yml
+
+mutagen-project-restart project: (mutagen-project-terminate project) (mutagen-project-start project)
+
+mutagen-sync-monitor name:
+    mutagen sync monitor {{ name }} --template '{{{{ json . }}' | jq '.[0].status'
 
 # Log into syslog
 syslog-notice NOTICE:
@@ -106,23 +111,16 @@ save-settings: pipx-update-list brew-dump-leaves
 yadm-checkpoint:
     cd {{ HOME }} && yadm add -u && yadm ci -m "checkpoint" && yadm push
 
-# Install a Jupyter kernel from a Poetry venv
-poetry-install-ipykernel:
+# Install a Jupyter kernel. Requires ipykernel in the env
+jupyter-install-ipykernel:
     #!/usr/bin/env bash
     set_init
     cd {{ invocation_directory() }}
-    # In conda environments, we can't test for POETRY_ACTIVE.
-    # if [[ ${POETRY_ACTIVE:-0} -ne 1 ]]; then
-    #     echo "Poetry is not active"
-    #     exit 1
-    # fi
-    # poetry add -D ipykernel
-    # poetry install
     basename=${PWD##*/}
     python -m ipykernel install --user --name="$basename"
 
 
-show-kernelspec:
+jupyter-show-kernelspec:
     #!/usr/bin/env bash
     set_init
     cd {{ invocation_directory() }}
@@ -200,6 +198,17 @@ sudo *CMD:
 #     # watchexec -w $nbfile -w $pyfile --no-meta -p "jupytext --sync $nbfile"
 
 
+jupytext-unpair nb_or_script:
+    cd {{ invocation_directory() }} && jupytext --set-formats {{ extension(nb_or_script) }} {{ nb_or_script }}
+
+# Rename a pair of py/ipynb files
+jupytext-rename-pair nb_or_script newname_without_ext:
+    #!/usr/bin/env bash
+    set_x
+    cd {{ invocation_directory() }}
+    mv {{ nb_or_script }} {{ newname_without_ext + "." + extension(nb_or_script) }}
+    complement_ext={{ if extension(nb_or_script) == 'ipynb' { '.py' } else { '.ipynb' } }}; mv {{ without_extension(nb_or_script) }}$complement_ext {{ newname_without_ext }}$complement_ext
+
 ensure-sudo:
     #!/usr/bin/env bash
     if [[ $EUID -ne 0 ]]; then
@@ -213,6 +222,19 @@ glances plugins=env_var_or_default("plugins", "") *args='':
 
 dl *cmd:
     ~/dev/gcloud/gcpvm --dotenv-filename ~/dev/gcloud/deeplearning-1-vm.env {{ cmd }}
+
+
+conda-create-env:
+    #!/usr/bin/env bash
+    set_x
+    cd {{ invocation_directory() }}
+    if [[ -d .venv ]]; then
+       echo ".venv already exists"
+       exit 1
+    fi
+    conda create --prefix .venv --yes --quiet
+    echo 'layout_anaconda ./.venv' > .envrc
+    direnv allow && direnv reload
 
 
 # Local Variables:

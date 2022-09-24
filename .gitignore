@@ -1,17 +1,10 @@
 *~
 .#*
-.dumbjump
 *.pyc
 *.elc
-.ropeproject/*
-TAGS
-rescuetime_post_commit
 .aws/*
 .cache-loader*
-.dir-locals.el
 fin-app*
-.tern-port
-.dmypy.json
 .ipynb_checkpoints/
 __pycache__/
 .log/

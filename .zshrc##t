@@ -40,12 +40,10 @@ export ZSH_CUSTOM_DIR=${HOME}/.zshcustom
 # env.zsh, scriptlib.zsh
 source ${ZSH_CUSTOM_DIR}/noninteractive.zsh
 source ${ZSH_CUSTOM_DIR}/brew.zsh
-source ${ZSH_CUSTOM_DIR}/aliases.zsh
 source ${ZSH_CUSTOM_DIR}/input.zsh
 source ${ZSH_CUSTOM_DIR}/git.zsh
 source ${ZSH_CUSTOM_DIR}/ssh.zsh
 source ${ZSH_CUSTOM_DIR}/fzf.zsh
-source ${ZSH_CUSTOM_DIR}/yarn.zsh
 source ${ZSH_CUSTOM_DIR}/misc.zsh
 source ${ZSH_CUSTOM_DIR}/direnv.zsh
 source ${ZSH_CUSTOM_DIR}/conda.zsh
@@ -61,7 +59,7 @@ source ${ZSH_CUSTOM_DIR}/poetry.zsh
 source ${ZSH_CUSTOM_DIR}/doom.zsh
 source ${ZSH_CUSTOM_DIR}/gcloud.zsh
 source ${ZSH_CUSTOM_DIR}/gcloud-completion.zsh
-source ${ZSH_CUSTOM_DIR}/android.zsh
+# source ${ZSH_CUSTOM_DIR}/android.zsh
 source ${ZSH_CUSTOM_DIR}/docker.zsh
 {% endif %}
 
@@ -83,6 +81,7 @@ source ${ZSH_CUSTOM_DIR}/prompt.zsh
 source ${ZSH_CUSTOM_DIR}/zoxide.zsh
 source ${ZSH_CUSTOM_DIR}/build.zsh
 
+source ${ZSH_CUSTOM_DIR}/aliases.zsh
 source ${ZSH_CUSTOM_DIR}/secrets.zsh
 # source ${ZSH_CUSTOM_DIR}/tilix.zsh
 
