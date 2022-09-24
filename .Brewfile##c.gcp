@@ -2,6 +2,10 @@ tap "homebrew/bundle"
 tap "homebrew/core"
 tap "jesseduffield/lazydocker"
 tap "mutagen-io/mutagen"
+tap "rs/tap"
+tap "saulpw/vd"
+# Provides session management: i.e. separate programs from terminals
+brew "abduco"
 # Extendable version manager with support for Ruby, Node.js, Erlang & more
 brew "asdf"
 # Get a file from an HTTP, HTTPS or FTP server
@@ -12,6 +16,8 @@ brew "dasel"
 brew "direnv"
 # HTTP load testing application written in Rust
 brew "drill"
+# Modern replacement for 'ls'
+brew "exa"
 # Simple, fast and user-friendly alternative to find
 brew "fd"
 # Command-line fuzzy finder written in Go
@@ -28,6 +34,8 @@ brew "htop"
 brew "jq"
 # Handy way to save and run project-specific commands
 brew "just"
+# Header files of the Linux kernel
+brew "linux-headers@4.4"
 # Modern and intuitive terminal-based text editor
 brew "micro"
 # Execute binaries from Python packages in isolated environments
@@ -36,6 +44,8 @@ brew "pipx"
 brew "ripgrep"
 # Cross-shell prompt for astronauts
 brew "starship"
+# CLI csv pretty printer
+brew "tidy-viewer"
 # Configure transparent encryption of files in a Git repo
 brew "transcrypt"
 # Yet Another Dotfiles Manager
