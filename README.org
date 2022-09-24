@@ -515,6 +515,11 @@ Goal was to get better sound quality in the HSP/HFP mode (with microphone)
 https://pipewire-debian.github.io/pipewire-debian/ (Note that Ubuntu uses systemd, /not/ init)
 https://askubuntu.com/a/1339897
 
+Updated for Jammy (22.04)
+
+https://linuxconfig.org/how-to-install-pipewire-on-ubuntu-linux
+https://gist.github.com/the-spyke/2de98b22ff4f978ebf0650c90e82027e
+
 * Grub: remember last boot choice
 
 https://www.tuxtips.info/linux/how-to-make-grub-remember-my-last-choice
@@ -665,7 +670,6 @@ SUBSYSTEM=="usb", ATTRS{bInterfaceClass}=="03", ATTRS{bInterfaceProtocol}=="01",
 # Mice are HID class 3 protocol 2 devices.
 SUBSYSTEM=="usb", ATTRS{bInterfaceClass}=="03", ATTRS{bInterfaceProtocol}=="02", ATTR{../power/wakeup}="enabled"
 #+END_SRC
-
 
 *** Check using:
 

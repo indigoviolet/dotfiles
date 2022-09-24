@@ -5,3 +5,5 @@ channels:
 changeps1: false
 channel_priority: flexible
 experimental_solver: libmamba
+pip_interop_enabled: false
+report_errors: false
