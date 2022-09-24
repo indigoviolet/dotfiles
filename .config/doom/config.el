@@ -526,17 +526,38 @@
     ))
 ;; with parens-mode:1 ends here
 
+;; [[file:config.org::*wrap region][wrap region:2]]
+(use-package! wrap-region
+    :after-call doom-first-input-hook
+    :config
+    (wrap-region-add-wrapper "~" "~" nil '(org-mode))
+    :hook ((prog-mode . wrap-region-mode)
+              (org-mode . wrap-region-mode))
+    )
+;; wrap region:2 ends here
+
 ;; Garbage collection
 
 
 ;; [[file:config.org::*Garbage collection][Garbage collection:1]]
 (use-package! gcmh
-  :custom
-  ;; (gcmh-verbose t)
-  (gcmh-idle-delay 30)                  ;'auto)
-  (gcmh-high-cons-threshold 1000000000)
+    :custom
+    (gcmh-verbose t)
+    (gcmh-idle-delay 30)                ;;'auto)
+    (gcmh-high-cons-threshold 1000000000)
   )
 ;; Garbage collection:1 ends here
+
+;; Indentation
+
+
+;; [[file:config.org::*Indentation][Indentation:1]]
+(use-package! emacs
+    :after-call doom-first-buffer-hook
+    :custom
+    (lisp-body-indent 4)
+    (lisp-indent-offset 4))
+;; Indentation:1 ends here
 
 ;; Debug hooks
 
@@ -680,6 +701,30 @@ message listing the hooks."
 (setq ignore-window-parameters t)
 ;; delete-other-windows:1 ends here
 
+;; Dedupe windows
+
+
+
+;; [[file:config.org::*Dedupe windows][Dedupe windows:1]]
+(defun vi/dedup-window-op (w table)
+  (let ((b (window-buffer w)))
+    ;; (message (format "%s" b))
+    (if (ht-contains? table b)
+        (progn
+          (message (format "Deleting %s %s" w b))
+          (delete-window w)
+         )
+      (ht-set! table b t))
+    ))
+
+
+(defun vi/dedup-windows()
+  (interactive)
+  (let ((table (ht-create)))
+    (--each (window-list-1) (vi/dedup-window-op it table))
+    ))
+;; Dedupe windows:1 ends here
+
 ;; [[file:config.org::*Movement][Movement:2]]
 (use-package! windmove
   :after-call doom-first-buffer-hook
@@ -733,9 +778,9 @@ message listing the hooks."
      (minibuffer-keyboard-quit)))
 
 
-;; (map! "M-k" #'consult-buffer)
-(map! "M-k" #'purpose-switch-buffer-with-purpose)
-(map! :map minibuffer-local-map "M-k" (cmd! (minibuffer-quit-and-run (consult-buffer))))
+(map! "M-k" #'consult-buffer)
+;; (map! "M-k" #'purpose-switch-buffer-with-purpose)
+;; (map! :map minibuffer-local-map "M-k" (cmd! (minibuffer-quit-and-run (consult-buffer))))
 ;; Switching:1 ends here
 
 
@@ -785,89 +830,125 @@ message listing the hooks."
   )
 ;; zoom:2 ends here
 
+
+
+;; Bufler groups:
+
+;; - Constructs a tree, buffers are the leaves.
+;; - Each buffer is assigned its path from the root to the leaf; so bufler-groups
+;;   is ultimately a function like ~(buf) -> [node]~, where each ~node~ is a string.
+;; - Each type function is ~(buf) -> node~; they assign one step along this path.
+;;   eg. ~auto-*, *-match, dir, hidden~
+;; - A list of type functions will therefore return ~[node]~ - the simple case.
+;; - ~group*()~ functions define branching in this logic: if a buffer "matches" the
+;;   group, it is then "captured" by this group and recurses into the type
+;;   functions within that group for the remainder of its path.
+;; - "Matching" a group can mean:
+
+;;   ~group(T1 T2...)~ -> if T1 returns non-nil
+;;   ~group-and(T1 T2...)~ -> if all T* return non-nil
+;;   ~group-or(T1 T2...)~ -> if any of T* return non-nil
+
+;;   Note that T* above are returning steps in ~[node]~.
+
+;;   Any node == nil is dropped.
+
+;; - Since groups will capture, their order matters, since buffers will recurse
+;;   into the first group they match.
+
+;; - ~bufler-filter-name-regexps~ and ~bufler-filter-buffer-modes~ can specify rules to
+;;   match buffers to the hidden entirely; ~bufler-filter-buffer-fns~ implement the
+;;   above filters via ~bufler--buffer-{mode,name}-filtered-p~
+
+
+
 ;; [[file:config.org::*bufler][bufler:2]]
 (use-package! bufler
-  :commands (bufler bufler-switch-buffer)
-  :custom
-  (bufler-vc-state nil)
-  (bufler-workspace-mode nil)
-  (bufler-columns '("Name" "VC" "Path" "Mode"))
-  (bufler-filter-buffer-modes '(bufler-list-mode calendar-mode
-                                                 magit-diff-mode magit-process-mode magit-revision-mode magit-section-mode
-                                                 special-mode timer-list-mode))
-  (bufler-groups
-   (bufler-defgroups
-     (group
-      ;; Subgroup collecting all named workspaces.
-      (auto-workspace))
-     (group
-      ;; Group all Ein buffers
-      (name-match "*Ein*" (rx bos "*ein")))
-     (group
-      ;; Subgroup collecting all `help-mode' and `info-mode' buffers.
-      (group-or "*Help/Info*"
-                (mode-match "*Help*" (rx bos "help-"))
-                (mode-match "*Info*" (rx bos "info-"))))
-     (group
-      ;; Subgroup collecting all special buffers (i.e. ones that are not
-      ;; file-backed), except `magit-status-mode' buffers (which are allowed to fall
-      ;; through to other groups, so they end up grouped with their project buffers).
-      (group-and "*Special*"
-                 (lambda (buffer)
-                   (unless (or (funcall (mode-match "Magit" (rx bos "magit-status"))
-                                        buffer)
-                               (funcall (mode-match "Dired" (rx bos "dired"))
-                                        buffer)
-                               (funcall (auto-file) buffer))
-                     "*Special*")))
-      (group
-       ;; Subgroup collecting these "special special" buffers
-       ;; separately for convenience.
-       (name-match "**Special**"
-                   (rx bos "*" (or "Messages" "Warnings" "scratch" "Backtrace") "*")))
-      (group
-       ;; Subgroup collecting all other Magit buffers, grouped by directory.
-       (mode-match "*Magit* (non-status)" (rx bos (or "magit" "forge") "-"))
-       ;; (auto-directory)
-       )
-      ;; Subgroup for Helm buffers.
-      ;; (mode-match "*Helm*" (rx bos "helm-"))
-      ;; Remaining special buffers are grouped automatically by mode.
-      (auto-mode)
-      )
-     ;; All buffers under "~/.emacs.d" (or wherever it is).
-     (dir user-emacs-directory)
-     (group
-      ;; Subgroup collecting buffers in `org-directory'
-      (dir org-directory)
-      (group
-       ;; Subgroup collecting indirect Org buffers, grouping them by file.
-       ;; This is very useful when used with `org-tree-to-indirect-buffer'.
-       (auto-indirect)
-       (auto-file)
-       )
-      ;; Group remaining buffers by whether they're file backed, then by mode.
-      (group-not "*special*" (auto-file))
-      (auto-mode)
-      )
-     (group
-      ;; Subgroup collecting buffers in a projectile project.
-      (auto-projectile))
-     ;; auto-project will cause issues with tramp buffers (https://github.com/alphapapa/bufler.el/issues/63)
-     ;; (group
-     ;;  ;; Subgroup collecting buffers in a version-control project,
-     ;;  ;; grouping them by directory.
-     ;;  (auto-project))
-     ;; Group remaining buffers by directory, then major mode.
-     (auto-directory)
-     (auto-mode)
-     )
-   )
-  :config
-  ;;(bufler-mode)
-  :bind
-  ("C-x C-b" . bufler)
-  )
+    :commands (bufler bufler-switch-buffer)
+    :custom
+    (bufler-vc-state nil)
+    (bufler-workspace-mode nil)
+    (bufler-columns '("Name" "VC" "Path" "Mode"))
+
+    (bufler-filter-name-regexps '("\\*Compile-Log\\*"
+                                     "\\*Disabled Command\\*"
+                                     ;; "\\*Org [^z-a]+Output\\*"
+                                     ))
+    (bufler-filter-buffer-modes '(bufler-list-mode
+                                     ;; calendar-mode
+                                     magit-diff-mode
+                                     magit-process-mode
+                                     magit-revision-mode
+                                     magit-section-mode
+                                     ;; special-mode
+                                     timer-list-mode))
+    (bufler-filter-buffer-fns
+        '(bufler--buffer-hidden-p bufler--buffer-mode-filtered-p bufler--buffer-name-filtered-p)
+        )
+    (bufler-groups
+        (bufler-defgroups
+            ;; suppressed above by bufler--buffer-hidden-p
+            ;; (group (hidden))
+            (group
+                ;; Group all Ein buffers
+                (name-match "*Ein*" (rx bos "*ein")))
+            (group (mode-match "*Vterm*" (rx bos "vterm-")))
+            (group
+                ;; Subgroup collecting all `help-mode' and `info-mode' buffers.
+                (group-or "*Help/Info*"
+                    (mode-match "*Help*" (rx bos "help-"))
+                    (mode-match "*Info*" (rx bos "info-"))))
+            (group
+                ;; Subgroup collecting all special buffers (i.e. ones that are not
+                ;; file-backed), except `magit-status-mode'/dired buffers (which are allowed to fall
+                ;; through to other groups, so they end up grouped with their project buffers).
+                (group-and "*Special*"
+                    (lambda (buffer)
+                        (unless (or (funcall (mode-match "Magit" (rx bos "magit-status")) buffer)
+                                    (funcall (mode-match "Dired" (rx bos "dired")) buffer)
+                                    (funcall (auto-file) buffer))
+                            "*Special*"))
+                    )
+                (group
+                    ;; Subgroup collecting these "special special" buffers
+                    ;; separately for convenience.
+                    (name-match "**Special**"
+                        (rx bos "*" (or "Messages" "Warnings" "scratch" "Backtrace") "*")))
+                (group
+                    ;; Subgroup collecting all other Magit buffers, grouped by directory.
+                    (mode-match "*Magit* (non-status)" (rx bos (or "magit" "forge") "-"))
+                    (auto-directory)
+                    )
+                ;; Remaining special buffers are grouped automatically by mode.
+                (auto-mode))
+            ;; (group-and "Remaining specials?" (auto-special))
+            ;; All buffers under "~/.emacs.d" (or wherever it is).
+            (dir user-emacs-directory)
+            (group
+                ;; Subgroup collecting buffers in `org-directory'
+                (dir org-directory)
+                (group
+                    ;; Subgroup collecting indirect Org buffers, grouping them by file.
+                    ;; This is very useful when used with `org-tree-to-indirect-buffer'.
+                    (auto-indirect)
+                    (auto-file)
+                    )
+                ;; Group remaining buffers by whether they're file backed, then by mode.
+                (group-not "*special*" (auto-file))
+                (auto-mode)
+                )
+            (group
+                ;; Subgroup collecting buffers in a projectile project.
+                (auto-projectile))
+            ;; Group remaining buffers by directory, then major mode.
+            (auto-directory)
+            (auto-mode)
+            )
+        )
+    :config
+    ;;(bufler-mode)
+    :bind
+    ("C-x C-b" . bufler))
 ;; bufler:2 ends here
 
 ;; [[file:config.org::*Popups][Popups:3]]
@@ -875,7 +956,8 @@ message listing the hooks."
   :init
   (setq popper-mode-line " POP ")
   (setq popper-reference-buffers
-        '("\\*Messages\\*"
+        '(
+             ;; "\\*Messages\\*"
           "Output\\*$"
           "\\*Async Shell Command\\*"
           "\\*doom eval\\*"
@@ -883,7 +965,7 @@ message listing the hooks."
           comint-mode
           helpful-mode
           python-pytest-mode
-          bufler-list-mode
+          ;; bufler-list-mode
 
           ;; we want to use a custom doom-modeline segment vterm-copy-mode
           ;; vterm-mode ;; https://github.com/karthink/popper/issues/38
@@ -1321,6 +1403,10 @@ message listing the hooks."
   (ctrlf-mode +1)
   (add-hook! 'pdf-isearch-minor-mode-hook (ctrlf-local-mode -1))
   )
+
+(custom-set-faces!
+  '(ctrlf-highlight-passive :background "#3b3a3b" :foreground "#d8bf9c")
+  '(ctrlf-highlight-active :background nil :foreground nil :inherit isearch))
 ;; config:1 ends here
 
 ;; [[file:config.org::*Jumping][Jumping:2]]
@@ -1405,6 +1491,13 @@ message listing the hooks."
    (setq consult-project-function (lambda (_) (projectile-project-root)))
    )
 ;; projectile:1 ends here
+
+;; [[file:config.org::*consult-projectile][consult-projectile:2]]
+(use-package! consult-projectile
+    :custom
+    (+workspaces-switch-project-function (lambda (_) (consult-projectile-find-file)))
+    )
+;; consult-projectile:2 ends here
 
 ;; embark
 
@@ -1551,7 +1644,6 @@ message listing the hooks."
 (use-package! outline
   :custom
   (outline-minor-mode-cycle t)
-  (outline-minor-mode-use-buttons t)
   :after-call doom-first-buffer-hook
   :hook (
          (prog-mode . outline-minor-mode)
@@ -1561,7 +1653,6 @@ message listing the hooks."
          ("C-<iso-lefttab>" . outline-hide-other) ;C-S-<tab>
          ([s-tab] . outline-cycle-buffer)); win-tab
   )
-
 
 (after! outline
   ;; Customize the distracting folding markers.
@@ -1704,7 +1795,8 @@ message listing the hooks."
     )
    "Intra-buffer"
    (
-     ("i" consult-outline "outlIne")
+     ("o" consult-outline "outlIne")
+     ("i" consult-imenu "Imenu")
      ;; ("." push-mark-command "Push Mark")
      ;; ("m" consult-mark "consult-mark")
      ;; ("M" consult-global-mark "global-mark")
@@ -1720,9 +1812,8 @@ message listing the hooks."
      ;; ("v" multi-vterm-project "vterm toggle")
      ;; ("V" multi-vterm "vterm")
 
-     ("v" vi/vterm-project-or-here "vterm-toggle")
-     ("V" (vi/vterm-project-or-here t) "vterm")
-     ("M-v" vi/vterm "local vterm")
+     ("v" vi/vterm-local "vterm-toggle")
+     ("V" (vi/vterm-local t) "vterm")
     )
    "Modes"
    (;; ("a" hydra-annotate/body "Annotate")
@@ -1743,6 +1834,7 @@ message listing the hooks."
     ("r" consult-notes-org-roam-find-node "find node")
     ("M-l" org-store-link "store link")
     ("A" org-agenda-list "Agenda")
+    ("W" vi/dedup-windows "Dedupe windows")
     )
    )
   )
@@ -2102,6 +2194,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
                                         ;well with fontlocking (and outline-minor-faces-mode)
   (setq ein:output-area-inlined-images t)
   (setq ein:url-or-port '("http://localhost:8888"))
+  (setq ein:jupyter-default-server-command "~/.local/bin/jupyter")
   (setq ein:jupyter-server-args '("--no-browser" "--port=8889"))
   ;; https://github.com/millejoh/emacs-ipython-notebook/issues/423#issuecomment-458254069
   (setq ein:query-timeout nil)
@@ -2225,7 +2318,9 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
            ;; ein disables everything but basic undo
            ;; https://github.com/millejoh/emacs-ipython-notebook/issues/841#issuecomment-1129176534
            (undo-fu-mode -1)) ;; #'outline-minor-faces-mode)
-(setq-hook! 'ein:notebook-mode-hook outline-regexp "##+")           ;capture markdown headings, excluding level 1 for comments
+(setq-hook! 'ein:notebook-mode-hook
+  outline-minor-mode-use-buttons t
+  outline-regexp "##+")           ;capture markdown headings, excluding level 1 for comments
 
 
 
@@ -2248,67 +2343,58 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   ;;               (apply orig rest)))
 ;; ein:2 ends here
 
-;; vterm
-
-
-;; [[file:config.org::*vterm][vterm:1]]
+;; [[file:config.org::*vterm][vterm:2]]
 (setq vterm-module-cmake-args "-DUSE_SYSTEM_LIBVTERM=no")
 (use-package! vterm
-  :custom
-  (vterm-max-scrollback 100000)
-  (vterm-buffer-name-string "vterm %s")
-  (vterm-enable-manipulate-selection-data-by-osc52 t)
-  :bind
-  (
-   :map vterm-mode-map
-   ("M-j" . nil)
-   ("M-k" . nil)
-   ("S-<left>" . windmove-left)
-   ("S-<right>" . windmove-right)
-   ("S-<up>" . windmove-up)
-   ("S-<down>" . windmove-down)
-   ("C-c C-r" . vterm-send-C-r)
-   )
-  )
+    :custom
+    (vterm-max-scrollback 100000)
+    (vterm-buffer-name-string "vterm %s")
+    (vterm-enable-manipulate-selection-data-by-osc52 t)
+    :bind
+    (
+        :map vterm-mode-map
+        ("M-j" . nil)
+        ("M-k" . nil)
+        ("S-<left>" . windmove-left)
+        ("S-<right>" . windmove-right)
+        ("S-<up>" . windmove-up)
+        ("S-<down>" . windmove-down)
+        ("C-\\" . vterm-send-next-key)
+        )
+    )
 
 (after! (doom-modeline vterm)
-  (doom-modeline-def-segment vterm-copy-mode
-    "Returns 'Copy' when vterm-copy-mode is active"
-    (when
-        (and (eq major-mode 'vterm-mode) vterm-copy-mode)
-      (concat (doom-modeline-spc) "[Copy]")))
+    (doom-modeline-def-segment vterm-copy-mode
+        "Returns 'Copy' when vterm-copy-mode is active"
+        (when
+            (and (eq major-mode 'vterm-mode) vterm-copy-mode)
+            (concat (doom-modeline-spc) "[Copy]")))
 
 
-  (doom-modeline-def-modeline 'vi/vterm
-    '(bar buffer-info-simple vterm-copy-mode selection-info remote-host)
-    '(purpose persp-name minor-modes major-mode))
+    (doom-modeline-def-modeline 'vi/vterm
+        '(bar buffer-info-simple vterm-copy-mode selection-info remote-host)
+        '(purpose persp-name minor-modes major-mode))
 
-  (remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
+    (remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
 
-  ;; This actually doesn't work with popper because it restores it to the old format
-  (add-hook! 'vterm-mode-hook (doom-modeline-set-modeline 'vi/vterm))
+    ;; This actually doesn't work with popper because it restores it to the old format
+    (add-hook! 'vterm-mode-hook (doom-modeline-set-modeline 'vi/vterm))
 
-  ;; (defun vi/vterm-copy ()
-  ;; ;; shows in the misc-info segment
-  ;; (add-to-list 'global-mode-string '(:eval (vi/vterm-copy)))
-  )
+    ;; (defun vi/vterm-copy ()
+    ;; ;; shows in the misc-info segment
+    ;; (add-to-list 'global-mode-string '(:eval (vi/vterm-copy)))
+    )
 
 (defun vi/vterm-hooks ()
-  ;; linkify urls
-  ;; (goto-address-mode)
-  ;; Don't highlight trailing whitespace
-  (whitespace-mode -1)
-  ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Query-Before-Exit.html
-  (set-process-query-on-exit-flag (get-buffer-process (current-buffer)) nil)
-  )
+    ;; linkify urls
+    ;; (goto-address-mode)
+    ;; Don't highlight trailing whitespace
+    (whitespace-mode -1)
+    ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Query-Before-Exit.html
+    (set-process-query-on-exit-flag (get-buffer-process (current-buffer)) nil)
+    )
 (add-hook! 'vterm-mode-hook #'vi/vterm-hooks)
-
-;; handle opening in tramp
-(defun vi/vterm-local ()
-  (interactive)
-  (let ((default-directory (getenv "HOME")))
-    (vterm)))
-;; vterm:1 ends here
+;; vterm:2 ends here
 
 ;; Home grown
 
@@ -2340,6 +2426,16 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
             (existing-vterm (seq-first (vi/existing-vterms-created-with dir))))
       (pop-to-buffer existing-vterm)
     (vi/create-vterm-in-dir dir)))
+
+;; handle opening in tramp
+(defun vi/vterm-local (&optional force-create)
+  (interactive)
+  (if (tramp-tramp-file-p default-directory)
+      (progn
+        (message "Tramp dir: opening local vterm")
+        (let ((default-directory (getenv "HOME")))
+          (vterm)))
+    (vi/vterm-project-or-here force-create)))
 ;; Home grown:1 ends here
 
 ;; Flycheck
@@ -2353,6 +2449,10 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   (flycheck-idle-change-delay 10)
   (flycheck-idle-buffer-switch-delay 5)
   (flycheck-highlighting-style '(conditional 10 level-face (delimiters "" "")))
+
+    :config
+    (global-flycheck-mode -1)
+    :hook ((prog-mode . flycheck-mode))
   :pretty-hydra
   (
    (:exit t)
@@ -2473,18 +2573,21 @@ Results are reported in a compilation buffer."
 
 ;; [[file:config.org::*Using Tramp for magit/yadm][Using Tramp for magit/yadm:1]]
 (use-package! tramp
-  :after-call doom-first-input-hook
-  :config
-  (add-to-list 'tramp-methods
-               '("yadm"
-                 (tramp-login-program "yadm")
-                 (tramp-login-args (("enter")))
-                 (tramp-remote-shell "/bin/bash")
-                 (tramp-remote-shell-args ("-c"))))
-  (defun yadm-status ()
-    (interactive)
-    (require 'tramp)
-    (with-current-buffer (magit-status "/yadm::"))))
+    :after-call doom-first-input-hook
+    :custom
+    ;; https://github.com/magit/magit/discussions/4750
+    (enable-remote-dir-locals t)
+    :config
+    (add-to-list 'tramp-methods
+        '("yadm"
+             (tramp-login-program "yadm")
+             (tramp-login-args (("enter")))
+             (tramp-remote-shell "/bin/bash")
+             (tramp-remote-shell-args ("-c"))))
+    (defun yadm-status ()
+        (interactive)
+        (require 'tramp)
+        (with-current-buffer (magit-status "/yadm::"))))
 ;; Using Tramp for magit/yadm:1 ends here
 
 ;; Stage files from dired
@@ -2917,7 +3020,8 @@ Results are reported in a compilation buffer."
   (setf (alist-get 'black apheleia-formatters) '("black" "--config" (substitute-in-file-name "$HOME/.config/black") "-"))
 
   ;; isort messes up type:ignore on imports (eg: https://github.com/psf/black/issues/997)
-  ;; pyflyby does this step anyway
+  ;; isort also messes up jupytext paired files by moving imports around
+  ;; pyflyby also messes it up!
   ;; (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
 
   (setf (alist-get 'python-mode apheleia-mode-alist) '(black))
@@ -2976,6 +3080,14 @@ Results are reported in a compilation buffer."
                                                (revert-buffer)))))
 ;; all the icons:2 ends here
 
+;; [[file:config.org::*sudo][sudo:2]]
+(eval-after-load 'tramp
+ '(progn
+    ;; Allow to use: /sudo:user@host:/path/to/file
+    (add-to-list 'tramp-default-proxies-alist
+		  '(".*" "\\`.+\\'" "/ssh:%h:"))))
+;; sudo:2 ends here
+
 ;; hydra
 
 
@@ -3024,9 +3136,10 @@ Results are reported in a compilation buffer."
       ("z" diredp-compress-this-file "Compress file")
       ("Z" dired-do-compress "Compress")
       ("Y" dired-do-relsymlink "rel symlink")
-      ("S" dired-do-symlink "symlink")
+      ("L" dired-do-symlink "symlink")
       ("M" dired-do-chmod "chmod")
       ("G" dired-do-chgrp "chgrp")
+         ("S" dired-toggle-sudo "SUDO")
       )
      )
     )
@@ -3062,8 +3175,10 @@ With optional prefix argument ARG, drag all the files at once."
   :after-call doom-first-buffer-hook
   :custom
   (projectile-project-search-path '("~/dev"))
-  (projectile-auto-discover t)
-  (projectile-file-exists-local-cache-expire (* 12 60))
+    (projectile-auto-discover t)
+    (projectile-enable-caching nil)
+    ;; (projectile-file-exists-local-cache-expire (* 12 60))
+    ;; (projectile-file-exists-local-cache-expire (* 12 60))
   ;; Note:
   ;;
   ;; - no filtering will happen in Projectile if we use ~'alien~ -- everything

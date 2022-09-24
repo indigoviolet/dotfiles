@@ -3,57 +3,62 @@
 
 
 [alias]
-	br = branch -v
-	co = checkout
-	ci = commit
-	st = status
-	brm = branch --merged
+    br = branch -v
+    co = checkout
+    ci = commit
+    st = status
+    brm = branch --merged
 
 
-	# All files modified. gitmodified is a function in ~/.dotfiles/zsh/custom
-	modified = !zsh -i -l -c "git-modified"
-	cleanup = !zsh -i -l -c "git-cleanup"
+    # All files modified. gitmodified is a function in ~/.dotfiles/zsh/custom
+    modified = !zsh -i -l -c "git-modified"
+    cleanup = !zsh -i -l -c "git-cleanup"
 
-	# open all files modified relative to master in emacs
-	open = !"f() {( git modified | xargs emacsclient -n -t -a '' && emacsclient -t -a '' )}; f"
+    # open all files modified relative to master in emacs
+    open = !"f() {( git modified | xargs emacsclient -n -t -a '' && emacsclient -t -a '' )}; f"
 
-	thisbr = rev-parse --abbrev-ref HEAD
-	master-or-main = !"f() { (git rev-parse --abbrev-ref main || git rev-parse --abbrev-ref master) }; f"
-	parentbr = !"f() {( git show-branch | sed \"s/].*//\" | grep \"\\*\" | grep -v \"$( git thisbr )\" | head -n1 | sed \"s/^.*\\[//\" | sed 's/[\\^~].*//' )}; f"
+    thisbr = rev-parse --abbrev-ref HEAD
+    master-or-main = !"f() { (git rev-parse --abbrev-ref main || git rev-parse --abbrev-ref master) }; f"
+    parentbr = !"f() {( git show-branch | sed \"s/].*//\" | grep \"\\*\" | grep -v \"$( git thisbr )\" | head -n1 | sed \"s/^.*\\[//\" | sed 's/[\\^~].*//' )}; f"
 
-	# Push to Github
-	pu = !git push origin `git thisbr`
+    # Push to Github
+    pu = !git push origin `git thisbr`
 
-	# Force push to Github
-	puf = !git pu -f
+    # Force push to Github
+    puf = !git pu -f
 
-	# autostash: Puts changes on stash in a specifically named way
-	autostash-msg = !"f() {( echo \"autostash on $( git thisbr )\" )}; f"
-	autostash-save = !"f() {( git stash save \"$( git autostash-msg )\" )}; f"
-	autostash-find = !"f() {( git stash list | grep \"$( git autostash-msg )\" | head -n1 | cut -f1 -d ':' )}; f"
-	autostash-pop = !"f() {( test -n \"$( git autostash-find )\"  && git stash pop $( git autostash-find ) )}; f"
+    # autostash: Puts changes on stash in a specifically named way
+    autostash-msg = !"f() {( echo \"autostash on $( git thisbr )\" )}; f"
+    autostash-save = !"f() {( git stash save \"$( git autostash-msg )\" )}; f"
+    autostash-find = !"f() {( git stash list | grep \"$( git autostash-msg )\" | head -n1 | cut -f1 -d ':' )}; f"
+    autostash-pop = !"f() {( test -n \"$( git autostash-find )\"  && git stash pop $( git autostash-find ) )}; f"
 
-	# always branch from master
-	makebr = !"f() {( MASTERBR=$(git master-or-main); git co $MASTERBR  && git co -b $1 )}; f"
+    # always branch from master
+    makebr = !"f() {( MASTERBR=$(git master-or-main); git co $MASTERBR  && git co -b $1 )}; f"
 
- 	switch-to = !"f() {( git co $1 || git makebr $1 || echo 'done' )}; test -n $1 && f"
-	switch-and-apply = !"f() {( git switch-to $1 && git autostash-pop )}; test -n $1 && f"
+    # test if we ended up on the branch
+    onbr = !"f() {( test $(git thisbr) = $1 )}; f"
 
-	# Always use this to switch branches- will autostash, and un-autostash
-	# `:` silences git checkout
-	won = !"f() {( : git checkout; git autostash-save && git switch-and-apply $* )}; test -n $1 && f"
+    # checkout and exit with success or failure
+    cobr = !"f() { ( git co $1; git onbr $1) }; f"
+    switch-to = !"f() {( git cobr $1 || git makebr $1 || echo 'done' )}; test -n $1 && f"
+    switch-and-apply = !"f() {( git switch-to $1 && git autostash-pop )}; test -n $1 && f"
 
-	# Will update
-	up = !"f() {( OLDBR=$( git thisbr ); MASTERBR=$(git master-or-main); git won $MASTERBR; git pull; git checkout $OLDBR && git rebase $MASTERBR && git autostash-pop )}; f"
+    # Always use this to switch branches- will autostash, and un-autostash
+    # `:` silences git checkout
+    won = !"f() {( : git checkout; git autostash-save && git switch-and-apply $* )}; test -n $1 && f"
 
-	# Commit changes to current head as amended commit [add to latest commit. Use carefully!]
-	plus = commit --amend -a -C HEAD
+    # Will update
+    up = !"f() {( OLDBR=$( git thisbr ); MASTERBR=$(git master-or-main); git won $MASTERBR; git pull; git checkout $OLDBR && git rebase $MASTERBR && git autostash-pop )}; f"
 
-	# Write a WIP commit
-	wip = !git add . && git ci -m "WIP" -n
+    # Commit changes to current head as amended commit [add to latest commit. Use carefully!]
+    plus = commit --amend -a -C HEAD
 
-	# https://stackoverflow.com/questions/1838873/visualizing-branch-topology-in-git/34467298#34467298 
-	lg = lg1
+    # Write a WIP commit
+    wip = !git add . && git ci -m "WIP" -n
+
+    # https://stackoverflow.com/questions/1838873/visualizing-branch-topology-in-git/34467298#34467298
+    lg = lg1
     lg1 = lg1-specific --all
     lg2 = lg2-specific --all
     lg3 = lg3-specific --all
@@ -62,18 +67,18 @@
     lg2-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'
     lg3-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'
 
-	ignore = "!gi() { curl -sL https://www.toptal.com/developers/gitignore/api/$@ ;}; gi"
+    ignore = "!gi() { curl -sL https://www.toptal.com/developers/gitignore/api/$@ ;}; gi"
 
-	# https://stackoverflow.com/questions/5741106/how-does-one-show-untracked-files-in-current-directory-only-ignoring-subdirecto
-	ls-untracked = ls-files --other
+    # https://stackoverflow.com/questions/5741106/how-does-one-show-untracked-files-in-current-directory-only-ignoring-subdirecto
+    ls-untracked = ls-files --other
 
 [user]
-	name = Venky Iyer
-	email = indigoviolet@gmail.com
+    name = Venky Iyer
+    email = indigoviolet@gmail.com
 
 # Show a log of '56 minutes ago' rather than 'November 12, 2008 12:34:53'
 [log]
-	date = human
+    date = human
     decorate = true
 
 [format]
@@ -81,65 +86,65 @@
 
 # Use only for black background terminal
 [color "branch"]
-	current = yellow reverse
-	local = yellow
-	remote = green
+    current = yellow reverse
+    local = yellow
+    remote = green
 
 [color "diff"]
-	plain = white
-	meta = yellow bold
-	frag = magenta bold
-	old = red bold
-	new = green bold
-	whitespace = red blink
+    plain = white
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+    whitespace = red blink
 
 [color "status"]
-	added = yellow
-	changed = green
-	untracked = cyan
+    added = yellow
+    changed = green
+    untracked = cyan
 
 # [merge]
-# 	tool = emerge
-# 	conflictstyle = diff3
+#   tool = emerge
+#   conflictstyle = diff3
 
 [init]
-	defaultBranch = main
+    defaultBranch = main
 
 [core]
-	excludesfile = ~/.gitignore
+    excludesfile = ~/.gitignore
 
 [push]
-	default = simple
+    default = simple
 
 ## the credential manager is cross-platform
 [credential]
-	helper = git-credential-manager-core
+    helper = git-credential-manager-core
 
 ## on windows/osx the store is the keychain by default
 
 {% if yadm.class == "personal" %}
 ## on graphical linux we can use the freedesktop api (gnome keyring etc.)
-	credentialStore = secretservice
+    credentialStore = secretservice
 {% endif %}
 
 {% if yadm.class == "gcp" %}
 ## on headless tty we'll use a long timeout for the ephemeral in-memory cache
-	credentialStore = cache
-	cacheOptions = "--timeout 604800" # 1 week
+    credentialStore = cache
+    cacheOptions = "--timeout 604800" # 1 week
 {% endif %}
 
 [filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	required = true
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    required = true
 
 # Github repos will use ssh instead of https (more secure, efficient, can be shared over ssh)
 # Add an ssh key to make this work without a password https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account
 [url "ssh://git@github.com/"]
-	insteadOf = github.com
+    insteadOf = github.com
 
 [pull]
-	rebase = false
+    rebase = false
 
 # Local Variables:
 # mode: gitconfig
