@@ -36,6 +36,8 @@ brew "jq"
 brew "just"
 # Header files of the Linux kernel
 brew "linux-headers@4.4"
+# Clone of ls with colorful output, file type icons, and more
+brew "lsd"
 # Modern and intuitive terminal-based text editor
 brew "micro"
 # Execute binaries from Python packages in isolated environments
