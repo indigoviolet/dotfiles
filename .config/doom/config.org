@@ -89,7 +89,10 @@ supported (see https://github.com/polymode/polymode/issues/305 also)
 https://github.com/elp-revive/origami.el
 
 See for examples: https://github.com/elp-revive/origami.el/blob/master/origami-parsers.el
-*** undo is disabled?
+*** DONE undo is disabled?
+:LOGBOOK:
+- State "DONE"       from              [2022-09-27 Tue 15:09]
+:END:
 
 [2022-09-04T01:34:19]: Warning (ein): Disabling undo for undo-fu-only-undo Disable showing Disable logging
 
@@ -432,7 +435,7 @@ here as-is for now, as it is quite well structured and clear.
        doom              ; what makes DOOM look the way it does
        doom-dashboard    ; a nifty splash screen for Emacs
        doom-quit         ; DOOM quit-message prompts when you quit Emacs
-       ;;(emoji +unicode)  ; 🙂
+       (emoji +unicode)  ; 🙂
        hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
        hydra
        ;; indent-guides     ; highlighted indent columns
@@ -441,7 +444,7 @@ here as-is for now, as it is quite well structured and clear.
 
        ;; +light is nice, but see https://github.com/hlissner/emacs-hide-mode-line/issues/9
        (modeline);; +light)          ; snazzy, Atom-inspired modeline, plus API
-       nav-flash         ; blink cursor line after big motions
+       ;; nav-flash         ; blink cursor line after big motions
        ;;neotree           ; a project drawer, like NERDTree for vim
        ophints           ; highlight the region an operation acts on
        ;; (popup +defaults)   ; tame sudden yet inevitable temporary windows
@@ -460,7 +463,7 @@ here as-is for now, as it is quite well structured and clear.
        ;; (evil +everywhere); come to the dark side, we have cookies
        ;; file-templates    ; auto-snippets for empty files
        fold              ; (nigh) universal code folding
-       ;; (format +onsave)  ; automated prettiness
+      ;; (format +onsave)  ; automated prettiness
        ;;god               ; run Emacs commands without modifier keys
        ;;lispy             ; vim for lisp, for people who don't like vim
        ;;multiple-cursors  ; editing in many places at once
@@ -682,23 +685,10 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
 ;;
 (setq message-truncate-lines t)
 
-(global-whitespace-mode +1)
+
 (global-git-gutter-mode t)
 
-(setq! whitespace-style '(face tabs tab-mark trailing))
 
-(blink-cursor-mode)
-
-;; (defun pulse-line (&rest _)
-;;       "Pulse the current line."
-;;       (pulse-momentary-highlight-one-line (point)))
-;;
-;; Addition to nav-flash
-(dolist (command '(scroll-up-command scroll-down-command previous-line next-line
-                   recenter-top-bottom other-window))
-  ;; (advice-add command :after #'pulse-line)
-  (advice-add command :after #'+nav-flash-delayed-blink-cursor-h)
-  )
 
 (repeat-mode 1)
 
@@ -708,6 +698,16 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
 ;; https://github.com/dakrone/eos/blob/master/eos.org
 (setq save-interprogram-paste-before-kill t)
 #+end_src
+
+** whitespace
+
+
+#+begin_src emacs-lisp
+;; (global-whitespace-mode +1)
+(setq! whitespace-style '(face tabs tab-mark trailing))
+(add-hook! '(prog-mode-hook org-mode-hook) (whitespace-mode t))
+#+end_src
+
 
 ** specpdl size
 
@@ -755,6 +755,21 @@ https://emacs.stackexchange.com/a/24658 -- not sure if this works?
   "Remove all advices from symbol SYM."
   (interactive "aFunction symbol: ")
   (advice-mapc (lambda (advice _props) (advice-remove sym advice)) sym))
+#+end_src
+** persistent scratch
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! persistent-scratch)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! persistent-scratch
+    :after-call doom-first-buffer-hook
+    :config
+    (persistent-scratch-setup-default)
+    )
 #+end_src
 * Global keybindings
 
@@ -1116,7 +1131,7 @@ Hence we turn off solaire-mode in vterm by calling vterm buffers "real"
 (setq hl-line-overlay-priority -100)
 #+end_src
 
-*** hl-line+
+*** COMMENT hl-line+
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! hl-line+ :recipe (:host github :repo "emacsmirror/hl-line-plus"))
@@ -1138,9 +1153,58 @@ Hence we turn off solaire-mode in vterm by calling vterm buffers "real"
   )
 #+end_src
 
-*
+
+** cursor
 
 
+#+begin_src emacs-lisp
+(blink-cursor-mode)
+
+;; Addition to nav-flash
+;; (dolist (command '(scroll-up-command scroll-down-command previous-line next-line
+;;                    recenter-top-bottom other-window))
+;;   ;; (advice-add command :after #'pulse-line)
+;;   (advice-add command :after #'+nav-flash-delayed-blink-cursor-h)
+;;   )
+
+
+#+end_src
+
+*** pulsar
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! pulsar)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! pulsar
+  :custom
+  (pulsar-pulse t)
+  (pulsar-delay 0.05)
+  (pulsar-iterations 3)
+  (pulsar-face 'pulsar-red)
+  (pulsar-highlight-face 'pulsar-yellow)
+  :config
+  (pulsar-global-mode 1)
+  :hook ((consult-after-jump-hook . pulsar-recenter-top)
+          (consult-after-jump-hook . pulsar-reveal-entry)
+          )
+  :bind (
+          ("C-x l" . pulsar-highlight-dwim)
+          ("C-l" . pulsar-recenter-middle)
+          )
+  )
+
+(custom-set-faces! '(pulsar-red :background "red"))
+#+end_src
+** font lock
+
+Does this make things faster?
+#+begin_src emacs-lisp
+(setq font-lock-maximum-decoration nil)
+#+end_src
 * Parens
 
 ** with parens-mode
@@ -1211,7 +1275,7 @@ show-smartparens mode is slower than show-paren mode
     :after-call doom-first-buffer-hook
     :custom
     (lisp-body-indent 4)
-    (lisp-indent-offset 4))
+    (lisp-indent-offset 2))
 #+end_src
 
 ** Libraries
@@ -1334,10 +1398,14 @@ Debugging: look at mode-line-format, mode-line-misc-info
 TODO: would like to add a segment like anzu for iterm, ctrlf
 
 #+begin_src emacs-lisp
+
+(setq doom-emoji-fallback-font-families nil)
 (after! doom-modeline
   (setq mode-line-default-help-echo nil
-        show-help-function nil
-        doom-modeline-persp-name t)
+    show-help-function nil
+    ;; doom-modeline-icon nil
+    ;; doom-modeline-major-mode-color-icon nil
+    doom-modeline-persp-name t)
 
   (doom-modeline-def-segment purpose
     ;; Purpose-mode segment
@@ -1431,7 +1499,7 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
 (use-package! windmove
   :after-call doom-first-buffer-hook
   :custom
-  (windmove-wrap-around t)
+  (windmove-wrap-around nil)
   :config
   (windmove-default-keybindings 'shift)
   )
@@ -1510,9 +1578,10 @@ https://orgmode.org/org.html#Conflicts
      (minibuffer-keyboard-quit)))
 
 
-(map! "M-k" #'consult-buffer)
+;; (map! "M-k" #'consult-buffer)
 ;; (map! "M-k" #'purpose-switch-buffer-with-purpose)
-;; (map! :map minibuffer-local-map "M-k" (cmd! (minibuffer-quit-and-run (consult-buffer))))
+(map! "M-k" #'vi/persp-consult-buffer)
+(map! :map minibuffer-local-map "M-k" (cmd! (minibuffer-quit-and-run (consult-buffer))))
 #+end_src
 
 ** Restore
@@ -1871,6 +1940,119 @@ https://github.com/karthink/popper/issues/38
 
 #+end_src
 
+** persp customizations
+
+persp-mode is built in with doom but let's specify it anyway
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! persp-mode)
+(unpin! persp-mode)
+#+end_src
+
+*** COMMENT auto persps for projectile
+
+We don't need auto-persps for projectile; we can create those via doom easily
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! persp-mode-projectile-bridge :recipe (:host github :repo "Bad-ptr/persp-mode-projectile-bridge.el"))
+
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! persp-mode-projectile-bridge
+    :after-call doom-first-buffer-hook
+    :custom
+    (persp-mode-projectile-bridge-persp-name-prefix "[p] ")
+    :config
+    (persp-mode-projectile-bridge-mode 1)
+    )
+#+end_src
+
+*** auto persps
+
+#+begin_src emacs-lisp
+(after! persp-mode
+  (persp-def-auto-persp "vterm"
+    :parameters '((dont-save-to-file . t))
+    :mode 'vterm-mode
+    :dyn-env '(after-switch-to-buffer-functions ;; prevent recursion
+                (persp-add-buffer-on-find-file nil)
+                persp-add-buffer-on-after-change-major-mode)
+    :hooks '(after-switch-to-buffer-functions)
+    :on-match #'vi/set-auto-persp-on-match
+    :switch 'frame)
+  (persp-def-auto-persp "ein"
+    :parameters '((dont-save-to-file . t))
+    :buffer-name "*ein:"
+    :dyn-env '(after-switch-to-buffer-functions ;; prevent recursion
+                (persp-add-buffer-on-find-file nil)
+                persp-add-buffer-on-after-change-major-mode)
+    :hooks '(after-switch-to-buffer-functions)
+    :on-match #'vi/set-auto-persp-on-match
+    :switch 'frame)
+  )
+#+end_src
+
+#+begin_src emacs-lisp
+(defun vi/persp-consult-buffer()
+    (interactive)
+    (with-persp-buffer-list () (consult-buffer)))
+#+end_src
+
+**** Reset auto persp
+
+One problem is that these auto perspectives don't restrict which buffers can be
+added to them. So it would be nice to reset them; how to do that?
+
+persp-buffer-list will contain all the manually added buffers
+
+persp-buffer-match-auto-persp-p doesn't work: https://github.com/Bad-ptr/persp-mode.el/issues/135
+
+We could use the :after-match function to set some buffer-local variable
+tracking all perspectives that were set auto.
+
+Note that this won't work with persp-mode-projectile-bridge (look at
+~persp-mode-projectile-bridge-find-perspective-for-buffer~ for how to handle it -- we'll need a custom ~matches-auto-persp-p~, and test ~safe-persp-parameters~ for ~persp-mode-projectile-bridge t~ )?
+
+#+begin_src emacs-lisp
+(defun vi/set-auto-persp (persp buf)
+  ;; track the auto persps that this buf belongs to, in a buffer local hash
+  (with-current-buffer buf
+    (-let ((ap (or (bound-and-true-p vi--auto-persps) (ht-create))))
+        (progn
+            (ht-set! ap (safe-persp-name persp) t)
+            (setq-local vi--auto-persps ap))
+        )
+    ))
+
+(defun vi/set-auto-persp-on-match (state)
+  ;; on-match hook for persp-def-auto-persp
+    (-let ((persp (alist-get 'persp state))
+              (buffer (alist-get 'buffer state)))
+        (vi/set-auto-persp persp buffer))
+    state)
+
+(defun vi/matches-auto-persp-p (persp buf)
+  ;; replacement for persp-buffer-match-auto-persp-p that actually works, using our own vi--auto-persps machinery
+  (with-current-buffer buf
+    (and (buffer-local-boundp 'vi--auto-persps buf) (ht-contains? vi--auto-persps persp))
+    ))
+
+(defun vi/persp-auto-buffer-list()
+  ;; persp-buffer-list filtered for buffers belonging to the current auto persp
+  (let ((persp (safe-persp-name (get-current-persp))))
+    (--filter (vi/matches-auto-persp-p persp it) (persp-buffer-list))
+    )
+  )
+
+(defun vi/reset-auto-persp-windows()
+  ;; reset current (auto) persp to only buffers matching it
+    (interactive)
+    (delete-other-windows)
+    (--each (vi/persp-auto-buffer-list) (display-buffer-pop-up-window it ()))
+  )
+#+end_src
+
 
 ** recentf
 
@@ -1961,7 +2143,7 @@ have Emacs use the system monospace font, so this is commented.
 #+end_src
 
 
-*** Base config
+*** COMMENT Base config
 
 Test on ~view-hello-file~. As of <2022-03-24 Thu> emoji doesn't work
 
@@ -1984,7 +2166,8 @@ Test on ~view-hello-file~. As of <2022-03-24 Thu> emoji doesn't work
 
     ;; default for fontset-default (which is the fallback for fontset-startup)
     (set-fontset-font t nil (font-spec :foundry "GOOG"))
-    ))
+    )
+  )
 #+end_src
 
 *** COMMENT Per block Config
@@ -2213,11 +2396,45 @@ https://github.com/NicholasBHubbard/clean-kill-ring.el
 
 * Undo
 
-#+begin_src emacs-lisp
-;; (after! undo-tree
-;;   (map! "C--" #'undo-tree-undo)
-;;   )
+ ein disables undo if C-/ is bound to anything but basic undo
+ https://github.com/millejoh/emacs-ipython-notebook/issues/841#issuecomment-1129176534
 
+ doom-emacs defines a global undo-fu-mode (minor-mode) which is activated on
+ doom-first-buffer. This means that it is turned on in the ein notebook buffers,
+ but it's not enough to turn it off via ein:notebook-mode-hook -- that's too
+ late, ein has already disabled undo.
+
+ so we define a non-global vi/undo-fu-mode and turn it on selectively.
+
+#+begin_src emacs-lisp
+;; copied from doom's undo/config.el
+(use-package! undo-fu
+  :unless (featurep! +tree)
+  :config
+  (define-minor-mode vi/undo-fu-mode
+    "Enables `undo-fu' for the current session."
+    :keymap (let ((map (make-sparse-keymap)))
+              (define-key map [remap undo] #'undo-fu-only-undo)
+              (define-key map [remap redo] #'undo-fu-only-redo)
+              (define-key map (kbd "C-_")     #'undo-fu-only-undo)
+              (define-key map (kbd "M-_")     #'undo-fu-only-redo)
+              (define-key map (kbd "C-M-_")   #'undo-fu-only-redo-all)
+              (define-key map (kbd "C-x r u") #'undo-fu-session-save)
+              (define-key map (kbd "C-x r U") #'undo-fu-session-recover)
+              map)
+    :predicate t
+    :init-value nil
+    :global nil)                       ;;only difference from doom-emacs' undo-fu-mode is that this isn't global
+  )
+
+;; We don't want this because it turns on in ein and ein disables undo if it is
+;; bound to anything but the simple emacs undo, it is global
+(remove-hook! 'doom-first-buffer-hook #'undo-fu-mode)
+(add-hook! (prog-mode org-mode) #'vi/undo-fu-mode)
+(add-hook! vi/undo-fu-mode #'global-undo-fu-session-mode)
+#+end_src
+
+#+begin_src emacs-lisp
 (after! undo-fu
   (map! "C--" #'undo-fu-only-undo)
   (map! "M--" #'undo-fu-only-redo)
@@ -2716,8 +2933,8 @@ https://github.com/minad/vertico#completion-styles-and-tab-completion
 
 #+begin_src emacs-lisp
 (after! orderless
-  (setq orderless-matching-styles '(orderless-literal orderless-regexp)))
-                                                      ;;orderless-flex)))
+  (setq orderless-matching-styles '(orderless-literal orderless-regexp
+                                                      orderless-flex)))
 
 (after! vertico
   (defun vi/match-components-literally ()
@@ -2916,24 +3133,24 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
 #+begin_src emacs-lisp
 (use-package! company-tabnine
   :after-call doom-first-input-hook
-  :commands (company-tabnine)
-  :config
-  ;; https://github.com/TommyX12/company-tabnine#known-issues
-  ;; workaround for company-transformers
-  (setq company-tabnine--disable-next-transform nil)
-  (defun my-company--transform-candidates (func &rest args)
-    (if (not company-tabnine--disable-next-transform)
-        (apply func args)
-      (setq company-tabnine--disable-next-transform nil)
-      (car args)))
+  :commands (company-tabnine))
+  ;; :config
+  ;; ;; https://github.com/TommyX12/company-tabnine#known-issues
+  ;; ;; workaround for company-transformers
+  ;; (setq company-tabnine--disable-next-transform nil)
+  ;; (defun my-company--transform-candidates (func &rest args)
+  ;;   (if (not company-tabnine--disable-next-transform)
+  ;;       (apply func args)
+  ;;     (setq company-tabnine--disable-next-transform nil)
+  ;;     (car args)))
 
-  (defun my-company-tabnine (func &rest args)
-    (when (eq (car args) 'candidates)
-      (setq company-tabnine--disable-next-transform t))
-    (apply func args))
+  ;; (defun my-company-tabnine (func &rest args)
+  ;;   (when (eq (car args) 'candidates)
+  ;;     (setq company-tabnine--disable-next-transform t))
+  ;;   (apply func args))
 
-  (advice-add #'company--transform-candidates :around #'my-company--transform-candidates)
-  (advice-add #'company-tabnine :around #'my-company-tabnine))
+  ;; (advice-add #'company--transform-candidates :around #'my-company--transform-candidates)
+  ;; (advice-add #'company-tabnine :around #'my-company-tabnine))
 #+end_src
 
 ** Corfu/Cape
@@ -2956,8 +3173,14 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
   (completion-styles '(basic))
   :config
   (custom-set-faces! '(corfu-current :background "ivory4"))
-  (global-corfu-mode)
+  ;; (global-corfu-mode)
   (corfu-history-mode 1)
+    :hook (
+              (prog-mode . corfu-mode)
+              (org-mode . corfu-mode)
+              (conf-mode . corfu-mode)
+              (text-mode . corfu-mode)
+              )
   )
 
 ;; (after! corfu
@@ -2971,7 +3194,7 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
   (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
   (defalias 'vi/cape-yankpad (cape-company-to-capf #'company-yankpad))
 
-  (setq-hook! '(prog-mode-hook conf-mode-hook sh-mode-hook text-mode-hook)
+  (setq-hook! '(prog-mode-hook conf-mode-hook text-mode-hook)
     completion-at-point-functions
     (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad)))
 
@@ -3049,8 +3272,8 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
     ("D" doc-hydra/body "Docs"))
    "Buffers"
    (("b" consult-buffer "Buffers")
-    ("t" dired-sidebar-jump-to-sidebar "Goto Tree")
-    ("T" dired-sidebar-toggle-sidebar "Toggle tree")
+    ("T" dired-sidebar-jump-to-sidebar "Goto Tree")
+    ("t" dired-sidebar-toggle-sidebar "Toggle tree")
     ;; ("w" +workspace/cycle "next workspace")
     ("w" persp-switch "next workspace")
     ;; ("t" treemacs-select-window "treemacs")
@@ -3870,10 +4093,7 @@ doesn't work
 
 ;; outline-minor-faces-mode seems to cause some glitches with C-c C-b/a
 (add-hook! 'ein:notebook-mode-hook
-           #'outline-minor-mode
-           ;; ein disables everything but basic undo
-           ;; https://github.com/millejoh/emacs-ipython-notebook/issues/841#issuecomment-1129176534
-           (undo-fu-mode -1)) ;; #'outline-minor-faces-mode)
+           #'outline-minor-mode) ;; #'outline-minor-faces-mode)
 (setq-hook! 'ein:notebook-mode-hook
   outline-minor-mode-use-buttons t
   outline-regexp "##+")           ;capture markdown headings, excluding level 1 for comments
@@ -4071,10 +4291,10 @@ and hardcode that as vterm-min-window-width
   (flycheck-idle-change-delay 10)
   (flycheck-idle-buffer-switch-delay 5)
   (flycheck-highlighting-style '(conditional 10 level-face (delimiters "" "")))
-
-    :config
-    (global-flycheck-mode -1)
-    :hook ((prog-mode . flycheck-mode))
+  (flycheck-global-modes '(prog-mode))
+  :config
+  (global-flycheck-mode -1)
+  :hook ((prog-mode . flycheck-mode))
   :pretty-hydra
   (
    (:exit t)

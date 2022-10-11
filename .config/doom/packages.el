@@ -64,6 +64,14 @@
 (disable-packages! magit-todos)
 ;; Disabled packages:1 ends here
 
+;; persistent scratch
+
+
+
+;; [[file:config.org::*persistent scratch][persistent scratch:1]]
+(package! persistent-scratch)
+;; persistent scratch:1 ends here
+
 ;; Eval
 
 
@@ -147,12 +155,13 @@
 (package! rainbow-identifiers)
 ;; Rainbow:1 ends here
 
-;; hl-line+
+;; pulsar
 
 
-;; [[file:config.org::*hl-line+][hl-line+:1]]
-(package! hl-line+ :recipe (:host github :repo "emacsmirror/hl-line-plus"))
-;; hl-line+:1 ends here
+
+;; [[file:config.org::*pulsar][pulsar:1]]
+(package! pulsar)
+;; pulsar:1 ends here
 
 ;; wrap region
 
@@ -253,6 +262,16 @@
 ;; [[file:config.org::*purpose][purpose:1]]
 (package! window-purpose)
 ;; purpose:1 ends here
+
+;; persp customizations
+
+;; persp-mode is built in with doom but let's specify it anyway
+
+
+;; [[file:config.org::*persp customizations][persp customizations:1]]
+(package! persp-mode)
+(unpin! persp-mode)
+;; persp customizations:1 ends here
 
 ;; Adjust for display size change
 

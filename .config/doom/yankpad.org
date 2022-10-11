@@ -106,6 +106,64 @@ mpl.rcParams["axes.facecolor"] = "white"
 mpl.rcParams["savefig.facecolor"] = "white"
 #+end_src
 
+** jupyter-terminal-display: :src:indent_nil:
+#
+#+begin_src python
+import altair as alt
+import altair_viewer
+
+def init_altair(port_number: int = 9999, server_name: str = "localhost") -> None:
+    class EventProviderMock(altair_viewer._event_provider.EventProvider):
+        @property
+        def url(self) -> str:
+            return f"http://{server_name}:{self.port}"
+
+        def start(self, port=None, timeout=1, daemon=True):
+            return super().start(port=port_number, timeout=timeout, daemon=daemon)
+
+    altair_viewer._viewer.EventProvider = EventProviderMock
+
+init_altair(35549)
+alt.renderers.enable("altair_viewer")
+alt.Chart(pr.DataFrame({"a": [1, 2, 3], "b": [3, 4, 5]}).to_pandas()).mark_bar()
+
+# Datatables
+import polars as pr
+pr.Config.set_tbl_width_chars(550).set_fmt_str_lengths(200).set_tbl_rows(100)
+# set_utf8_tables() is broken in emacs sometimes?
+# pr.Config.set_ascii_tables()
+pr.DataFrame({"a": [1, 2, 3], "b": [3, 4, 5]})
+
+from tqdm import tqdm
+for i in tqdm(range(3)):
+    pass
+#+end_src
+
+** jupyter-notebook-display: :src:indent_nil:
+
+
+#+begin_src python
+from IPython.display import display, HTML
+display(HTML("<style>.container { width:70% !important; }</style>"))
+
+import altair as alt
+alt.Chart(pr.DataFrame({"a": [1, 2, 3], "b": [3, 4, 5]}).to_pandas()).mark_bar()
+
+
+import itables
+def polars_repr_html(df, *args, **kwargs):
+    return df.to_pandas()._repr_html_(*args, **kwargs)
+def itables_init():
+    itables.init_notebook_mode(all_interactive=True)
+    pr.DataFrame._repr_html_ = polars_repr_html
+itables_init()
+pr.DataFrame({"a": [1, 2, 3], "b": [3, 4, 5]})
+
+from tqdm.notebook import tqdm
+for i in tqdm(range(3)):
+    pass
+#+end_src
+
 
 * lisp-data-mode
 

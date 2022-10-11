@@ -6,6 +6,7 @@ HOME := env_var('HOME')
 # set_init: see ~/.bashrc for definition (mainly set -x)
 
 set shell := ["bash", "-uc"]
+set positional-arguments := true
 
 default:
     just --list
@@ -117,7 +118,7 @@ jupyter-install-ipykernel:
     set_init
     cd {{ invocation_directory() }}
     basename=${PWD##*/}
-    python -m ipykernel install --user --name="$basename"
+    python -m ipykernel install --user --name="$basename" --env PATH "$PATH"
 
 
 jupyter-show-kernelspec:
@@ -221,7 +222,7 @@ glances plugins=env_var_or_default("plugins", "") *args='':
 
 
 dl *cmd:
-    ~/dev/gcloud/gcpvm --dotenv-filename ~/dev/gcloud/deeplearning-1-vm.env {{ cmd }}
+    ~/dev/gcloud/gcpvm --dotenv-filename ~/dev/gcloud/deeplearning-1-vm.env -- "$@"
 
 
 conda-create-env:
@@ -236,6 +237,14 @@ conda-create-env:
     echo 'layout_anaconda ./.venv' > .envrc
     direnv allow && direnv reload
 
+dvc_data_status json='no':
+    dvc data status --granular --unchanged --untracked-files=all {{ if json == 'yes' { "--json" } else { '' } }}
+
+dvc_du:
+    just -f {{ justfile() }} dvc_data_status 'yes' | jq -r '.unchanged[]' | xargs -IARG du -h "ARG" | sort -h
+
+du:
+    du -d6 -h . | sort -h
 
 # Local Variables:
 # mode: just

@@ -135,23 +135,10 @@
 ;;
 (setq message-truncate-lines t)
 
-(global-whitespace-mode +1)
+
 (global-git-gutter-mode t)
 
-(setq! whitespace-style '(face tabs tab-mark trailing))
 
-(blink-cursor-mode)
-
-;; (defun pulse-line (&rest _)
-;;       "Pulse the current line."
-;;       (pulse-momentary-highlight-one-line (point)))
-;;
-;; Addition to nav-flash
-(dolist (command '(scroll-up-command scroll-down-command previous-line next-line
-                   recenter-top-bottom other-window))
-  ;; (advice-add command :after #'pulse-line)
-  (advice-add command :after #'+nav-flash-delayed-blink-cursor-h)
-  )
 
 (repeat-mode 1)
 
@@ -161,6 +148,16 @@
 ;; https://github.com/dakrone/eos/blob/master/eos.org
 (setq save-interprogram-paste-before-kill t)
 ;; General:1 ends here
+
+;; whitespace
+
+
+
+;; [[file:config.org::*whitespace][whitespace:1]]
+;; (global-whitespace-mode +1)
+(setq! whitespace-style '(face tabs tab-mark trailing))
+(add-hook! '(prog-mode-hook org-mode-hook) (whitespace-mode t))
+;; whitespace:1 ends here
 
 ;; specpdl size
 
@@ -214,6 +211,14 @@
   (interactive "aFunction symbol: ")
   (advice-mapc (lambda (advice _props) (advice-remove sym advice)) sym))
 ;; Unadvice functions:1 ends here
+
+;; [[file:config.org::*persistent scratch][persistent scratch:2]]
+(use-package! persistent-scratch
+    :after-call doom-first-buffer-hook
+    :config
+    (persistent-scratch-setup-default)
+    )
+;; persistent scratch:2 ends here
 
 ;; Global keybindings
 
@@ -497,19 +502,50 @@
 (setq hl-line-overlay-priority -100)
 ;; hl-line:1 ends here
 
-;; [[file:config.org::*hl-line+][hl-line+:2]]
-(use-package! hl-line+
-  :hook
-  (window-scroll-functions . hl-line-flash)
-  (focus-in . hl-line-flash)
-  (post-command . hl-line-flash)
+;; cursor
 
+
+
+;; [[file:config.org::*cursor][cursor:1]]
+(blink-cursor-mode)
+
+;; Addition to nav-flash
+;; (dolist (command '(scroll-up-command scroll-down-command previous-line next-line
+;;                    recenter-top-bottom other-window))
+;;   ;; (advice-add command :after #'pulse-line)
+;;   (advice-add command :after #'+nav-flash-delayed-blink-cursor-h)
+;;   )
+;; cursor:1 ends here
+
+;; [[file:config.org::*pulsar][pulsar:2]]
+(use-package! pulsar
   :custom
-  ;;(global-hl-line-mode nil)
-  (hl-line-flash-show-period 0.5)
-  ;; (hl-line-inhibit-highlighting-for-modes '(dired-mode))
+  (pulsar-pulse t)
+  (pulsar-delay 0.05)
+  (pulsar-iterations 3)
+  (pulsar-face 'pulsar-red)
+  (pulsar-highlight-face 'pulsar-yellow)
+  :config
+  (pulsar-global-mode 1)
+  :hook ((consult-after-jump-hook . pulsar-recenter-top)
+          (consult-after-jump-hook . pulsar-reveal-entry)
+          )
+  :bind (
+          ("C-x l" . pulsar-highlight-dwim)
+          ("C-l" . pulsar-recenter-middle)
+          )
   )
-;; hl-line+:2 ends here
+
+(custom-set-faces! '(pulsar-red :background "red"))
+;; pulsar:2 ends here
+
+;; font lock
+
+;; Does this make things faster?
+
+;; [[file:config.org::*font lock][font lock:1]]
+(setq font-lock-maximum-decoration nil)
+;; font lock:1 ends here
 
 ;; with parens-mode
 
@@ -556,7 +592,7 @@
     :after-call doom-first-buffer-hook
     :custom
     (lisp-body-indent 4)
-    (lisp-indent-offset 4))
+    (lisp-indent-offset 2))
 ;; Indentation:1 ends here
 
 ;; Debug hooks
@@ -653,10 +689,13 @@ message listing the hooks."
 
 
 ;; [[file:config.org::*modeline][modeline:1]]
+(setq doom-emoji-fallback-font-families nil)
 (after! doom-modeline
   (setq mode-line-default-help-echo nil
-        show-help-function nil
-        doom-modeline-persp-name t)
+    show-help-function nil
+    ;; doom-modeline-icon nil
+    ;; doom-modeline-major-mode-color-icon nil
+    doom-modeline-persp-name t)
 
   (doom-modeline-def-segment purpose
     ;; Purpose-mode segment
@@ -729,7 +768,7 @@ message listing the hooks."
 (use-package! windmove
   :after-call doom-first-buffer-hook
   :custom
-  (windmove-wrap-around t)
+  (windmove-wrap-around nil)
   :config
   (windmove-default-keybindings 'shift)
   )
@@ -778,9 +817,10 @@ message listing the hooks."
      (minibuffer-keyboard-quit)))
 
 
-(map! "M-k" #'consult-buffer)
+;; (map! "M-k" #'consult-buffer)
 ;; (map! "M-k" #'purpose-switch-buffer-with-purpose)
-;; (map! :map minibuffer-local-map "M-k" (cmd! (minibuffer-quit-and-run (consult-buffer))))
+(map! "M-k" #'vi/persp-consult-buffer)
+(map! :map minibuffer-local-map "M-k" (cmd! (minibuffer-quit-and-run (consult-buffer))))
 ;; Switching:1 ends here
 
 
@@ -1038,6 +1078,93 @@ message listing the hooks."
   )
 ;; purpose:2 ends here
 
+;; auto persps
+
+
+;; [[file:config.org::*auto persps][auto persps:1]]
+(after! persp-mode
+  (persp-def-auto-persp "vterm"
+    :parameters '((dont-save-to-file . t))
+    :mode 'vterm-mode
+    :dyn-env '(after-switch-to-buffer-functions ;; prevent recursion
+                (persp-add-buffer-on-find-file nil)
+                persp-add-buffer-on-after-change-major-mode)
+    :hooks '(after-switch-to-buffer-functions)
+    :on-match #'vi/set-auto-persp-on-match
+    :switch 'frame)
+  (persp-def-auto-persp "ein"
+    :parameters '((dont-save-to-file . t))
+    :buffer-name "*ein:"
+    :dyn-env '(after-switch-to-buffer-functions ;; prevent recursion
+                (persp-add-buffer-on-find-file nil)
+                persp-add-buffer-on-after-change-major-mode)
+    :hooks '(after-switch-to-buffer-functions)
+    :on-match #'vi/set-auto-persp-on-match
+    :switch 'frame)
+  )
+;; auto persps:1 ends here
+
+;; [[file:config.org::*auto persps][auto persps:2]]
+(defun vi/persp-consult-buffer()
+    (interactive)
+    (with-persp-buffer-list () (consult-buffer)))
+;; auto persps:2 ends here
+
+;; Reset auto persp
+
+;; One problem is that these auto perspectives don't restrict which buffers can be
+;; added to them. So it would be nice to reset them; how to do that?
+
+;; persp-buffer-list will contain all the manually added buffers
+
+;; persp-buffer-match-auto-persp-p doesn't work: https://github.com/Bad-ptr/persp-mode.el/issues/135
+
+;; We could use the :after-match function to set some buffer-local variable
+;; tracking all perspectives that were set auto.
+
+;; Note that this won't work with persp-mode-projectile-bridge (look at
+;; ~persp-mode-projectile-bridge-find-perspective-for-buffer~ for how to handle it -- we'll need a custom ~matches-auto-persp-p~, and test ~safe-persp-parameters~ for ~persp-mode-projectile-bridge t~ )?
+
+
+;; [[file:config.org::*Reset auto persp][Reset auto persp:1]]
+(defun vi/set-auto-persp (persp buf)
+  ;; track the auto persps that this buf belongs to, in a buffer local hash
+  (with-current-buffer buf
+    (-let ((ap (or (bound-and-true-p vi--auto-persps) (ht-create))))
+        (progn
+            (ht-set! ap (safe-persp-name persp) t)
+            (setq-local vi--auto-persps ap))
+        )
+    ))
+
+(defun vi/set-auto-persp-on-match (state)
+  ;; on-match hook for persp-def-auto-persp
+    (-let ((persp (alist-get 'persp state))
+              (buffer (alist-get 'buffer state)))
+        (vi/set-auto-persp persp buffer))
+    state)
+
+(defun vi/matches-auto-persp-p (persp buf)
+  ;; replacement for persp-buffer-match-auto-persp-p that actually works, using our own vi--auto-persps machinery
+  (with-current-buffer buf
+    (and (buffer-local-boundp 'vi--auto-persps buf) (ht-contains? vi--auto-persps persp))
+    ))
+
+(defun vi/persp-auto-buffer-list()
+  ;; persp-buffer-list filtered for buffers belonging to the current auto persp
+  (let ((persp (safe-persp-name (get-current-persp))))
+    (--filter (vi/matches-auto-persp-p persp it) (persp-buffer-list))
+    )
+  )
+
+(defun vi/reset-auto-persp-windows()
+  ;; reset current (auto) persp to only buffers matching it
+    (interactive)
+    (delete-other-windows)
+    (--each (vi/persp-auto-buffer-list) (display-buffer-pop-up-window it ()))
+  )
+;; Reset auto persp:1 ends here
+
 ;; recentf
 
 ;; Load recentf files on startup
@@ -1046,33 +1173,6 @@ message listing the hooks."
 ;; [[file:config.org::*recentf][recentf:1]]
 (add-hook! 'doom-first-input-hook #'recentf-mode)
 ;; recentf:1 ends here
-
-;; Base config
-
-;; Test on ~view-hello-file~. As of <2022-03-24 Thu> emoji doesn't work
-
-
-;; [[file:config.org::*Base config][Base config:1]]
-(add-hook! after-setting-font
-  (defun vi/set-fontsets ()
-    ;; Prevent emacs from using the default font for symbols and punctuation; this
-    ;; will cause fontsets to be used.
-    (setq use-default-font-for-symbols nil)
-
-    ;; Next we want to set Google's Noto Sans fonts (like Noto Sans Cherokee, Noto
-    ;; Sans Armenian) to be the backup, since they represent a lot of different
-    ;; scripts; but there doesn't seem to be a way to specify a font-family prefix
-    ;; like "Noto Sans*". So we use the foundry name :GOOG, and cross our fingers.
-    ;; See https://gist.github.com/alanthird/7152752d384325a83677f4a90e1e1a05 for
-    ;; a more explicit setting
-    ;;
-    ;; default for fontset-startup, we append so that it's at the end
-    (set-fontset-font "fontset-startup" nil (font-spec :foundry "GOOG") nil 'append)
-
-    ;; default for fontset-default (which is the fallback for fontset-startup)
-    (set-fontset-font t nil (font-spec :foundry "GOOG"))
-    ))
-;; Base config:1 ends here
 
 ;; [[file:config.org::*Adjust for display size change][Adjust for display size change:2]]
 (defun vi/set-font-size (sz)
@@ -1220,19 +1320,53 @@ message listing the hooks."
 
 ;; Undo
 
+;;  ein disables undo if C-/ is bound to anything but basic undo
+;;  https://github.com/millejoh/emacs-ipython-notebook/issues/841#issuecomment-1129176534
+
+;;  doom-emacs defines a global undo-fu-mode (minor-mode) which is activated on
+;;  doom-first-buffer. This means that it is turned on in the ein notebook buffers,
+;;  but it's not enough to turn it off via ein:notebook-mode-hook -- that's too
+;;  late, ein has already disabled undo.
+
+;;  so we define a non-global vi/undo-fu-mode and turn it on selectively.
+
 
 ;; [[file:config.org::*Undo][Undo:1]]
-;; (after! undo-tree
-;;   (map! "C--" #'undo-tree-undo)
-;;   )
+;; copied from doom's undo/config.el
+(use-package! undo-fu
+  :unless (featurep! +tree)
+  :config
+  (define-minor-mode vi/undo-fu-mode
+    "Enables `undo-fu' for the current session."
+    :keymap (let ((map (make-sparse-keymap)))
+              (define-key map [remap undo] #'undo-fu-only-undo)
+              (define-key map [remap redo] #'undo-fu-only-redo)
+              (define-key map (kbd "C-_")     #'undo-fu-only-undo)
+              (define-key map (kbd "M-_")     #'undo-fu-only-redo)
+              (define-key map (kbd "C-M-_")   #'undo-fu-only-redo-all)
+              (define-key map (kbd "C-x r u") #'undo-fu-session-save)
+              (define-key map (kbd "C-x r U") #'undo-fu-session-recover)
+              map)
+    :predicate t
+    :init-value nil
+    :global nil)                       ;;only difference from doom-emacs' undo-fu-mode is that this isn't global
+  )
 
+;; We don't want this because it turns on in ein and ein disables undo if it is
+;; bound to anything but the simple emacs undo, it is global
+(remove-hook! 'doom-first-buffer-hook #'undo-fu-mode)
+(add-hook! (prog-mode org-mode) #'vi/undo-fu-mode)
+(add-hook! vi/undo-fu-mode #'global-undo-fu-session-mode)
+;; Undo:1 ends here
+
+;; [[file:config.org::*Undo][Undo:2]]
 (after! undo-fu
   (map! "C--" #'undo-fu-only-undo)
   (map! "M--" #'undo-fu-only-redo)
   (map! "C-M--" #'undo-fu-only-redo-all)
   (setq! undo-limit 80000000)
   )
-;; Undo:1 ends here
+;; Undo:2 ends here
 
 ;; [[file:config.org::*vundo][vundo:2]]
 (use-package! vundo
@@ -1553,8 +1687,8 @@ message listing the hooks."
 
 ;; [[file:config.org::*Orderless][Orderless:1]]
 (after! orderless
-  (setq orderless-matching-styles '(orderless-literal orderless-regexp)))
-                                                      ;;orderless-flex)))
+  (setq orderless-matching-styles '(orderless-literal orderless-regexp
+                                                      orderless-flex)))
 
 (after! vertico
   (defun vi/match-components-literally ()
@@ -1679,24 +1813,24 @@ message listing the hooks."
 ;; [[file:config.org::*Tabnine][Tabnine:2]]
 (use-package! company-tabnine
   :after-call doom-first-input-hook
-  :commands (company-tabnine)
-  :config
-  ;; https://github.com/TommyX12/company-tabnine#known-issues
-  ;; workaround for company-transformers
-  (setq company-tabnine--disable-next-transform nil)
-  (defun my-company--transform-candidates (func &rest args)
-    (if (not company-tabnine--disable-next-transform)
-        (apply func args)
-      (setq company-tabnine--disable-next-transform nil)
-      (car args)))
+  :commands (company-tabnine))
+  ;; :config
+  ;; ;; https://github.com/TommyX12/company-tabnine#known-issues
+  ;; ;; workaround for company-transformers
+  ;; (setq company-tabnine--disable-next-transform nil)
+  ;; (defun my-company--transform-candidates (func &rest args)
+  ;;   (if (not company-tabnine--disable-next-transform)
+  ;;       (apply func args)
+  ;;     (setq company-tabnine--disable-next-transform nil)
+  ;;     (car args)))
 
-  (defun my-company-tabnine (func &rest args)
-    (when (eq (car args) 'candidates)
-      (setq company-tabnine--disable-next-transform t))
-    (apply func args))
+  ;; (defun my-company-tabnine (func &rest args)
+  ;;   (when (eq (car args) 'candidates)
+  ;;     (setq company-tabnine--disable-next-transform t))
+  ;;   (apply func args))
 
-  (advice-add #'company--transform-candidates :around #'my-company--transform-candidates)
-  (advice-add #'company-tabnine :around #'my-company-tabnine))
+  ;; (advice-add #'company--transform-candidates :around #'my-company--transform-candidates)
+  ;; (advice-add #'company-tabnine :around #'my-company-tabnine))
 ;; Tabnine:2 ends here
 
 ;; [[file:config.org::*Corfu/Cape][Corfu/Cape:2]]
@@ -1710,8 +1844,14 @@ message listing the hooks."
   (completion-styles '(basic))
   :config
   (custom-set-faces! '(corfu-current :background "ivory4"))
-  (global-corfu-mode)
+  ;; (global-corfu-mode)
   (corfu-history-mode 1)
+    :hook (
+              (prog-mode . corfu-mode)
+              (org-mode . corfu-mode)
+              (conf-mode . corfu-mode)
+              (text-mode . corfu-mode)
+              )
   )
 
 ;; (after! corfu
@@ -1725,7 +1865,7 @@ message listing the hooks."
   (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
   (defalias 'vi/cape-yankpad (cape-company-to-capf #'company-yankpad))
 
-  (setq-hook! '(prog-mode-hook conf-mode-hook sh-mode-hook text-mode-hook)
+  (setq-hook! '(prog-mode-hook conf-mode-hook text-mode-hook)
     completion-at-point-functions
     (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad)))
 
@@ -1784,8 +1924,8 @@ message listing the hooks."
     ("D" doc-hydra/body "Docs"))
    "Buffers"
    (("b" consult-buffer "Buffers")
-    ("t" dired-sidebar-jump-to-sidebar "Goto Tree")
-    ("T" dired-sidebar-toggle-sidebar "Toggle tree")
+    ("T" dired-sidebar-jump-to-sidebar "Goto Tree")
+    ("t" dired-sidebar-toggle-sidebar "Toggle tree")
     ;; ("w" +workspace/cycle "next workspace")
     ("w" persp-switch "next workspace")
     ;; ("t" treemacs-select-window "treemacs")
@@ -2314,10 +2454,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; outline-minor-faces-mode seems to cause some glitches with C-c C-b/a
 (add-hook! 'ein:notebook-mode-hook
-           #'outline-minor-mode
-           ;; ein disables everything but basic undo
-           ;; https://github.com/millejoh/emacs-ipython-notebook/issues/841#issuecomment-1129176534
-           (undo-fu-mode -1)) ;; #'outline-minor-faces-mode)
+           #'outline-minor-mode) ;; #'outline-minor-faces-mode)
 (setq-hook! 'ein:notebook-mode-hook
   outline-minor-mode-use-buttons t
   outline-regexp "##+")           ;capture markdown headings, excluding level 1 for comments
@@ -2449,10 +2586,10 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   (flycheck-idle-change-delay 10)
   (flycheck-idle-buffer-switch-delay 5)
   (flycheck-highlighting-style '(conditional 10 level-face (delimiters "" "")))
-
-    :config
-    (global-flycheck-mode -1)
-    :hook ((prog-mode . flycheck-mode))
+  (flycheck-global-modes '(prog-mode))
+  :config
+  (global-flycheck-mode -1)
+  :hook ((prog-mode . flycheck-mode))
   :pretty-hydra
   (
    (:exit t)

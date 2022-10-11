@@ -1,1 +1,3 @@
 formats = ["ipynb", "py:percent"]
+notebook_metadata_filter = "all,-kernelspec,-jupytext.cell_metadata_filter,-jupytext.notebook_metadata_filter"
+cell_metadata_filter = "tags,-all"
