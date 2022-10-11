@@ -76,9 +76,16 @@
     name = Venky Iyer
     email = indigoviolet@gmail.com
 
-# Show a log of '56 minutes ago' rather than 'November 12, 2008 12:34:53'
+
 [log]
+{% if yadm.class == "personal" %}
+    # Requires git 2.21
+    # Show relative dates for nearer times
     date = human
+{% else %}
+    # Always show relative dates
+    date = relative
+{% endif %}
     decorate = true
 
 [format]
