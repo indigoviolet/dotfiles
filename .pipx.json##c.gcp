@@ -1,6 +1,109 @@
 {
     "pipx_spec_version": "0.1",
     "venvs": {
+        "conda-lock": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/conda-lock",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "cachecontrol": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/doesitcache",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "charset-normalizer": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/normalizer",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "dulwich": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/dul-receive-pack",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/dul-upload-pack",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/dulwich",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "ensureconda": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/ensureconda",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "jsonschema": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/jsonschema",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "keyring": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/keyring",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pkginfo": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/pkginfo",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "poetry": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/poetry",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "virtualenv": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/virtualenv",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "conda-lock"
+                    ],
+                    "apps_of_dependencies": [
+                        "normalizer",
+                        "ensureconda",
+                        "poetry",
+                        "doesitcache",
+                        "dul-receive-pack",
+                        "dul-upload-pack",
+                        "dulwich",
+                        "jsonschema",
+                        "keyring",
+                        "pkginfo",
+                        "virtualenv"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "conda-lock",
+                    "package_or_url": "conda-lock",
+                    "package_version": "1.1.1",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.12",
+                "venv_args": []
+            }
+        },
         "docker-compose": {
             "metadata": {
                 "injected_packages": {},
@@ -63,6 +166,310 @@
                 },
                 "pipx_metadata_version": "0.2",
                 "python_version": "Python 3.10.6",
+                "venv_args": []
+            }
+        },
+        "dvc": {
+            "metadata": {
+                "injected_packages": {
+                    "dvc-gs": {
+                        "app_paths": [],
+                        "app_paths_of_dependencies": {
+                            "antlr4-python3-runtime": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/pygrun",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "celery": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/celery",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "charset-normalizer": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/normalizer",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "commonmark": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/cmark",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "distro": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/distro",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "dulwich": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/dul-receive-pack",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/dul-upload-pack",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/dulwich",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "dvc": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/dvc",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "dvc-data": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/dvc-data",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "future": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/futurize",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/pasteurize",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "google-auth-oauthlib": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/google-oauthlib-tool",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "pygments": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/pygmentize",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "rsa": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/pyrsa-decrypt",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/pyrsa-encrypt",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/pyrsa-keygen",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/pyrsa-priv2pub",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/pyrsa-sign",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/pyrsa-verify",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "shortuuid": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/shortuuid",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "shtab": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/shtab",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "tabulate": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/tabulate",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "tqdm": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/tqdm",
+                                    "__type__": "Path"
+                                }
+                            ]
+                        },
+                        "apps": [],
+                        "apps_of_dependencies": [
+                            "dvc",
+                            "normalizer",
+                            "futurize",
+                            "pasteurize",
+                            "distro",
+                            "shortuuid",
+                            "tqdm",
+                            "tabulate",
+                            "shtab",
+                            "cmark",
+                            "pygmentize",
+                            "dul-receive-pack",
+                            "dul-upload-pack",
+                            "dulwich",
+                            "celery",
+                            "dvc-data",
+                            "pygrun",
+                            "pyrsa-decrypt",
+                            "pyrsa-encrypt",
+                            "pyrsa-keygen",
+                            "pyrsa-priv2pub",
+                            "pyrsa-sign",
+                            "pyrsa-verify",
+                            "google-oauthlib-tool"
+                        ],
+                        "include_apps": false,
+                        "include_dependencies": false,
+                        "package": "dvc-gs",
+                        "package_or_url": "dvc-gs",
+                        "package_version": "2.19.1",
+                        "pip_args": [],
+                        "suffix": ""
+                    }
+                },
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/dvc",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "antlr4-python3-runtime": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/pygrun",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "celery": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/celery",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "charset-normalizer": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/normalizer",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "commonmark": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/cmark",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "distro": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/distro",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "dulwich": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/dul-receive-pack",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/dul-upload-pack",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/dulwich",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "dvc-data": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/dvc-data",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "future": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/futurize",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/pasteurize",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygments": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "shortuuid": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/shortuuid",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "shtab": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/shtab",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "tabulate": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/tabulate",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "tqdm": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/dvc/bin/tqdm",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "dvc"
+                    ],
+                    "apps_of_dependencies": [
+                        "normalizer",
+                        "futurize",
+                        "pasteurize",
+                        "distro",
+                        "shortuuid",
+                        "tqdm",
+                        "tabulate",
+                        "shtab",
+                        "cmark",
+                        "pygmentize",
+                        "dul-receive-pack",
+                        "dul-upload-pack",
+                        "dulwich",
+                        "celery",
+                        "dvc-data",
+                        "pygrun"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "dvc",
+                    "package_or_url": "dvc",
+                    "package_version": "2.27.2",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.12",
                 "venv_args": []
             }
         },
