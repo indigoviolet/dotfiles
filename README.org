@@ -452,14 +452,17 @@ Some files are only useful on a specific class, but we don't bother removing
 these or hiding them. They are addressed at point of use - ie. if it is a
 zshcustom file, we might use templates to include them correctly in zshrc.
 * TODO Paperwm
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2022-11-02 Wed 14:53]
+:END:
 
 TODO move to yadm
 
 Checked out in dev/PaperWM and installed.
 
-Currently using virtual-tiling-playground branch: https://github.com/paperwm/PaperWM/issues/303
+- +Currently using virtual-tiling-playground branch: https://github.com/paperwm/PaperWM/issues/303+
 
-seems like Gnome 40 breaks some stuff, see https://github.com/PaperWM-community/PaperWM, https://github.com/paperwm/PaperWM/issues/376#issuecomment-1020068861
+- [X] seems like Gnome 40 breaks some stuff, see https://github.com/PaperWM-community/PaperWM, https://github.com/paperwm/PaperWM/issues/376#issuecomment-1020068861
 
 * Material shell
 

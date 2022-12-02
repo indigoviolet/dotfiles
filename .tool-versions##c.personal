@@ -1,5 +1,5 @@
 python 3.9.12
-poetry 1.1.13
+poetry 1.2.2
 nodejs 18.7.0
 yarn 1.22.17
 golang 1.15.8

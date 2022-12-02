@@ -34,7 +34,7 @@
     autostash-pop = !"f() {( test -n \"$( git autostash-find )\"  && git stash pop $( git autostash-find ) )}; f"
 
     # always branch from master
-    makebr = !"f() {( MASTERBR=$(git master-or-main); git co $MASTERBR  && git co -b $1 )}; f"
+    makebr = !"f() {( MASTERBR=$(git master-or-main); git cobr $MASTERBR  && git co -b $1 )}; f"
 
     # test if we ended up on the branch
     onbr = !"f() {( test $(git thisbr) = $1 )}; f"
@@ -110,9 +110,9 @@
     changed = green
     untracked = cyan
 
-# [merge]
-#   tool = emerge
-#   conflictstyle = diff3
+[merge]
+  # tool = emerge
+  conflictstyle = diff3
 
 [init]
     defaultBranch = main

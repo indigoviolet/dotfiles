@@ -12,3 +12,4 @@ __pycache__/
 # Local Variables:
 # mode: gitignore
 # End:
+*ediff-merge*
