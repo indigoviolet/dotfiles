@@ -53,7 +53,7 @@
                     "include_dependencies": false,
                     "package": "black",
                     "package_or_url": "black[jupyter]",
-                    "package_version": "22.8.0",
+                    "package_version": "22.10.0",
                     "pip_args": [],
                     "suffix": ""
                 },
@@ -137,6 +137,34 @@
                 "venv_args": []
             }
         },
+        "codenamize": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/codenamize/bin/codenamize",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "codenamize"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "codenamize",
+                    "package_or_url": "codenamize",
+                    "package_version": "1.2.3",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.12",
+                "venv_args": []
+            }
+        },
         "conda-lock": {
             "metadata": {
                 "injected_packages": {},
@@ -160,29 +188,9 @@
                                 "__type__": "Path"
                             }
                         ],
-                        "dulwich": [
-                            {
-                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/dul-receive-pack",
-                                "__type__": "Path"
-                            },
-                            {
-                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/dul-upload-pack",
-                                "__type__": "Path"
-                            },
-                            {
-                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/dulwich",
-                                "__type__": "Path"
-                            }
-                        ],
                         "ensureconda": [
                             {
                                 "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/ensureconda",
-                                "__type__": "Path"
-                            }
-                        ],
-                        "jsonschema": [
-                            {
-                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/jsonschema",
                                 "__type__": "Path"
                             }
                         ],
@@ -198,12 +206,6 @@
                                 "__type__": "Path"
                             }
                         ],
-                        "poetry": [
-                            {
-                                "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/poetry",
-                                "__type__": "Path"
-                            }
-                        ],
                         "virtualenv": [
                             {
                                 "__Path__": "/home/venky/.local/pipx/venvs/conda-lock/bin/virtualenv",
@@ -215,14 +217,9 @@
                         "conda-lock"
                     ],
                     "apps_of_dependencies": [
+                        "doesitcache",
                         "normalizer",
                         "ensureconda",
-                        "poetry",
-                        "doesitcache",
-                        "dul-receive-pack",
-                        "dul-upload-pack",
-                        "dulwich",
-                        "jsonschema",
                         "keyring",
                         "pkginfo",
                         "virtualenv"
@@ -231,7 +228,44 @@
                     "include_dependencies": false,
                     "package": "conda-lock",
                     "package_or_url": "conda-lock",
-                    "package_version": "1.1.1",
+                    "package_version": "1.2.1",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.12",
+                "venv_args": []
+            }
+        },
+        "conda-pip-minimal": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/conda-pip-minimal/bin/conda-cpm",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "semver": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/conda-pip-minimal/bin/pysemver",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "conda-cpm"
+                    ],
+                    "apps_of_dependencies": [
+                        "pysemver"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "conda-pip-minimal",
+                    "package_or_url": "/home/venky/dev/conda-pip-minimal/dist/conda_pip_minimal-0.1.8-py3-none-any.whl",
+                    "package_version": "0.1.8",
                     "pip_args": [],
                     "suffix": ""
                 },
@@ -672,7 +706,7 @@
                     "include_dependencies": false,
                     "package": "dvc",
                     "package_or_url": "dvc",
-                    "package_version": "2.26.2",
+                    "package_version": "2.33.2",
                     "pip_args": [],
                     "suffix": ""
                 },
@@ -782,7 +816,158 @@
                     "include_dependencies": false,
                     "package": "glances",
                     "package_or_url": "glances[all]",
-                    "package_version": "3.2.7",
+                    "package_version": "3.3.0.4",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.12",
+                "venv_args": []
+            }
+        },
+        "hatch": {
+            "metadata": {
+                "injected_packages": {
+                    "hatch-conda": {
+                        "app_paths": [],
+                        "app_paths_of_dependencies": {
+                            "commonmark": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/cmark",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "hatch": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/hatch",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "hatchling": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/hatchling",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "httpx": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/httpx",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "keyring": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/keyring",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "pygments": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/pygmentize",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "userpath": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/userpath",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "virtualenv": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/virtualenv",
+                                    "__type__": "Path"
+                                }
+                            ]
+                        },
+                        "apps": [],
+                        "apps_of_dependencies": [
+                            "hatch",
+                            "hatchling",
+                            "httpx",
+                            "keyring",
+                            "cmark",
+                            "pygmentize",
+                            "userpath",
+                            "virtualenv"
+                        ],
+                        "include_apps": false,
+                        "include_dependencies": false,
+                        "package": "hatch-conda",
+                        "package_or_url": "hatch-conda",
+                        "package_version": "0.3.1",
+                        "pip_args": [],
+                        "suffix": ""
+                    }
+                },
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/hatch",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "commonmark": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/cmark",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "hatchling": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/hatchling",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "httpx": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/httpx",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "keyring": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/keyring",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "pygments": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/pygmentize",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "userpath": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/userpath",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "virtualenv": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/hatch/bin/virtualenv",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "hatch"
+                    ],
+                    "apps_of_dependencies": [
+                        "hatchling",
+                        "httpx",
+                        "keyring",
+                        "cmark",
+                        "pygmentize",
+                        "userpath",
+                        "virtualenv"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "hatch",
+                    "package_or_url": "hatch",
+                    "package_version": "1.6.3",
                     "pip_args": [],
                     "suffix": ""
                 },
@@ -855,6 +1040,116 @@
         "jupyter-core": {
             "metadata": {
                 "injected_packages": {
+                    "jupyter-server": {
+                        "app_paths": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-server",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "app_paths_of_dependencies": {
+                            "jsonschema": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jsonschema",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "jupyter-client": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-kernel",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-kernelspec",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-run",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "jupyter-core": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-migrate",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-troubleshoot",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "nbclient": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-execute",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "nbconvert": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-dejavu",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-nbconvert",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "nbformat": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-trust",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "pygments": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/pygmentize",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "send2trash": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/send2trash",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "websocket-client": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/wsdump",
+                                    "__type__": "Path"
+                                }
+                            ]
+                        },
+                        "apps": [
+                            "jupyter-server"
+                        ],
+                        "apps_of_dependencies": [
+                            "jupyter-kernel",
+                            "jupyter-kernelspec",
+                            "jupyter-run",
+                            "jupyter",
+                            "jupyter-migrate",
+                            "jupyter-troubleshoot",
+                            "jupyter-dejavu",
+                            "jupyter-nbconvert",
+                            "jupyter-execute",
+                            "jupyter-trust",
+                            "jsonschema",
+                            "pygmentize",
+                            "send2trash",
+                            "wsdump"
+                        ],
+                        "include_apps": false,
+                        "include_dependencies": false,
+                        "package": "jupyter-server",
+                        "package_or_url": "jupyter-server",
+                        "package_version": "1.21.0",
+                        "pip_args": [],
+                        "suffix": ""
+                    },
                     "jupytext": {
                         "app_paths": [
                             {
@@ -912,6 +1207,249 @@
                         "package": "jupytext",
                         "package_or_url": "jupytext",
                         "package_version": "1.14.1",
+                        "pip_args": [],
+                        "suffix": ""
+                    },
+                    "nbclassic": {
+                        "app_paths": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-nbclassic",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-nbclassic-bundlerextension",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-nbclassic-extension",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-nbclassic-serverextension",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "app_paths_of_dependencies": {
+                            "ipython": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/ipython",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/ipython3",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "jsonschema": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jsonschema",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "jupyter-client": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-kernel",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-kernelspec",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-run",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "jupyter-core": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-migrate",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-troubleshoot",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "jupyter-server": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-server",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "nbclient": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-execute",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "nbconvert": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-dejavu",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-nbconvert",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "nbformat": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-trust",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "pygments": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/pygmentize",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "send2trash": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/send2trash",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "websocket-client": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/wsdump",
+                                    "__type__": "Path"
+                                }
+                            ]
+                        },
+                        "apps": [
+                            "jupyter-nbclassic",
+                            "jupyter-nbclassic-bundlerextension",
+                            "jupyter-nbclassic-extension",
+                            "jupyter-nbclassic-serverextension"
+                        ],
+                        "apps_of_dependencies": [
+                            "jupyter",
+                            "jupyter-migrate",
+                            "jupyter-troubleshoot",
+                            "jupyter-kernel",
+                            "jupyter-kernelspec",
+                            "jupyter-run",
+                            "jupyter-server",
+                            "jupyter-dejavu",
+                            "jupyter-nbconvert",
+                            "jupyter-execute",
+                            "jupyter-trust",
+                            "jsonschema",
+                            "pygmentize",
+                            "send2trash",
+                            "wsdump",
+                            "ipython",
+                            "ipython3"
+                        ],
+                        "include_apps": false,
+                        "include_dependencies": false,
+                        "package": "nbclassic",
+                        "package_or_url": "nbclassic",
+                        "package_version": "0.4.8",
+                        "pip_args": [],
+                        "suffix": ""
+                    },
+                    "nbformat": {
+                        "app_paths": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-trust",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "app_paths_of_dependencies": {
+                            "jsonschema": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jsonschema",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "jupyter-core": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-migrate",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-troubleshoot",
+                                    "__type__": "Path"
+                                }
+                            ]
+                        },
+                        "apps": [
+                            "jupyter-trust"
+                        ],
+                        "apps_of_dependencies": [
+                            "jsonschema",
+                            "jupyter",
+                            "jupyter-migrate",
+                            "jupyter-troubleshoot"
+                        ],
+                        "include_apps": false,
+                        "include_dependencies": false,
+                        "package": "nbformat",
+                        "package_or_url": "nbformat",
+                        "package_version": "5.5.0",
+                        "pip_args": [],
+                        "suffix": ""
+                    },
+                    "nbtag": {
+                        "app_paths": [],
+                        "app_paths_of_dependencies": {
+                            "jsonschema": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jsonschema",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "jupyter-core": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-migrate",
+                                    "__type__": "Path"
+                                },
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-troubleshoot",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "nbformat": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/jupyter-trust",
+                                    "__type__": "Path"
+                                }
+                            ],
+                            "pygments": [
+                                {
+                                    "__Path__": "/home/venky/.local/pipx/venvs/jupyter-core/bin/pygmentize",
+                                    "__type__": "Path"
+                                }
+                            ]
+                        },
+                        "apps": [],
+                        "apps_of_dependencies": [
+                            "jupyter-trust",
+                            "jsonschema",
+                            "jupyter",
+                            "jupyter-migrate",
+                            "jupyter-troubleshoot",
+                            "pygmentize"
+                        ],
+                        "include_apps": false,
+                        "include_dependencies": false,
+                        "package": "nbtag",
+                        "package_or_url": "/home/venky/dev/nbtag/dist/nbtag-0.0.1-py3-none-any.whl",
+                        "package_version": "0.0.1",
                         "pip_args": [],
                         "suffix": ""
                     },
@@ -1072,7 +1610,68 @@
                     "include_dependencies": false,
                     "package": "jupyter-core",
                     "package_or_url": "jupyter-core",
-                    "package_version": "4.11.1",
+                    "package_version": "4.11.2",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.12",
+                "venv_args": []
+            }
+        },
+        "nbstripout": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/nbstripout/bin/nbstripout",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {
+                        "jsonschema": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/nbstripout/bin/jsonschema",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "jupyter-core": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/nbstripout/bin/jupyter",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/nbstripout/bin/jupyter-migrate",
+                                "__type__": "Path"
+                            },
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/nbstripout/bin/jupyter-troubleshoot",
+                                "__type__": "Path"
+                            }
+                        ],
+                        "nbformat": [
+                            {
+                                "__Path__": "/home/venky/.local/pipx/venvs/nbstripout/bin/jupyter-trust",
+                                "__type__": "Path"
+                            }
+                        ]
+                    },
+                    "apps": [
+                        "nbstripout"
+                    ],
+                    "apps_of_dependencies": [
+                        "jupyter-trust",
+                        "jsonschema",
+                        "jupyter",
+                        "jupyter-migrate",
+                        "jupyter-troubleshoot"
+                    ],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "nbstripout",
+                    "package_or_url": "nbstripout",
+                    "package_version": "0.6.1",
                     "pip_args": [],
                     "suffix": ""
                 },
@@ -1216,6 +1815,34 @@
                     "package": "papermill",
                     "package_or_url": "papermill",
                     "package_version": "2.4.0",
+                    "pip_args": [],
+                    "suffix": ""
+                },
+                "pipx_metadata_version": "0.2",
+                "python_version": "Python 3.9.12",
+                "venv_args": []
+            }
+        },
+        "pipdeptree": {
+            "metadata": {
+                "injected_packages": {},
+                "main_package": {
+                    "app_paths": [
+                        {
+                            "__Path__": "/home/venky/.local/pipx/venvs/pipdeptree/bin/pipdeptree",
+                            "__type__": "Path"
+                        }
+                    ],
+                    "app_paths_of_dependencies": {},
+                    "apps": [
+                        "pipdeptree"
+                    ],
+                    "apps_of_dependencies": [],
+                    "include_apps": true,
+                    "include_dependencies": false,
+                    "package": "pipdeptree",
+                    "package_or_url": "pipdeptree",
+                    "package_version": "2.3.3",
                     "pip_args": [],
                     "suffix": ""
                 },
@@ -1441,7 +2068,7 @@
                     "include_dependencies": false,
                     "package": "pyflyby",
                     "package_or_url": "pyflyby",
-                    "package_version": "1.7.8",
+                    "package_version": "1.8.0",
                     "pip_args": [],
                     "suffix": ""
                 },
@@ -1548,7 +2175,7 @@
                     "include_dependencies": false,
                     "package": "tox",
                     "package_or_url": "tox",
-                    "package_version": "3.26.0",
+                    "package_version": "3.27.0",
                     "pip_args": [],
                     "suffix": ""
                 },

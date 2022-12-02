@@ -10,8 +10,6 @@ tap "mutagen-io/mutagen"
 tap "saulpw/vd"
 tap "screenplaydev/tap"
 tap "thecasualcoder/stable"
-# Provides session management: i.e. separate programs from terminals
-brew "abduco"
 # Extendable version manager with support for Ruby, Node.js, Erlang & more
 brew "asdf"
 # Generate compilation database for clang tooling
@@ -20,8 +18,12 @@ brew "bear"
 brew "cmake"
 # JSON, YAML, TOML, XML, and CSV query and modification tool
 brew "dasel"
+# Diff that understands syntax
+brew "difftastic"
 # Load/unload environment variables based on $PWD
 brew "direnv"
+# More intuitive version of du in rust
+brew "dust"
 # Maintain consistent coding style between multiple editors
 brew "editorconfig"
 # Modern replacement for 'ls'
@@ -30,12 +32,16 @@ brew "exa"
 brew "fd"
 # Command-line fuzzy finder written in Go
 brew "fzf"
+# GNU Compiler Collection
+brew "gcc@5"
 # GitHub command-line tool
 brew "gh"
 # GIF image/animation creator/editor
 brew "gifsicle"
 # Syntax-highlighting pager for git and diff output
 brew "git-delta"
+# Blazing fast terminal-ui for git written in rust
+brew "gitui"
 # Go implementation of configuration language for defining JSON data
 brew "go-jsonnet"
 # Generate introspection data for GObject libraries
@@ -88,6 +94,8 @@ brew "shellcheck"
 brew "shfmt"
 # Cross-shell prompt for astronauts
 brew "starship"
+# Very fast implementation of tldr in Rust
+brew "tealdeer"
 # CLI csv pretty printer
 brew "tidy-viewer"
 # Text interface for Git repositories
@@ -104,6 +112,8 @@ brew "xsv"
 brew "yadm"
 # Shell extension to navigate your filesystem faster
 brew "zoxide"
+# Provides session management: i.e. separate programs from terminals
+brew "indigoviolet/tap/abduco", args: ["HEAD"]
 # simple drag-and-drop source/sink for X or Wayland
 brew "indigoviolet/tap/dragon", args: ["HEAD"]
 # Utilities for tabular data files
