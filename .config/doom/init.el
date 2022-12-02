@@ -1,5 +1,3 @@
-;; init.el
-
 ;; [[file:config.org::*init.el][init.el:1]]
 ;;; init.el -*- lexical-binding: t; -*-
 
@@ -22,8 +20,6 @@
 ;; https://github.com/hlissner/doom-emacs/issues/5682
 (defvar comp-deferred-compilation-deny-list nil)
 ;; init.el:1 ends here
-
-;; Active
 
 ;; [[file:config.org::*Active][Active:1]]
 (doom! :input
@@ -228,7 +224,7 @@
           (when (if ll (pop ll) "1"))
           (docstring (if ll (pop ll) nil)))
       (list obsolete-name current-name when docstring)))
-  (require 'benchmark-init-modes)
+  ;; (require 'benchmark-init-modes)
   (require 'benchmark-init)
   (add-hook 'doom-first-input-hook #'benchmark-init/deactivate))
 ;; startup:2 ends here

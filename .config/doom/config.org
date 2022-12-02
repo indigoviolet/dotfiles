@@ -42,6 +42,9 @@ https://github.com/hlissner/doom-emacs/issues/310#issuecomment-354424413
 
 which keys? (ctrl is taken, caps is not reachable,)
 how to define on ubuntu?
+** prog-mode org-mode
+
+are not the only modes we want things in; several other conf, yaml etc modes are "proggy", they inherit from text-mode or other things. Look at mode-minder. How to include these uniformly everywhere?
 
 ** [[*combobulate][combobulate]]
 
@@ -686,9 +689,13 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
 (setq message-truncate-lines t)
 
 
+;; https://www.masteringemacs.org/article/demystifying-emacs-window-manager
+(setq switch-to-buffer-obey-display-actions t)
+
 (global-git-gutter-mode t)
-
-
+(tab-bar-mode t)
+(tab-bar-history-mode t)
+(tab-line-mode t)
 
 (repeat-mode 1)
 
@@ -705,7 +712,7 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
 #+begin_src emacs-lisp
 ;; (global-whitespace-mode +1)
 (setq! whitespace-style '(face tabs tab-mark trailing))
-(add-hook! '(prog-mode-hook org-mode-hook) (whitespace-mode t))
+(add-hook! (prog-mode org-mode text-mode) (whitespace-mode t))
 #+end_src
 
 
@@ -871,9 +878,9 @@ https://dzone.com/articles/rare-letter-combinations-and
 #+end_src
 
 #+begin_src emacs-lisp
-;; distributed with use-package
-(use-package! use-package-chords
-  :after key-chord)
+;; distributed with use-package? TODO errors -- use key-chord-define-global directly
+;; (use-package! use-package-chords)
+
 (use-package! key-chord
   :after-call doom-first-input-hook
   :custom
@@ -1188,8 +1195,8 @@ Hence we turn off solaire-mode in vterm by calling vterm buffers "real"
   (pulsar-highlight-face 'pulsar-yellow)
   :config
   (pulsar-global-mode 1)
-  :hook ((consult-after-jump-hook . pulsar-recenter-top)
-          (consult-after-jump-hook . pulsar-reveal-entry)
+  :hook ((consult-after-jump . pulsar-recenter-top)
+          (consult-after-jump . pulsar-reveal-entry)
           )
   :bind (
           ("C-x l" . pulsar-highlight-dwim)
@@ -1243,15 +1250,17 @@ show-smartparens mode is slower than show-paren mode
 
 #+begin_src emacs-lisp
 (use-package! wrap-region
-    :after-call doom-first-input-hook
-    :config
-    (wrap-region-add-wrapper "~" "~" nil '(org-mode))
-    :hook ((prog-mode . wrap-region-mode)
-              (org-mode . wrap-region-mode))
-    )
+  :after-call doom-first-input-hook
+  :config
+  (wrap-region-add-wrapper "~" "~" nil '(org-mode))
+  (wrap-region-add-wrapper "'" "'" nil '(prog-mode))
+  (wrap-region-add-wrapper "\"" "\"" nil '(prog-mode))
+  :hook ((prog-mode . wrap-region-mode)
+          (org-mode . wrap-region-mode))
+  )
 #+end_src
 
-* Environment
+* COMMENT environment
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! exec-path-from-shell)
@@ -1409,7 +1418,7 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
 
   (doom-modeline-def-segment purpose
     ;; Purpose-mode segment
-    (when (and purpose-mode (doom-modeline--active) (not doom-modeline--limited-width-p))
+    (when (and (boundp 'purpose-mode) purpose-mode (doom-modeline--active) (not doom-modeline--limited-width-p))
       (format (if (purpose-window-purpose-dedicated-p) "[%s]*" "[%s]") (purpose-window-purpose))))
 
 
@@ -1432,6 +1441,13 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
   )
 #+end_src
 
+** uniquify
+
+
+#+begin_src emacs-lisp
+(setq uniquify-buffer-name-style 'post-forward)
+(setq uniquify-strip-common-prefix t)
+#+end_src
 ** minor modes
 #+begin_src emacs-lisp :tangle packages.el
 (package! minions)
@@ -1578,10 +1594,10 @@ https://orgmode.org/org.html#Conflicts
      (minibuffer-keyboard-quit)))
 
 
-;; (map! "M-k" #'consult-buffer)
+(map! "M-k" #'consult-buffer)
 ;; (map! "M-k" #'purpose-switch-buffer-with-purpose)
-(map! "M-k" #'vi/persp-consult-buffer)
-(map! :map minibuffer-local-map "M-k" (cmd! (minibuffer-quit-and-run (consult-buffer))))
+;; (map! "M-k" #'vi/persp-consult-buffer)
+;; (map! :map minibuffer-local-map "M-k" (cmd! (minibuffer-quit-and-run (consult-buffer))))
 #+end_src
 
 ** Restore
@@ -1675,12 +1691,10 @@ Bufler groups:
 
 #+begin_src emacs-lisp
 (use-package! bufler
-    :commands (bufler bufler-switch-buffer)
+    :after-call doom-first-buffer-hook
     :custom
     (bufler-vc-state nil)
-    (bufler-workspace-mode nil)
     (bufler-columns '("Name" "VC" "Path" "Mode"))
-
     (bufler-filter-name-regexps '("\\*Compile-Log\\*"
                                      "\\*Disabled Command\\*"
                                      ;; "\\*Org [^z-a]+Output\\*"
@@ -1756,83 +1770,19 @@ Bufler groups:
             (auto-mode)
             )
         )
-    :config
-    ;;(bufler-mode)
-    :bind
-    ("C-x C-b" . bufler))
+  :config
+  (bufler-workspace-tabs-mode)
+
+  ;; Note: tab-bar doesn't always update immediately
+  (add-hook! '(doom-switch-buffer-hook doom-switch-window-hook consult-after-jump-hook)
+    (defun vi/bufler-workspace-focus-buffer ()
+      (when (not (eq major-mode #'minibuffer-mode))
+        ;; (message (format "Focusing %s %s" (current-buffer) (bufler-workspace-focus-buffer (current-buffer))))))
+        (bufler-workspace-focus-buffer (current-buffer))))
+    )
+  :bind
+  ("C-x C-b" . bufler))
 #+end_src
-
-
-*** COMMENT test
-
-
-#+begin_example
-        (bufler-defgroups
-            ;; (group
-            ;;     ;; Subgroup collecting all named workspaces.
-            ;;     (auto-workspace))
-            (group
-                ;; Group all Ein buffers
-                (name-match "*Ein*" (rx bos "*ein")))
-            (group
-                ;; Subgroup collecting all `help-mode' and `info-mode' buffers.
-                (group-or "*Help/Info*"
-                    (mode-match "*Help*" (rx bos "help-"))
-                    (mode-match "*Info*" (rx bos "info-"))))
-            (hidden)
-            (group
-                ;; Subgroup collecting all special buffers (i.e. ones that are not
-                ;; file-backed), except `magit-status-mode' buffers (which are allowed to fall
-                ;; through to other groups, so they end up grouped with their project buffers).
-                (group-and "*Special*"
-                    (lambda (buffer)
-                        (unless (or (funcall (mode-match "Magit" (rx bos "magit-status")) buffer)
-                                    (funcall (mode-match "Dired" (rx bos "dired")) buffer)
-                                    (funcall (auto-file) buffer))
-                            "*Special*"))
-                    )
-                (group
-                    ;; Subgroup collecting these "special special" buffers
-                    ;; separately for convenience.
-                    (name-match "**Special**"
-                        (rx bos "*" (or "Messages" "Warnings" "scratch" "Backtrace") "*")))
-                (group
-                    ;; Subgroup collecting all other Magit buffers, grouped by directory.
-                    (mode-match "*Magit* (non-status)" (rx bos (or "magit" "forge") "-"))
-                    ;; (auto-directory)
-                    )
-                ;; Subgroup for Helm buffers.
-                ;; (mode-match "*Helm*" (rx bos "helm-"))
-                ;; Remaining special buffers are grouped automatically by mode.
-                (auto-mode))
-            ;; All buffers under "~/.emacs.d" (or wherever it is).
-            (dir user-emacs-directory)
-            (group
-                ;; Subgroup collecting buffers in `org-directory'
-                (dir org-directory)
-                (group
-                    ;; Subgroup collecting indirect Org buffers, grouping them by file.
-                    ;; This is very useful when used with `org-tree-to-indirect-buffer'.
-                    (auto-indirect)
-                    (auto-file)
-                    )
-                ;; Group remaining buffers by whether they're file backed, then by mode.
-                (group-not "*special*" (auto-file))
-                (auto-mode)
-                )
-            (group
-                ;; Subgroup collecting buffers in a projectile project.
-                (auto-projectile))
-            ;; auto-project will cause issues with tramp buffers (https://github.com/alphapapa/bufler.el/issues/63)
-            ;; (group
-            ;;  ;; Subgroup collecting buffers in a version-control project,
-            ;;  ;; grouping them by directory.
-            ;;  (auto-project))
-            ;; Group remaining buffers by directory, then major mode.
-            (auto-directory)
-            (auto-mode)
-            )
-#+end_example
 
 ** Popups
 
@@ -1878,7 +1828,7 @@ https://github.com/karthink/popper/issues/38
                ;; Return nil so the rest of the hooks do run
                (progn (popper-close-latest) nil))))
 #+end_src
-** purpose
+** COMMENT purpose
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! window-purpose)
@@ -1940,7 +1890,7 @@ https://github.com/karthink/popper/issues/38
 
 #+end_src
 
-** persp customizations
+** COMMENT persp customizations
 
 persp-mode is built in with doom but let's specify it anyway
 
@@ -2242,6 +2192,7 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
    ;; extract dotted pair from display info
    (apply #'cons (-take-last 2 (nth 1 dispwatch-current-display))))
   )
+(add-hook! 'doom-first-buffer-hook #'vi/trigger-dispwatch)
 
 (use-package! dispwatch
   :after-call doom-first-buffer-hook
@@ -2407,20 +2358,31 @@ https://github.com/NicholasBHubbard/clean-kill-ring.el
  so we define a non-global vi/undo-fu-mode and turn it on selectively.
 
 #+begin_src emacs-lisp
+(map! "C--" #'undo "M--" #'redo "C-/" #'undo)
+(map! :map undo-fu-mode-map "C-/" nil)
+
 ;; copied from doom's undo/config.el
 (use-package! undo-fu
+  :custom
+  (setq! undo-limit 80000000)
   :unless (featurep! +tree)
   :config
   (define-minor-mode vi/undo-fu-mode
     "Enables `undo-fu' for the current session."
     :keymap (let ((map (make-sparse-keymap)))
-              (define-key map [remap undo] #'undo-fu-only-undo)
-              (define-key map [remap redo] #'undo-fu-only-redo)
-              (define-key map (kbd "C-_")     #'undo-fu-only-undo)
-              (define-key map (kbd "M-_")     #'undo-fu-only-redo)
-              (define-key map (kbd "C-M-_")   #'undo-fu-only-redo-all)
+              ;; (define-key map [remap undo] #'undo-fu-only-undo)
+              ;; (define-key map [remap redo] #'undo-fu-only-redo)
+              ;; (define-key map (kbd "C-_")     #'undo-fu-only-undo)
+              ;; (define-key map (kbd "M-_")     #'undo-fu-only-redo)
+              ;; (define-key map (kbd "C-M-_")   #'undo-fu-only-redo-all)
               (define-key map (kbd "C-x r u") #'undo-fu-session-save)
               (define-key map (kbd "C-x r U") #'undo-fu-session-recover)
+
+              ;; Diff from undo-fu-mode
+              (define-key map (kbd "C--")     #'undo-fu-only-undo)
+              (define-key map (kbd "M--")     #'undo-fu-only-redo)
+              (define-key map (kbd "C-M--")   #'undo-fu-only-redo-all)
+
               map)
     :predicate t
     :init-value nil
@@ -2430,18 +2392,10 @@ https://github.com/NicholasBHubbard/clean-kill-ring.el
 ;; We don't want this because it turns on in ein and ein disables undo if it is
 ;; bound to anything but the simple emacs undo, it is global
 (remove-hook! 'doom-first-buffer-hook #'undo-fu-mode)
-(add-hook! (prog-mode org-mode) #'vi/undo-fu-mode)
+(add-hook! (prog-mode org-mode text-mode) #'vi/undo-fu-mode)
 (add-hook! vi/undo-fu-mode #'global-undo-fu-session-mode)
 #+end_src
 
-#+begin_src emacs-lisp
-(after! undo-fu
-  (map! "C--" #'undo-fu-only-undo)
-  (map! "M--" #'undo-fu-only-redo)
-  (map! "C-M--" #'undo-fu-only-redo-all)
-  (setq! undo-limit 80000000)
-  )
-#+end_src
 
 ** COMMENT undo-hl
 seems to make things slow?
@@ -2830,11 +2784,17 @@ https://github.com/radian-software/ctrlf#customization
 #+end_src
 
 *** vicb
+
+https://github.com/doomemacs/doomemacs/issues/1213
+
+ We put this file directly in .config/doom/lisp (.doom.d) so that we can edit locally, and added to yadm
+
 #+begin_src emacs-lisp :tangle packages.el
-(package! vi-consult-buffers :recipe (:host github :repo "indigoviolet/vi-consult-buffers"))
+;; (package! vi-consult-buffers :recipe (:host github :repo "indigoviolet/vi-consult-buffers"))
 #+end_src
 
 #+begin_src emacs-lisp
+(load! "lisp/vicb.el")
 (use-package! vicb
   :config
   (vicb-setup)
@@ -2949,8 +2909,7 @@ https://github.com/minad/vertico#completion-styles-and-tab-completion
           "M-j" #'vertico-quick-jump)
   )
 #+end_src
-** avy
-
+** COMMENT avy
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! avy)
@@ -3132,6 +3091,8 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
 
 #+begin_src emacs-lisp
 (use-package! company-tabnine
+  :custom
+  (company-tabnine-no-continue t)
   :after-call doom-first-input-hook
   :commands (company-tabnine))
   ;; :config
@@ -3275,7 +3236,8 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
     ("T" dired-sidebar-jump-to-sidebar "Goto Tree")
     ("t" dired-sidebar-toggle-sidebar "Toggle tree")
     ;; ("w" +workspace/cycle "next workspace")
-    ("w" persp-switch "next workspace")
+    ;; ("w" persp-switch "next workspace")
+     ;; ("w" tab-bar-switch-to-next-tab "next tab")
     ;; ("t" treemacs-select-window "treemacs")
     ;; ("T" +treemacs/toggle "Toggle treemacs")
     ("`" popper-toggle-latest "Latest Popup")
@@ -3923,6 +3885,22 @@ checkboxes are tiny, and they can be fixed by adjusting faces but this just does
   :hook (org-mode . global-org-modern-mode))
 
 #+end_src
+*** Export
+
+**** No htmlentities in quotes
+#+begin_src emacs-lisp
+(after! org
+  (setq org-export-with-smart-quotes nil)
+  )
+#+end_src
+**** Github flavored Markdown
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! ox-gfm)
+#+end_src
+
+
 
 * emacs-jupyter
 ** fontification
@@ -3966,14 +3944,17 @@ doesn't work
   :init
   (setq ein:polymode t)
   (setq ein:notebooklist-render-order '(render-opened-notebooks render-directory render-header))
-  (setq ein:truncate-long-cell-output 10000)
-  (setq ein:cell-max-num-outputs 10000)
+  (setq ein:truncate-long-cell-output 500)
+  (setq ein:cell-max-num-outputs 500)
+  (setq ein:worksheet-enable-undo t)
   (setq ein:markdown-header-scaling nil)    ;this leads to variable pitch faces for
                                         ;markdown headers, which doesn't work so
                                         ;well with fontlocking (and outline-minor-faces-mode)
   (setq ein:output-area-inlined-images t)
   (setq ein:url-or-port '("http://localhost:8888"))
-  (setq ein:jupyter-default-server-command "~/.local/bin/jupyter")
+  (setq ein:jupyter-server-command "~/.local/bin/jupyter")
+  ;; https://stackoverflow.com/a/67804732/14044156
+  (setq ein:jupyter-server-use-subcommand "server")
   (setq ein:jupyter-server-args '("--no-browser" "--port=8889"))
   ;; https://github.com/millejoh/emacs-ipython-notebook/issues/423#issuecomment-458254069
   (setq ein:query-timeout nil)
@@ -4024,6 +4005,7 @@ doesn't work
     (aif (ein:get-notebook)
         (let ((nurl (ein:$notebook-url-or-port it))
               (npath (ein:$notebook-notebook-path it)))
+          (setq! ein:worksheet-enable-undo t)
           (ein:notebook-close it)
           ;; Reopen, but put it in the same window we were in
           (ein:notebook-open nurl npath nil
@@ -4048,7 +4030,8 @@ doesn't work
     (("r" ein:notebook-reconnect-session-command "Reconnect")
      ("R" ein:notebook-restart-session-command "Restart")
      ("z" ein:notebook-kernel-interrupt-command "interrupt")
-     ("v" vi/revert-notebook "Revert"))
+     ("v" vi/revert-notebook "Revert")
+     ("K" ein:notebook-switch-kernel "Switch Kernel"))
     "Exec"
     (
      ("x" ein:worksheet-execute-all-cells-above "Execute all above")
@@ -4280,6 +4263,18 @@ and hardcode that as vterm-min-window-width
 
 
 
+** COMMENT vterm-extra
+
+breaks with tramp?
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! vterm-extra :recipe (:host github :repo "Sbozzolo/vterm-extra"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(map! :map vterm-mode-map "C-c C-e" #'vterm-extra-edit-command-in-new-buffer)
+#+end_src
 
 * Flycheck
 
@@ -4396,6 +4391,7 @@ Results are reported in a compilation buffer."
 (after! magit
   ;; Set magit log date formats
   (setq magit-log-margin '(t "%Y-%m-%d %H:%M " magit-log-margin-width t 18))
+  (setq magit-diff-refine-hunk (quote all))
 
   ;; Add ignored files section to magit status
   ;; This makes yadm-status very slow: https://github.com/magit/magit/discussions/4750
@@ -5047,6 +5043,12 @@ dockfmt does a bad job: rips out comments, uses tabs.
       (setq-local +format-with :none))
     )
   )
+
+(require 'cl-lib)
+(advice-add 'sh-set-shell :around
+            (lambda (orig-fun &rest args)
+              (cl-letf (((symbol-function 'message) #'ignore))
+                (apply orig-fun args))))
 #+end_src
 
 
@@ -5085,6 +5087,18 @@ dockfmt does a bad job: rips out comments, uses tabs.
 
 - [ ] todo: add hydra
 - See dired-subtree [https://github.com/Fuco1/dired-hacks#dired-subtree] and dired-sidebar [https://github.com/jojojames/dired-sidebar]
+
+
+*** subtree
+
+
+#+begin_src emacs-lisp
+(after! dired
+  (map! :map dired-mode-map
+    "<tab>" #'dired-subtree-toggle
+    "<backtab>" #'dired-subtree-cycle)
+)
+#+end_src
 
 *** sidebar
 
@@ -5369,6 +5383,7 @@ So we could:
 (package! git-modes)
 (package! ssh-config-mode)
 (package! jsonnet-mode)
+(package! sparql-mode)
 #+end_src
 
 ** jsonnet
@@ -5448,8 +5463,8 @@ Version 2016-01-08"
 
 
 #+begin_src emacs-lisp
-(use-package! commify
-  :chords (",," . commify-toggle))
+(use-package! commify)
+  ;; :chords (",," . commify-toggle))
 #+end_src
 
 
@@ -5710,7 +5725,7 @@ doom-debug-p renamed to init-file-debug (https://github.com/doomemacs/doomemacs/
           (when (if ll (pop ll) "1"))
           (docstring (if ll (pop ll) nil)))
       (list obsolete-name current-name when docstring)))
-  (require 'benchmark-init-modes)
+  ;; (require 'benchmark-init-modes)
   (require 'benchmark-init)
   (add-hook 'doom-first-input-hook #'benchmark-init/deactivate))
 #+end_src
