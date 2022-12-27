@@ -16,7 +16,11 @@ Transient settings are in [[file:~/.emacs.d/.local/etc/transient/values][file:~/
 
 * Notes
 
-**  about writing doom config
+** authinfo
+
+https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sources
+
+** about writing doom config
 
 - See [[https://github.com/hlissner/doom-emacs/blob/develop/modules/lang/emacs-lisp/demos.org ][api demos]] for how to use ~use-package!~, ~map!~, ~after!~, ~set-hook!~ etc.
 
@@ -364,7 +368,7 @@ We start by simply defining the standard headers used by the three files. These 
 ;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
 ;; font string. You generally only need these two:
 ;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
-;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
+;;   doom-variable-pitch-font (font-spec :family "sans" :size 13))
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
@@ -441,7 +445,7 @@ here as-is for now, as it is quite well structured and clear.
        (emoji +unicode)  ; 🙂
        hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
        hydra
-       ;; indent-guides     ; highlighted indent columns
+       indent-guides     ; highlighted indent columns
        ;;ligatures         ; ligatures and symbols to make your code pretty again
        ;;minimap           ; show a map of the code on the side
 
@@ -697,7 +701,11 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
 (tab-bar-history-mode t)
 (tab-line-mode t)
 
-(repeat-mode 1)
+;; (repeat-mode 1)
+
+(require 'server)
+(unless (server-running-p)
+  (server-start))
 
 ;; https://pragmaticemacs.wordpress.com/2016/11/07/add-the-system-clipboard-to-the-emacs-kill-ring/
 ;; Save whatever’s in the current (system) clipboard before
@@ -1090,7 +1098,6 @@ https://dzone.com/articles/rare-letter-combinations-and
   :hook
   (prog-mode . rainbow-identifiers-mode)
   )
-
 #+end_src
 
 ** ansi colors
@@ -1173,8 +1180,6 @@ Hence we turn off solaire-mode in vterm by calling vterm buffers "real"
 ;;   ;; (advice-add command :after #'pulse-line)
 ;;   (advice-add command :after #'+nav-flash-delayed-blink-cursor-h)
 ;;   )
-
-
 #+end_src
 
 *** pulsar
@@ -1270,8 +1275,8 @@ show-smartparens mode is slower than show-paren mode
 #+begin_src emacs-lisp
 (use-package! gcmh
     :custom
-    (gcmh-verbose t)
-    (gcmh-idle-delay 30)                ;;'auto)
+    (gcmh-verbose nil)
+    (gcmh-idle-delay 1)                ;;'auto)
     (gcmh-high-cons-threshold 1000000000)
   )
 #+end_src
@@ -1343,8 +1348,6 @@ message listing the hooks."
          (advice-add ,func ,where ,adfunc '((name . "vi/with-advice")))
          ,body)
      (advice-remove ,func "vi/with-advice")))
-
-
 #+end_src
 
 * Find file - mark readonly
@@ -1380,8 +1383,6 @@ Notes:
   (add-hook! 'hardhat-mode-hook (puthash major-mode nil hardhat-computed-regexps))
   (global-hardhat-mode 1)
   )
-
-
 #+end_src
 * Auto saving and backups
 
@@ -1411,6 +1412,7 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
 (setq doom-emoji-fallback-font-families nil)
 (after! doom-modeline
   (setq mode-line-default-help-echo nil
+    doom-modeline-checker-simple-format nil
     show-help-function nil
     ;; doom-modeline-icon nil
     ;; doom-modeline-major-mode-color-icon nil
@@ -1430,11 +1432,11 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
   ;; doom-modeline. other names don't seem to take effect as default..
   (doom-modeline-def-modeline 'main
     '(bar buffer-info-simple selection-info remote-host checker)
-    '(debug repl process lsp purpose persp-name minor-modes major-mode vcs))
+    '(debug repl process lsp persp-name minor-modes major-mode vcs))
 
   (doom-modeline-def-modeline 'org-src
     '(bar buffer-info-simple selection-info checker)
-    '(debug lsp purpose persp-name minor-modes major-mode))
+    '(debug lsp persp-name minor-modes major-mode))
 
   ;; don't think we need this, since we modified 'main
   ;;(add-hook! '(prog-mode-hook org-mode-hook) (doom-modeline-set-modeline 'main))
@@ -1501,7 +1503,6 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
   (let ((table (ht-create)))
     (--each (window-list-1) (vi/dedup-window-op it table))
     ))
-
 #+end_src
 
 ** Movement
@@ -1564,7 +1565,6 @@ https://orgmode.org/org.html#Conflicts
 ;; control splitting to prefer vertical? (see split-window-sensibly)
 (setq split-height-threshold 80)
 (setq split-width-threshold 30)
-
 #+end_src
 
 *** Keep windows balanced
@@ -1595,6 +1595,19 @@ https://orgmode.org/org.html#Conflicts
 
 
 (map! "M-k" #'consult-buffer)
+(map! :g
+  "M-<right>" #'next-buffer
+  "M-<left>" #'previous-buffer
+  )
+
+(map! :map org-mode-map
+  "M-<right>" nil
+  "M-<left>" nil
+)
+
+(setq! switch-to-prev-buffer-skip
+  (lambda (win buf bury) (doom-special-buffer-p buf)))
+
 ;; (map! "M-k" #'purpose-switch-buffer-with-purpose)
 ;; (map! "M-k" #'vi/persp-consult-buffer)
 ;; (map! :map minibuffer-local-map "M-k" (cmd! (minibuffer-quit-and-run (consult-buffer))))
@@ -1887,7 +1900,6 @@ https://github.com/karthink/popper/issues/38
 (after! (embark window-purpose)
   (map! :map embark-become-file+buffer-map "B" #'purpose-switch-buffer-overload)
   )
-
 #+end_src
 
 ** COMMENT persp customizations
@@ -1905,7 +1917,6 @@ We don't need auto-persps for projectile; we can create those via doom easily
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! persp-mode-projectile-bridge :recipe (:host github :repo "Bad-ptr/persp-mode-projectile-bridge.el"))
-
 #+end_src
 
 #+begin_src emacs-lisp
@@ -2172,18 +2183,19 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
 
 ;; see (dispwatch--get-display)
 ;; Can be run manually like (vi/adjust-font-size-for-display '(3440 . 1440))
+;; See https://github.com/doomemacs/doomemacs/issues/6131#issuecomment-1051576882
 (defun vi/adjust-font-size-for-display (disp)
   (message "rejiggering for %s" disp)
   (cond ((equal disp '(3440 . 1440))   ; LG monitor
-         (vi/set-font-size 13))
+         (vi/set-font-size 13.0))
         ((equal disp '(3000 . 2000))    ; laptop @ 100%, 200%
-         (vi/set-font-size 13))
+         (vi/set-font-size 13.0))
         ((equal disp '(4800 . 3200))    ; laptop @ 125%
-         (vi/set-font-size 17))
+         (vi/set-font-size 17.0))
         ((equal disp '(4002 . 2668))    ; laptop @ 150%
-         (vi/set-font-size 19))
+         (vi/set-font-size 19.0))
         ((equal disp '(3426 . 2284))    ; laptop @ 175%
-         (vi/set-font-size 13))
+         (vi/set-font-size 13.0))
         (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
 
 (defun vi/trigger-dispwatch ()
@@ -2347,15 +2359,15 @@ https://github.com/NicholasBHubbard/clean-kill-ring.el
 
 * Undo
 
- ein disables undo if C-/ is bound to anything but basic undo
- https://github.com/millejoh/emacs-ipython-notebook/issues/841#issuecomment-1129176534
+ein disables undo if C-/ is bound to anything but basic undo
+https://github.com/millejoh/emacs-ipython-notebook/issues/841#issuecomment-1129176534
 
- doom-emacs defines a global undo-fu-mode (minor-mode) which is activated on
- doom-first-buffer. This means that it is turned on in the ein notebook buffers,
- but it's not enough to turn it off via ein:notebook-mode-hook -- that's too
- late, ein has already disabled undo.
+doom-emacs defines a global undo-fu-mode (minor-mode) which is activated on
+doom-first-buffer. This means that it is turned on in the ein notebook buffers,
+but it's not enough to turn it off via ein:notebook-mode-hook -- that's too
+late, ein has already disabled undo.
 
- so we define a non-global vi/undo-fu-mode and turn it on selectively.
+so we define a non-global vi/undo-fu-mode and turn it on selectively.
 
 #+begin_src emacs-lisp
 (map! "C--" #'undo "M--" #'redo "C-/" #'undo)
@@ -2504,7 +2516,6 @@ seems to make things slow?
 (use-package! unfill
   :after-call doom-first-input-hook
   :bind ("M-a" . unfill-paragraph))
-
 #+end_src
 
 ** COMMENT Fill function arguments
@@ -2589,7 +2600,7 @@ We don't use this in practice...
 
 * Indentation
 
-** Guides
+** COMMENT Guides
 
 Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact badly with org-indent-modern
 
@@ -2632,8 +2643,6 @@ Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact
 
 (map! :g "M->" #'vi/shift-right)
 (map! :g "M-<" #'vi/shift-left)
-
-
 #+end_src
 
 * Movement
@@ -2780,14 +2789,13 @@ https://github.com/radian-software/ctrlf#customization
         "S" #'+vertico/consult-fd
         "D" #'consult-dir)
   )
-
 #+end_src
 
 *** vicb
 
 https://github.com/doomemacs/doomemacs/issues/1213
 
- We put this file directly in .config/doom/lisp (.doom.d) so that we can edit locally, and added to yadm
+We put this file directly in .config/doom/lisp (.doom.d) so that we can edit locally, and added to yadm
 
 #+begin_src emacs-lisp :tangle packages.el
 ;; (package! vi-consult-buffers :recipe (:host github :repo "indigoviolet/vi-consult-buffers"))
@@ -2803,7 +2811,6 @@ https://github.com/doomemacs/doomemacs/issues/1213
 ;; (after! '(consult vicb)
 ;;   ;; (consult-customize consult-buffer :group nil :sort t)
 ;;   )
-
 #+end_src
 
 
@@ -2970,6 +2977,7 @@ https://github.com/minad/vertico#completion-styles-and-tab-completion
 #+end_src
 
 
+
 * Narrowing
 
 
@@ -3017,7 +3025,6 @@ https://github.com/minad/vertico#completion-styles-and-tab-completion
    (let ((face-offset (* (face-id 'shadow) (lsh 1 22))))
      (vconcat (mapcar (lambda (c) (+ face-offset c)) " 祈"))))
   )
-
 #+end_src
 
 *** Python
@@ -3136,18 +3143,18 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
   (custom-set-faces! '(corfu-current :background "ivory4"))
   ;; (global-corfu-mode)
   (corfu-history-mode 1)
-    :hook (
-              (prog-mode . corfu-mode)
-              (org-mode . corfu-mode)
-              (conf-mode . corfu-mode)
-              (text-mode . corfu-mode)
-              )
+  :hook (
+          (prog-mode . corfu-mode)
+          (org-mode . corfu-mode)
+          (conf-mode . corfu-mode)
+          (text-mode . corfu-mode)
+          )
   )
 
 ;; (after! corfu
 ;;   (setq! corfu-terminal-disable-on-gui nil)
 ;;   (corfu-terminal-mode)
-;  )
+                                        ;  )
 
 (use-package! cape
   :after-call doom-first-input-hook
@@ -3155,16 +3162,39 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
   (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
   (defalias 'vi/cape-yankpad (cape-company-to-capf #'company-yankpad))
 
-  (setq-hook! '(prog-mode-hook conf-mode-hook text-mode-hook)
+  (setq-hook! '(conf-mode-hook text-mode-hook org-mode-hook ein:notebook-mode-hook)
     completion-at-point-functions
-    (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad)))
-
-  (setq-hook! '(org-mode-hook)
-    completion-at-point-functions
-    ;; dabbrev for variable names?
     (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad #'cape-dabbrev)))
+
+    (defun vi/corfu-lsp-setup ()
+    ;; Combine LSP via corfu so we can use it in combination with
+    ;; company-tabnine and yankpad
+
+    (interactive)
+    ;; https://github.com/minad/corfu/wiki
+    (setq-local lsp-enable-completion-at-point t)
+    (setq-local lsp-completion-provider :none)       ;we use corfu!
+
+    (defun my/orderless-dispatch-flex-first (_pattern index _total)
+      (and (eq index 0) 'orderless-flex))
+
+    (defun my/lsp-mode-setup-completion ()
+      (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+        '(orderless)))
+
+    ;; Optionally configure the first word as flex filtered.
+    (add-hook 'orderless-style-dispatchers #'my/orderless-dispatch-flex-first nil 'local)
+
+    ;; Optionally configure the cape-capf-buster.
+    (setq-local completion-at-point-functions (list
+                                                (cape-super-capf
+                                                  #'vi/cape-tabnine
+                                                  (cape-capf-buster #'lsp-completion-at-point)
+                                                  #'vi/cape-yankpad))))
+  (add-hook! 'lsp-completion-mode-hook #'vi/corfu-lsp-setup)
   )
 #+end_src
+
 
 * Iedit
 
@@ -3224,6 +3254,9 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
     (major-mode-hydra-dispatch (vi/get-major-mode)))
   )
 
+(defun vi/revert-buffer ()
+  (interactive)
+  (find-alternate-file (buffer-file-name)))
 
 (pretty-hydra-define global-hydra (:exit t :quit-key ("q" "C-g"))
   ("Searching"
@@ -3235,13 +3268,14 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
    (("b" consult-buffer "Buffers")
     ("T" dired-sidebar-jump-to-sidebar "Goto Tree")
     ("t" dired-sidebar-toggle-sidebar "Toggle tree")
+     ("R" vi/revert-buffer "Revert")
     ;; ("w" +workspace/cycle "next workspace")
     ;; ("w" persp-switch "next workspace")
      ;; ("w" tab-bar-switch-to-next-tab "next tab")
     ;; ("t" treemacs-select-window "treemacs")
     ;; ("T" +treemacs/toggle "Toggle treemacs")
-    ("`" popper-toggle-latest "Latest Popup")
-    ("'" popper-cycle "Popup cycles" :exit nil)
+     ;; ("`" popper-toggle-latest "Latest Popup")
+    ;; ("'" popper-cycle "Popup cycles" :exit nil)
     )
    "Intra-buffer"
    (
@@ -3291,10 +3325,16 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
 
 (key-chord-define-global "hh" #'global-hydra/body)
 (key-chord-define-global "jj" #'vi/major-mode-hydra)
-
 #+end_src
 
 * Org
+
+
+#+begin_src emacs-lisp :tangle packages.el
+;; Pinning for unfolding org-mode overlays while searching
+;; https://github.com/doomemacs/doomemacs/issues/6478#issuecomment-1293505404
+(package! org :pin "971eb6885ec996c923e955730df3bafbdc244e54")
+#+end_src
 
 #+begin_src emacs-lisp
 (after! org
@@ -3347,6 +3387,7 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
      "Src"
      (("/" org-babel-demarcate-block "split src block")
       ("T" org-babel-tangle "tangle")
+       ("\\" org-edit-src-code "edit")
       )
      "Roam/Links"
      (
@@ -3671,7 +3712,6 @@ appropriate.  In tables, insert a new row or end the table."
        ;; All other cases: call `org-return'.
        (org-return)))))
 #+end_src
-***** org-insert-below
 
 
 *** Import from various formats into org
@@ -3820,12 +3860,12 @@ disabled because it is noisy on startup, and used rarely (<2022-03-21 Mon>)
 
 
 - <2022-09-09 Fri> If we set org-roam-directory to ~org-directory~, syncing is
- much faster; but we can't convert things outside of that directory into Nodes
+  much faster; but we can't convert things outside of that directory into Nodes
 
- by doing org-id-get-create. Let's see if this is a problem
+  by doing org-id-get-create. Let's see if this is a problem
 
 - <2022-09-11 Sun> Yes it is a problem: startup is very slow and lots of direnv
- shit, dir-locals gets executed. We might have to use org-roam-refile
+  shit, dir-locals gets executed. We might have to use org-roam-refile
 
 #+begin_src emacs-lisp
 (use-package! org-roam
@@ -3857,8 +3897,9 @@ Alternative: https://github.com/jgru/consult-org-roam
   )
 #+end_src
 
-*** org-modern-indent
+*** COMMENT org-modern-indent
 
+very slow
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! org-modern-indent :recipe (:host github :repo "jdtsmith/org-modern-indent"))
@@ -3883,7 +3924,6 @@ checkboxes are tiny, and they can be fixed by adjusting faces but this just does
   :custom
   (org-modern-hide-stars nil)           ;adds extra indentation
   :hook (org-mode . global-org-modern-mode))
-
 #+end_src
 *** Export
 
@@ -3902,7 +3942,7 @@ checkboxes are tiny, and they can be fixed by adjusting faces but this just does
 
 
 
-* emacs-jupyter
+* COMMENT emacs-jupyter
 ** fontification
 
 https://github.com/nnicandro/emacs-jupyter/issues/366#issuecomment-985758277
@@ -3944,8 +3984,8 @@ doesn't work
   :init
   (setq ein:polymode t)
   (setq ein:notebooklist-render-order '(render-opened-notebooks render-directory render-header))
-  (setq ein:truncate-long-cell-output 500)
-  (setq ein:cell-max-num-outputs 500)
+  (setq ein:truncate-long-cell-output 100)
+  (setq ein:cell-max-num-outputs 100)
   (setq ein:worksheet-enable-undo t)
   (setq ein:markdown-header-scaling nil)    ;this leads to variable pitch faces for
                                         ;markdown headers, which doesn't work so
@@ -4005,6 +4045,7 @@ doesn't work
     (aif (ein:get-notebook)
         (let ((nurl (ein:$notebook-url-or-port it))
               (npath (ein:$notebook-notebook-path it)))
+          ;; fix disabled undo
           (setq! ein:worksheet-enable-undo t)
           (ein:notebook-close it)
           ;; Reopen, but put it in the same window we were in
@@ -4076,7 +4117,7 @@ doesn't work
 
 ;; outline-minor-faces-mode seems to cause some glitches with C-c C-b/a
 (add-hook! 'ein:notebook-mode-hook
-           #'outline-minor-mode) ;; #'outline-minor-faces-mode)
+  #'outline-minor-mode) ;; #'outline-minor-faces-mode)
 (setq-hook! 'ein:notebook-mode-hook
   outline-minor-mode-use-buttons t
   outline-regexp "##+")           ;capture markdown headings, excluding level 1 for comments
@@ -4122,10 +4163,14 @@ doesn't work
         :map vterm-mode-map
         ("M-j" . nil)
         ("M-k" . nil)
-        ("S-<left>" . windmove-left)
-        ("S-<right>" . windmove-right)
-        ("S-<up>" . windmove-up)
-        ("S-<down>" . windmove-down)
+        ("M-9" . nil)
+        ("M-0" . nil)
+        ("S-<left>" . nil)
+        ("S-<right>" . nil)
+        ("S-<up>" . nil)
+        ("S-<down>" . nil)
+      ("M-<right>" . nil)
+      ("M-<left>" . nil)
         ("C-\\" . vterm-send-next-key)
         )
     )
@@ -4161,7 +4206,6 @@ doesn't work
     (set-process-query-on-exit-flag (get-buffer-process (current-buffer)) nil)
     )
 (add-hook! 'vterm-mode-hook #'vi/vterm-hooks)
-
 #+end_src
 
 ** Toggle or create
@@ -4205,7 +4249,6 @@ doesn't work
         (let ((default-directory (getenv "HOME")))
           (vterm)))
     (vi/vterm-project-or-here force-create)))
-
 #+end_src
 *** COMMENT multi-vterm
 
@@ -4230,8 +4273,6 @@ does this matter - https://github.com/suonlight/multi-vterm/issues/12 - projecti
   :custom
   (multi-vterm-buffer-name "%s")
   :commands (multi-vterm-next multi-vterm multi-vterm-project))
-
-
 #+end_src
 
 *** COMMENT vterm-toggle
@@ -4523,10 +4564,8 @@ https://gist.github.com/justinhj/5945047
 
   :custom
   ;; We prefer to use TabNine::sem
-  (lsp-completion-mode -1)
-  (lsp-completion-enable nil)
+
   (lsp-enable-snippet nil)
-  (lsp-prefer-capf nil)
   ;; https://emacs-lsp.github.io/lsp-mode/page/settings/
   (lsp-auto-configure t)
   (lsp-enable-imenu t)
@@ -4538,6 +4577,7 @@ https://gist.github.com/justinhj/5945047
   (lsp-symbol-highlighting-skip-current t)
   (lsp-enable-xref nil)
   (lsp-lens-enable t)
+  (lsp-idle-delay 0.1)
   (lsp-disabled-clients '((python-mode . '(pyls pylsp mspyls))))
 
     ;; This will disable the flycheck checkers. (we use them directly to have better control)
@@ -4559,8 +4599,8 @@ https://gist.github.com/justinhj/5945047
              ;; For some reason, this face is only defined after the
              ;; lsp-diagnostics-updated-hook, so this will fail the first time
              ;; through
-    (if (facep 'lsp-lsp-flycheck-info-unnecessary-face)
-        (set-face-attribute 'lsp-lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil)))
+    (if (facep 'lsp-flycheck-info-unnecessary-face)
+        (set-face-attribute 'lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil)))
 
   :pretty-hydra
   ((
@@ -4591,13 +4631,13 @@ https://gist.github.com/justinhj/5945047
   (lsp-ui-sideline-show-symbol nil)
   (lsp-ui-sideline-show-diagnostics t)
   (lsp-ui-sideline-show-code-actions t)
-  (lsp-ui-sideline-delay 1)
+  (lsp-ui-sideline-delay 0.1)
   ;; doc
   (lsp-ui-doc-enable t)
   (lsp-ui-doc-include-signature nil)
   (lsp-ui-doc-show-with-cursor t)
   (lsp-ui-doc-header nil)
-  (lsp-ui-doc-delay 1)
+  (lsp-ui-doc-delay 0.1)
   ;; peek
   (lsp-ui-peek-enable t)
   ;; imenu
@@ -4943,7 +4983,7 @@ pipx inject pyflyby 'black[jupyter]'
   )
 #+end_src
 
-* Formatting
+* Code Formatting
 
 [[https://github.com/lassik/emacs-format-all-the-code/issues/170#issuecomment-1079740651][See]] for some context on the comparison b/w apheleia and format-all available --
 these may be merged in the near future. Based on the table there, we are
@@ -4971,6 +5011,8 @@ set-formatter! can silently break the chain (?)
   :after-call doom-first-buffer-hook
   :config
   (setf (alist-get 'isort apheleia-formatters) '("isort" "--profile=black" "--stdout" "-"))
+  (setf (alist-get 'usort apheleia-formatters) '("usort" "format" "-"))
+
   ;; Black uses config in ~/.config/black but not if a pyproject.toml is present (https://github.com/psf/black/issues/2863)
   (setf (alist-get 'black apheleia-formatters) '("black" "--config" (substitute-in-file-name "$HOME/.config/black") "-"))
 
@@ -4979,7 +5021,7 @@ set-formatter! can silently break the chain (?)
   ;; pyflyby also messes it up!
   ;; (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
 
-  (setf (alist-get 'python-mode apheleia-mode-alist) '(black))
+  (setf (alist-get 'python-mode apheleia-mode-alist) '(usort black))
   (apheleia-global-mode)
   )
 #+end_src
@@ -5043,7 +5085,16 @@ dockfmt does a bad job: rips out comments, uses tabs.
       (setq-local +format-with :none))
     )
   )
+#+end_src
 
+**** COMMENT Quiet messages
+
+Trying to get rid of "Setting up indent for shell type bash" etc messages ;
+doesn't appear to be working..
+
+In fact, sh-set-shell already has advice ~doom-shut-up-a~ around it
+
+#+begin_src emacs-lisp
 (require 'cl-lib)
 (advice-add 'sh-set-shell :around
             (lambda (orig-fun &rest args)
@@ -5153,7 +5204,6 @@ https://old.reddit.com/r/emacs/comments/imy9f1/all_the_icons_dired_subtree/
                                              (interactive)
                                              (when all-the-icons-dired-mode
                                                (revert-buffer)))))
-
 #+end_src
 
 *** sudo
@@ -5226,8 +5276,6 @@ https://old.reddit.com/r/emacs/comments/imy9f1/all_the_icons_dired_subtree/
       )
      )
     )
-
-
 #+end_src
 *** drag and drop
 
@@ -5377,6 +5425,16 @@ So we could:
   )
 #+end_src
 
+** Debugging tramp
+
+(setq tramp-verbose 6)
+
+C-x C-f ~/sudo::/~ and look for the tramp debug buffer
+
+ensure that you can execute the ssh command on the terminal - tramp doesn't always
+handle the prompts correctly
+
+
 * Misc
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -5465,6 +5523,26 @@ Version 2016-01-08"
 #+begin_src emacs-lisp
 (use-package! commify)
   ;; :chords (",," . commify-toggle))
+#+end_src
+
+
+
+** latex
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-latex-impatient)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! org-latex-impatient
+  :hook (org-mode . org-latex-impatient-mode)
+  :custom
+  ( org-latex-impatient-tex2svg-bin "/home/venky/node_modules/mathjax-node-cli/bin/tex2svg")
+  )
+
+
 #+end_src
 
 
@@ -5580,6 +5658,44 @@ Turn on gif-screencast to initiate these bindings
 https://github.com/otavioschwanck/harpoon.el
 * PDF
 
+
+#+begin_src emacs-lisp :tangle packages.el
+(unpin! pdf-tools)
+#+end_src
+
+** zotxt (zotero + emacs)
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! zotxt)
+#+end_src
+
+
+#+begin_src emacs-lisp
+
+(use-package! zotxt
+  :hook (org-mode . org-zotxt-mode)
+  :commands (org-zotxt-noter org-zotxt-mode)
+  )
+
+#+end_src
+
+** org-noter
+
+
+#+begin_src emacs-lisp
+(use-package! org-noter
+  :custom
+  (setq org-noter-always-create-frame nil
+        org-noter-separate-notes-from-heading t
+        org-noter-default-heading-title "Page $p$"
+        org-noter-auto-save-last-location t
+        org-noter-notes-search-path '("~/org")
+        org-noter-separate-notes-from-heading t
+        org-noter-doc-property-in-notes t
+        )
+  )
+#+end_src
 ** Rotation
 #+begin_src emacs-lisp
 (after! pdf-view

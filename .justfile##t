@@ -24,9 +24,9 @@ doom-rebuild:
     just doom-rebuild-pdf-tools
     just doom-rebuild-vterm
 
-doom-rebuild-pdf-tools:
+doom-rebuild-pdf-tools VERSION="29.0.60":
     ## rebuild pdf tools, this fails within emacs because CC is set
-    CC= /home/venky/.emacs.d/.local/straight/build-29.0.50/pdf-tools/build/server/autobuild -i /home/venky/.emacs.d/.local/straight/build-29.0.50/pdf-tools/
+    CC= /home/venky/.emacs.d/.local/straight/build-{{ VERSION }}/pdf-tools/build/server/autobuild -i /home/venky/.emacs.d/.local/straight/build-{{ VERSION }}/pdf-tools/
 
 # Rebuild vterm (experimental)
 doom-rebuild-vterm:
@@ -159,12 +159,12 @@ fix-imagemagick-resources POLICY_XML: ensure-sudo
     sed -i -E 's/name="area" value=".+"/name="area" value="8GiB"/g' {{POLICY_XML}}
     sed -i -E 's/name="disk" value=".+"/name="disk" value="8GiB"/g' {{POLICY_XML}}
 
-path := env_var('PATH')
+# path := env_var('PATH')
 
 # Note: this won't work with set_init since $HOME/.bashrc isn't loaded
 # Run via sudo, preserving env and PATH
 sudo *CMD:
-    sudo -E env PATH={{path}} just {{CMD}}
+    sudo -E --preserve-env=PATH,ABDUCO_SOCKET_DIR env {{CMD}}
 
 
 # - this seems to be problematic and I haven't figure out how to make it work well:
@@ -224,7 +224,7 @@ jupytext-rename-pair nb_or_script newname_without_ext:
 ensure-sudo:
     #!/usr/bin/env bash
     if [[ $EUID -ne 0 ]]; then
-        echo "Invoke with 'just sudo CMD'"
+        echo "Invoke with 'just sudo just CMD'"
         exit 1
     fi
 
@@ -281,7 +281,13 @@ abduco_flush:
 
 # shutdown GCP vm after some interval
 shutdown_after time:
-    just abduco shutdown "termdown {{ time }} && sudo poweroff"
+    just -f {{ justfile() }} abduco shutdown "termdown {{ time }} && sudo poweroff"
+
+duplicacy:
+    #!/usr/bin/env bash
+    set_x
+    set -o allexport; source $HOME/.config/duplicacy/b2.env; set +o allexport
+    pkexec duplicacy -log backup -storage b2_mxp_root -stats
 
 
 # Local Variables:

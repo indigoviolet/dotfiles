@@ -6,11 +6,11 @@
   "creation_time": "2019-08-20T20:59:40.146546948Z",
   "guuid": null,
   "semantic_status": {
-    "python": "Enabled",
-    "unknown": "Enabled",
-    "typescript": "Enabled",
     "org": "Suppressed",
-    "go": "Enabled"
+    "unknown": "Enabled",
+    "go": "Enabled",
+    "typescript": "Enabled",
+    "python": "Suppressed"
   },
   "enable_telemetry": false,
   "user_understands_that_enabling_tabnine_cloud_sends_code_to_tabnine_servers": true,
@@ -50,10 +50,10 @@
   "exclude_file_masks": null,
   "inline_suggestions_mode": true,
   "use_specialized_model_if_available": true,
-  "empty_line_suggestions": false,
   "snippets_enabled_v2": true,
   "inline_suggestions_mode_clients": null,
   "tabnine_hub_port": null,
   "manually_selected_model": null,
-  "hybrid_rendering_mode": null
+  "hybrid_rendering_mode": null,
+  "force_local_hub": false
 }

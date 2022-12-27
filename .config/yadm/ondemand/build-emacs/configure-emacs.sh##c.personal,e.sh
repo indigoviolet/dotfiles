@@ -1,7 +1,4 @@
 #!/bin/sh
-# configure-emacs.sh
-
-
 # [[file:build-emacs.org::*configure-emacs.sh][configure-emacs.sh:1]]
 set -ev
 

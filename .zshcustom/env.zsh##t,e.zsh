@@ -7,7 +7,7 @@ typeset -Ug path
 export ALTERNATE_EDITOR=""
 
 {% if yadm.class == "personal" %}
-export EDITOR="emacsclient"
+export EDITOR="emacsclient -c -a ''"
 {% endif %}
 
 {% if yadm.class == "gcp" %}

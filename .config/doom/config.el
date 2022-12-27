@@ -17,7 +17,7 @@
 ;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
 ;; font string. You generally only need these two:
 ;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
-;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
+;;   doom-variable-pitch-font (font-spec :family "sans" :size 13))
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
@@ -134,7 +134,11 @@
 (tab-bar-history-mode t)
 (tab-line-mode t)
 
-(repeat-mode 1)
+;; (repeat-mode 1)
+
+(require 'server)
+(unless (server-running-p)
+  (server-start))
 
 ;; https://pragmaticemacs.wordpress.com/2016/11/07/add-the-system-clipboard-to-the-emacs-kill-ring/
 ;; Save whatever’s in the current (system) clipboard before
@@ -545,8 +549,8 @@
 ;; [[file:config.org::*Garbage collection][Garbage collection:1]]
 (use-package! gcmh
     :custom
-    (gcmh-verbose t)
-    (gcmh-idle-delay 30)                ;;'auto)
+    (gcmh-verbose nil)
+    (gcmh-idle-delay 1)                ;;'auto)
     (gcmh-high-cons-threshold 1000000000)
   )
 ;; Garbage collection:1 ends here
@@ -650,6 +654,7 @@ message listing the hooks."
 (setq doom-emoji-fallback-font-families nil)
 (after! doom-modeline
   (setq mode-line-default-help-echo nil
+    doom-modeline-checker-simple-format nil
     show-help-function nil
     ;; doom-modeline-icon nil
     ;; doom-modeline-major-mode-color-icon nil
@@ -669,11 +674,11 @@ message listing the hooks."
   ;; doom-modeline. other names don't seem to take effect as default..
   (doom-modeline-def-modeline 'main
     '(bar buffer-info-simple selection-info remote-host checker)
-    '(debug repl process lsp purpose persp-name minor-modes major-mode vcs))
+    '(debug repl process lsp persp-name minor-modes major-mode vcs))
 
   (doom-modeline-def-modeline 'org-src
     '(bar buffer-info-simple selection-info checker)
-    '(debug lsp purpose persp-name minor-modes major-mode))
+    '(debug lsp persp-name minor-modes major-mode))
 
   ;; don't think we need this, since we modified 'main
   ;;(add-hook! '(prog-mode-hook org-mode-hook) (doom-modeline-set-modeline 'main))
@@ -766,6 +771,19 @@ message listing the hooks."
 
 
 (map! "M-k" #'consult-buffer)
+(map! :g
+  "M-<right>" #'next-buffer
+  "M-<left>" #'previous-buffer
+  )
+
+(map! :map org-mode-map
+  "M-<right>" nil
+  "M-<left>" nil
+)
+
+(setq! switch-to-prev-buffer-skip
+  (lambda (win buf bury) (doom-special-buffer-p buf)))
+
 ;; (map! "M-k" #'purpose-switch-buffer-with-purpose)
 ;; (map! "M-k" #'vi/persp-consult-buffer)
 ;; (map! :map minibuffer-local-map "M-k" (cmd! (minibuffer-quit-and-run (consult-buffer))))
@@ -997,18 +1015,19 @@ message listing the hooks."
 
 ;; see (dispwatch--get-display)
 ;; Can be run manually like (vi/adjust-font-size-for-display '(3440 . 1440))
+;; See https://github.com/doomemacs/doomemacs/issues/6131#issuecomment-1051576882
 (defun vi/adjust-font-size-for-display (disp)
   (message "rejiggering for %s" disp)
   (cond ((equal disp '(3440 . 1440))   ; LG monitor
-         (vi/set-font-size 13))
+         (vi/set-font-size 13.0))
         ((equal disp '(3000 . 2000))    ; laptop @ 100%, 200%
-         (vi/set-font-size 13))
+         (vi/set-font-size 13.0))
         ((equal disp '(4800 . 3200))    ; laptop @ 125%
-         (vi/set-font-size 17))
+         (vi/set-font-size 17.0))
         ((equal disp '(4002 . 2668))    ; laptop @ 150%
-         (vi/set-font-size 19))
+         (vi/set-font-size 19.0))
         ((equal disp '(3426 . 2284))    ; laptop @ 175%
-         (vi/set-font-size 13))
+         (vi/set-font-size 13.0))
         (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
 
 (defun vi/trigger-dispwatch ()
@@ -1269,16 +1288,6 @@ message listing the hooks."
   :bind ("M-\\" . separedit)
   )
 ;; separedit:2 ends here
-
-;; [[file:config.org::*Guides][Guides:2]]
-(use-package! highlight-indent-guides
-  :after-call doom-first-buffer-hook
-  :custom
-  (highlight-indent-guides-delay 1)
-  (highlight-indent-guides-method 'bitmap)
-  :hook (prog-mode . highlight-indent-guides-mode)
-  )
-;; Guides:2 ends here
 
 ;; [[file:config.org::*Shift regions][Shift regions:1]]
 ;; Shift the selected region right if distance is postive, left if
@@ -1599,18 +1608,18 @@ message listing the hooks."
   (custom-set-faces! '(corfu-current :background "ivory4"))
   ;; (global-corfu-mode)
   (corfu-history-mode 1)
-    :hook (
-              (prog-mode . corfu-mode)
-              (org-mode . corfu-mode)
-              (conf-mode . corfu-mode)
-              (text-mode . corfu-mode)
-              )
+  :hook (
+          (prog-mode . corfu-mode)
+          (org-mode . corfu-mode)
+          (conf-mode . corfu-mode)
+          (text-mode . corfu-mode)
+          )
   )
 
 ;; (after! corfu
 ;;   (setq! corfu-terminal-disable-on-gui nil)
 ;;   (corfu-terminal-mode)
-;  )
+                                        ;  )
 
 (use-package! cape
   :after-call doom-first-input-hook
@@ -1618,14 +1627,36 @@ message listing the hooks."
   (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
   (defalias 'vi/cape-yankpad (cape-company-to-capf #'company-yankpad))
 
-  (setq-hook! '(prog-mode-hook conf-mode-hook text-mode-hook)
+  (setq-hook! '(conf-mode-hook text-mode-hook org-mode-hook ein:notebook-mode-hook)
     completion-at-point-functions
-    (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad)))
-
-  (setq-hook! '(org-mode-hook)
-    completion-at-point-functions
-    ;; dabbrev for variable names?
     (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad #'cape-dabbrev)))
+
+    (defun vi/corfu-lsp-setup ()
+    ;; Combine LSP via corfu so we can use it in combination with
+    ;; company-tabnine and yankpad
+
+    (interactive)
+    ;; https://github.com/minad/corfu/wiki
+    (setq-local lsp-enable-completion-at-point t)
+    (setq-local lsp-completion-provider :none)       ;we use corfu!
+
+    (defun my/orderless-dispatch-flex-first (_pattern index _total)
+      (and (eq index 0) 'orderless-flex))
+
+    (defun my/lsp-mode-setup-completion ()
+      (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+        '(orderless)))
+
+    ;; Optionally configure the first word as flex filtered.
+    (add-hook 'orderless-style-dispatchers #'my/orderless-dispatch-flex-first nil 'local)
+
+    ;; Optionally configure the cape-capf-buster.
+    (setq-local completion-at-point-functions (list
+                                                (cape-super-capf
+                                                  #'vi/cape-tabnine
+                                                  (cape-capf-buster #'lsp-completion-at-point)
+                                                  #'vi/cape-yankpad))))
+  (add-hook! 'lsp-completion-mode-hook #'vi/corfu-lsp-setup)
   )
 ;; Corfu/Cape:2 ends here
 
@@ -1665,6 +1696,9 @@ message listing the hooks."
     (major-mode-hydra-dispatch (vi/get-major-mode)))
   )
 
+(defun vi/revert-buffer ()
+  (interactive)
+  (find-alternate-file (buffer-file-name)))
 
 (pretty-hydra-define global-hydra (:exit t :quit-key ("q" "C-g"))
   ("Searching"
@@ -1676,13 +1710,14 @@ message listing the hooks."
    (("b" consult-buffer "Buffers")
     ("T" dired-sidebar-jump-to-sidebar "Goto Tree")
     ("t" dired-sidebar-toggle-sidebar "Toggle tree")
+     ("R" vi/revert-buffer "Revert")
     ;; ("w" +workspace/cycle "next workspace")
     ;; ("w" persp-switch "next workspace")
      ;; ("w" tab-bar-switch-to-next-tab "next tab")
     ;; ("t" treemacs-select-window "treemacs")
     ;; ("T" +treemacs/toggle "Toggle treemacs")
-    ("`" popper-toggle-latest "Latest Popup")
-    ("'" popper-cycle "Popup cycles" :exit nil)
+     ;; ("`" popper-toggle-latest "Latest Popup")
+    ;; ("'" popper-cycle "Popup cycles" :exit nil)
     )
    "Intra-buffer"
    (
@@ -1734,7 +1769,7 @@ message listing the hooks."
 (key-chord-define-global "jj" #'vi/major-mode-hydra)
 ;; Hydra:2 ends here
 
-;; [[file:config.org::*Org][Org:1]]
+;; [[file:config.org::*Org][Org:2]]
 (after! org
   ;; hide org markup indicators
   (setq org-hide-emphasis-markers t
@@ -1785,6 +1820,7 @@ message listing the hooks."
      "Src"
      (("/" org-babel-demarcate-block "split src block")
       ("T" org-babel-tangle "tangle")
+       ("\\" org-edit-src-code "edit")
       )
      "Roam/Links"
      (
@@ -1809,7 +1845,7 @@ message listing the hooks."
      )
     )
   )
-;; Org:1 ends here
+;; Org:2 ends here
 
 ;; [[file:config.org::*show delimiters][show delimiters:2]]
 (use-package! org-appear
@@ -2014,12 +2050,12 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 
 ;; - <2022-09-09 Fri> If we set org-roam-directory to ~org-directory~, syncing is
-;;  much faster; but we can't convert things outside of that directory into Nodes
+;;   much faster; but we can't convert things outside of that directory into Nodes
 
-;;  by doing org-id-get-create. Let's see if this is a problem
+;;   by doing org-id-get-create. Let's see if this is a problem
 
 ;; - <2022-09-11 Sun> Yes it is a problem: startup is very slow and lots of direnv
-;;  shit, dir-locals gets executed. We might have to use org-roam-refile
+;;   shit, dir-locals gets executed. We might have to use org-roam-refile
 
 
 ;; [[file:config.org::*Org Roam][Org Roam:1]]
@@ -2044,29 +2080,11 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   )
 ;; consult-notes:2 ends here
 
-;; [[file:config.org::*org-modern-indent][org-modern-indent:2]]
-(add-hook! 'org-mode-hook #'org-modern-indent-mode)
-;; org-modern-indent:2 ends here
-
 ;; [[file:config.org::*No htmlentities in quotes][No htmlentities in quotes:1]]
 (after! org
   (setq org-export-with-smart-quotes nil)
   )
 ;; No htmlentities in quotes:1 ends here
-
-
-
-;; https://github.com/nnicandro/emacs-jupyter/issues/366#issuecomment-985758277
-
-
-;; [[file:config.org::*fontification][fontification:1]]
-(after! org
-  (defun display-ansi-colors ()
-    (ansi-color-apply-on-region (point-min) (point-max)))
-
-  (add-hook! org-babel-after-execute #'display-ansi-colors)
-  )
-;; fontification:1 ends here
 
 ;; [[file:config.org::*ein][ein:2]]
 (use-package! ein
@@ -2074,8 +2092,8 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   :init
   (setq ein:polymode t)
   (setq ein:notebooklist-render-order '(render-opened-notebooks render-directory render-header))
-  (setq ein:truncate-long-cell-output 500)
-  (setq ein:cell-max-num-outputs 500)
+  (setq ein:truncate-long-cell-output 100)
+  (setq ein:cell-max-num-outputs 100)
   (setq ein:worksheet-enable-undo t)
   (setq ein:markdown-header-scaling nil)    ;this leads to variable pitch faces for
                                         ;markdown headers, which doesn't work so
@@ -2135,6 +2153,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
     (aif (ein:get-notebook)
         (let ((nurl (ein:$notebook-url-or-port it))
               (npath (ein:$notebook-notebook-path it)))
+          ;; fix disabled undo
           (setq! ein:worksheet-enable-undo t)
           (ein:notebook-close it)
           ;; Reopen, but put it in the same window we were in
@@ -2206,7 +2225,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; outline-minor-faces-mode seems to cause some glitches with C-c C-b/a
 (add-hook! 'ein:notebook-mode-hook
-           #'outline-minor-mode) ;; #'outline-minor-faces-mode)
+  #'outline-minor-mode) ;; #'outline-minor-faces-mode)
 (setq-hook! 'ein:notebook-mode-hook
   outline-minor-mode-use-buttons t
   outline-regexp "##+")           ;capture markdown headings, excluding level 1 for comments
@@ -2244,10 +2263,14 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
         :map vterm-mode-map
         ("M-j" . nil)
         ("M-k" . nil)
-        ("S-<left>" . windmove-left)
-        ("S-<right>" . windmove-right)
-        ("S-<up>" . windmove-up)
-        ("S-<down>" . windmove-down)
+        ("M-9" . nil)
+        ("M-0" . nil)
+        ("S-<left>" . nil)
+        ("S-<right>" . nil)
+        ("S-<up>" . nil)
+        ("S-<down>" . nil)
+      ("M-<right>" . nil)
+      ("M-<left>" . nil)
         ("C-\\" . vterm-send-next-key)
         )
     )
@@ -2513,10 +2536,8 @@ Results are reported in a compilation buffer."
 
   :custom
   ;; We prefer to use TabNine::sem
-  (lsp-completion-mode -1)
-  (lsp-completion-enable nil)
+
   (lsp-enable-snippet nil)
-  (lsp-prefer-capf nil)
   ;; https://emacs-lsp.github.io/lsp-mode/page/settings/
   (lsp-auto-configure t)
   (lsp-enable-imenu t)
@@ -2528,6 +2549,7 @@ Results are reported in a compilation buffer."
   (lsp-symbol-highlighting-skip-current t)
   (lsp-enable-xref nil)
   (lsp-lens-enable t)
+  (lsp-idle-delay 0.1)
   (lsp-disabled-clients '((python-mode . '(pyls pylsp mspyls))))
 
     ;; This will disable the flycheck checkers. (we use them directly to have better control)
@@ -2549,8 +2571,8 @@ Results are reported in a compilation buffer."
              ;; For some reason, this face is only defined after the
              ;; lsp-diagnostics-updated-hook, so this will fail the first time
              ;; through
-    (if (facep 'lsp-lsp-flycheck-info-unnecessary-face)
-        (set-face-attribute 'lsp-lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil)))
+    (if (facep 'lsp-flycheck-info-unnecessary-face)
+        (set-face-attribute 'lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil)))
 
   :pretty-hydra
   ((
@@ -2581,13 +2603,13 @@ Results are reported in a compilation buffer."
   (lsp-ui-sideline-show-symbol nil)
   (lsp-ui-sideline-show-diagnostics t)
   (lsp-ui-sideline-show-code-actions t)
-  (lsp-ui-sideline-delay 1)
+  (lsp-ui-sideline-delay 0.1)
   ;; doc
   (lsp-ui-doc-enable t)
   (lsp-ui-doc-include-signature nil)
   (lsp-ui-doc-show-with-cursor t)
   (lsp-ui-doc-header nil)
-  (lsp-ui-doc-delay 1)
+  (lsp-ui-doc-delay 0.1)
   ;; peek
   (lsp-ui-peek-enable t)
   ;; imenu
@@ -2872,6 +2894,8 @@ Results are reported in a compilation buffer."
   :after-call doom-first-buffer-hook
   :config
   (setf (alist-get 'isort apheleia-formatters) '("isort" "--profile=black" "--stdout" "-"))
+  (setf (alist-get 'usort apheleia-formatters) '("usort" "format" "-"))
+
   ;; Black uses config in ~/.config/black but not if a pyproject.toml is present (https://github.com/psf/black/issues/2863)
   (setf (alist-get 'black apheleia-formatters) '("black" "--config" (substitute-in-file-name "$HOME/.config/black") "-"))
 
@@ -2880,7 +2904,7 @@ Results are reported in a compilation buffer."
   ;; pyflyby also messes it up!
   ;; (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
 
-  (setf (alist-get 'python-mode apheleia-mode-alist) '(black))
+  (setf (alist-get 'python-mode apheleia-mode-alist) '(usort black))
   (apheleia-global-mode)
   )
 ;; apheleia:2 ends here
@@ -3158,6 +3182,14 @@ Version 2016-01-08"
   ;; :chords (",," . commify-toggle))
 ;; numbers commas:2 ends here
 
+;; [[file:config.org::*latex][latex:2]]
+(use-package! org-latex-impatient
+  :hook (org-mode . org-latex-impatient-mode)
+  :custom
+  ( org-latex-impatient-tex2svg-bin "/home/venky/node_modules/mathjax-node-cli/bin/tex2svg")
+  )
+;; latex:2 ends here
+
 ;; [[file:config.org::*atomic chrome][atomic chrome:2]]
 (use-package! atomic-chrome
   :after-call doom-first-file-hook
@@ -3213,6 +3245,27 @@ Version 2016-01-08"
 ;; (add-hook! keycast-mode-hook
 ;;   (add-to-list 'global-mode-string '("" keycast-mode-line)))
 ;; Keycast:2 ends here
+
+;; [[file:config.org::*zotxt (zotero + emacs)][zotxt (zotero + emacs):2]]
+(use-package! zotxt
+  :hook (org-mode . org-zotxt-mode)
+  :commands (org-zotxt-noter org-zotxt-mode)
+  )
+;; zotxt (zotero + emacs):2 ends here
+
+;; [[file:config.org::*org-noter][org-noter:1]]
+(use-package! org-noter
+  :custom
+  (setq org-noter-always-create-frame nil
+        org-noter-separate-notes-from-heading t
+        org-noter-default-heading-title "Page $p$"
+        org-noter-auto-save-last-location t
+        org-noter-notes-search-path '("~/org")
+        org-noter-separate-notes-from-heading t
+        org-noter-doc-property-in-notes t
+        )
+  )
+;; org-noter:1 ends here
 
 ;; [[file:config.org::*Rotation][Rotation:1]]
 (after! pdf-view

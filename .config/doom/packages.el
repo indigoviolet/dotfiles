@@ -255,15 +255,6 @@
 (package! separedit)
 ;; separedit:1 ends here
 
-
-
-;; Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact badly with org-indent-modern
-
-
-;; [[file:config.org::*Guides][Guides:1]]
-(package! highlight-indent-guides)
-;; Guides:1 ends here
-
 ;; [[file:config.org::*Movement][Movement:1]]
 (package! mwim)
 ;; Movement:1 ends here
@@ -290,7 +281,7 @@
 
 ;; https://github.com/doomemacs/doomemacs/issues/1213
 
-;;  We put this file directly in .config/doom/lisp (.doom.d) so that we can edit locally, and added to yadm
+;; We put this file directly in .config/doom/lisp (.doom.d) so that we can edit locally, and added to yadm
 
 
 ;; [[file:config.org::*vicb][vicb:1]]
@@ -360,6 +351,12 @@
 (package! major-mode-hydra)
 ;; Hydra:1 ends here
 
+;; [[file:config.org::*Org][Org:1]]
+;; Pinning for unfolding org-mode overlays while searching
+;; https://github.com/doomemacs/doomemacs/issues/6478#issuecomment-1293505404
+(package! org :pin "971eb6885ec996c923e955730df3bafbdc244e54")
+;; Org:1 ends here
+
 ;; [[file:config.org::*show delimiters][show delimiters:1]]
 (package! org-appear :recipe (:host github :repo "awth13/org-appear"))
 ;; show delimiters:1 ends here
@@ -410,10 +407,6 @@
 (package! consult-notes :recipe (:host github :repo "mclear-tools/consult-notes"))
 ;; consult-notes:1 ends here
 
-;; [[file:config.org::*org-modern-indent][org-modern-indent:1]]
-(package! org-modern-indent :recipe (:host github :repo "jdtsmith/org-modern-indent"))
-;; org-modern-indent:1 ends here
-
 ;; [[file:config.org::*Github flavored Markdown][Github flavored Markdown:1]]
 (package! ox-gfm)
 ;; Github flavored Markdown:1 ends here
@@ -439,9 +432,9 @@
 
 
 
-;; [[file:config.org::*Formatting][Formatting:1]]
+;; [[file:config.org::*Code Formatting][Code Formatting:1]]
 (package! py-isort :disable t)
-;; Formatting:1 ends here
+;; Code Formatting:1 ends here
 
 ;; [[file:config.org::*apheleia][apheleia:1]]
 (package! apheleia)
@@ -506,6 +499,10 @@
 (package! commify)
 ;; numbers commas:1 ends here
 
+;; [[file:config.org::*latex][latex:1]]
+(package! org-latex-impatient)
+;; latex:1 ends here
+
 ;; [[file:config.org::*atomic chrome][atomic chrome:1]]
 (package! atomic-chrome)
 ;; atomic chrome:1 ends here
@@ -517,6 +514,14 @@
 ;; [[file:config.org::*Keycast][Keycast:1]]
 (package! keycast :recipe (:host github :repo "tarsius/keycast"))
 ;; Keycast:1 ends here
+
+;; [[file:config.org::*PDF][PDF:1]]
+(unpin! pdf-tools)
+;; PDF:1 ends here
+
+;; [[file:config.org::*zotxt (zotero + emacs)][zotxt (zotero + emacs):1]]
+(package! zotxt)
+;; zotxt (zotero + emacs):1 ends here
 
 ;; [[file:config.org::*Pomodoro][Pomodoro:1]]
 (package! org-pomodoro)

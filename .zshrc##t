@@ -47,6 +47,7 @@ source ${ZSH_CUSTOM_DIR}/fzf.zsh
 source ${ZSH_CUSTOM_DIR}/misc.zsh
 source ${ZSH_CUSTOM_DIR}/direnv.zsh
 source ${ZSH_CUSTOM_DIR}/conda.zsh
+source ${ZSH_CUSTOM_DIR}/abduco.zsh
 
 {% if yadm.os == "Linux" %}
 # asdf only installed on Linux, poetry.zsh depends on asdf

@@ -1042,3 +1042,19 @@ tlp-stat -g
 
 
 
+* file/process limits
+
+
+#+begin_src shell :tangle "/sudo::/etc/sysctl.d/20-inotify.conf"
+# https://askubuntu.com/a/833979/895483
+fs.inotify.max_user_watches=1048576
+fs.inotify.max_user_instances=1048576
+#+end_src
+
+
+#+begin_src shell :tangle "/sudo::/etc/security/limits.d/10-open-files.conf"
+ * soft nproc 65535
+ * soft nofile 65535
+#+end_src
+
+#+RESULTS:

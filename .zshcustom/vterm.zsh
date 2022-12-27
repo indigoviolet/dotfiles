@@ -25,7 +25,8 @@ vterm_prompt_end() {
     # alias used to log into it, and so might not work with `ssh <...>` - for
     # ex., on gcp `hostname` will return `<INSTANCE_NAME>`, but `gcloud compute
     # config-ssh` will create aliases of the form `<NAME>.<ZONE>.<PROJECT>`
-    vterm_printf "51;A$(whoami)@$(hostname):$(pwd)"
+    # vterm_printf "51;A$(whoami)@$(hostname):$(pwd)"
+    vterm_printf "51;A$(pwd)"
 }
 
 vterm_cmd() {

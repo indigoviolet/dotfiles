@@ -1,4 +1,11 @@
-eval "$(starship init zsh)"
+if [[ ! $TERM == "dumb" ]]; then
+    if [ -x "$(command -v starship)" ]; then
+        eval "$(starship init zsh)"
+    fi
+else
+    unsetopt zle
+    PS1='$ '
+fi
 
 #
 # * Prompt tracking
@@ -10,11 +17,11 @@ eval "$(starship init zsh)"
 # - precmd :: fires before prompt is drawn
 # - preexec :: fires before command is executed
 #
-# In our context, preexec appears to work better at finding previous prompts than precmd  
+# In our context, preexec appears to work better at finding previous prompts than precmd
 #
 add-zsh-hook preexec vterm_prompt_end
 
-function set_window_title(){
+function set_window_title() {
     print -Pn "\e]2;%m:%2~\a"
 }
 precmd_functions+=(set_window_title)
