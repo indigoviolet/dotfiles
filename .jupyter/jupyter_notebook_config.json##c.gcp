@@ -4,7 +4,8 @@
     "allow_remote_access": true,
     "nbserver_extensions": {
       "jupyter_http_over_ws": true,
-      "jupyter_nbextensions_configurator": true
+      "jupyter_nbextensions_configurator": true,
+      "nbtag": true
     }
   }
 }
