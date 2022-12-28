@@ -263,12 +263,10 @@ dvc_data_status json='no':
 dvc_du:
     just -f {{ justfile() }} dvc_data_status 'yes' | jq -r '.unchanged[]' | xargs -IARG du -h "ARG" | sort -h
 
-
 # Run command in abduco and capture log
 abduco +args:
     #!/usr/bin/env bash
-    # name=$(codenamize "{{ args }}")
-    name=$(echo "{{ args }}" | perl -lne 's/\s+/-/g; print substr($_, 0, 25)')
+    name=${ABDUCO_NAME:-$(echo "{{ args }}" | perl -lne 's/\s+/-/g; print substr($_, 0, 25)')}
     cd {{ invocation_directory() }} && abduco -nf ${name} script -O ${name}.log --return -c "{{ args }}" && tail -F ${name}.log
 
 # cleans up completed sessions (But not their logs)
@@ -282,6 +280,10 @@ abduco_flush:
 # shutdown GCP vm after some interval
 shutdown_after time:
     just -f {{ justfile() }} abduco shutdown "termdown {{ time }} && sudo poweroff"
+
+wait_for_pid pid:
+    # https://stackoverflow.com/a/41613532/14044156
+    tail --pid={{ pid }} -f /dev/null
 
 duplicacy:
     #!/usr/bin/env bash
