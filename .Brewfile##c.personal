@@ -76,6 +76,8 @@ brew "net-tools"
 brew "node"
 # Platform built on V8 to build network applications
 brew "node@16"
+# Process manager for Procfile-based applications and tmux
+brew "overmind"
 # Swiss-army knife of markup format conversion
 brew "pandoc"
 # Parallel gzip
@@ -116,6 +118,8 @@ brew "zoxide"
 brew "indigoviolet/tap/abduco", args: ["HEAD"]
 # simple drag-and-drop source/sink for X or Wayland
 brew "indigoviolet/tap/dragon", args: ["HEAD"]
+# A new generation cloud backup tool 
+brew "indigoviolet/tap/duplicacy"
 # Utilities for tabular data files
 brew "indigoviolet/tap/tsv-utils"
 # Fast file synchronization and network forwarding for remote development

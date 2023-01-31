@@ -19,3 +19,4 @@ style = "bold inverted bright-green"
 
 [conda]
 ignore_base = false
+

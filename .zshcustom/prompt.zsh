@@ -7,19 +7,34 @@ else
     PS1='$ '
 fi
 
+# (vterm prompt tracking, requires vterm.zsh) We know that starship init zsh
+# sets $PROMPT, we append vterm_prompt_end per the vterm docs
 #
-# * Prompt tracking
+# A few things depend on this:
 #
-# Needs vterm.zsh to load before this
+# 1. default-directory in vterms changes with cd
+# 2. vterm-beginning-of-line goes to *after* the prompt character, and detached.el
+#    depends on this to extract the command line
+# 3. vterm-previous/next prompt
 #
-# https://github.com/rothgar/mastering-zsh/blob/master/docs/config/hooks.md
+# If we set this in a starship custom module as below, it doesn't work right and
+# runs into issues like this:
+# https://unix.stackexchange.com/questions/689453/zsh-tab-completion-moves-command-to-the-right-by-several-spaces-after-modifying
 #
-# - precmd :: fires before prompt is drawn
-# - preexec :: fires before command is executed
 #
-# In our context, preexec appears to work better at finding previous prompts than precmd
+# * starship config (for record)
 #
-add-zsh-hook preexec vterm_prompt_end
+# [custom.vterm_prompt_end]
+# # Vterm prompt and directory tracking (
+# # this must work with noninteractive zsh -c (can be changed with shell= option, ie cannot be a function)
+# command = "vterm_prompt_end"
+# description = "VTerm Prompt End and directory tracking"
+# when = ''' test $INSIDE_EMACS = "vterm" '''
+# format = '$output'
+# # disabled = true
+#
+#
+PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'
 
 function set_window_title() {
     print -Pn "\e]2;%m:%2~\a"

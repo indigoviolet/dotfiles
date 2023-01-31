@@ -8,6 +8,7 @@ function vterm_printf() {
         printf "\eP\e]%s\007\e\\" "$1"
     else
         printf "\e]%s\e\\" "$1"
+        #print -R -e -n "\e]$1\e\\"
     fi
 }
 
@@ -15,17 +16,21 @@ if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
     alias clear='vterm_printf "51;Evterm-clear-scrollback";tput clear'
 fi
 
-# Also see prompt.zsh
+#
+# * Prompt tracking
+#
+# On a remote machine, this is how vterm can set `default-directory`, which
+# in turn influences how emacs/tramp behaves: new terminals, find-file etc
+# use that as a reference.
+#
+# In particular, `hostname` on a remote machine might not return the same
+# alias used to log into it, and so might not work with `ssh <...>` - for
+# ex., on gcp `hostname` will return `<INSTANCE_NAME>`, but `gcloud compute
+# config-ssh` will create aliases of the form `<NAME>.<ZONE>.<PROJECT>`
+#
+# vterm_printf "51;A$(whoami)@$(hostname):$(pwd)"
+
 vterm_prompt_end() {
-    # On a remote machine, this is how vterm can set `default-directory`, which
-    # in turn influences how emacs/tramp behaves: new terminals, find-file etc
-    # use that as a reference.
-    #
-    # In particular, `hostname` on a remote machine might not return the same
-    # alias used to log into it, and so might not work with `ssh <...>` - for
-    # ex., on gcp `hostname` will return `<INSTANCE_NAME>`, but `gcloud compute
-    # config-ssh` will create aliases of the form `<NAME>.<ZONE>.<PROJECT>`
-    # vterm_printf "51;A$(whoami)@$(hostname):$(pwd)"
     vterm_printf "51;A$(pwd)"
 }
 

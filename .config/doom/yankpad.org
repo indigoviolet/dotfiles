@@ -111,7 +111,7 @@ mpl.rcParams["savefig.facecolor"] = "white"
 #+begin_src python
 # Datatables
 import polars as pr
-pr.Config.set_tbl_width_chars(550).set_fmt_str_lengths(200).set_tbl_rows(100)
+pr.Config.set_tbl_width_chars(550).set_fmt_str_lengths(200).set_tbl_rows(100).set_tbl_cols(50)
 # set_utf8_tables() is broken in emacs sometimes?
 # pr.Config.set_ascii_tables()
 pr.DataFrame({"a": [1, 2, 3], "b": [3, 4, 5]})
@@ -133,15 +133,17 @@ def init_altair(port_number: int = 9999, server_name: str = "localhost") -> None
         @property
         def url(self) -> str:
             return f"http://{server_name}:{self.port}"
-
         def start(self, port=None, timeout=1, daemon=True):
             return super().start(port=port_number, timeout=timeout, daemon=daemon)
 
     altair_viewer._viewer.EventProvider = EventProviderMock
 
 init_altair(35549)
+
+alt.renderers.register('altair_viewer', altair_viewer._viewer.ChartViewer().render)
 alt.renderers.enable("altair_viewer")
-alt.Chart(pr.DataFrame({"a": [1, 2, 3], "b": [3, 4, 5]}).to_pandas()).mark_bar()
+
+alt.Chart(pr.DataFrame({"a": [1, 2, 3], "b": [3, 4, 5]}).to_pandas()).mark_bar().encode(x=alt.X("a"), y=alt.Y("b"))
 #+end_src
 
 

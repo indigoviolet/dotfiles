@@ -233,11 +233,10 @@ glances plugins=env_var_or_default("plugins", "") *args='':
 
 
 dl *cmd:
-    cd {{ invocation_directory() }} && ~/dev/gcloud/gcpvm --dotenv-filename ~/dev/gcloud/deeplearning-1-vm.env -- "$@"
-
+    just -f {{ justfile() }} subjust "/home/venky/dev/gcloud/gcpvm --dotenv-filename=/home/venky/dev/gcloud/deeplearning-1-vm.env" "$@"
+    
 pregen *cmd:
-    cd {{ invocation_directory() }} && ~/dev/gcloud/gcpvm --dotenv-filename ~/dev/gcloud/prod-pregenerate.env -- "$@"
-
+    just -f {{ justfile() }} subjust "/home/venky/dev/gcloud/gcpvm --dotenv-filename=/home/venky/dev/gcloud/prod-pregenerate.env" "$@"
 
 conda-create-env:
     #!/usr/bin/env bash
@@ -285,11 +284,19 @@ wait_for_pid pid:
     # https://stackoverflow.com/a/41613532/14044156
     tail --pid={{ pid }} -f /dev/null
 
-duplicacy:
+duplicacy_root:
     #!/usr/bin/env bash
     set_x
-    set -o allexport; source $HOME/.config/duplicacy/b2.env; set +o allexport
-    pkexec duplicacy -log backup -storage b2_mxp_root -stats
+    cd /; pkexec env PATH=$PATH dotenv -f $HOME/.config/duplicacy/mxp_root/env run duplicacy -log backup -storage b2_mxp_root -stats
+
+duplicacy_home:
+    #!/usr/bin/env bash
+    set_x
+    cd $HOME; dotenv -f $HOME/.config/duplicacy/mxp_home_venky/env run duplicacy -log backup -storage b2_mxp_home_venky -stats
+
+[no-cd]
+subjust justcmd *cmd:
+    {{ justcmd }} -- "${@:2}"
 
 
 # Local Variables:

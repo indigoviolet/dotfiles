@@ -335,8 +335,13 @@
 (package! corfu :recipe (:host github :repo "minad/corfu" :files (:defaults "extensions/*.el")))
 (package! cape)
 (package! popon :recipe (:type git :repo "https://codeberg.org/akib/emacs-popon.git"))
-(package! corfu-terminal :recipe (:type git :repo "https://codeberg.org/akib/emacs-corfu-terminal.git"))
+;; (package! corfu-terminal :recipe (:type git :repo "https://codeberg.org/akib/emacs-corfu-terminal.git"))
 ;; Corfu/Cape:1 ends here
+
+;; [[file:config.org::*copilot][copilot:1]]
+(package! copilot
+  :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))
+;; copilot:1 ends here
 
 ;; [[file:config.org::*Iedit][Iedit:1]]
 (package! iedit)
@@ -406,6 +411,10 @@
 ;; [[file:config.org::*consult-notes][consult-notes:1]]
 (package! consult-notes :recipe (:host github :repo "mclear-tools/consult-notes"))
 ;; consult-notes:1 ends here
+
+;; [[file:config.org::*colored-text][colored-text:1]]
+(package! org-colored-text :recipe (:host github :repo "indigoviolet/org-colored-text"))
+;; colored-text:1 ends here
 
 ;; [[file:config.org::*Github flavored Markdown][Github flavored Markdown:1]]
 (package! ox-gfm)
@@ -499,6 +508,12 @@
 (package! commify)
 ;; numbers commas:1 ends here
 
+
+
+;; alternative: https://github.com/karthink/org-auctex
+
+
+
 ;; [[file:config.org::*latex][latex:1]]
 (package! org-latex-impatient)
 ;; latex:1 ends here
@@ -519,13 +534,37 @@
 (unpin! pdf-tools)
 ;; PDF:1 ends here
 
+;; [[file:config.org::*pdf tools fork with smooth scrolling][pdf tools fork with smooth scrolling:1]]
+(package! pdf-tools :recipe
+          (:host github
+                 :repo "dalanicolai/pdf-tools"
+                 :branch "pdf-roll"
+                 :files ("lisp/*.el"
+                         "README"
+                         ("build" "Makefile")
+                         ("build" "server")
+                         (:exclude "lisp/tablist.el" "lisp/tablist-filter.el"))))
+
+(package! image-roll :recipe
+          (:host github
+                 :repo "dalanicolai/image-roll.el"))
+;; pdf tools fork with smooth scrolling:1 ends here
+
 ;; [[file:config.org::*zotxt (zotero + emacs)][zotxt (zotero + emacs):1]]
 (package! zotxt)
 ;; zotxt (zotero + emacs):1 ends here
 
+;; [[file:config.org::*org-noter][org-noter:1]]
+(package! org-noter)
+;; org-noter:1 ends here
+
 ;; [[file:config.org::*Pomodoro][Pomodoro:1]]
 (package! org-pomodoro)
 ;; Pomodoro:1 ends here
+
+;; [[file:config.org::*detached][detached:1]]
+(package! detached)
+;; detached:1 ends here
 
 ;; [[file:config.org::*dev-docs][dev-docs:1]]
 (package! devdocs)
@@ -534,13 +573,3 @@
 ;; [[file:config.org::*Keyfreq][Keyfreq:1]]
 (package! keyfreq :recipe (:host github :repo "dacap/keyfreq"))
 ;; Keyfreq:1 ends here
-
-
-
-;; https://github.com/hlissner/doom-emacs/issues/4498
-
-
-
-;; [[file:config.org::*startup][startup:1]]
-(package! benchmark-init)
-;; startup:1 ends here

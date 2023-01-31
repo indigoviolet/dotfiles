@@ -57,11 +57,13 @@
 (doom-themes-visual-bell-config)
 ;; Themes:1 ends here
 
-;; [[file:config.org::*the actual theme we are using][the actual theme we are using:1]]
-(setq doom-theme 'doom-one
-      doom-one-brighter-comments nil
-      doom-one-brighter-modeline nil)
-;; the actual theme we are using:1 ends here
+;; [[file:config.org::*tokyo night][tokyo night:1]]
+(setq doom-theme 'doom-tokyo-night
+  doom-tokyo-night-brighter-modeline nil
+  doom-tokyo-night-brighter-comments t
+  doom-tokyo-night-comment-bg t
+  )
+;; tokyo night:1 ends here
 
 
 
@@ -146,6 +148,14 @@
 ;; https://github.com/dakrone/eos/blob/master/eos.org
 (setq save-interprogram-paste-before-kill t)
 ;; General:1 ends here
+
+;; [[file:config.org::*uniquify][uniquify:1]]
+(setq! uniquify-buffer-name-style 'post-forward
+  uniquify-after-kill-buffer-p t
+  uniquify-min-dir-content 0
+  uniquify-separator " | "
+  uniquify-strip-common-prefix t)
+;; uniquify:1 ends here
 
 ;; [[file:config.org::*whitespace][whitespace:1]]
 ;; (global-whitespace-mode +1)
@@ -522,6 +532,63 @@
 (setq font-lock-maximum-decoration nil)
 ;; font lock:1 ends here
 
+;; [[file:config.org::*tabs][tabs:1]]
+(tab-bar-mode 1)                           ;; enable tab bar
+(global-tab-line-mode t)
+(setq tab-bar-show t)
+(setq tab-bar-close-button-show nil)       ;; hide tab close / X button
+(setq tab-bar-new-button-show nil)       ;; hide tab close / X button
+(setq tab-bar-tab-hints nil)                 ;; show tab numbers
+(setq tab-bar-format '(tab-bar-format-tabs tab-bar-separator))
+(setq tab-bar-auto-width nil)
+
+(setq tab-line-close-button-show nil)       ;; hide tab close / X button
+(setq tab-line-new-button-show nil)       ;; hide tab close / X button
+;; tabs:1 ends here
+
+
+
+;; https://github.com/alphapapa/bufler.el/issues/84
+
+;; - [] filter out hidden buffers and special tabs?
+;; - [] cycle?
+;; - wrap bufler's tabs function to be stable?
+
+
+;; [[file:config.org::*switching tabs][switching tabs:1]]
+(defun vi/tab-line-first-buffer ()
+  (seq-first (bufler-workspace-buffers)))
+
+(defun vi/tab-line-last-buffer ()
+  (let* (
+          (bufs (bufler-workspace-buffers))
+          (len (seq-length bufs))
+          )
+    (seq-elt bufs (- len 1))))
+
+;; these select the first/last buffer on the tab-line of the next tab so that bufler-tabs-mode won't revert back
+(defun vi/next-tab ()
+  (interactive)
+  (progn (tab-bar-switch-to-next-tab) (switch-to-buffer (vi/tab-line-first-buffer))))
+
+(defun vi/prev-tab ()
+  (interactive)
+  (progn (tab-bar-switch-to-next-tab) (switch-to-buffer (vi/tab-line-last-buffer))))
+
+;; these switch to the next buffer on the tab-line and then to the next tab when the last tab-line buffer is reached
+(defun vi/next-tab-buffer ()
+  (interactive)
+  (if (eq (current-buffer) (vi/tab-line-last-buffer))
+    (vi/next-tab)
+    (tab-line-switch-to-next-tab)))
+
+(defun vi/prev-tab-buffer ()
+  (interactive)
+  (if (eq (current-buffer) (vi/tab-line-first-buffer))
+    (vi/prev-tab)
+    (tab-line-switch-to-prev-tab)))
+;; switching tabs:1 ends here
+
 ;; [[file:config.org::*with parens-mode][with parens-mode:1]]
 (after! paren
   (setq show-paren-style 'expression)
@@ -685,11 +752,6 @@ message listing the hooks."
   )
 ;; modeline:1 ends here
 
-;; [[file:config.org::*uniquify][uniquify:1]]
-(setq uniquify-buffer-name-style 'post-forward)
-(setq uniquify-strip-common-prefix t)
-;; uniquify:1 ends here
-
 ;; [[file:config.org::*minor modes][minor modes:2]]
 (after! doom-modeline
   (setq doom-modeline-minor-modes t)
@@ -771,15 +833,15 @@ message listing the hooks."
 
 
 (map! "M-k" #'consult-buffer)
-(map! :g
-  "M-<right>" #'next-buffer
-  "M-<left>" #'previous-buffer
-  )
+;; (map! :g
+;;   "M-<right>" #'next-buffer
+;;   "M-<left>" #'previous-buffer
+;;   )
 
-(map! :map org-mode-map
-  "M-<right>" nil
-  "M-<left>" nil
-)
+;; (map! :map org-mode-map
+;;   "M-<right>" nil
+;;   "M-<left>" nil
+;; )
 
 (setq! switch-to-prev-buffer-skip
   (lambda (win buf bury) (doom-special-buffer-p buf)))
@@ -870,32 +932,32 @@ message listing the hooks."
 
 ;; [[file:config.org::*bufler][bufler:2]]
 (use-package! bufler
-    :after-call doom-first-buffer-hook
-    :custom
-    (bufler-vc-state nil)
-    (bufler-columns '("Name" "VC" "Path" "Mode"))
-    (bufler-filter-name-regexps '("\\*Compile-Log\\*"
-                                     "\\*Disabled Command\\*"
-                                     ;; "\\*Org [^z-a]+Output\\*"
-                                     ))
-    (bufler-filter-buffer-modes '(bufler-list-mode
-                                     ;; calendar-mode
-                                     magit-diff-mode
-                                     magit-process-mode
-                                     magit-revision-mode
-                                     magit-section-mode
-                                     ;; special-mode
-                                     timer-list-mode))
-    (bufler-filter-buffer-fns
-        '(bufler--buffer-hidden-p bufler--buffer-mode-filtered-p bufler--buffer-name-filtered-p)
-        )
-    (bufler-groups
-        (bufler-defgroups
-            ;; suppressed above by bufler--buffer-hidden-p
-            ;; (group (hidden))
-            (group
-                ;; Group all Ein buffers
-                (name-match "*Ein*" (rx bos "*ein")))
+  :after-call doom-first-buffer-hook
+  :custom
+  (bufler-vc-state nil)
+  (bufler-columns '("Name" "VC" "Path" "Mode"))
+  (bufler-filter-name-regexps '("\\*Compile-Log\\*"
+                                 "\\*Disabled Command\\*"
+                                 ;; "\\*Org [^z-a]+Output\\*"
+                                 ))
+  (bufler-filter-buffer-modes '(bufler-list-mode
+                                 ;; calendar-mode
+                                 magit-diff-mode
+                                 magit-process-mode
+                                 magit-revision-mode
+                                 magit-section-mode
+                                 ;; special-mode
+                                 timer-list-mode))
+  (bufler-filter-buffer-fns
+    '(bufler--buffer-hidden-p bufler--buffer-mode-filtered-p bufler--buffer-name-filtered-p)
+    )
+  (bufler-groups
+    (bufler-defgroups
+      ;; suppressed above by bufler--buffer-hidden-p
+      ;; (group (hidden))
+      (group
+        ;; Group all Ein buffers
+        (name-match "*Ein*" (rx bos (or " *ein" "*ein"))))
             (group (mode-match "*Vterm*" (rx bos "vterm-")))
             (group
                 ;; Subgroup collecting all `help-mode' and `info-mode' buffers.
@@ -916,7 +978,7 @@ message listing the hooks."
                 (group
                     ;; Subgroup collecting these "special special" buffers
                     ;; separately for convenience.
-                    (name-match "**Special**"
+                    (name-match "**Extra-Special**"
                         (rx bos "*" (or "Messages" "Warnings" "scratch" "Backtrace") "*")))
                 (group
                     ;; Subgroup collecting all other Magit buffers, grouped by directory.
@@ -959,8 +1021,21 @@ message listing the hooks."
         ;; (message (format "Focusing %s %s" (current-buffer) (bufler-workspace-focus-buffer (current-buffer))))))
         (bufler-workspace-focus-buffer (current-buffer))))
     )
+
   :bind
-  ("C-x C-b" . bufler))
+  ("C-x C-b" . bufler)
+  )
+
+(after! bufler
+
+  (bufler-define-buffer-command revert "Revert buffer."
+    (lambda (buffer)
+      (when (buffer-file-name buffer)
+        (with-current-buffer buffer
+          (revert-buffer)))))
+  (map! :mode bufler-list-mode "v" #'bufler-list-buffer-revert)
+
+  )
 ;; bufler:2 ends here
 
 ;; [[file:config.org::*Popups][Popups:3]]
@@ -1023,9 +1098,9 @@ message listing the hooks."
         ((equal disp '(3000 . 2000))    ; laptop @ 100%, 200%
          (vi/set-font-size 13.0))
         ((equal disp '(4800 . 3200))    ; laptop @ 125%
-         (vi/set-font-size 17.0))
+         (vi/set-font-size 14.0))
         ((equal disp '(4002 . 2668))    ; laptop @ 150%
-         (vi/set-font-size 19.0))
+         (vi/set-font-size 14.0))
         ((equal disp '(3426 . 2284))    ; laptop @ 175%
          (vi/set-font-size 13.0))
         (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
@@ -1071,23 +1146,15 @@ message listing the hooks."
   )
 
 (use-package! easy-kill-extras
-  :after easy-kill
+  :after-call doom-first-input-hook
   :init
   (setq easy-kill-ace-jump-enable-p nil)
   :config
   (require 'extra-things)
+  (require 'easy-kill-mc)
   ;; Integrate `expand-region' functionality with easy-kill
   (define-key easy-kill-base-map (kbd "o") 'easy-kill-er-expand)
   (define-key easy-kill-base-map (kbd "i") 'easy-kill-er-unexpand)
-
-  ;; unused
-  ;;
-  ;;  '(?< buffer-before-point ""))
-  ;;  '(?> buffer-after-point ""))
-  ;;  '(?t string-to-char-backward ""))
-  ;;  '(?T string-up-to-char-backward ""))
-  ;;
-  ;;
   )
 
 ;; Here we integrate some  expand-region marking as easy-kill candidates
@@ -1358,6 +1425,16 @@ message listing the hooks."
   (add-hook! 'pdf-isearch-minor-mode-hook (ctrlf-local-mode -1))
   )
 
+(after! ctrlf
+  (setf (alist-get 'pcre ctrlf-style-alist)
+        `(:prompt "regexp"
+                  :translator pcre-to-elisp
+                  :case-fold ctrlf-no-uppercase-regexp-p
+                  :fallback (isearch-forward-regexp
+                             . isearch-backward-regexp)))
+  )
+
+
 (custom-set-faces!
   '(ctrlf-highlight-passive :background "#3b3a3b" :foreground "#d8bf9c")
   '(ctrlf-highlight-active :background nil :foreground nil :inherit isearch))
@@ -1446,7 +1523,8 @@ message listing the hooks."
 ;; [[file:config.org::*consult-projectile][consult-projectile:2]]
 (use-package! consult-projectile
     :custom
-    (+workspaces-switch-project-function (lambda (_) (consult-projectile-find-file)))
+  ;; (+workspaces-switch-project-function (lambda (_) (consult-projectile-find-file)))
+  (consult-project-buffer-sources consult-projectile-sources)
     )
 ;; consult-projectile:2 ends here
 
@@ -1500,8 +1578,7 @@ message listing the hooks."
 
 ;; [[file:config.org::*Orderless][Orderless:1]]
 (after! orderless
-  (setq orderless-matching-styles '(orderless-literal orderless-regexp
-                                                      orderless-flex)))
+  (setq orderless-matching-styles '(orderless-literal orderless-regexp ))) ;;orderless-flex)))
 
 (after! vertico
   (defun vi/match-components-literally ()
@@ -1627,7 +1704,7 @@ message listing the hooks."
   (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
   (defalias 'vi/cape-yankpad (cape-company-to-capf #'company-yankpad))
 
-  (setq-hook! '(conf-mode-hook text-mode-hook org-mode-hook ein:notebook-mode-hook)
+  (setq-hook! '(conf-mode-hook text-mode-hook json-mode-hook org-mode-hook ein:notebook-mode-hook)
     completion-at-point-functions
     (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad #'cape-dabbrev)))
 
@@ -1659,6 +1736,21 @@ message listing the hooks."
   (add-hook! 'lsp-completion-mode-hook #'vi/corfu-lsp-setup)
   )
 ;; Corfu/Cape:2 ends here
+
+;; [[file:config.org::*copilot][copilot:2]]
+(use-package! copilot
+  :custom
+  (copilot-idle-delay 1)
+  :hook (prog-mode . copilot-mode)
+  :bind (("C-TAB" . 'copilot-accept-completion-by-word)
+         ("C-<tab>" . 'copilot-accept-completion-by-word)
+         :map copilot-completion-map
+         ("<tab>" . 'copilot-accept-completion)
+         ("TAB" . 'copilot-accept-completion)))
+
+;; try to turn off keybindings (up/down) that company-mode interferes with
+(add-hook! copilot-mode (company-mode -1))
+;; copilot:2 ends here
 
 ;; [[file:config.org::*Iedit][Iedit:2]]
 (use-package! iedit
@@ -1705,15 +1797,14 @@ message listing the hooks."
    (;; ("f" +vertico/consult-fd "fd")
     ("s" +vertico/project-search "rg in project")
     ("l" consult-line "Line isearch")
-    ("D" doc-hydra/body "Docs"))
+     ;;("D" doc-hydra/body "Docs")
+     )
    "Buffers"
    (("b" consult-buffer "Buffers")
+     ("P" consult-projectile "Project buffers")
     ("T" dired-sidebar-jump-to-sidebar "Goto Tree")
     ("t" dired-sidebar-toggle-sidebar "Toggle tree")
      ("R" vi/revert-buffer "Revert")
-    ;; ("w" +workspace/cycle "next workspace")
-    ;; ("w" persp-switch "next workspace")
-     ;; ("w" tab-bar-switch-to-next-tab "next tab")
     ;; ("t" treemacs-select-window "treemacs")
     ;; ("T" +treemacs/toggle "Toggle treemacs")
      ;; ("`" popper-toggle-latest "Latest Popup")
@@ -1740,6 +1831,7 @@ message listing the hooks."
 
      ("v" vi/vterm-local "vterm-toggle")
      ("V" (vi/vterm-local t) "vterm")
+      ("D" detached-list-sessions "Detached list sessions")
     )
    "Modes"
    (;; ("a" hydra-annotate/body "Annotate")
@@ -2080,6 +2172,32 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   )
 ;; consult-notes:2 ends here
 
+;; [[file:config.org::*fill paragraph][fill paragraph:1]]
+(defun org-back-to-item ()
+  (re-search-backward "^ *[-+*]\\|^ *[1-9]+[)\.] " nil nil 1))
+
+(defun org-fill-paragraph-handle-lists (&optional num-paragraphs)
+  (interactive "p")
+  (save-excursion
+    (let ((bound (if mark-active
+                     (- (region-end) 2)
+                   (progn
+                     (org-back-to-item)
+                     (while (>= num-paragraphs 0)
+                       (call-interactively 'org-mark-element)
+                       (setq num-paragraphs (1- num-paragraphs)))
+                     (- (region-end) 2)))))
+      (while (search-forward "\n" bound t)
+        (replace-match " ")))
+    (org-fill-paragraph)))
+
+(map! :mode org-mode "C-M-q" #'org-fill-paragraph-handle-lists)
+;; fill paragraph:1 ends here
+
+;; [[file:config.org::*colored-text][colored-text:2]]
+(use-package! org-colored-text) ;; :load-path "/home/venky/dev/org-colored-text/")
+;; colored-text:2 ends here
+
 ;; [[file:config.org::*No htmlentities in quotes][No htmlentities in quotes:1]]
 (after! org
   (setq org-export-with-smart-quotes nil)
@@ -2254,57 +2372,57 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 ;; [[file:config.org::*vterm][vterm:2]]
 (setq vterm-module-cmake-args "-DUSE_SYSTEM_LIBVTERM=no")
 (use-package! vterm
-    :custom
-    (vterm-max-scrollback 100000)
-    (vterm-buffer-name-string "vterm %s")
-    (vterm-enable-manipulate-selection-data-by-osc52 t)
-    :bind
-    (
-        :map vterm-mode-map
-        ("M-j" . nil)
-        ("M-k" . nil)
-        ("M-9" . nil)
-        ("M-0" . nil)
-        ("S-<left>" . nil)
-        ("S-<right>" . nil)
-        ("S-<up>" . nil)
-        ("S-<down>" . nil)
-      ("M-<right>" . nil)
-      ("M-<left>" . nil)
-        ("C-\\" . vterm-send-next-key)
-        )
+  :custom
+  (vterm-max-scrollback 100000)
+  (vterm-buffer-name-string "vterm %s")
+  (vterm-enable-manipulate-selection-data-by-osc52 t)
+  :bind
+  (
+    :map vterm-mode-map
+    ("M-j" . nil)
+    ("M-k" . nil)
+    ("M-9" . nil)
+    ("M-0" . nil)
+    ("M-:" . nil)
+    ("S-<left>" . nil)
+    ("S-<right>" . nil)
+    ("S-<up>" . nil)
+    ("S-<down>" . nil)
+    ("C-9" . nil)
+    ("C-0" . nil)
+    ("C-\\" . vterm-send-next-key)
     )
+  :config
 
-(after! (doom-modeline vterm)
-    (doom-modeline-def-segment vterm-copy-mode
-        "Returns 'Copy' when vterm-copy-mode is active"
-        (when
-            (and (eq major-mode 'vterm-mode) vterm-copy-mode)
-            (concat (doom-modeline-spc) "[Copy]")))
+  (doom-modeline-def-segment vterm-copy-mode
+    "Returns 'Copy' when vterm-copy-mode is active"
+    (when
+      (and (eq major-mode 'vterm-mode) vterm-copy-mode)
+      (concat doom-modeline-spc "[Copy]")))
 
 
-    (doom-modeline-def-modeline 'vi/vterm
-        '(bar buffer-info-simple vterm-copy-mode selection-info remote-host)
-        '(purpose persp-name minor-modes major-mode))
+  (doom-modeline-def-modeline 'vi/vterm
+    '(bar buffer-info-simple vterm-copy-mode selection-info remote-host)
+    '(purpose persp-name minor-modes major-mode))
 
-    (remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
+  (remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
 
-    ;; This actually doesn't work with popper because it restores it to the old format
-    (add-hook! 'vterm-mode-hook (doom-modeline-set-modeline 'vi/vterm))
+  ;; This actually doesn't work with popper because it restores it to the old format
+  (add-hook! 'vterm-mode-hook (doom-modeline-set-modeline 'vi/vterm)))
 
-    ;; (defun vi/vterm-copy ()
-    ;; ;; shows in the misc-info segment
-    ;; (add-to-list 'global-mode-string '(:eval (vi/vterm-copy)))
-    )
+;; (defun vi/vterm-copy ()
+;; ;; shows in the misc-info segment
+;; (add-to-list 'global-mode-string '(:eval (vi/vterm-copy)))
+
 
 (defun vi/vterm-hooks ()
-    ;; linkify urls
-    ;; (goto-address-mode)
-    ;; Don't highlight trailing whitespace
-    (whitespace-mode -1)
-    ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Query-Before-Exit.html
-    (set-process-query-on-exit-flag (get-buffer-process (current-buffer)) nil)
-    )
+  ;; linkify urls
+  ;; (goto-address-mode)
+  ;; Don't highlight trailing whitespace
+  (whitespace-mode -1)
+  ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Query-Before-Exit.html
+  (set-process-query-on-exit-flag (get-buffer-process (current-buffer)) nil)
+  )
 (add-hook! 'vterm-mode-hook #'vi/vterm-hooks)
 ;; vterm:2 ends here
 
@@ -2606,10 +2724,10 @@ Results are reported in a compilation buffer."
   (lsp-ui-sideline-delay 0.1)
   ;; doc
   (lsp-ui-doc-enable t)
-  (lsp-ui-doc-include-signature nil)
-  (lsp-ui-doc-show-with-cursor t)
+  (lsp-ui-doc-include-signature t)
+  (lsp-ui-doc-show-with-cursor nil)
   (lsp-ui-doc-header nil)
-  (lsp-ui-doc-delay 0.1)
+  (lsp-ui-doc-delay 1)
   ;; peek
   (lsp-ui-peek-enable t)
   ;; imenu
@@ -3045,24 +3163,45 @@ With optional prefix argument ARG, drag all the files at once."
    :noquery t))
 ;; drag and drop:1 ends here
 
+
+
+;; Note: doom has significant customizations in advices around projectile: for
+;; instance, it forces projectile to use the "generic" command and not the
+;; vcs-specific command.
+
+
 ;; [[file:config.org::*Projectile][Projectile:1]]
 (use-package! projectile
   :after-call doom-first-buffer-hook
   :custom
   (projectile-project-search-path '("~/dev"))
-    (projectile-auto-discover t)
-    (projectile-enable-caching nil)
-    ;; (projectile-file-exists-local-cache-expire (* 12 60))
-    ;; (projectile-file-exists-local-cache-expire (* 12 60))
-  ;; Note:
-  ;;
-  ;; - no filtering will happen in Projectile if we use ~'alien~ -- everything
-  ;;   must be done via ~gitignore~
-  ;;
-  ;; - If projectile-enable-caching is t, use projectile-invalidate-cache first to
-  ;;   test changes in gitignore
-
-  (projectile-indexing-method 'alien)
+  (projectile-auto-discover t)
+  ;; copied from doom-projects.el to add -I to fd
+  (projectile-generic-command
+        (lambda (_)
+          ;; If fd exists, use it for git and generic projects. fd is a rust
+          ;; program that is significantly faster than git ls-files or find, and
+          ;; it respects .gitignore. This is recommended in the projectile docs.
+          (cond
+           ((when-let*
+                ((bin (if (ignore-errors (file-remote-p default-directory nil t))
+                          (cl-find-if (doom-rpartial #'executable-find t)
+                                      (list "fdfind" "fd"))
+                        doom-projectile-fd-binary))
+                 ;; REVIEW Temporary fix for #6618. Improve me later.
+                 (version (with-memoization doom-projects--fd-version
+                            (cadr (split-string (cdr (doom-call-process bin "--version"))
+                                                " " t))))
+                 ((ignore-errors (version-to-list version))))
+                (concat (format "%s . -0 -H -I --color=never --type file --type symlink --follow --exclude .git --exclude .venv --exclude .dvc %s"
+                                bin (if (version< version "8.3.0")
+                                        "" "--strip-cwd-prefix"))
+                        (if IS-WINDOWS " --path-separator=/"))))
+           ;; Otherwise, resort to ripgrep, which is also faster than find
+           ((executable-find "rg" t)
+            (concat "rg -0 --files --follow --color=never --hidden -g!.git"
+                    (if IS-WINDOWS " --path-separator=/")))
+           ("find . -type f -print0"))))
   :config
   (add-to-list 'projectile-project-root-files "pyproject.toml")
   )
@@ -3186,7 +3325,7 @@ Version 2016-01-08"
 (use-package! org-latex-impatient
   :hook (org-mode . org-latex-impatient-mode)
   :custom
-  ( org-latex-impatient-tex2svg-bin "/home/venky/node_modules/mathjax-node-cli/bin/tex2svg")
+  ( org-latex-impatient-tex2svg-bin "/home/venky/.asdf/shims/tex2svg")
   )
 ;; latex:2 ends here
 
@@ -3253,7 +3392,7 @@ Version 2016-01-08"
   )
 ;; zotxt (zotero + emacs):2 ends here
 
-;; [[file:config.org::*org-noter][org-noter:1]]
+;; [[file:config.org::*org-noter][org-noter:2]]
 (use-package! org-noter
   :custom
   (setq org-noter-always-create-frame nil
@@ -3265,7 +3404,7 @@ Version 2016-01-08"
         org-noter-doc-property-in-notes t
         )
   )
-;; org-noter:1 ends here
+;; org-noter:2 ends here
 
 ;; [[file:config.org::*Rotation][Rotation:1]]
 (after! pdf-view
@@ -3320,6 +3459,24 @@ rotate entire document."
 
   )
 ;; Rotation:1 ends here
+
+;; [[file:config.org::*detached][detached:2]]
+(use-package! detached
+  :init
+  (detached-init)
+  :bind (;; Replace `async-shell-command' with `detached-shell-command'
+         ([remap async-shell-command] . detached-shell-command)
+         ;; Replace `compile' with `detached-compile'
+         ([remap compile] . detached-compile)
+         ([remap recompile] . detached-compile-recompile)
+         ;; Replace built in completion of sessions with `consult'
+          ([remap detached-open-session] . detached-consult-session))
+  :custom ((detached-show-output-on-attach t)
+            (detached-session-directory "/tmp")
+            (detached-terminal-data-command system-type))
+  :hook (vterm-mode . detached-vterm-mode)
+  )
+;; detached:2 ends here
 
 ;; [[file:config.org::*dash][dash:1]]
 (after! dash-docs

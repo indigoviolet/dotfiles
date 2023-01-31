@@ -71,6 +71,12 @@ yes '' | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/i
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 #+end_src
 
+<2023-01-30 Mon>
+https://github.com/Homebrew/homebrew-core/issues/116841#issuecomment-1409812549
+brew has to be pinned to older version for now!
+
+recipes that break: fzf, direnv, micro, coreutils, abduco...
+
 *** Get yadm
 
 #+begin_src shell :noweb-ref start.sh
@@ -451,18 +457,7 @@ We use alt files to
 Some files are only useful on a specific class, but we don't bother removing
 these or hiding them. They are addressed at point of use - ie. if it is a
 zshcustom file, we might use templates to include them correctly in zshrc.
-* TODO Paperwm
-:LOGBOOK:
-- State "DONE"       from "TODO"       [2022-11-02 Wed 14:53]
-:END:
-
-TODO move to yadm
-
-Checked out in dev/PaperWM and installed.
-
-- +Currently using virtual-tiling-playground branch: https://github.com/paperwm/PaperWM/issues/303+
-
-- [X] seems like Gnome 40 breaks some stuff, see https://github.com/PaperWM-community/PaperWM, https://github.com/paperwm/PaperWM/issues/376#issuecomment-1020068861
+* TODO Paperwm (move to yadm)
 
 * Material shell
 

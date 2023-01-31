@@ -60,7 +60,7 @@
        vc-gutter         ; vcs diff in the fringe
        vi-tilde-fringe   ; fringe tildes to mark beyond EOB
        ;;window-select     ; visually switch windows
-       workspaces        ; tab emulation, persistence & separate workspaces
+       ;; workspaces        ; tab emulation, persistence & separate workspaces
        ;;zen               ; distraction-free coding or writing
 
        :editor
@@ -110,7 +110,7 @@
        magit             ; a git porcelain for Emacs
        ;;make              ; run make tasks from Emacs
        ;;pass              ; password manager for nerds
-       pdf               ; pdf enhancements <-- pdf-tools + org-noter: this crashes emacs on `i` in a pdf file
+  ;; pdf               ; pdf enhancements <-- pdf-tools + org-noter: this crashes emacs on `i` in a pdf file
        ;;prodigy           ; FIXME managing external services & code builders
        ;;rgb               ; creating color strings
        ;;taskrunner        ; taskrunner for all your projects
@@ -207,24 +207,3 @@
        ;; literate         ; for literate configs, (we prefer to use our own org-mode hook)
        (default +bindings +smartparens))
 ;; Active:1 ends here
-
-
-
-
-;; doom-debug-p renamed to init-file-debug (https://github.com/doomemacs/doomemacs/commit/14b239542414db812b32f9eca4fb58016d93d687)
-;; ~emacs --debug-init~ to do profiling
-
-
-;; [[file:config.org::*startup][startup:2]]
-(when init-file-debug
-  ;; https://github.com/dholm/benchmark-init-el/issues/15#issuecomment-766083560
-  (define-advice define-obsolete-function-alias (:filter-args (ll) fix-obsolete)
-    (let ((obsolete-name (pop ll))
-          (current-name (pop ll))
-          (when (if ll (pop ll) "1"))
-          (docstring (if ll (pop ll) nil)))
-      (list obsolete-name current-name when docstring)))
-  ;; (require 'benchmark-init-modes)
-  (require 'benchmark-init)
-  (add-hook 'doom-first-input-hook #'benchmark-init/deactivate))
-;; startup:2 ends here
