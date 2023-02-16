@@ -45,25 +45,66 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-
-(custom-set-faces!
-  '(font-lock-keyword-face :slant italic)
-  '(font-lock-doc-face :slant italic)
-  '(font-lock-comment-face :slant italic)
-  )
-
-;; (doom-themes-treemacs-config)
-(doom-themes-org-config)
-(doom-themes-visual-bell-config)
 ;; Themes:1 ends here
 
-;; [[file:config.org::*tokyo night][tokyo night:1]]
-(setq doom-theme 'doom-tokyo-night
-  doom-tokyo-night-brighter-modeline nil
-  doom-tokyo-night-brighter-comments t
-  doom-tokyo-night-comment-bg t
+
+
+;; https://protesilaos.com/emacs/modus-themes
+
+
+;; [[file:config.org::*modus][modus:2]]
+(setq!
+  modus-themes-disable-other-themes t
+  modus-themes-italic-constructs t
+  modus-themes-bold-constructs t
+  modus-themes-mixed-fonts nil
+  modus-themes-variable-pitch-ui nil
+  modus-themes-org-blocks 'tinted-background ; {nil,'gray-background,'tinted-background}
   )
-;; tokyo night:1 ends here
+(setq! modus-themes-common-palette-overrides
+  '(
+     (bg-region bg-dim)
+     (fg-region unspecified)
+     (border-mode-line-active unspecified)
+     (border-mode-line-inactive unspecified)
+     (fg-mode-line-active fg-main)
+     (border-mode-line-active blue-intense)
+     (bg-tab-bar bg-main)
+     (bg-tab-current bg-cyan-intense)
+     (bg-tab-other bg-inactive)
+     (bg-paren-match bg-magenta-intense)
+     (prose-done green-intense)
+     (prose-todo red-intense)
+     )
+  )
+(setq doom-theme 'modus-vivendi-tinted)
+(custom-set-faces!
+  '(highlight-indent-guides-character-face :foreground "#2b3045")
+  )
+;; modus:2 ends here
+
+
+
+;; doom-debug-p renamed to init-file-debug (https://github.com/doomemacs/doomemacs/commit/14b239542414db812b32f9eca4fb58016d93d687)
+;; ~emacs --debug-init~ to do profiling
+
+;; according to the doom emacs issues, this block should be in init.el, but that
+;; doesn't work.. so it's at the beginning of config.el and commented out.
+
+
+;; [[file:config.org::*profiling code][profiling code:2]]
+(when init-file-debug
+  ;; https://github.com/dholm/benchmark-init-el/issues/15#issuecomment-766083560
+  (define-advice define-obsolete-function-alias (:filter-args (ll) fix-obsolete)
+    (let ((obsolete-name (pop ll))
+          (current-name (pop ll))
+          (when (if ll (pop ll) "1"))
+          (docstring (if ll (pop ll) nil)))
+      (list obsolete-name current-name when docstring)))
+  ;; (require 'benchmark-init-modes)
+  (require 'benchmark-init)
+  (add-hook 'doom-first-input-hook #'benchmark-init/deactivate))
+;; profiling code:2 ends here
 
 
 
@@ -247,7 +288,7 @@
 
 ;; [[file:config.org::*Eval][Eval:2]]
 (use-package! pp+
-  :after-call doom-first-buffer-hook
+  :commands (pp-eval-expression pp-eval-last-sexp)
   :custom
   (pp-max-tooltip-size nil) ;; (cons 40 20)) ;; tooltips are slowww
   :config
@@ -470,21 +511,6 @@
   '(ansi-color-yellow :background "orange4")
   )
 ;; ansi colors:1 ends here
-
-
-
-;; solaire breaks ~rich~ (test with ~python -m rich.diagnose~), and therefore ~nbterm~
-
-;; Hence we turn off solaire-mode in vterm by calling vterm buffers "real"
-
-
-;; [[file:config.org::*vterm][vterm:1]]
-(defun vi/solaire-real-buffer-p ()
-  (if (memq major-mode '(vterm-mode)) t
-    (solaire-mode-real-buffer-p))
-  )
-(setq solaire-mode-real-buffer-fn #'vi/solaire-real-buffer-p)
-;; vterm:1 ends here
 
 ;; [[file:config.org::*hl-line][hl-line:1]]
 ;; https://christiantietze.de/posts/2022/03/hl-line-priority/
@@ -798,10 +824,27 @@ message listing the hooks."
 ;; Movement:2 ends here
 
 ;; [[file:config.org::*Splitting][Splitting:1]]
+(defun vi/split-window-horizontally ()
+  (interactive)
+  (split-window-horizontally)
+  (balance-windows))
+(defun vi/split-window-vertically ()
+  (interactive)
+  (split-window-vertically)
+  (balance-windows))
+(defun vi/delete-window ()
+  (interactive)
+  (delete-window)
+  (balance-windows))
+
+(defadvice delete-window (after restore-balance activate)
+  (balance-windows))
+
 (map! :g
-      "C-x |" #'split-window-horizontally
-      "C-x _" #'split-window-vertically
-      "C-x /" #'delete-window)
+      "C-x |" #'vi/split-window-horizontally
+      "C-x _" #'vi/split-window-vertically
+  "C-x -" #'balance-windows
+      "C-x /" #'vi/delete-window)
 
 ;; https://emacs.stackexchange.com/a/40517
 ;; control splitting to prefer vertical? (see split-window-sensibly)
@@ -810,14 +853,14 @@ message listing the hooks."
 ;; Splitting:1 ends here
 
 ;; [[file:config.org::*Keep windows balanced][Keep windows balanced:1]]
-(defadvice split-window-below (after restore-balance-below activate)
-  (balance-windows))
+;; (defadvice split-window-below (after restore-balance-below activate)
+;;   (balance-windows))
 
-(defadvice split-window-right (after restore-balance-right activate)
-  (balance-windows))
+;; (defadvice split-window-right (after restore-balance-right activate)
+;;   (balance-windows))
 
-(defadvice delete-window (after restore-balance activate)
-  (balance-windows))
+;; (defadvice delete-window (after restore-balance activate)
+;;   (balance-windows))
 ;; Keep windows balanced:1 ends here
 
 ;; [[file:config.org::*Switching][Switching:1]]
@@ -884,22 +927,6 @@ message listing the hooks."
 
 
 
-
-;; https://github.com/doomemacs/doomemacs/issues/2225
-
-
-;; [[file:config.org::*zoom][zoom:2]]
-(use-package! zoom
-  ;; :hook (doom-first-buffer . zoom-mode)
-  :custom
-  (zoom-size '(0.618 . 0.618))
-  (zoom-ignored-major-modes '(undo-tree-visualizer-mode vundo--mode))
-  (zoom-ignore-predicates (list (lambda () (< (count-lines (point-min) (point-max)) 20))))
-  )
-;; zoom:2 ends here
-
-
-
 ;; Bufler groups:
 
 ;; - Constructs a tree, buffers are the leaves.
@@ -958,59 +985,63 @@ message listing the hooks."
       (group
         ;; Group all Ein buffers
         (name-match "*Ein*" (rx bos (or " *ein" "*ein"))))
-            (group (mode-match "*Vterm*" (rx bos "vterm-")))
-            (group
-                ;; Subgroup collecting all `help-mode' and `info-mode' buffers.
-                (group-or "*Help/Info*"
-                    (mode-match "*Help*" (rx bos "help-"))
-                    (mode-match "*Info*" (rx bos "info-"))))
-            (group
-                ;; Subgroup collecting all special buffers (i.e. ones that are not
-                ;; file-backed), except `magit-status-mode'/dired buffers (which are allowed to fall
-                ;; through to other groups, so they end up grouped with their project buffers).
-                (group-and "*Special*"
-                    (lambda (buffer)
-                        (unless (or (funcall (mode-match "Magit" (rx bos "magit-status")) buffer)
-                                    (funcall (mode-match "Dired" (rx bos "dired")) buffer)
-                                    (funcall (auto-file) buffer))
-                            "*Special*"))
-                    )
-                (group
-                    ;; Subgroup collecting these "special special" buffers
-                    ;; separately for convenience.
-                    (name-match "**Extra-Special**"
-                        (rx bos "*" (or "Messages" "Warnings" "scratch" "Backtrace") "*")))
-                (group
-                    ;; Subgroup collecting all other Magit buffers, grouped by directory.
-                    (mode-match "*Magit* (non-status)" (rx bos (or "magit" "forge") "-"))
-                    (auto-directory)
-                    )
-                ;; Remaining special buffers are grouped automatically by mode.
-                (auto-mode))
-            ;; (group-and "Remaining specials?" (auto-special))
-            ;; All buffers under "~/.emacs.d" (or wherever it is).
-            (dir user-emacs-directory)
-            (group
-                ;; Subgroup collecting buffers in `org-directory'
-                (dir org-directory)
-                (group
-                    ;; Subgroup collecting indirect Org buffers, grouping them by file.
-                    ;; This is very useful when used with `org-tree-to-indirect-buffer'.
-                    (auto-indirect)
-                    (auto-file)
-                    )
-                ;; Group remaining buffers by whether they're file backed, then by mode.
-                (group-not "*special*" (auto-file))
-                (auto-mode)
-                )
-            (group
-                ;; Subgroup collecting buffers in a projectile project.
-                (auto-projectile))
-            ;; Group remaining buffers by directory, then major mode.
-            (auto-directory)
-            (auto-mode)
-            )
+      (group (mode-match "*Vterm*" (rx bos "vterm-")))
+      (group
+        ;; Subgroup collecting all `help-mode' and `info-mode' buffers.
+        (group-or "*Help/Info*"
+          (mode-match "*Help*" (rx bos "help-"))
+          (mode-match "*Info*" (rx bos "info-"))))
+      (group
+        ;; Subgroup collecting all special buffers (i.e. ones that are not
+        ;; file-backed), except `magit-status-mode'/dired buffers (which are allowed to fall
+        ;; through to other groups, so they end up grouped with their project buffers).
+        (group-and "*Special*"
+          (lambda (buffer)
+            (unless (or (funcall (mode-match "Magit" (rx bos "magit-status")) buffer)
+                      (funcall (mode-match "Dired" (rx bos "dired")) buffer)
+                      (funcall (auto-file) buffer))
+              "*Special*"))
+          )
+        (group
+          ;; Subgroup collecting these "special special" buffers
+          ;; separately for convenience.
+          (name-match "**Extra-Special**"
+            (rx bos "*" (or "Messages" "Warnings" "scratch" "Backtrace") "*")))
+        (group
+          ;; Subgroup collecting all other Magit buffers, grouped by directory.
+          (mode-match "*Magit* (non-status)" (rx bos (or "magit" "forge") "-"))
+          (auto-directory)
+          )
+        ;; Remaining special buffers are grouped automatically by mode.
+        (auto-mode))
+      ;; (group-and "Remaining specials?" (auto-special))
+      ;; All buffers under "~/.emacs.d" (or wherever it is).
+      (dir user-emacs-directory)
+      (group
+        ;; Subgroup collecting buffers in `org-directory'
+        (dir org-directory)
+        (group
+          ;; Subgroup collecting indirect Org buffers, grouping them by file.
+          ;; This is very useful when used with `org-tree-to-indirect-buffer'.
+          (auto-indirect)
+          (auto-file)
+          )
+        ;; Group remaining buffers by whether they're file backed, then by mode.
+        (group-not "*special*" (auto-file))
+        (auto-mode)
         )
+      (group
+        ;; Subgroup collecting buffers in a projectile project.
+        (auto-projectile)
+        (group (filename-match "venv" (rx ".venv/")))
+        (auto-mode)
+        )
+        
+      ;; Group remaining buffers by directory, then major mode.
+      (auto-directory)
+      (auto-mode)
+      )
+    )
   :config
   (bufler-workspace-tabs-mode)
 
@@ -1040,6 +1071,7 @@ message listing the hooks."
 
 ;; [[file:config.org::*Popups][Popups:3]]
 (use-package! popper
+  :after-call doom-first-buffer-hook
   :init
   (setq popper-mode-line " POP ")
   (setq popper-reference-buffers
@@ -1128,12 +1160,10 @@ message listing the hooks."
   (global-hungry-delete-mode))
 
 (use-package! expand-region
-  :after-call doom-first-input-hook
   :commands (er/mark-inside-pairs er/mark-inside-quotes er/mark-outside-pairs er/mark-outside-quotes)
   )
 
 (use-package! easy-kill
-  :after-call doom-first-input-hook
   :custom
   ;; Used for first marking
   (easy-mark-try-things '(symbol line forward-line-edge sexp)) ;see easy-kill-alist
@@ -1146,15 +1176,18 @@ message listing the hooks."
   )
 
 (use-package! easy-kill-extras
-  :after-call doom-first-input-hook
   :init
   (setq easy-kill-ace-jump-enable-p nil)
   :config
   (require 'extra-things)
   (require 'easy-kill-mc)
   ;; Integrate `expand-region' functionality with easy-kill
-  (define-key easy-kill-base-map (kbd "o") 'easy-kill-er-expand)
-  (define-key easy-kill-base-map (kbd "i") 'easy-kill-er-unexpand)
+  :bind (:map easy-kill-base-map
+          ("o" . easy-kill-er-expand)
+          ("i" . easy-kill-er-unexpand))
+
+  ;; (define-key easy-kill-base-map (kbd "o") 'easy-kill-er-expand)
+  ;; (define-key easy-kill-base-map (kbd "i") 'easy-kill-er-unexpand)
   )
 
 ;; Here we integrate some  expand-region marking as easy-kill candidates
@@ -1293,22 +1326,23 @@ message listing the hooks."
 
 ;; [[file:config.org::*Last change][Last change:2]]
 (use-package! goto-chg
-  :config
-  (map!
-   "C-." #'goto-last-change
-   "C-," #'goto-last-change-reverse))
-(after! org
-  ;; goto-last-change-reverse
-  (map! :map org-mode-map "C-," nil)
-  )
+  :bind (
+          ("C-." . goto-last-change)
+          ("C-," . goto-last-change-reverse)
+          :map org-mode-map ("C-," . nil)
+  ))
+;; (after! org
+;;   ;; goto-last-change-reverse
+;;   (map! :map org-mode-map "C-," nil)
+;;   )
 ;; Last change:2 ends here
 
 ;; [[file:config.org::*point][point:2]]
 (use-package! point-undo
-  :config
-  (map!
-   "s-." #'point-undo
-   "s-," #'point-redo))
+  :bind(
+         ("s-." . point-undo)
+         ("s-," . point-redo)
+         ))
 ;; point:2 ends here
 
 ;; [[file:config.org::*Snippets][Snippets:2]]
@@ -1317,7 +1351,6 @@ message listing the hooks."
   (yas-global-mode 1))
 
 (use-package! yankpad
-  :after-call doom-first-input-hook
   :commands (yankpad-insert);;  company-yankpad)
   :custom
   (yankpad-file "~/.config/doom/yankpad.org")
@@ -1328,13 +1361,12 @@ message listing the hooks."
 
 ;; [[file:config.org::*unfill paragraphs][unfill paragraphs:2]]
 (use-package! unfill
-  :after-call doom-first-input-hook
   :bind ("M-a" . unfill-paragraph))
 ;; unfill paragraphs:2 ends here
 
 ;; [[file:config.org::*Boxing][Boxing:2]]
 (use-package! rebox2
-  :after-call doom-first-input-hook
+  :commands (rebox-dwim)
   :config
   (setq rebox-style-loop '(13 15 23 25 16 17 26 27 11 21))
   :bind
@@ -1348,7 +1380,6 @@ message listing the hooks."
 
 ;; [[file:config.org::*separedit][separedit:2]]
 (use-package! separedit
-  :after-call doom-first-input-hook
   :custom
   (separedit-remove-trailing-spaces-in-comment t)
   (separedit-default-mode 'org-mode)
@@ -1383,7 +1414,6 @@ message listing the hooks."
 
 ;; [[file:config.org::*Movement][Movement:2]]
 (use-package! mwim
-  :after-call doom-first-input-hook
   :bind
   ("C-a" . mwim-beginning)
   ("C-e" . mwim-end)
@@ -1399,7 +1429,7 @@ message listing the hooks."
 
 ;; [[file:config.org::*smartscan][smartscan:2]]
 (use-package! smartscan
-  :after-call doom-first-input-hook
+  :after-call doom-first-buffer-hook
   :config
   (global-smartscan-mode 1)
 
@@ -1441,10 +1471,14 @@ message listing the hooks."
 ;; config:1 ends here
 
 ;; [[file:config.org::*Jumping][Jumping:2]]
+;; better-jumper is built into doom
 (use-package! smart-jump
-  :after-call doom-first-input-hook
   :config
   (smart-jump-setup-default-registers)
+  (advice-add #'smart-jump-go :around #'better-jumper-set-jump)
+  :bind (("M-." . smart-jump-go)
+          ("M-," . better-jumper-jump-backward)
+          ("M-?" . smart-jump-references))
   :commands (smart-jump-go smart-jump-back smart-jump-references)
   )
 
@@ -1452,6 +1486,15 @@ message listing the hooks."
   (setq xref-backend-functions (remq 'etags--xref-backend xref-backend-functions))
   (add-to-list 'xref-backend-functions #'dumb-jump-xref-activate t))
 
+(pretty-hydra-define jump-hydra (:exit t)
+  ("Jump"
+    (("c" +lookup/documentation "Docstring")
+    ("f" +lookup/definition "Definition")
+    ("u" +lookup/references "Usages")
+    ("i" +lookup/implementations "Impls")
+    ("t" +lookup/type-definition "Type")
+    ("F" +lookup/file "file"))
+   ))
 
 (after! smart-jump
   (smart-jump-register :modes 'lsp-mode
@@ -1503,8 +1546,9 @@ message listing the hooks."
 ;; consult-dir:1 ends here
 
 ;; [[file:config.org::*vicb][vicb:2]]
-(load! "lisp/vicb.el")
+(load! "lisp/vi-consult-buffers/vicb.el")
 (use-package! vicb
+  :after consult
   :config
   (vicb-setup)
   )
@@ -1596,7 +1640,6 @@ message listing the hooks."
 
 ;; [[file:config.org::*Narrowing][Narrowing:2]]
 (use-package! recursive-narrow
-  :after-call doom-first-input-hook
   :commands (hydra-narrow/body recursive-narrow-or-widen-dwim recursive-widen)
   :config
   (defhydra hydra-narrow (:exit t :columns 2)
@@ -1616,9 +1659,9 @@ message listing the hooks."
   :custom
   (outline-minor-mode-cycle t)
   :after-call doom-first-buffer-hook
-  :hook (
-         (prog-mode . outline-minor-mode)
-         )
+  ;; :hook (
+  ;;        (prog-mode . outline-minor-mode)
+  ;;        )
   :bind (:map outline-minor-mode-map
          ([C-tab] . outline-cycle)
          ("C-<iso-lefttab>" . outline-hide-other) ;C-S-<tab>
@@ -1643,15 +1686,10 @@ message listing the hooks."
 (setq-hook! 'python-mode-hook outline-regexp (python-rx (* space) (or defun decorator)))
 ;; Python:1 ends here
 
-;; [[file:config.org::*ts-fold][ts-fold:2]]
-(add-hook! 'tree-sitter-mode-hook #'fringe-mode #'ts-fold-mode) ;; #'ts-fold-indicators-mode)
-;; ts-fold:2 ends here
-
 ;; [[file:config.org::*Tabnine][Tabnine:2]]
 (use-package! company-tabnine
   :custom
   (company-tabnine-no-continue t)
-  :after-call doom-first-input-hook
   :commands (company-tabnine))
   ;; :config
   ;; ;; https://github.com/TommyX12/company-tabnine#known-issues
@@ -1674,7 +1712,7 @@ message listing the hooks."
 
 ;; [[file:config.org::*Corfu/Cape][Corfu/Cape:2]]
 (use-package! corfu
-  :after-call doom-first-input-hook
+  :after-call doom-first-buffer-hook
   :custom
   (corfu-auto t)
   (corfu-quit-no-match 'separator)
@@ -1699,7 +1737,7 @@ message listing the hooks."
                                         ;  )
 
 (use-package! cape
-  :after-call doom-first-input-hook
+  :after corfu
   :config
   (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
   (defalias 'vi/cape-yankpad (cape-company-to-capf #'company-yankpad))
@@ -1708,14 +1746,16 @@ message listing the hooks."
     completion-at-point-functions
     (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad #'cape-dabbrev)))
 
-    (defun vi/corfu-lsp-setup ()
+  (defun vi/corfu-lsp-setup ()
     ;; Combine LSP via corfu so we can use it in combination with
     ;; company-tabnine and yankpad
 
     (interactive)
     ;; https://github.com/minad/corfu/wiki
-    (setq-local lsp-enable-completion-at-point t)
-    (setq-local lsp-completion-provider :none)       ;we use corfu!
+
+    ;;;; these are set in LSP use-package
+    ;; (setq-local lsp-enable-completion-at-point t)
+    ;; (setq-local lsp-completion-provider :none)       ;we use corfu!
 
     (defun my/orderless-dispatch-flex-first (_pattern index _total)
       (and (eq index 0) 'orderless-flex))
@@ -1739,17 +1779,18 @@ message listing the hooks."
 
 ;; [[file:config.org::*copilot][copilot:2]]
 (use-package! copilot
+  :after corfu
   :custom
-  (copilot-idle-delay 1)
+  (copilot-idle-delay 0.5)
   :hook (prog-mode . copilot-mode)
-  :bind (("C-TAB" . 'copilot-accept-completion-by-word)
-         ("C-<tab>" . 'copilot-accept-completion-by-word)
+  :bind (;; ("C-TAB" . 'copilot-accept-completion-by-word)
+          ;; ("C-<tab>" . 'copilot-accept-completion-by-word)
          :map copilot-completion-map
-         ("<tab>" . 'copilot-accept-completion)
-         ("TAB" . 'copilot-accept-completion)))
+         ("C-<tab>" . 'copilot-accept-completion)
+         ("C-TAB" . 'copilot-accept-completion)))
 
 ;; try to turn off keybindings (up/down) that company-mode interferes with
-(add-hook! copilot-mode (company-mode -1))
+;; (add-hook! prog-mode :append (progn (message "disabling company mode") (company-mode -1) (message "disabled")))
 ;; copilot:2 ends here
 
 ;; [[file:config.org::*Iedit][Iedit:2]]
@@ -1760,7 +1801,7 @@ message listing the hooks."
 
 ;; [[file:config.org::*wgrep][wgrep:2]]
 (use-package! wgrep
-  :after doom-first-file-hook
+  :commands (wgrep-change-to-wgrep-mode)
   :custom
   (wgrep-auto-save-buffer t)
   )
@@ -1797,7 +1838,7 @@ message listing the hooks."
    (;; ("f" +vertico/consult-fd "fd")
     ("s" +vertico/project-search "rg in project")
     ("l" consult-line "Line isearch")
-     ;;("D" doc-hydra/body "Docs")
+     ("j" jump-hydra/body "Jump")
      )
    "Buffers"
    (("b" consult-buffer "Buffers")
@@ -1861,7 +1902,7 @@ message listing the hooks."
 (key-chord-define-global "jj" #'vi/major-mode-hydra)
 ;; Hydra:2 ends here
 
-;; [[file:config.org::*Org][Org:2]]
+;; [[file:config.org::*org-mode config][org-mode config:1]]
 (after! org
   ;; hide org markup indicators
   (setq org-hide-emphasis-markers t
@@ -1937,7 +1978,7 @@ message listing the hooks."
      )
     )
   )
-;; Org:2 ends here
+;; org-mode config:1 ends here
 
 ;; [[file:config.org::*show delimiters][show delimiters:2]]
 (use-package! org-appear
@@ -1954,7 +1995,7 @@ message listing the hooks."
 
 ;; [[file:config.org::*Use auto-tangle][Use auto-tangle:2]]
 (use-package! org-auto-tangle
- :after-call doom-first-buffer-hook
+ :after org
  :config
  (setq org-auto-tangle-default t)      ;this doesn't work with :custom
  :hook (org-mode . org-auto-tangle-mode))
@@ -2054,7 +2095,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 
 ;; [[file:config.org::*Import from various formats into org][Import from various formats into org:2]]
-(use-package! org-pandoc-import :after-call doom-first-file-hook)
+(use-package! org-pandoc-import :after org)
 ;; Import from various formats into org:2 ends here
 
 
@@ -2152,7 +2193,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; [[file:config.org::*Org Roam][Org Roam:1]]
 (use-package! org-roam
- :after-call doom-first-input-hook
+ :after consult-notes
  :custom
  ;; (org-roam-directory (getenv "HOME"))
  (org-roam-directory org-directory)
@@ -2165,7 +2206,6 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; [[file:config.org::*consult-notes][consult-notes:2]]
 (use-package! consult-notes
-  :after-call doom-first-input-hook
   :commands (consult-notes consult-notes-search-in-all-notes consult-notes-org-roam-find-node consult-notes-org-roam-find-node-relation)
   :config
   (consult-notes-org-roam-mode)
@@ -2195,7 +2235,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 ;; fill paragraph:1 ends here
 
 ;; [[file:config.org::*colored-text][colored-text:2]]
-(use-package! org-colored-text) ;; :load-path "/home/venky/dev/org-colored-text/")
+(use-package! org-colored-text :after org) ;; :load-path "/home/venky/dev/org-colored-text/")
 ;; colored-text:2 ends here
 
 ;; [[file:config.org::*No htmlentities in quotes][No htmlentities in quotes:1]]
@@ -2206,7 +2246,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; [[file:config.org::*ein][ein:2]]
 (use-package! ein
-  :after-call doom-first-buffer-hook
+  :commands (ein:notebooklist-open ein:notebooklist-login)
   :init
   (setq ein:polymode t)
   (setq ein:notebooklist-render-order '(render-opened-notebooks render-directory render-header))
@@ -2467,7 +2507,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; [[file:config.org::*Flycheck][Flycheck:1]]
 (use-package! flycheck
-  :after-call doom-first-buffer-hook
+  :after-call doom-first-file-hook
   :custom
   (flycheck-check-syntax-automatically '(mode-enabled save idle-change idle-buffer-switch))
   (flycheck-idle-change-delay 10)
@@ -2561,7 +2601,9 @@ Results are reported in a compilation buffer."
 (after! magit
   ;; Set magit log date formats
   (setq magit-log-margin '(t "%Y-%m-%d %H:%M " magit-log-margin-width t 18))
-  (setq magit-diff-refine-hunk (quote all))
+
+  ;; set to 'all, this seems to make commits slow?
+  (setq magit-diff-refine-hunk t)
 
   ;; Add ignored files section to magit status
   ;; This makes yadm-status very slow: https://github.com/magit/magit/discussions/4750
@@ -2580,28 +2622,93 @@ Results are reported in a compilation buffer."
 (add-hook! 'doom-first-file-hook #'magit-wip-mode)
 ;; magit backups (wip):1 ends here
 
+;; [[file:config.org::*ediff][ediff:1]]
+(defun vi/ediff-setup-windows-plain-merge (buf-A buf-B buf-C control-buffer)
+  ;; skip dedicated and unsplittable frames
+  (ediff-destroy-control-frame control-buffer)
+  (let ((window-min-height 1)
+         (with-Ancestor-p (with-current-buffer control-buffer
+                            ediff-merge-with-ancestor-job))
+         split-window-function
+         merge-window-share merge-window-lines
+         (buf-Ancestor (with-current-buffer control-buffer
+                         ediff-ancestor-buffer))
+         wind-A wind-B wind-C wind-Ancestor)
+    (with-current-buffer control-buffer
+      (setq merge-window-share ediff-merge-window-share
+        ;; this lets us have local versions of ediff-split-window-function
+        split-window-function ediff-split-window-function))
+    (delete-other-windows)
+    (set-window-dedicated-p (selected-window) nil)
+    (split-window-vertically)
+    (ediff-select-lowest-window)
+    (ediff-setup-control-buffer control-buffer)
+
+    ;; go to the upper window and split it betw A, B, and possibly C
+    (other-window 1)
+    (setq merge-window-lines
+      (max 2 (round (* (window-height) merge-window-share))))
+    (switch-to-buffer buf-A)
+    (setq wind-A (selected-window))
+
+    (split-window-vertically (max 2 (- (window-height) merge-window-lines)))
+    (if (eq (selected-window) wind-A)
+      (other-window 1))
+
+    (setq wind-C (selected-window))
+    (switch-to-buffer buf-C)
+
+    (select-window wind-A)
+    (funcall split-window-function)
+
+    (if (eq (selected-window) wind-A)
+      (other-window 1))
+    (switch-to-buffer buf-B)
+    (setq wind-B (selected-window))
+
+    (when (and ediff-show-ancestor with-Ancestor-p)
+      (select-window wind-B)
+      (split-window-horizontally)
+      (when (eq (selected-window) wind-B)
+        (other-window 1))
+      (switch-to-buffer buf-Ancestor)
+      (setq wind-Ancestor (selected-window)))
+
+    (balance-windows-area)
+
+    (with-current-buffer control-buffer
+      (setq ediff-window-A wind-A
+        ediff-window-B wind-B
+        ediff-window-C wind-C
+        ediff-window-Ancestor wind-Ancestor))
+
+    (ediff-select-lowest-window)
+    (minimize-window)
+    (ediff-setup-control-buffer control-buffer)
+    ))
+
+(add-hook! '(ediff-before-setup-hook ediff-before-setup-windows-hook) (setq ediff-window-setup-function #'vi/ediff-setup-windows-plain-merge))
+;; ediff:1 ends here
+
 
 
 ;; See https://www.reddit.com/r/emacs/comments/gjukb3/yadm_magit/gasc8n6/
 
 
 ;; [[file:config.org::*Using Tramp for magit/yadm][Using Tramp for magit/yadm:1]]
-(use-package! tramp
-    :after-call doom-first-input-hook
-    :custom
+(after! tramp
     ;; https://github.com/magit/magit/discussions/4750
-    (enable-remote-dir-locals t)
-    :config
-    (add-to-list 'tramp-methods
-        '("yadm"
-             (tramp-login-program "yadm")
-             (tramp-login-args (("enter")))
-             (tramp-remote-shell "/bin/bash")
-             (tramp-remote-shell-args ("-c"))))
+  (setq enable-remote-dir-locals t)
+  (add-to-list 'tramp-methods
+    '("yadm"
+       (tramp-login-program "yadm")
+       (tramp-login-args (("enter")))
+       (tramp-remote-shell "/bin/bash")
+       (tramp-remote-shell-args ("-c"))))
     (defun yadm-status ()
-        (interactive)
-        (require 'tramp)
-        (with-current-buffer (magit-status "/yadm::"))))
+      (interactive)
+      (require 'tramp)
+      (with-current-buffer (magit-status "/yadm::"))))
 ;; Using Tramp for magit/yadm:1 ends here
 
 
@@ -2659,7 +2766,9 @@ Results are reported in a compilation buffer."
   ;; https://emacs-lsp.github.io/lsp-mode/page/settings/
   (lsp-auto-configure t)
   (lsp-enable-imenu t)
-  (lsp-signature-auto-activate t)
+  ;; controls doc buffers at bottom (via eldoc?)
+  (lsp-signature-auto-activate nil)
+  (lsp-signature-render-documentation nil)
   (lsp-headerline-breadcrumb-enable t)
   (lsp-headerline-breadcrumb-enable-diagnostics nil)
   (lsp-keep-workspace-alive nil)
@@ -2672,10 +2781,32 @@ Results are reported in a compilation buffer."
 
     ;; This will disable the flycheck checkers. (we use them directly to have better control)
   ;; (lsp-diagnostics-provider :flycheck)
-
+  (lsp-diagnostic-clean-after-change t)
   ;; https://github.com/emacs-lsp/lsp-mode#performance
   (read-process-output-max (* 1024 1024)) ;; 1mb
   (lsp-file-watch-threshold 2000)
+  (lsp-enable-completion-at-point t)
+  (lsp-completion-provider :none)       ;disable company-mode
+
+  ;; sideline
+  (lsp-ui-sideline-enable t)
+  (lsp-ui-sideline-show-hover nil)
+  (lsp-ui-sideline-show-symbol nil)
+  (lsp-ui-sideline-show-diagnostics t)
+  (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-sideline-delay 0.1)
+  ;; doc
+  (lsp-ui-doc-enable t)
+  (lsp-ui-doc-include-signature t)
+  (lsp-ui-doc-show-with-cursor t)
+  (lsp-ui-doc-header nil)
+  (lsp-ui-doc-delay 1)
+  ;; peek
+  (lsp-ui-peek-enable t)
+  ;; imenu
+  ;; (lsp-ui-imenu-window-width 30)
+  ;; (lsp-ui-imenu-auto-refresh t)
+
 
   :config
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.venv\\'")
@@ -2700,46 +2831,15 @@ Results are reported in a compilation buffer."
      ("," lsp-find-type-definition "Find type"))
      ;; ("e" lsp-treemacs-errors-list "Errors"))
     )
-   )
+    )
   :after-call doom-first-buffer-hook
   :hook (
-         (python-mode . lsp-deferred)
+          ;; (python-mode . lsp-deferred)
          (c++-mode . vi/setup-c++-lsp)
          (lsp-mode . lsp-enable-which-key-integration)
          ;; (lsp-mode . lsp-treemacs-sync-mode)
          )
   :commands (lsp lsp-deferred))
-
-
-(use-package! lsp-ui
-  :after-call doom-first-buffer-hook
-  :custom
-
-  ;; sideline
-  (lsp-ui-sideline-enable t)
-  (lsp-ui-sideline-show-hover nil)
-  (lsp-ui-sideline-show-symbol nil)
-  (lsp-ui-sideline-show-diagnostics t)
-  (lsp-ui-sideline-show-code-actions t)
-  (lsp-ui-sideline-delay 0.1)
-  ;; doc
-  (lsp-ui-doc-enable t)
-  (lsp-ui-doc-include-signature t)
-  (lsp-ui-doc-show-with-cursor nil)
-  (lsp-ui-doc-header nil)
-  (lsp-ui-doc-delay 1)
-  ;; peek
-  (lsp-ui-peek-enable t)
-  ;; imenu
-  ;; (lsp-ui-imenu-window-width 30)
-  ;; (lsp-ui-imenu-auto-refresh t)
-  ;; :config
-  ;; (defun vi/lsp-ui-imenu ()
-  ;;   (interactive)
-  ;;   (lsp-ui-imenu)
-  ;;   (window-preserve-size (get-buffer-window lsp-ui-imenu-buffer-name) t t)
-  ;;   )
-  )
 ;; LSP:1 ends here
 
 
@@ -2771,8 +2871,15 @@ Results are reported in a compilation buffer."
 ;; Turn off lens:1 ends here
 
 ;; [[file:config.org::*Python][Python:1]]
+(use-package! python
+  :custom
+  (python-fill-docstring-style 'symmetric)
+  )
+;; Python:1 ends here
+
+;; [[file:config.org::*Python][Python:2]]
 (defun vi/setup-python-flycheck ()
-  (setq-local flycheck-python-mypy-executable (concat (projectile-project-root) "/.venv/bin/mypy"))
+
   ;; This needs to happen after lsp else:
   ;; Error (python-mode-hook): Error running hook "vi/setup-python-flycheck" because: (user-error lsp is not a syntax checker)
   (flycheck-select-checker 'lsp)
@@ -2781,7 +2888,8 @@ Results are reported in a compilation buffer."
   ;; (flycheck-add-next-checker 'lsp 'python-flake8-vi)
 
   ;; Why do we still have mypy? The theory is that it gives some better messages complementary to pyright
-  (flycheck-add-next-checker 'lsp 'python-mypy-vi)
+  ;;(setq-local flycheck-python-mypy-executable (concat (projectile-project-root) "/.venv/bin/mypy"))
+  ;; (flycheck-add-next-checker 'lsp 'python-mypy-vi)
 
   ;; Check if the file is broken
   (flycheck-add-next-checker 'lsp 'python-pycompile)
@@ -2789,43 +2897,7 @@ Results are reported in a compilation buffer."
   ;; we could disable mypy as well, since pyright does most of it, but pyright doesn't support attrs yet?
   (setq-local flycheck-disabled-checkers '(python-pylint python-mypy))
   )
-;; Python:1 ends here
-
-;; [[file:config.org::*Diagnostics filter hints][Diagnostics filter hints:1]]
-(defun vi/diag-matches-p (d sev tag)
-  (and (equal sev (ht-get d "severity"))
-       ;; handle nil ~tag~; convert ~tags~ from vector to list
-       (if tag (-contains? (append (ht-get d "tags") nil) tag) t)))
-
-(defun vi/filter-lsp-diagnostics (diag severity tag)
-  ;; ~diag~ will be a hash table with keys (diagnostics, uri) (ie. PublishDiagnosticsParams when called from lsp-diagnostic-filter)
-  ;;
-  ;; where each diagnostic is a hashtable with keys ~("range", "message", "severity", "tags", "source")~
-  ;;
-  ;; severity: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnosticSeverity
-  ;; tags: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnosticTag
-  ;;
-  ;; Note that ~(lsp-diagnostics)~ is not identical to PublishDiagnosticsParams:
-  ;;
-  ;; - PublishDiagnosticsParams has keys (uri, diagnostics), while lsp-diagnostics returns a hash table {uri: [diagnostics]}
-  ;; - PublishDiagnosticsParams[diagnostics] is a vector, not a list
-  ;;
-  ;; #+begin_example
-  ;; (ht-get* (-second-item (-second-item (ht-values (lsp-diagnostics)))) "message")
-  ;; #+end_example
-  ;;
-
-  ;;
-  (require 'ht)
-  (require 'dash)
-  ;; mutate diag to remove any diagnostics that match severity/tag
-  ;; For each item in ~diag~:
-  (-let* ((diagnostics (append (ht-get diag "diagnostics") nil))
-          (filtered (--remove (vi/diag-matches-p it severity tag) diagnostics)))
-     ;; update diag with filtered list
-    (ht-set! diag "diagnostics" filtered)
-    diag))
-;; Diagnostics filter hints:1 ends here
+;; Python:2 ends here
 
 ;; [[file:config.org::*LSP setup][LSP setup:1]]
 (defun vi/python-mode-lsp ()
@@ -2843,137 +2915,7 @@ Results are reported in a compilation buffer."
   )
 
 (add-hook! 'python-mode-hook #'vi/python-mode-lsp)
-
-;; even switch-buffer is slow. and we use direnv anyway
-;; (after! poetry
-;;   (setq poetry-tracking-strategy 'switch-buffer)
-;;   )
 ;; LSP setup:1 ends here
-
-
-
-;; - the builtin flake8 has to be configured via flake8rc, and I want a python-flake8-project-vi anyway
-;; - also the builtin flake8 looks for setup.cfg instead of projectile-project-root for :working-directory
-;; - filters flake8 to only pyflakes errors
-;; - skips .venv directory
-
-
-;; [[file:config.org::*Define flake8 checkers (for file and project)][Define flake8 checkers (for file and project):1]]
-(after! flycheck
-  (flycheck-define-checker python-flake8-vi
-    "flake8 -> pyflakes "
-
-    :command ("flake8"
-              "--format" "default"
-              "--select" "F"                ;only pyflakes
-              "--extend-exclude" ".venv"  ;no venvs
-              (config-file "--append-config" flycheck-flake8rc)
-              (option "--max-complexity" flycheck-flake8-maximum-complexity nil
-                      flycheck-option-int)
-              (option "--max-line-length" flycheck-flake8-maximum-line-length nil
-                      flycheck-option-int)
-              source-original)
-    :working-directory (lambda (_) (projectile-project-root))
-    :error-filter (lambda (errors)
-                    (let ((errors (flycheck-sanitize-errors errors)))
-                      (seq-map #'flycheck-flake8-fix-error-level errors)))
-    :error-patterns
-    ((warning line-start
-              (file-name) ":" line ":" (optional column ":") " "
-              (id (one-or-more (any alpha)) (one-or-more digit)) " "
-              (message (one-or-more not-newline))
-              line-end))
-    :modes python-mode
-    )
-
-  (add-to-list 'flycheck-checkers 'python-flake8-vi)
-
-  (flycheck-define-checker python-flake8-project-vi
-    "flake8 -> pyflakes, and running on whole project"
-
-    ;; Not calling flake8 directly makes it easier to switch between different
-    ;; Python versions; see https://github.com/flycheck/flycheck/issues/1055.
-    :command ("flake8"
-              "--format" "default"
-              "--select" "F"                ;only pyflakes
-              "--extend-exclude" ".venv"  ;no venvs
-              (config-file "--append-config" flycheck-flake8rc)
-              (option "--max-complexity" flycheck-flake8-maximum-complexity nil
-                      flycheck-option-int)
-              (option "--max-line-length" flycheck-flake8-maximum-line-length nil
-                      flycheck-option-int)
-              "."
-              )
-    :working-directory (lambda (_) (projectile-project-root))
-    :error-filter (lambda (errors)
-                    (let ((errors (flycheck-sanitize-errors errors)))
-                      (seq-map #'flycheck-flake8-fix-error-level errors)))
-    :error-patterns
-    ((warning line-start
-              (file-name) ":" line ":" (optional column ":") " "
-              (id (one-or-more (any alpha)) (one-or-more digit)) " "
-              (message (one-or-more not-newline))
-              line-end))
-    :modes python-mode
-    )
-
-  (add-to-list 'flycheck-checkers 'python-flake8-project-vi)
-  )
-;; Define flake8 checkers (for file and project):1 ends here
-
-
-
-;; There are some weird errors that show up if you don't run mypy from the root directory
-
-
-;; [[file:config.org::*Run mypy from projectile root dir][Run mypy from projectile root dir:1]]
-(after! flycheck
-  (flycheck-define-checker python-mypy-vi
-    "Mypy syntax and type checker (copied from flycheck, but with :working-directory)"
-    :command ("mypy"
-              "--show-column-numbers"
-              (config-file "--config-file" flycheck-python-mypy-config)
-              (option "--cache-dir" flycheck-python-mypy-cache-dir)
-              source-original)
-    :error-patterns
-    ((error line-start (file-name) ":" line (optional ":" column)
-            ": error:" (message) line-end)
-     (warning line-start (file-name) ":" line (optional ":" column)
-              ": warning:" (message) line-end)
-     (info line-start (file-name) ":" line (optional ":" column)
-           ": note:" (message) line-end))
-    :working-directory (lambda (_) (projectile-project-root))
-    :modes python-mode
-    ;; Ensure the file is saved, to work around
-    ;; https://github.com/python/mypy/issues/4746.
-    :predicate flycheck-buffer-saved-p)
-
-  (add-to-list 'flycheck-checkers 'python-mypy-vi))
-;; Run mypy from projectile root dir:1 ends here
-
-;; [[file:config.org::*Run mypy for the entire project][Run mypy for the entire project:1]]
-(after! flycheck
-  (flycheck-define-checker python-mypy-project-vi
-    "Mypy the entire project"
-    :command ("mypy"
-              "--show-column-numbers"
-              (config-file "--config-file" flycheck-python-mypy-config)
-              (option "--cache-dir" flycheck-python-mypy-cache-dir)
-              "."
-              )
-    :error-patterns
-    ((error line-start (file-name) ":" line (optional ":" column)
-            ": error:" (message) line-end)
-     (warning line-start (file-name) ":" line (optional ":" column)
-              ": warning:" (message) line-end)
-     (info line-start (file-name) ":" line (optional ":" column)
-           ": note:" (message) line-end))
-    :working-directory (lambda (_) (projectile-project-root))
-    :modes python-mode
-    )
-  (add-to-list 'flycheck-checkers 'python-mypy-project-vi)
-  )
-;; Run mypy for the entire project:1 ends here
 
 ;; [[file:config.org::*Hydra][Hydra:1]]
 (major-mode-hydra-define (python-mode python-pytest-mode) (:exit t :quit-key ("q" "C-g"))
@@ -2997,13 +2939,14 @@ Results are reported in a compilation buffer."
 
 ;; [[file:config.org::*Pyflyby][Pyflyby:1]]
 (use-package! pyflyby
+  :commands (pyflyby-transform-region-with-command)
   :load-path "~/.local/pipx/venvs/pyflyby/share/emacs/site-lisp"
-  :config
-  (defun vi/pyflyby-tidy-imports ()
-    (interactive "*")
-    ;; even with this, it will drop comments https://github.com/deshaw/pyflyby/issues/154
-    (pyflyby-transform-region-with-command "tidy-imports" "--black");;  "--align=0" "--from-spaces=1")
-    )
+  )
+
+(defun vi/pyflyby-tidy-imports ()
+  (interactive "*")
+  ;; even with this, it will drop comments https://github.com/deshaw/pyflyby/issues/154
+  (pyflyby-transform-region-with-command "tidy-imports" "--black");;  "--align=0" "--from-spaces=1")
   )
 ;; Pyflyby:1 ends here
 
@@ -3066,6 +3009,7 @@ Results are reported in a compilation buffer."
 
 ;; [[file:config.org::*all the icons][all the icons:2]]
 (use-package! all-the-icons-dired
+  :after dired
   :config
   :hook (dired-mode . (lambda ()
                        (interactive)
@@ -3073,6 +3017,7 @@ Results are reported in a compilation buffer."
                          (all-the-icons-dired-mode)))))
 
 (use-package! dired-subtree
+  :commands (dired-subtree-toggle)
   :config
   (advice-add 'dired-subtree-toggle :after (lambda ()
                                              (interactive)
@@ -3323,6 +3268,7 @@ Version 2016-01-08"
 
 ;; [[file:config.org::*latex][latex:2]]
 (use-package! org-latex-impatient
+  :after org
   :hook (org-mode . org-latex-impatient-mode)
   :custom
   ( org-latex-impatient-tex2svg-bin "/home/venky/.asdf/shims/tex2svg")
@@ -3352,7 +3298,6 @@ Version 2016-01-08"
 
 ;; [[file:config.org::*gif screencast][gif screencast:2]]
 (use-package! gif-screencast
-  :after-call doom-first-input-hook
   :bind (:map gif-screencast-mode-map
          (("<f8>" . #'gif-screencast-stop)
           ("<f9>" . #'gif-screencast-toggle-pause)))
@@ -3361,7 +3306,7 @@ Version 2016-01-08"
 
 ;; [[file:config.org::*Keycast][Keycast:2]]
 (use-package! keycast
-  :after-call doom-first-input-hook
+  :commands (keycast-mode)
   :config
   (define-minor-mode keycast-mode
     "Show current command and its key binding in the mode line (fix for use with doom-mode-line)."
@@ -3394,6 +3339,7 @@ Version 2016-01-08"
 
 ;; [[file:config.org::*org-noter][org-noter:2]]
 (use-package! org-noter
+  :commands (org-noter)
   :custom
   (setq org-noter-always-create-frame nil
         org-noter-separate-notes-from-heading t
@@ -3462,18 +3408,27 @@ rotate entire document."
 
 ;; [[file:config.org::*detached][detached:2]]
 (use-package! detached
+  :after vterm
   :init
   (detached-init)
   :bind (;; Replace `async-shell-command' with `detached-shell-command'
-         ([remap async-shell-command] . detached-shell-command)
-         ;; Replace `compile' with `detached-compile'
-         ([remap compile] . detached-compile)
-         ([remap recompile] . detached-compile-recompile)
-         ;; Replace built in completion of sessions with `consult'
+          ([remap async-shell-command] . detached-shell-command)
+          ;; Replace `compile' with `detached-compile'
+          ([remap compile] . detached-compile)
+          ([remap recompile] . detached-compile-recompile)
+          ;; Replace built in completion of sessions with `consult'
           ([remap detached-open-session] . detached-consult-session))
   :custom ((detached-show-output-on-attach t)
             (detached-session-directory "/tmp")
             (detached-terminal-data-command system-type))
+
+  :config
+  (connection-local-set-profile-variables
+    'remote-detached
+    '((detached-session-directory . "/tmp")
+       (detached-dtach-program . "dtach")))
+  (connection-local-set-profiles
+    '(:application tramp :protocol "ssh") 'remote-detached)
   :hook (vterm-mode . detached-vterm-mode)
   )
 ;; detached:2 ends here

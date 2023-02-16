@@ -33,6 +33,9 @@ https://www.masteringemacs.org/article/keeping-secrets-in-emacs-gnupg-auth-sourc
   ~:after-call (pre-command-hook after-find-file dired-before-readin-hook doom-first-buffer-hook doom-first-input-hook doom-first-file-hook ))~ <- some hooks that can be used for :after-call
 
 https://github.com/hlissner/doom-emacs/issues/310#issuecomment-354424413
+https://github.com/doomemacs/doomemacs/blob/master/docs/getting_started.org#packages-are-eagerly-loaded
+[[help:use-package][use-package docs]]
+
 
 ** Debugging
 
@@ -392,25 +395,69 @@ We start by simply defining the standard headers used by the three files. These 
 ;; they are implemented.
 #+end_src
 
-** Themes
+* Themes
 
 #+begin_src emacs-lisp
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
 
+
+#+end_src
+
+*** modus
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! modus-themes :recipe (:host github :repo "protesilaos/modus-themes"))
+#+end_src
+
+https://protesilaos.com/emacs/modus-themes
+
+#+begin_src emacs-lisp
+(setq!
+  modus-themes-disable-other-themes t
+  modus-themes-italic-constructs t
+  modus-themes-bold-constructs t
+  modus-themes-mixed-fonts nil
+  modus-themes-variable-pitch-ui nil
+  modus-themes-org-blocks 'tinted-background ; {nil,'gray-background,'tinted-background}
+  )
+(setq! modus-themes-common-palette-overrides
+  '(
+     (bg-region bg-dim)
+     (fg-region unspecified)
+     (border-mode-line-active unspecified)
+     (border-mode-line-inactive unspecified)
+     (fg-mode-line-active fg-main)
+     (border-mode-line-active blue-intense)
+     (bg-tab-bar bg-main)
+     (bg-tab-current bg-cyan-intense)
+     (bg-tab-other bg-inactive)
+     (bg-paren-match bg-magenta-intense)
+     (prose-done green-intense)
+     (prose-todo red-intense)
+     )
+  )
+(setq doom-theme 'modus-vivendi-tinted)
+(custom-set-faces!
+  '(highlight-indent-guides-character-face :foreground "#2b3045")
+  )
+#+end_src
+
+*** COMMENT doom theme
+
+#+begin_src emacs-lisp
 (custom-set-faces!
   '(font-lock-keyword-face :slant italic)
   '(font-lock-doc-face :slant italic)
   '(font-lock-comment-face :slant italic)
   )
 
-;; (doom-themes-treemacs-config)
+;; (doom-themes-treemacs-config); not using treemacs
 (doom-themes-org-config)
 (doom-themes-visual-bell-config)
 #+end_src
-
-*** COMMENT doom one:
+**** COMMENT doom one:
 
 #+begin_src emacs-lisp
 (setq doom-theme 'doom-one
@@ -418,7 +465,7 @@ We start by simply defining the standard headers used by the three files. These 
       doom-one-brighter-modeline t)
 #+end_src
 
-*** tokyo night
+**** COMMENT tokyo night
 
 
 #+begin_src emacs-lisp
@@ -428,15 +475,7 @@ We start by simply defining the standard headers used by the three files. These 
   doom-tokyo-night-comment-bg t
   )
 #+end_src
-*** COMMENT modus
-
-
-#+begin_src emacs-lisp
-(setq doom-theme 'modus-vivendi)
-#+end_src
-
-
-*** COMMENT doom-dark+
+**** COMMENT doom-dark+
 
 
 #+begin_src emacs-lisp
@@ -452,189 +491,189 @@ here as-is for now, as it is quite well structured and clear.
 ** Active
 #+begin_src emacs-lisp :tangle init.el
 (doom! :input
-       ;;chinese
-       ;;japanese
-       ;;layout            ; auie,ctsrnm is the superior home row
+  ;;chinese
+  ;;japanese
+  ;;layout            ; auie,ctsrnm is the superior home row
 
-       :completion
-       ;; company           ; the ultimate code completion backend
-       ;;helm              ; the *other* search engine for love and life
-       ;;ido               ; the other *other* search engine...
-       ;;ivy               ; a search engine for love and life
-       (vertico +icons)           ; the search engine of the future
+  :completion
+  ;; company           ; the ultimate code completion backend
+  ;;helm              ; the *other* search engine for love and life
+  ;;ido               ; the other *other* search engine...
+  ;;ivy               ; a search engine for love and life
+  (vertico +icons)           ; the search engine of the future
 
-       :ui
-       ;;deft              ; notational velocity for Emacs
-       doom              ; what makes DOOM look the way it does
-       doom-dashboard    ; a nifty splash screen for Emacs
-       doom-quit         ; DOOM quit-message prompts when you quit Emacs
-       (emoji +unicode)  ; 🙂
-       hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
-       hydra
-       indent-guides     ; highlighted indent columns
-       ;;ligatures         ; ligatures and symbols to make your code pretty again
-       ;;minimap           ; show a map of the code on the side
+  :ui
+  ;;deft              ; notational velocity for Emacs
+  doom              ; what makes DOOM look the way it does
+  doom-dashboard    ; a nifty splash screen for Emacs
+  doom-quit         ; DOOM quit-message prompts when you quit Emacs
+  (emoji +unicode)  ; 🙂
+  hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
+  hydra
+  indent-guides     ; highlighted indent columns
+  ;;ligatures         ; ligatures and symbols to make your code pretty again
+  ;;minimap           ; show a map of the code on the side
 
-       ;; +light is nice, but see https://github.com/hlissner/emacs-hide-mode-line/issues/9
-       (modeline);; +light)          ; snazzy, Atom-inspired modeline, plus API
-       ;; nav-flash         ; blink cursor line after big motions
-       ;;neotree           ; a project drawer, like NERDTree for vim
-       ophints           ; highlight the region an operation acts on
-       ;; (popup +defaults)   ; tame sudden yet inevitable temporary windows
-       ;;tabs              ; a tab bar for Emacs
-       ;; treemacs          ; a project drawer, like neotree but cooler
+  ;; +light is nice, but see https://github.com/hlissner/emacs-hide-mode-line/issues/9
+  (modeline);; +light)          ; snazzy, Atom-inspired modeline, plus API
+  ;; nav-flash         ; blink cursor line after big motions
+  ;;neotree           ; a project drawer, like NERDTree for vim
+  ophints           ; highlight the region an operation acts on
+  ;; (popup +defaults)   ; tame sudden yet inevitable temporary windows
+  ;;tabs              ; a tab bar for Emacs
+  ;; treemacs          ; a project drawer, like neotree but cooler
 
-       ;; See [[*Why not use unicode-fonts][Why not use unicode-fonts]] <2022-03-23 Wed>
-       ;; unicode           ; extended unicode support for various languages
-       vc-gutter         ; vcs diff in the fringe
-       vi-tilde-fringe   ; fringe tildes to mark beyond EOB
-       ;;window-select     ; visually switch windows
-       ;; workspaces        ; tab emulation, persistence & separate workspaces
-       ;;zen               ; distraction-free coding or writing
+  ;; See [[*Why not use unicode-fonts][Why not use unicode-fonts]] <2022-03-23 Wed>
+  ;; unicode           ; extended unicode support for various languages
+  vc-gutter         ; vcs diff in the fringe
+  vi-tilde-fringe   ; fringe tildes to mark beyond EOB
+  ;;window-select     ; visually switch windows
+  ;; workspaces        ; tab emulation, persistence & separate workspaces
+  ;;zen               ; distraction-free coding or writing
 
-       :editor
-       ;; (evil +everywhere); come to the dark side, we have cookies
-       ;; file-templates    ; auto-snippets for empty files
-       fold              ; (nigh) universal code folding
-      ;; (format +onsave)  ; automated prettiness
-       ;;god               ; run Emacs commands without modifier keys
-       ;;lispy             ; vim for lisp, for people who don't like vim
-       ;;multiple-cursors  ; editing in many places at once
-       ;;objed             ; text object editing for the innocent
-       ;;parinfer          ; turn lisp into python, sort of
-       ;;rotate-text       ; cycle region at point between text candidates
-       ;; snippets          ; my elves. They type so I don't have to
-       ;;word-wrap         ; soft wrapping with language-aware indent
+  :editor
+  ;; (evil +everywhere); come to the dark side, we have cookies
+  ;; file-templates    ; auto-snippets for empty files
+  fold              ; (nigh) universal code folding
+  ;; (format +onsave)  ; automated prettiness
+  ;;god               ; run Emacs commands without modifier keys
+  ;;lispy             ; vim for lisp, for people who don't like vim
+  ;;multiple-cursors  ; editing in many places at once
+  ;;objed             ; text object editing for the innocent
+  ;;parinfer          ; turn lisp into python, sort of
+  ;;rotate-text       ; cycle region at point between text candidates
+  ;; snippets          ; my elves. They type so I don't have to
+  ;;word-wrap         ; soft wrapping with language-aware indent
 
-       :emacs
-       dired             ; making dired pretty [functional]
-       electric          ; smarter, keyword-based electric-indent
-       ;;ibuffer         ; interactive buffer management
-       undo              ; persistent, smarter undo for your inevitable mistakes
-       vc                ; version-control and Emacs, sitting in a tree
+  :emacs
+  dired             ; making dired pretty [functional]
+  electric          ; smarter, keyword-based electric-indent
+  ;;ibuffer         ; interactive buffer management
+  undo              ; persistent, smarter undo for your inevitable mistakes
+  vc                ; version-control and Emacs, sitting in a tree
 
-       :term
-       ;;eshell            ; the elisp shell that works everywhere
-       ;;shell             ; simple shell REPL for Emacs
-       ;;term              ; basic terminal emulator for Emacs
-       vterm             ; the best terminal emulation in Emacs
+  :term
+  ;;eshell            ; the elisp shell that works everywhere
+  ;;shell             ; simple shell REPL for Emacs
+  ;;term              ; basic terminal emulator for Emacs
+  vterm             ; the best terminal emulation in Emacs
 
-       :checkers
-       syntax              ; tasing you for every semicolon you forget
-       ;;(spell +flyspell) ; tasing you for misspelling mispelling
-       ;;grammar           ; tasing grammar mistake every you make
+  :checkers
+  syntax              ; tasing you for every semicolon you forget
+  ;;(spell +flyspell) ; tasing you for misspelling mispelling
+  ;;grammar           ; tasing grammar mistake every you make
 
-       :tools
-       ;;ansible
-       ;;biblio            ; Writes a PhD for you (citation needed)
-       ;;debugger          ; FIXME stepping through code, to help you add bugs
-       direnv                ;uses https://github.com/purcell/envrc
-       ;; docker
-       editorconfig      ; let someone else argue about tabs vs spaces
-       ein               ; tame Jupyter notebooks with emacs
-       eval     ; run code, run (also, repls) ;; +overlay disabled
-       ;;gist              ; interacting with github gists
-       (lookup +docsets)              ; navigate your code and its documentation
-       (lsp +peek)               ; M-x vscode
-       magit             ; a git porcelain for Emacs
-       ;;make              ; run make tasks from Emacs
-       ;;pass              ; password manager for nerds
+  :tools
+  ;;ansible
+  ;;biblio            ; Writes a PhD for you (citation needed)
+  ;;debugger          ; FIXME stepping through code, to help you add bugs
+  direnv                ;uses https://github.com/purcell/envrc
+  ;; docker
+  editorconfig      ; let someone else argue about tabs vs spaces
+  ein               ; tame Jupyter notebooks with emacs
+  eval     ; run code, run (also, repls) ;; +overlay disabled
+  ;;gist              ; interacting with github gists
+  (lookup +docsets)              ; navigate your code and its documentation
+  (lsp +peek)               ; M-x vscode
+  magit             ; a git porcelain for Emacs
+  ;;make              ; run make tasks from Emacs
+  ;;pass              ; password manager for nerds
   ;; pdf               ; pdf enhancements <-- pdf-tools + org-noter: this crashes emacs on `i` in a pdf file
-       ;;prodigy           ; FIXME managing external services & code builders
-       ;;rgb               ; creating color strings
-       ;;taskrunner        ; taskrunner for all your projects
-       ;;terraform         ; infrastructure as code
-       ;;tmux              ; an API for interacting with tmux
-       ;;upload            ; map local to remote projects via ssh/ftp
+  ;;prodigy           ; FIXME managing external services & code builders
+  ;;rgb               ; creating color strings
+  ;;taskrunner        ; taskrunner for all your projects
+  ;;terraform         ; infrastructure as code
+  ;;tmux              ; an API for interacting with tmux
+  ;;upload            ; map local to remote projects via ssh/ftp
 
-       :os
-       (:if IS-MAC macos)  ; improve compatibility with macOS
-       ;;tty               ; improve the terminal Emacs experience
+  :os
+  (:if IS-MAC macos)  ; improve compatibility with macOS
+  ;;tty               ; improve the terminal Emacs experience
 
-       :lang
-       ;;agda              ; types of types of types of types...
-       ;;beancount         ; mind the GAAP
-       (cc +lsp)         ; C > C++ == 1
-       ;;clojure           ; java with a lisp
-       ;;common-lisp       ; if you've seen one lisp, you've seen them all
-       ;;coq               ; proofs-as-programs
-       ;;crystal           ; ruby at the speed of c
-       ;;csharp            ; unity, .NET, and mono shenanigans
-       data              ; config/data formats
-       ;;(dart +flutter)   ; paint ui and not much else
-       ;;dhall
-       ;;elixir            ; erlang done right
-       ;;elm               ; care for a cup of TEA?
-       emacs-lisp        ; drown in parentheses
-       ;;erlang            ; an elegant language for a more civilized age
-       ;;ess               ; emacs speaks statistics
-       ;;factor
-       ;;faust             ; dsp, but you get to keep your soul
-       ;;fortran           ; in FORTRAN, GOD is REAL (unless declared INTEGER)
-       ;;fsharp            ; ML stands for Microsoft's Language
-       ;;fstar             ; (dependent) types and (monadic) effects and Z3
-       ;;gdscript          ; the language you waited for
-       (go +lsp)         ; the hipster dialect
-       ;;(haskell +lsp)    ; a language that's lazier than I am
-       ;;hy                ; readability of scheme w/ speed of python
-       ;;idris             ; a language you can depend on
-       json              ; At least it ain't XML
-       ;;(java +lsp)       ; the poster child for carpal tunnel syndrome
-       (javascript +lsp)        ; all(hope(abandon(ye(who(enter(here))))))
-       ;;julia             ; a better, faster MATLAB
-       ;;kotlin            ; a better, slicker Java(Script)
-       ;;latex             ; writing papers in Emacs has never been so fun
-       ;;lean              ; for folks with too much to prove
-       ;;ledger            ; be audit you can be
-       ;;lua               ; one-based indices? one-based indices
-       markdown          ; writing docs for people to ignore
-       ;;nim               ; python + lisp at the speed of c
-       ;;nix               ; I hereby declare "nix geht mehr!"
-       ;;ocaml             ; an objective camel
+  :lang
+  ;;agda              ; types of types of types of types...
+  ;;beancount         ; mind the GAAP
+  (cc +lsp)         ; C > C++ == 1
+  ;;clojure           ; java with a lisp
+  ;;common-lisp       ; if you've seen one lisp, you've seen them all
+  ;;coq               ; proofs-as-programs
+  ;;crystal           ; ruby at the speed of c
+  ;;csharp            ; unity, .NET, and mono shenanigans
+  data              ; config/data formats
+  ;;(dart +flutter)   ; paint ui and not much else
+  ;;dhall
+  ;;elixir            ; erlang done right
+  ;;elm               ; care for a cup of TEA?
+  emacs-lisp        ; drown in parentheses
+  ;;erlang            ; an elegant language for a more civilized age
+  ;;ess               ; emacs speaks statistics
+  ;;factor
+  ;;faust             ; dsp, but you get to keep your soul
+  ;;fortran           ; in FORTRAN, GOD is REAL (unless declared INTEGER)
+  ;;fsharp            ; ML stands for Microsoft's Language
+  ;;fstar             ; (dependent) types and (monadic) effects and Z3
+  ;;gdscript          ; the language you waited for
+  ;;(go +lsp)         ; the hipster dialect
+  ;;(haskell +lsp)    ; a language that's lazier than I am
+  ;;hy                ; readability of scheme w/ speed of python
+  ;;idris             ; a language you can depend on
+  json              ; At least it ain't XML
+  ;;(java +lsp)       ; the poster child for carpal tunnel syndrome
+  ;;(javascript +lsp)        ; all(hope(abandon(ye(who(enter(here))))))
+  ;;julia             ; a better, faster MATLAB
+  ;;kotlin            ; a better, slicker Java(Script)
+  ;;latex             ; writing papers in Emacs has never been so fun
+  ;;lean              ; for folks with too much to prove
+  ;;ledger            ; be audit you can be
+  ;;lua               ; one-based indices? one-based indices
+  markdown          ; writing docs for people to ignore
+  ;;nim               ; python + lisp at the speed of c
+  ;;nix               ; I hereby declare "nix geht mehr!"
+  ;;ocaml             ; an objective camel
 
-       ;; +pretty is quite slow! (org-superstar)
-       (org +dragndrop +jupyter +roam2);; +pretty)        ; organize your plain life in plain text
-       ;;php               ; perl's insecure younger brother
-       ;;plantuml          ; diagrams for confusing people more
-       ;;purescript        ; javascript, but functional
+  ;; +pretty is quite slow! (org-superstar)
+  (org +dragndrop +jupyter +roam2);; +pretty)        ; organize your plain life in plain text
+  ;;php               ; perl's insecure younger brother
+  ;;plantuml          ; diagrams for confusing people more
+  ;;purescript        ; javascript, but functional
 
-       ;; +poetry is slow
-       (python +lsp +pyright)            ; beautiful is better than ugly
+  ;; +poetry is slow
+  (python +lsp +pyright)            ; beautiful is better than ugly
 
-       ;;qt                ; the 'cutest' gui framework ever
-       ;;racket            ; a DSL for DSLs
-       ;;raku              ; the artist formerly known as perl6
-       ;;rest              ; Emacs as a REST client
-       ;;rst               ; ReST in peace
-       ;;(ruby +rails)     ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
-       rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
-       ;;scala             ; java, but good
-       ;;(scheme +guile)   ; a fully conniving family of lisps
-       sh                ; she sells {ba,z,fi}sh shells on the C xor
-       ;;sml
-       ;;solidity          ; do you need a blockchain? No.
-       ;;swift             ; who asked for emoji variables?
-       ;;terra             ; Earth and Moon in alignment for performance.
-       ;;web               ; the tubes
-       yaml              ; JSON, but readable
-       ;;zig               ; C, but simpler
+  ;;qt                ; the 'cutest' gui framework ever
+  ;;racket            ; a DSL for DSLs
+  ;;raku              ; the artist formerly known as perl6
+  ;;rest              ; Emacs as a REST client
+  ;;rst               ; ReST in peace
+  ;;(ruby +rails)     ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
+  rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+  ;;scala             ; java, but good
+  ;;(scheme +guile)   ; a fully conniving family of lisps
+  sh                ; she sells {ba,z,fi}sh shells on the C xor
+  ;;sml
+  ;;solidity          ; do you need a blockchain? No.
+  ;;swift             ; who asked for emoji variables?
+  ;;terra             ; Earth and Moon in alignment for performance.
+  ;;web               ; the tubes
+  yaml              ; JSON, but readable
+  ;;zig               ; C, but simpler
 
-       :email
-       ;;(mu4e +org +gmail)
-       ;;notmuch
-       ;;(wanderlust +gmail)
+  :email
+  ;;(mu4e +org +gmail)
+  ;;notmuch
+  ;;(wanderlust +gmail)
 
-       :app
-       ;;calendar
-       ;;emms
-       ;;everywhere        ; *leave* Emacs!? You must be joking
-       ;;irc               ; how neckbeards socialize
-       ;;(rss +org)        ; emacs as an RSS reader
-       ;;twitter           ; twitter client https://twitter.com/vnought
+  :app
+  ;;calendar
+  ;;emms
+  ;;everywhere        ; *leave* Emacs!? You must be joking
+  ;;irc               ; how neckbeards socialize
+  ;;(rss +org)        ; emacs as an RSS reader
+  ;;twitter           ; twitter client https://twitter.com/vnought
 
-       :config
-       ;; literate         ; for literate configs, (we prefer to use our own org-mode hook)
-       (default +bindings +smartparens))
+  :config
+  ;; literate         ; for literate configs, (we prefer to use our own org-mode hook)
+  (default +bindings +smartparens))
 #+end_src
 
 ** COMMENT Latest
@@ -645,7 +684,9 @@ above.
 #+begin_src bash :results output :wrap SRC emacs-lisp
 curl https://raw.githubusercontent.com/hlissner/doom-emacs/master/init.example.el
 #+end_src
-* COMMENT startup profiling
+* startup profiling/debugging
+
+** profiling code
 
 https://github.com/hlissner/doom-emacs/issues/4498
 
@@ -653,7 +694,6 @@ https://github.com/hlissner/doom-emacs/issues/4498
 #+begin_src emacs-lisp :tangle packages.el
 (package! benchmark-init)
 #+end_src
-
 
 doom-debug-p renamed to init-file-debug (https://github.com/doomemacs/doomemacs/commit/14b239542414db812b32f9eca4fb58016d93d687)
 ~emacs --debug-init~ to do profiling
@@ -675,17 +715,24 @@ doesn't work.. so it's at the beginning of config.el and commented out.
   (add-hook 'doom-first-input-hook #'benchmark-init/deactivate))
 #+end_src
 
-#+RESULTS[463fbd47702ea3e03ae5fc2a54b8747d7714922d]:
-
-
-
-
-* Disabled packages
-
-magit-todos: was slow on the startup, unused
+** debugging
 
 #+begin_src emacs-lisp :tangle packages.el
+(package! bug-hunter)
+#+end_src
+
+
+* Disabled/unpinned packages
+
+[[file:~/.emacs.d/lisp/packages.el][file:~/.emacs.d/lisp/packages.el]] see Pinned package versions
+
+#+begin_src emacs-lisp :tangle packages.el
+
+;; magit-todos: was slow on the startup, unused
 (disable-packages! magit-todos)
+
+;; updates to a version that has org-store-link compatibility instead of 6633d82c6e3c921c486ec284cb6542f33278b605
+(unpin! helpful)
 #+end_src
 
 * Basic config
@@ -895,7 +942,7 @@ https://old.reddit.com/r/emacs/comments/qfhzjg/make_better_use_of_cx_ce/
 
 #+begin_src emacs-lisp
 (use-package! pp+
-  :after-call doom-first-buffer-hook
+  :commands (pp-eval-expression pp-eval-last-sexp)
   :custom
   (pp-max-tooltip-size nil) ;; (cons 40 20)) ;; tooltips are slowww
   :config
@@ -1191,7 +1238,7 @@ traceback in emacs, and ansi-color-yellow is particularly hard to read.
   )
 #+end_src
 
-** Solaire-mode
+** COMMENT Solaire-mode
 
 gives "unreal" (as defined by solaire-mode-real-buffer-fn returning nil) buffers
 a darker background
@@ -1686,10 +1733,27 @@ https://orgmode.org/org.html#Conflicts
 ** Splitting
 
 #+begin_src emacs-lisp
+(defun vi/split-window-horizontally ()
+  (interactive)
+  (split-window-horizontally)
+  (balance-windows))
+(defun vi/split-window-vertically ()
+  (interactive)
+  (split-window-vertically)
+  (balance-windows))
+(defun vi/delete-window ()
+  (interactive)
+  (delete-window)
+  (balance-windows))
+
+(defadvice delete-window (after restore-balance activate)
+  (balance-windows))
+
 (map! :g
-      "C-x |" #'split-window-horizontally
-      "C-x _" #'split-window-vertically
-      "C-x /" #'delete-window)
+      "C-x |" #'vi/split-window-horizontally
+      "C-x _" #'vi/split-window-vertically
+  "C-x -" #'balance-windows
+      "C-x /" #'vi/delete-window)
 
 ;; https://emacs.stackexchange.com/a/40517
 ;; control splitting to prefer vertical? (see split-window-sensibly)
@@ -1699,14 +1763,14 @@ https://orgmode.org/org.html#Conflicts
 
 *** Keep windows balanced
 #+begin_src emacs-lisp
-(defadvice split-window-below (after restore-balance-below activate)
-  (balance-windows))
+;; (defadvice split-window-below (after restore-balance-below activate)
+;;   (balance-windows))
 
-(defadvice split-window-right (after restore-balance-right activate)
-  (balance-windows))
+;; (defadvice split-window-right (after restore-balance-right activate)
+;;   (balance-windows))
 
-(defadvice delete-window (after restore-balance activate)
-  (balance-windows))
+;; (defadvice delete-window (after restore-balance activate)
+;;   (balance-windows))
 #+end_src
 
 ** Switching
@@ -1776,7 +1840,7 @@ Inspired by https://github.com/LouisKottmann/zygospore.el
 (map! :g "C-x 1" #'vi/zygospore)
 #+end_src
 
-** zoom
+** COMMENT zoom
 
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -1860,59 +1924,63 @@ Bufler groups:
       (group
         ;; Group all Ein buffers
         (name-match "*Ein*" (rx bos (or " *ein" "*ein"))))
-            (group (mode-match "*Vterm*" (rx bos "vterm-")))
-            (group
-                ;; Subgroup collecting all `help-mode' and `info-mode' buffers.
-                (group-or "*Help/Info*"
-                    (mode-match "*Help*" (rx bos "help-"))
-                    (mode-match "*Info*" (rx bos "info-"))))
-            (group
-                ;; Subgroup collecting all special buffers (i.e. ones that are not
-                ;; file-backed), except `magit-status-mode'/dired buffers (which are allowed to fall
-                ;; through to other groups, so they end up grouped with their project buffers).
-                (group-and "*Special*"
-                    (lambda (buffer)
-                        (unless (or (funcall (mode-match "Magit" (rx bos "magit-status")) buffer)
-                                    (funcall (mode-match "Dired" (rx bos "dired")) buffer)
-                                    (funcall (auto-file) buffer))
-                            "*Special*"))
-                    )
-                (group
-                    ;; Subgroup collecting these "special special" buffers
-                    ;; separately for convenience.
-                    (name-match "**Extra-Special**"
-                        (rx bos "*" (or "Messages" "Warnings" "scratch" "Backtrace") "*")))
-                (group
-                    ;; Subgroup collecting all other Magit buffers, grouped by directory.
-                    (mode-match "*Magit* (non-status)" (rx bos (or "magit" "forge") "-"))
-                    (auto-directory)
-                    )
-                ;; Remaining special buffers are grouped automatically by mode.
-                (auto-mode))
-            ;; (group-and "Remaining specials?" (auto-special))
-            ;; All buffers under "~/.emacs.d" (or wherever it is).
-            (dir user-emacs-directory)
-            (group
-                ;; Subgroup collecting buffers in `org-directory'
-                (dir org-directory)
-                (group
-                    ;; Subgroup collecting indirect Org buffers, grouping them by file.
-                    ;; This is very useful when used with `org-tree-to-indirect-buffer'.
-                    (auto-indirect)
-                    (auto-file)
-                    )
-                ;; Group remaining buffers by whether they're file backed, then by mode.
-                (group-not "*special*" (auto-file))
-                (auto-mode)
-                )
-            (group
-                ;; Subgroup collecting buffers in a projectile project.
-                (auto-projectile))
-            ;; Group remaining buffers by directory, then major mode.
-            (auto-directory)
-            (auto-mode)
-            )
+      (group (mode-match "*Vterm*" (rx bos "vterm-")))
+      (group
+        ;; Subgroup collecting all `help-mode' and `info-mode' buffers.
+        (group-or "*Help/Info*"
+          (mode-match "*Help*" (rx bos "help-"))
+          (mode-match "*Info*" (rx bos "info-"))))
+      (group
+        ;; Subgroup collecting all special buffers (i.e. ones that are not
+        ;; file-backed), except `magit-status-mode'/dired buffers (which are allowed to fall
+        ;; through to other groups, so they end up grouped with their project buffers).
+        (group-and "*Special*"
+          (lambda (buffer)
+            (unless (or (funcall (mode-match "Magit" (rx bos "magit-status")) buffer)
+                      (funcall (mode-match "Dired" (rx bos "dired")) buffer)
+                      (funcall (auto-file) buffer))
+              "*Special*"))
+          )
+        (group
+          ;; Subgroup collecting these "special special" buffers
+          ;; separately for convenience.
+          (name-match "**Extra-Special**"
+            (rx bos "*" (or "Messages" "Warnings" "scratch" "Backtrace") "*")))
+        (group
+          ;; Subgroup collecting all other Magit buffers, grouped by directory.
+          (mode-match "*Magit* (non-status)" (rx bos (or "magit" "forge") "-"))
+          (auto-directory)
+          )
+        ;; Remaining special buffers are grouped automatically by mode.
+        (auto-mode))
+      ;; (group-and "Remaining specials?" (auto-special))
+      ;; All buffers under "~/.emacs.d" (or wherever it is).
+      (dir user-emacs-directory)
+      (group
+        ;; Subgroup collecting buffers in `org-directory'
+        (dir org-directory)
+        (group
+          ;; Subgroup collecting indirect Org buffers, grouping them by file.
+          ;; This is very useful when used with `org-tree-to-indirect-buffer'.
+          (auto-indirect)
+          (auto-file)
+          )
+        ;; Group remaining buffers by whether they're file backed, then by mode.
+        (group-not "*special*" (auto-file))
+        (auto-mode)
         )
+      (group
+        ;; Subgroup collecting buffers in a projectile project.
+        (auto-projectile)
+        (group (filename-match "venv" (rx ".venv/")))
+        (auto-mode)
+        )
+        
+      ;; Group remaining buffers by directory, then major mode.
+      (auto-directory)
+      (auto-mode)
+      )
+    )
   :config
   (bufler-workspace-tabs-mode)
 
@@ -1954,6 +2022,7 @@ https://github.com/karthink/popper/issues/38
 
 #+begin_src emacs-lisp
 (use-package! popper
+  :after-call doom-first-buffer-hook
   :init
   (setq popper-mode-line " POP ")
   (setq popper-reference-buffers
@@ -2364,6 +2433,7 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
 (package! easy-kill :recipe (:host github :repo "leoliu/easy-kill"))
 (package! easy-kill-extras)
 (package! expand-region)
+(package! multiple-cursors)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -2373,12 +2443,10 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
   (global-hungry-delete-mode))
 
 (use-package! expand-region
-  :after-call doom-first-input-hook
   :commands (er/mark-inside-pairs er/mark-inside-quotes er/mark-outside-pairs er/mark-outside-quotes)
   )
 
 (use-package! easy-kill
-  :after-call doom-first-input-hook
   :custom
   ;; Used for first marking
   (easy-mark-try-things '(symbol line forward-line-edge sexp)) ;see easy-kill-alist
@@ -2391,15 +2459,18 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
   )
 
 (use-package! easy-kill-extras
-  :after-call doom-first-input-hook
   :init
   (setq easy-kill-ace-jump-enable-p nil)
   :config
   (require 'extra-things)
   (require 'easy-kill-mc)
   ;; Integrate `expand-region' functionality with easy-kill
-  (define-key easy-kill-base-map (kbd "o") 'easy-kill-er-expand)
-  (define-key easy-kill-base-map (kbd "i") 'easy-kill-er-unexpand)
+  :bind (:map easy-kill-base-map
+          ("o" . easy-kill-er-expand)
+          ("i" . easy-kill-er-unexpand))
+
+  ;; (define-key easy-kill-base-map (kbd "o") 'easy-kill-er-expand)
+  ;; (define-key easy-kill-base-map (kbd "i") 'easy-kill-er-unexpand)
   )
 
 ;; Here we integrate some  expand-region marking as easy-kill candidates
@@ -2594,14 +2665,15 @@ seems to make things slow?
 
 #+begin_src emacs-lisp
 (use-package! goto-chg
-  :config
-  (map!
-   "C-." #'goto-last-change
-   "C-," #'goto-last-change-reverse))
-(after! org
-  ;; goto-last-change-reverse
-  (map! :map org-mode-map "C-," nil)
-  )
+  :bind (
+          ("C-." . goto-last-change)
+          ("C-," . goto-last-change-reverse)
+          :map org-mode-map ("C-," . nil)
+  ))
+;; (after! org
+;;   ;; goto-last-change-reverse
+;;   (map! :map org-mode-map "C-," nil)
+;;   )
 #+end_src
 ** point
 
@@ -2612,10 +2684,10 @@ seems to make things slow?
 
 #+begin_src emacs-lisp
 (use-package! point-undo
-  :config
-  (map!
-   "s-." #'point-undo
-   "s-," #'point-redo))
+  :bind(
+         ("s-." . point-undo)
+         ("s-," . point-redo)
+         ))
 #+end_src
 
 * Snippets
@@ -2631,7 +2703,6 @@ seems to make things slow?
   (yas-global-mode 1))
 
 (use-package! yankpad
-  :after-call doom-first-input-hook
   :commands (yankpad-insert);;  company-yankpad)
   :custom
   (yankpad-file "~/.config/doom/yankpad.org")
@@ -2649,7 +2720,6 @@ seems to make things slow?
 
 #+begin_src emacs-lisp
 (use-package! unfill
-  :after-call doom-first-input-hook
   :bind ("M-a" . unfill-paragraph))
 #+end_src
 
@@ -2683,7 +2753,7 @@ We don't use this in practice...
 
 #+begin_src emacs-lisp
 (use-package! rebox2
-  :after-call doom-first-input-hook
+  :commands (rebox-dwim)
   :config
   (setq rebox-style-loop '(13 15 23 25 16 17 26 27 11 21))
   :bind
@@ -2706,7 +2776,6 @@ We don't use this in practice...
   )
 
 (use-package! poporg
-  :after-call doom-first-input-hook
   :custom
   ;; don't match * in common prefix - this will break C-style comments
   ;; poporg but it is necessary to retain org headings
@@ -2725,7 +2794,6 @@ We don't use this in practice...
 
 #+begin_src emacs-lisp
 (use-package! separedit
-  :after-call doom-first-input-hook
   :custom
   (separedit-remove-trailing-spaces-in-comment t)
   (separedit-default-mode 'org-mode)
@@ -2790,7 +2858,6 @@ Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact
 
 #+begin_src emacs-lisp
 (use-package! mwim
-  :after-call doom-first-input-hook
   :bind
   ("C-a" . mwim-beginning)
   ("C-e" . mwim-end)
@@ -2815,7 +2882,7 @@ Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact
 
 #+begin_src emacs-lisp
 (use-package! smartscan
-  :after-call doom-first-input-hook
+  :after-call doom-first-buffer-hook
   :config
   (global-smartscan-mode 1)
 
@@ -2876,10 +2943,14 @@ https://github.com/radian-software/ctrlf#customization
 
 
 #+begin_src emacs-lisp
+;; better-jumper is built into doom
 (use-package! smart-jump
-  :after-call doom-first-input-hook
   :config
   (smart-jump-setup-default-registers)
+  (advice-add #'smart-jump-go :around #'better-jumper-set-jump)
+  :bind (("M-." . smart-jump-go)
+          ("M-," . better-jumper-jump-backward)
+          ("M-?" . smart-jump-references))
   :commands (smart-jump-go smart-jump-back smart-jump-references)
   )
 
@@ -2887,6 +2958,15 @@ https://github.com/radian-software/ctrlf#customization
   (setq xref-backend-functions (remq 'etags--xref-backend xref-backend-functions))
   (add-to-list 'xref-backend-functions #'dumb-jump-xref-activate t))
 
+(pretty-hydra-define jump-hydra (:exit t)
+  ("Jump"
+    (("c" +lookup/documentation "Docstring")
+    ("f" +lookup/definition "Definition")
+    ("u" +lookup/references "Usages")
+    ("i" +lookup/implementations "Impls")
+    ("t" +lookup/type-definition "Type")
+    ("F" +lookup/file "file"))
+   ))
 
 (after! smart-jump
   (smart-jump-register :modes 'lsp-mode
@@ -2947,8 +3027,9 @@ We put this file directly in .config/doom/lisp (.doom.d) so that we can edit loc
 #+end_src
 
 #+begin_src emacs-lisp
-(load! "lisp/vicb.el")
+(load! "lisp/vi-consult-buffers/vicb.el")
 (use-package! vicb
+  :after consult
   :config
   (vicb-setup)
   )
@@ -3136,7 +3217,6 @@ https://github.com/minad/vertico#completion-styles-and-tab-completion
 
 #+begin_src emacs-lisp
 (use-package! recursive-narrow
-  :after-call doom-first-input-hook
   :commands (hydra-narrow/body recursive-narrow-or-widen-dwim recursive-widen)
   :config
   (defhydra hydra-narrow (:exit t :columns 2)
@@ -3156,9 +3236,9 @@ https://github.com/minad/vertico#completion-styles-and-tab-completion
   :custom
   (outline-minor-mode-cycle t)
   :after-call doom-first-buffer-hook
-  :hook (
-         (prog-mode . outline-minor-mode)
-         )
+  ;; :hook (
+  ;;        (prog-mode . outline-minor-mode)
+  ;;        )
   :bind (:map outline-minor-mode-map
          ([C-tab] . outline-cycle)
          ("C-<iso-lefttab>" . outline-hide-other) ;C-S-<tab>
@@ -3192,7 +3272,7 @@ https://old.reddit.com/r/emacs/comments/e2u5n9/code_folding_with_outlineminormod
 
 
 
-** ts-fold
+** COMMENT ts-fold
 
 TODO: keybindings, but best if we have cycling like outline-cycle https://github.com/jcs-elpa/ts-fold/issues/29
 
@@ -3248,7 +3328,6 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
 (use-package! company-tabnine
   :custom
   (company-tabnine-no-continue t)
-  :after-call doom-first-input-hook
   :commands (company-tabnine))
   ;; :config
   ;; ;; https://github.com/TommyX12/company-tabnine#known-issues
@@ -3280,7 +3359,7 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
 
 #+begin_src emacs-lisp
 (use-package! corfu
-  :after-call doom-first-input-hook
+  :after-call doom-first-buffer-hook
   :custom
   (corfu-auto t)
   (corfu-quit-no-match 'separator)
@@ -3305,7 +3384,7 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
                                         ;  )
 
 (use-package! cape
-  :after-call doom-first-input-hook
+  :after corfu
   :config
   (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
   (defalias 'vi/cape-yankpad (cape-company-to-capf #'company-yankpad))
@@ -3314,14 +3393,16 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
     completion-at-point-functions
     (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad #'cape-dabbrev)))
 
-    (defun vi/corfu-lsp-setup ()
+  (defun vi/corfu-lsp-setup ()
     ;; Combine LSP via corfu so we can use it in combination with
     ;; company-tabnine and yankpad
 
     (interactive)
     ;; https://github.com/minad/corfu/wiki
-    (setq-local lsp-enable-completion-at-point t)
-    (setq-local lsp-completion-provider :none)       ;we use corfu!
+
+    ;;;; these are set in LSP use-package
+    ;; (setq-local lsp-enable-completion-at-point t)
+    ;; (setq-local lsp-completion-provider :none)       ;we use corfu!
 
     (defun my/orderless-dispatch-flex-first (_pattern index _total)
       (and (eq index 0) 'orderless-flex))
@@ -3355,17 +3436,18 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
 
 #+begin_src emacs-lisp
 (use-package! copilot
+  :after corfu
   :custom
-  (copilot-idle-delay 1)
+  (copilot-idle-delay 0.5)
   :hook (prog-mode . copilot-mode)
-  :bind (("C-TAB" . 'copilot-accept-completion-by-word)
-         ("C-<tab>" . 'copilot-accept-completion-by-word)
+  :bind (;; ("C-TAB" . 'copilot-accept-completion-by-word)
+          ;; ("C-<tab>" . 'copilot-accept-completion-by-word)
          :map copilot-completion-map
-         ("<tab>" . 'copilot-accept-completion)
-         ("TAB" . 'copilot-accept-completion)))
+         ("C-<tab>" . 'copilot-accept-completion)
+         ("C-TAB" . 'copilot-accept-completion)))
 
 ;; try to turn off keybindings (up/down) that company-mode interferes with
-(add-hook! copilot-mode (company-mode -1))
+;; (add-hook! prog-mode :append (progn (message "disabling company mode") (company-mode -1) (message "disabled")))
 #+end_src
 
 ** COMMENT chatgpt
@@ -3417,7 +3499,7 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
 
 #+begin_src emacs-lisp
 (use-package! wgrep
-  :after doom-first-file-hook
+  :commands (wgrep-change-to-wgrep-mode)
   :custom
   (wgrep-auto-save-buffer t)
   )
@@ -3463,7 +3545,7 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
    (;; ("f" +vertico/consult-fd "fd")
     ("s" +vertico/project-search "rg in project")
     ("l" consult-line "Line isearch")
-     ;;("D" doc-hydra/body "Docs")
+     ("j" jump-hydra/body "Jump")
      )
    "Buffers"
    (("b" consult-buffer "Buffers")
@@ -3529,13 +3611,15 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
 
 * Org
 
-
+** org-mode package
 #+begin_src emacs-lisp :tangle packages.el
 ;; Pinning for unfolding org-mode overlays while searching
 ;; https://github.com/doomemacs/doomemacs/issues/6478#issuecomment-1293505404
 (package! org :pin "971eb6885ec996c923e955730df3bafbdc244e54")
+;; (package! org :pin "6001313b8f8bc2c717b44070d6e7b19afc6125ec")
 #+end_src
 
+** org-mode config
 #+begin_src emacs-lisp
 (after! org
   ;; hide org markup indicators
@@ -3614,6 +3698,9 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
   )
 #+end_src
 
+#+RESULTS[eb7f9148e1e50806d730fae6567c437b05234fe8]:
+: major-mode-hydras/org-mode/body
+
 *** COMMENT Electric pairs
 
 To remove:
@@ -3674,7 +3761,7 @@ We'd like to set a timeout and fall through to synchronous tangle?
 
 #+begin_src emacs-lisp
 (use-package! org-auto-tangle
- :after-call doom-first-buffer-hook
+ :after org
  :config
  (setq org-auto-tangle-default t)      ;this doesn't work with :custom
  :hook (org-mode . org-auto-tangle-mode))
@@ -3916,8 +4003,6 @@ appropriate.  In tables, insert a new row or end the table."
 
 *** Import from various formats into org
 
-
-
 #+begin_src emacs-lisp :tangle packages.el
 (package! org-pandoc-import :recipe (:host github :repo "tecosaur/org-pandoc-import" :files ("*.el" "filters" "preprocessors")))
 #+end_src
@@ -3925,7 +4010,7 @@ appropriate.  In tables, insert a new row or end the table."
 Needs ~brew install pandoc~
 
 #+begin_src emacs-lisp
-(use-package! org-pandoc-import :after-call doom-first-file-hook)
+(use-package! org-pandoc-import :after org)
 #+end_src
 
 *** literate calc
@@ -4069,7 +4154,7 @@ disabled because it is noisy on startup, and used rarely (<2022-03-21 Mon>)
 
 #+begin_src emacs-lisp
 (use-package! org-roam
- :after-call doom-first-input-hook
+ :after consult-notes
  :custom
  ;; (org-roam-directory (getenv "HOME"))
  (org-roam-directory org-directory)
@@ -4090,7 +4175,6 @@ Alternative: https://github.com/jgru/consult-org-roam
 
 #+begin_src emacs-lisp
 (use-package! consult-notes
-  :after-call doom-first-input-hook
   :commands (consult-notes consult-notes-search-in-all-notes consult-notes-org-roam-find-node consult-notes-org-roam-find-node-relation)
   :config
   (consult-notes-org-roam-mode)
@@ -4120,7 +4204,7 @@ checkboxes are tiny, and they can be fixed by adjusting faces but this just does
 
 #+begin_src emacs-lisp
 (use-package! org-modern
-  :after-call doom-first-buffer-hook
+  :after org
   :custom
   (org-modern-hide-stars nil)           ;adds extra indentation
   :hook (org-mode . global-org-modern-mode))
@@ -4158,7 +4242,7 @@ checkboxes are tiny, and they can be fixed by adjusting faces but this just does
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package! org-colored-text) ;; :load-path "/home/venky/dev/org-colored-text/")
+(use-package! org-colored-text :after org) ;; :load-path "/home/venky/dev/org-colored-text/")
 #+end_src
 
 [[color:green][this text is green]]
@@ -4218,7 +4302,7 @@ doesn't work
 #+begin_src emacs-lisp
 
 (use-package! ein
-  :after-call doom-first-buffer-hook
+  :commands (ein:notebooklist-open ein:notebooklist-login)
   :init
   (setq ein:polymode t)
   (setq ein:notebooklist-render-order '(render-opened-notebooks render-directory render-header))
@@ -4559,7 +4643,7 @@ breaks with tramp?
 
 #+begin_src emacs-lisp
 (use-package! flycheck
-  :after-call doom-first-buffer-hook
+  :after-call doom-first-file-hook
   :custom
   (flycheck-check-syntax-automatically '(mode-enabled save idle-change idle-buffer-switch))
   (flycheck-idle-change-delay 10)
@@ -4670,7 +4754,9 @@ Results are reported in a compilation buffer."
 (after! magit
   ;; Set magit log date formats
   (setq magit-log-margin '(t "%Y-%m-%d %H:%M " magit-log-margin-width t 18))
-  (setq magit-diff-refine-hunk (quote all))
+
+  ;; set to 'all, this seems to make commits slow?
+  (setq magit-diff-refine-hunk t)
 
   ;; Add ignored files section to magit status
   ;; This makes yadm-status very slow: https://github.com/magit/magit/discussions/4750
@@ -4685,6 +4771,8 @@ Results are reported in a compilation buffer."
       )
 #+end_src
 
+
+
 ** magit backups (wip)
 
 #+begin_src emacs-lisp
@@ -4693,6 +4781,77 @@ Results are reported in a compilation buffer."
 
 <2022-07-11 Mon> Unfortunately this doesn't seem to work in Yadm files because they don't get recognized as git repos by default ([[*Yadm][Yadm]])
 
+** ediff
+
+
+#+begin_src emacs-lisp
+(defun vi/ediff-setup-windows-plain-merge (buf-A buf-B buf-C control-buffer)
+  ;; skip dedicated and unsplittable frames
+  (ediff-destroy-control-frame control-buffer)
+  (let ((window-min-height 1)
+         (with-Ancestor-p (with-current-buffer control-buffer
+                            ediff-merge-with-ancestor-job))
+         split-window-function
+         merge-window-share merge-window-lines
+         (buf-Ancestor (with-current-buffer control-buffer
+                         ediff-ancestor-buffer))
+         wind-A wind-B wind-C wind-Ancestor)
+    (with-current-buffer control-buffer
+      (setq merge-window-share ediff-merge-window-share
+        ;; this lets us have local versions of ediff-split-window-function
+        split-window-function ediff-split-window-function))
+    (delete-other-windows)
+    (set-window-dedicated-p (selected-window) nil)
+    (split-window-vertically)
+    (ediff-select-lowest-window)
+    (ediff-setup-control-buffer control-buffer)
+
+    ;; go to the upper window and split it betw A, B, and possibly C
+    (other-window 1)
+    (setq merge-window-lines
+      (max 2 (round (* (window-height) merge-window-share))))
+    (switch-to-buffer buf-A)
+    (setq wind-A (selected-window))
+
+    (split-window-vertically (max 2 (- (window-height) merge-window-lines)))
+    (if (eq (selected-window) wind-A)
+      (other-window 1))
+
+    (setq wind-C (selected-window))
+    (switch-to-buffer buf-C)
+
+    (select-window wind-A)
+    (funcall split-window-function)
+
+    (if (eq (selected-window) wind-A)
+      (other-window 1))
+    (switch-to-buffer buf-B)
+    (setq wind-B (selected-window))
+
+    (when (and ediff-show-ancestor with-Ancestor-p)
+      (select-window wind-B)
+      (split-window-horizontally)
+      (when (eq (selected-window) wind-B)
+        (other-window 1))
+      (switch-to-buffer buf-Ancestor)
+      (setq wind-Ancestor (selected-window)))
+
+    (balance-windows-area)
+
+    (with-current-buffer control-buffer
+      (setq ediff-window-A wind-A
+        ediff-window-B wind-B
+        ediff-window-C wind-C
+        ediff-window-Ancestor wind-Ancestor))
+
+    (ediff-select-lowest-window)
+    (minimize-window)
+    (ediff-setup-control-buffer control-buffer)
+    ))
+
+(add-hook! '(ediff-before-setup-hook ediff-before-setup-windows-hook) (setq ediff-window-setup-function #'vi/ediff-setup-windows-plain-merge))
+
+#+end_src
 * Yadm
 ** COMMENT Handle bare repos (yadm/$HOME)
 
@@ -4733,22 +4892,19 @@ GIT_WORK_TREE via $HOME/.envrc, but this is problematic because
 See https://www.reddit.com/r/emacs/comments/gjukb3/yadm_magit/gasc8n6/
 
 #+begin_src emacs-lisp
-(use-package! tramp
-    :after-call doom-first-input-hook
-    :custom
+(after! tramp
     ;; https://github.com/magit/magit/discussions/4750
-    (enable-remote-dir-locals t)
-    :config
-    (add-to-list 'tramp-methods
-        '("yadm"
-             (tramp-login-program "yadm")
-             (tramp-login-args (("enter")))
-             (tramp-remote-shell "/bin/bash")
-             (tramp-remote-shell-args ("-c"))))
+  (setq enable-remote-dir-locals t)
+  (add-to-list 'tramp-methods
+    '("yadm"
+       (tramp-login-program "yadm")
+       (tramp-login-args (("enter")))
+       (tramp-remote-shell "/bin/bash")
+       (tramp-remote-shell-args ("-c"))))
     (defun yadm-status ()
-        (interactive)
-        (require 'tramp)
-        (with-current-buffer (magit-status "/yadm::"))))
+      (interactive)
+      (require 'tramp)
+      (with-current-buffer (magit-status "/yadm::"))))
 #+end_src
 ** Stage files from dired
 
@@ -4807,7 +4963,9 @@ https://gist.github.com/justinhj/5945047
   ;; https://emacs-lsp.github.io/lsp-mode/page/settings/
   (lsp-auto-configure t)
   (lsp-enable-imenu t)
-  (lsp-signature-auto-activate t)
+  ;; controls doc buffers at bottom (via eldoc?)
+  (lsp-signature-auto-activate nil)
+  (lsp-signature-render-documentation nil)
   (lsp-headerline-breadcrumb-enable t)
   (lsp-headerline-breadcrumb-enable-diagnostics nil)
   (lsp-keep-workspace-alive nil)
@@ -4820,10 +4978,32 @@ https://gist.github.com/justinhj/5945047
 
     ;; This will disable the flycheck checkers. (we use them directly to have better control)
   ;; (lsp-diagnostics-provider :flycheck)
-
+  (lsp-diagnostic-clean-after-change t)
   ;; https://github.com/emacs-lsp/lsp-mode#performance
   (read-process-output-max (* 1024 1024)) ;; 1mb
   (lsp-file-watch-threshold 2000)
+  (lsp-enable-completion-at-point t)
+  (lsp-completion-provider :none)       ;disable company-mode
+
+  ;; sideline
+  (lsp-ui-sideline-enable t)
+  (lsp-ui-sideline-show-hover nil)
+  (lsp-ui-sideline-show-symbol nil)
+  (lsp-ui-sideline-show-diagnostics t)
+  (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-sideline-delay 0.1)
+  ;; doc
+  (lsp-ui-doc-enable t)
+  (lsp-ui-doc-include-signature t)
+  (lsp-ui-doc-show-with-cursor t)
+  (lsp-ui-doc-header nil)
+  (lsp-ui-doc-delay 1)
+  ;; peek
+  (lsp-ui-peek-enable t)
+  ;; imenu
+  ;; (lsp-ui-imenu-window-width 30)
+  ;; (lsp-ui-imenu-auto-refresh t)
+
 
   :config
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.venv\\'")
@@ -4848,10 +5028,10 @@ https://gist.github.com/justinhj/5945047
      ("," lsp-find-type-definition "Find type"))
      ;; ("e" lsp-treemacs-errors-list "Errors"))
     )
-   )
+    )
   :after-call doom-first-buffer-hook
   :hook (
-         (python-mode . lsp-deferred)
+          ;; (python-mode . lsp-deferred)
          (c++-mode . vi/setup-c++-lsp)
          (lsp-mode . lsp-enable-which-key-integration)
          ;; (lsp-mode . lsp-treemacs-sync-mode)
@@ -4859,35 +5039,7 @@ https://gist.github.com/justinhj/5945047
   :commands (lsp lsp-deferred))
 
 
-(use-package! lsp-ui
-  :after-call doom-first-buffer-hook
-  :custom
 
-  ;; sideline
-  (lsp-ui-sideline-enable t)
-  (lsp-ui-sideline-show-hover nil)
-  (lsp-ui-sideline-show-symbol nil)
-  (lsp-ui-sideline-show-diagnostics t)
-  (lsp-ui-sideline-show-code-actions t)
-  (lsp-ui-sideline-delay 0.1)
-  ;; doc
-  (lsp-ui-doc-enable t)
-  (lsp-ui-doc-include-signature t)
-  (lsp-ui-doc-show-with-cursor nil)
-  (lsp-ui-doc-header nil)
-  (lsp-ui-doc-delay 1)
-  ;; peek
-  (lsp-ui-peek-enable t)
-  ;; imenu
-  ;; (lsp-ui-imenu-window-width 30)
-  ;; (lsp-ui-imenu-auto-refresh t)
-  ;; :config
-  ;; (defun vi/lsp-ui-imenu ()
-  ;;   (interactive)
-  ;;   (lsp-ui-imenu)
-  ;;   (window-preserve-size (get-buffer-window lsp-ui-imenu-buffer-name) t t)
-  ;;   )
-  )
 #+end_src
 
 ** COMMENT treemacs/lsp
@@ -4902,7 +5054,7 @@ we prefer to use dired-sidebar
 
 #+begin_src emacs-lisp
 (use-package! lsp-treemacs
-  :after-call doom-first-buffer-hook
+  :after lsp
   :custom
   (lsp-treemacs-sync-mode 1)
   )
@@ -4925,7 +5077,7 @@ tree-sitter is slow as crap (tree-sitter--after-change) -- atleast in ein python
 ;;   :config (global-tree-sitter-mode))
 #+end_src
 
-** combobulate
+** COMMENT combobulate
 
 This seems useful, but needs better bindings. We want to navigate to things
 quickly (avy seems fine), and move them up/down (only through hydra, not good). Needs further investigation
@@ -4981,8 +5133,15 @@ Lens shows refs for each variable in an overlay which is annoying. Also duplicat
 * Python
 
 #+begin_src emacs-lisp
+(use-package! python
+  :custom
+  (python-fill-docstring-style 'symmetric)
+  )
+#+end_src
+
+#+begin_src emacs-lisp
 (defun vi/setup-python-flycheck ()
-  (setq-local flycheck-python-mypy-executable (concat (projectile-project-root) "/.venv/bin/mypy"))
+
   ;; This needs to happen after lsp else:
   ;; Error (python-mode-hook): Error running hook "vi/setup-python-flycheck" because: (user-error lsp is not a syntax checker)
   (flycheck-select-checker 'lsp)
@@ -4991,7 +5150,8 @@ Lens shows refs for each variable in an overlay which is annoying. Also duplicat
   ;; (flycheck-add-next-checker 'lsp 'python-flake8-vi)
 
   ;; Why do we still have mypy? The theory is that it gives some better messages complementary to pyright
-  (flycheck-add-next-checker 'lsp 'python-mypy-vi)
+  ;;(setq-local flycheck-python-mypy-executable (concat (projectile-project-root) "/.venv/bin/mypy"))
+  ;; (flycheck-add-next-checker 'lsp 'python-mypy-vi)
 
   ;; Check if the file is broken
   (flycheck-add-next-checker 'lsp 'python-pycompile)
@@ -5001,7 +5161,7 @@ Lens shows refs for each variable in an overlay which is annoying. Also duplicat
   )
 #+end_src
 
-** Diagnostics filter hints
+** COMMENT Diagnostics filter hints
 #+begin_src emacs-lisp
 (defun vi/diag-matches-p (d sev tag)
   (and (equal sev (ht-get d "severity"))
@@ -5056,14 +5216,10 @@ Lens shows refs for each variable in an overlay which is annoying. Also duplicat
 
 (add-hook! 'python-mode-hook #'vi/python-mode-lsp)
 
-;; even switch-buffer is slow. and we use direnv anyway
-;; (after! poetry
-;;   (setq poetry-tracking-strategy 'switch-buffer)
-;;   )
 #+end_src
 
 
-** Flycheck checkers
+** COMMENT Flycheck checkers
 
 *** Define flake8 checkers (for file and project)
 
@@ -5211,13 +5367,14 @@ pipx inject pyflyby 'black[jupyter]'
 
 #+begin_src emacs-lisp
 (use-package! pyflyby
+  :commands (pyflyby-transform-region-with-command)
   :load-path "~/.local/pipx/venvs/pyflyby/share/emacs/site-lisp"
-  :config
-  (defun vi/pyflyby-tidy-imports ()
-    (interactive "*")
-    ;; even with this, it will drop comments https://github.com/deshaw/pyflyby/issues/154
-    (pyflyby-transform-region-with-command "tidy-imports" "--black");;  "--align=0" "--from-spaces=1")
-    )
+  )
+
+(defun vi/pyflyby-tidy-imports ()
+  (interactive "*")
+  ;; even with this, it will drop comments https://github.com/deshaw/pyflyby/issues/154
+  (pyflyby-transform-region-with-command "tidy-imports" "--black");;  "--align=0" "--from-spaces=1")
   )
 #+end_src
 
@@ -5430,6 +5587,7 @@ https://old.reddit.com/r/emacs/comments/imy9f1/all_the_icons_dired_subtree/
 
 #+begin_src emacs-lisp
 (use-package! all-the-icons-dired
+  :after dired
   :config
   :hook (dired-mode . (lambda ()
                        (interactive)
@@ -5437,6 +5595,7 @@ https://old.reddit.com/r/emacs/comments/imy9f1/all_the_icons_dired_subtree/
                          (all-the-icons-dired-mode)))))
 
 (use-package! dired-subtree
+  :commands (dired-subtree-toggle)
   :config
   (advice-add 'dired-subtree-toggle :after (lambda ()
                                              (interactive)
@@ -5794,6 +5953,7 @@ alternative: https://github.com/karthink/org-auctex
 
 #+begin_src emacs-lisp
 (use-package! org-latex-impatient
+  :after org
   :hook (org-mode . org-latex-impatient-mode)
   :custom
   ( org-latex-impatient-tex2svg-bin "/home/venky/.asdf/shims/tex2svg")
@@ -5847,7 +6007,6 @@ Turn on gif-screencast to initiate these bindings
 
 #+begin_src emacs-lisp
 (use-package! gif-screencast
-  :after-call doom-first-input-hook
   :bind (:map gif-screencast-mode-map
          (("<f8>" . #'gif-screencast-stop)
           ("<f9>" . #'gif-screencast-toggle-pause)))
@@ -5861,7 +6020,7 @@ Turn on gif-screencast to initiate these bindings
 
 #+begin_src emacs-lisp
 (use-package! keycast
-  :after-call doom-first-input-hook
+  :commands (keycast-mode)
   :config
   (define-minor-mode keycast-mode
     "Show current command and its key binding in the mode line (fix for use with doom-mode-line)."
@@ -5963,6 +6122,7 @@ https://github.com/otavioschwanck/harpoon.el
 
 #+begin_src emacs-lisp
 (use-package! org-noter
+  :commands (org-noter)
   :custom
   (setq org-noter-always-create-frame nil
         org-noter-separate-notes-from-heading t
@@ -6045,18 +6205,27 @@ rotate entire document."
 
 #+begin_src emacs-lisp
 (use-package! detached
+  :after vterm
   :init
   (detached-init)
   :bind (;; Replace `async-shell-command' with `detached-shell-command'
-         ([remap async-shell-command] . detached-shell-command)
-         ;; Replace `compile' with `detached-compile'
-         ([remap compile] . detached-compile)
-         ([remap recompile] . detached-compile-recompile)
-         ;; Replace built in completion of sessions with `consult'
+          ([remap async-shell-command] . detached-shell-command)
+          ;; Replace `compile' with `detached-compile'
+          ([remap compile] . detached-compile)
+          ([remap recompile] . detached-compile-recompile)
+          ;; Replace built in completion of sessions with `consult'
           ([remap detached-open-session] . detached-consult-session))
   :custom ((detached-show-output-on-attach t)
             (detached-session-directory "/tmp")
             (detached-terminal-data-command system-type))
+
+  :config
+  (connection-local-set-profile-variables
+    'remote-detached
+    '((detached-session-directory . "/tmp")
+       (detached-dtach-program . "dtach")))
+  (connection-local-set-profiles
+    '(:application tramp :protocol "ssh") 'remote-detached)
   :hook (vterm-mode . detached-vterm-mode)
   )
 #+end_src

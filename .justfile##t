@@ -15,11 +15,14 @@ default:
 EMACSDIR := env_var('EMACSDIR')
 DOOMDIR := env_var('DOOMDIR')
 
-# Handle stale elc files
-doom-rebuild:
+doom-clean:
     # https://github.com/millejoh/emacs-ipython-notebook/issues/824
     doom clean
     fd -g '*.elc' {{ EMACSDIR }} -uuu -x rm
+    doom sync
+
+# Handle stale elc files
+doom-rebuild: doom-clean
     doom build -r
     just doom-rebuild-pdf-tools
     just doom-rebuild-vterm
@@ -267,6 +270,9 @@ abduco +args:
     #!/usr/bin/env bash
     name=${ABDUCO_NAME:-$(echo "{{ args }}" | perl -lne 's/\s+/-/g; print substr($_, 0, 25)')}
     cd {{ invocation_directory() }} && abduco -nf ${name} script -O ${name}.log --return -c "{{ args }}" && tail -F ${name}.log
+
+abduco_connect:
+    abduco -a $(abduco | fzf | awk '{print $4}')
 
 # cleans up completed sessions (But not their logs)
 abduco_cleanup:

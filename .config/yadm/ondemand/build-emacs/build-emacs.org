@@ -82,6 +82,12 @@ echo "Installed: $installed_commit" | ts >> build-emacs.log
 systemctl --user disable emacs.service
 sudo rm /usr/local/share/applications/{emacsclient,emacs-mail,emacsclient-mail}.desktop
 
+## we will use an updated version of org; prevent mixed install (M-x org-version)
+## also requires `make autoloads` in .emacs.d/.local/.../repos/org and `doom build`
+## unfortunately this seems to break org-auto-tangle
+# emacs_version=$(emacs --version | head -n1 | cut -d ' ' -f 3)
+# sudo mv /usr/local/share/emacs/$emacs_version/lisp/org/ /usr/local/share/emacs/$emacs_version/lisp/org.builtin/
+
 echo Rebuilding doom
 doom sync
 #+END_SRC

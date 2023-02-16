@@ -18,6 +18,8 @@
 
 ** TODO Convert bootstrap to just script
 
+just --dump --dump-format json | jq '.recipes | keys'
+
 ** TODO Build pipx json installer
 ** TODO j2cli (pipx) https://github.com/kolypto/j2cli for templating
 
@@ -51,7 +53,7 @@ or better yet:
 
 Use ~gcpvm~ from indigoviolet/gcloud:
 
-~./gcpvm --dotenv-filename deeplearning-1-vm ssh "bash-s" < get-start.sh~
+~./gcpvm --dotenv-filename deeplearning-1-vm ssh "bash -s" < get-start.sh~
 
 #+begin_src shell :tangle ~/.config/yadm/run-start.sh :shebang "#!/usr/bin/env bash"
 GITHUB_PAT='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'
@@ -262,7 +264,7 @@ cut -d' ' -f1 .tool-versions | xargs -i asdf plugin add {}
 
 ## installs from .tool-versions (which is an alt file)
 ## the install-poetry installer is default with 1.2, but that is still alpha and has bugs <2022-02-07 Mon>
-ASDF_POETRY_INSTALL_URL=https://install.python-poetry.org asdf install
+# ASDF_POETRY_INSTALL_URL=https://install.python-poetry.org asdf install
 #+end_src
 
 *** Mamba (conda)
@@ -350,19 +352,41 @@ mkdir -p ~/.local/bin && curl -fsSL https://raw.githubusercontent.com/gitbits/gi
 
 ## poetry completion in prezto (https://python-poetry.org/docs/master/#enable-tab-completion-for-bash-fish-or-zsh)
 ## poetry installed with asdf
-poetry completions zsh > ~/.zprezto/modules/completion/external/src/_poetry
+# poetry completions zsh > ~/.zprezto/modules/completion/external/src/_poetry
 
 ## Handy way to install things from github
-gh extension install redraw/gh-install
+for ext in redraw/gh-install; do
+    (gh extension list | grep $ext) && echo "installed" || gh install $ext
+done
 
 ## GCM core git credential helper (see https://blog.djnavarro.net/posts/2021-08-08_git-credential-helpers/)
-
 # this is interactive
 # gh install GitCredentialManager/git-credential-manager
 
 TEMPDIR=$(mktemp -d)
 gh release download -p '*.deb' -R GitCredentialManager/git-credential-manager --clobber -D $TEMPDIR && sudo dpkg -i $TEMPDIR/gcm*.deb
-git credential-manager-core configure
+git credential-manager configure
+
+# huawei matebook
+# https://github.com/qu1x/huawei-wmi/tree/master/debian#repository
+echo "deb https://deb.qu1x.org buster main" | sudo tee /etc/apt/sources.list.d/qu1x.list
+# sudo apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-keys 4503d1ab
+
+# matebook-applet
+echo "deb [signed-by=/usr/share/keyrings/matebook-applet.key] http://evgenykuznetsov.org/repo/ stable main" | sudo tee /etc/apt/sources.list.d/matebook-applet.list
+wget -qO - https://raw.githubusercontent.com/nekr0z/matebook-applet/master/matebook-applet.key | sudo tee /usr/share/keyrings/matebook-applet.key
+
+# twemoji fonts
+sudo apt-add-repository -y -S "deb https://ppa.launchpadcontent.net/eosrei/fonts/ubuntu/ impish main"
+sudo apt-get update
+sudo apt-get install -y fonts-twemoji-svginot
+
+
+# Tailscale
+curl -fsSL https://pkgs.tailscale.com/unstable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
+curl -fsSL https://pkgs.tailscale.com/unstable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
+sudo apt-get update
+sudo apt-get install -y tailscale
 #+end_src
 
 
@@ -570,8 +594,12 @@ added via orbilogin.net (Address Reservation)
 
 *** CUPS
 
-http://192.168.1.253:631
+http://192.168.1.253:631 -- don't use, see hplip below
 
+**** hplip-printer-app
+
+https://snapcraft.io/install/hplip-printer-app/raspbian
+http://192.168.1.253:8000/
 
 ** Kinesis Advantage :ATTACH:
 :PROPERTIES:
@@ -640,9 +668,9 @@ lsusb | grep LG
 #+end_src
 
 #+RESULTS:
-: Bus 001 Device 011: ID 1ea7:0064 SHARKOON Technologies GmbH 2.4GHz Wireless rechargeable vertical mouse [More&Better]
-: Bus 001 Device 010: ID 05f3:0007 PI Engineering, Inc. Kinesis Advantage PRO MPC/USB Keyboard
-: Bus 001 Device 007: ID 043e:9a39 LG Electronics USA, Inc. LG Monitor Controls
+: Bus 001 Device 039: ID 1ea7:0064 SHARKOON Technologies GmbH 2.4GHz Wireless rechargeable vertical mouse [More&Better]
+: Bus 001 Device 042: ID 05f3:0007 PI Engineering, Inc. Kinesis Advantage PRO MPC/USB Keyboard
+: Bus 001 Device 037: ID 043e:9a39 LG Electronics USA, Inc. LG Monitor Controls
 
 
 #+BEGIN_SRC shell :tangle "/sudo::/etc/udev/rules.d/10-usb-wakeup.rules"
@@ -679,16 +707,12 @@ grep . /sys/bus/usb/devices/*/product
 
 #+RESULTS:
 #+begin_example
-/sys/bus/usb/devices/1-1.2.1.2/power/wakeup:enabled
-/sys/bus/usb/devices/1-1.2.1.4/power/wakeup:enabled
 /sys/bus/usb/devices/1-1.2.1/power/wakeup:enabled
-/sys/bus/usb/devices/usb1/power/wakeup:enabled
-/sys/bus/usb/devices/usb2/power/wakeup:enabled
+/sys/bus/usb/devices/1-1.2.4.2/power/wakeup:enabled
 --
-/sys/bus/usb/devices/1-1.2.1.4/product:2.4G Mouse
-/sys/bus/usb/devices/1-1.2.1/product:Kinesis Keyboard Hub
-/sys/bus/usb/devices/1-1.2.3/product:blink(1) mk2
-/sys/bus/usb/devices/1-1.2/product:4-Port USB 2.0 Hub
+/sys/bus/usb/devices/1-1.2.1/product:2.4G Mouse
+/sys/bus/usb/devices/1-1.2.4/product:Kinesis Keyboard Hub
+/sys/bus/usb/devices/1-1.2/product:USB2.0 Hub
 /sys/bus/usb/devices/1-1.3/product:LG Monitor Controls
 /sys/bus/usb/devices/1-1/product:4-Port USB 2.0 Hub
 /sys/bus/usb/devices/1-7/product:HD Camera

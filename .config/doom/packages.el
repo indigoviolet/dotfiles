@@ -53,14 +53,36 @@
 ;(unpin! t)
 ;; packages.el:1 ends here
 
+;; [[file:config.org::*modus][modus:1]]
+(package! modus-themes :recipe (:host github :repo "protesilaos/modus-themes"))
+;; modus:1 ends here
 
 
+
+;; https://github.com/hlissner/doom-emacs/issues/4498
+
+
+
+;; [[file:config.org::*profiling code][profiling code:1]]
+(package! benchmark-init)
+;; profiling code:1 ends here
+
+;; [[file:config.org::*debugging][debugging:1]]
+(package! bug-hunter)
+;; debugging:1 ends here
+
+
+
+;; [[file:~/.emacs.d/lisp/packages.el][file:~/.emacs.d/lisp/packages.el]] see Pinned package versions
+
+
+;; [[file:config.org::*Disabled/unpinned packages][Disabled/unpinned packages:1]]
 ;; magit-todos: was slow on the startup, unused
-
-
-;; [[file:config.org::*Disabled packages][Disabled packages:1]]
 (disable-packages! magit-todos)
-;; Disabled packages:1 ends here
+
+;; updates to a version that has org-store-link compatibility instead of 6633d82c6e3c921c486ec284cb6542f33278b605
+(unpin! helpful)
+;; Disabled/unpinned packages:1 ends here
 
 ;; [[file:config.org::*persistent scratch][persistent scratch:1]]
 (package! persistent-scratch)
@@ -186,10 +208,6 @@
 (package! winner)
 ;; Restore:1 ends here
 
-;; [[file:config.org::*zoom][zoom:1]]
-(package! zoom) ;; :recipe (:host github :repo "cyrus-and/zoom"))
-;; zoom:1 ends here
-
 ;; [[file:config.org::*bufler][bufler:1]]
 (package! bufler)
 ;; bufler:1 ends here
@@ -216,6 +234,7 @@
 (package! easy-kill :recipe (:host github :repo "leoliu/easy-kill"))
 (package! easy-kill-extras)
 (package! expand-region)
+(package! multiple-cursors)
 ;; Kill/Yank/Mark regions:1 ends here
 
 
@@ -312,21 +331,6 @@
 (package! outline-minor-faces :recipe (:host github :repo "tarsius/outline-minor-faces"))
 ;; outline faces:1 ends here
 
-
-
-;; TODO: keybindings, but best if we have cycling like outline-cycle https://github.com/jcs-elpa/ts-fold/issues/29
-
-;; See implementation of `outline-cycle` or `outline-cycle-buffer` to diy this
-
-;; WARN: ts-fold might be causing some font rendering glitches, at least with Iosevka and ts-fold-indicators-mode
-;; WARN: ts-fold-close-all is surprisingly slow
-;; WARN: ts-fold-indicators-mode is very slow
-
-
-;; [[file:config.org::*ts-fold][ts-fold:1]]
-(package! ts-fold :recipe (:host github :repo "jcs-elpa/ts-fold"))
-;; ts-fold:1 ends here
-
 ;; [[file:config.org::*Tabnine][Tabnine:1]]
 (package! company-tabnine)
 ;; Tabnine:1 ends here
@@ -356,11 +360,12 @@
 (package! major-mode-hydra)
 ;; Hydra:1 ends here
 
-;; [[file:config.org::*Org][Org:1]]
+;; [[file:config.org::*org-mode package][org-mode package:1]]
 ;; Pinning for unfolding org-mode overlays while searching
 ;; https://github.com/doomemacs/doomemacs/issues/6478#issuecomment-1293505404
 (package! org :pin "971eb6885ec996c923e955730df3bafbdc244e54")
-;; Org:1 ends here
+;; (package! org :pin "6001313b8f8bc2c717b44070d6e7b19afc6125ec")
+;; org-mode package:1 ends here
 
 ;; [[file:config.org::*show delimiters][show delimiters:1]]
 (package! org-appear :recipe (:host github :repo "awth13/org-appear"))
