@@ -40,17 +40,12 @@ sync:
       mode: "posix-raw"
   yadm:
     alpha: "/home/venky/"
-    beta: "venky@deeplearning-1-vm.us-central1-c.instant-venky:/home/venky/test_yadm/"
+    beta: "venky@deeplearning-1-vm.us-central1-c.instant-venky:/home/venky/"
     ignore:
       paths:
         - "*"
         # note this must be on oneline to prevent newlines from being injected
-        {% filter indent(width=8) %}{% include "/home/venky/.config/yadm/yadm_ls_files_for_mutagen.yml"
-        | safe %}{% endfilter %}
-
-
-
-
+        {% filter indent(width=8) %}{% include "/home/venky/.config/yadm/yadm_ls_files_for_mutagen.yml" | safe %}{% endfilter %}
 
 # Local Variables:
 # mode: yaml

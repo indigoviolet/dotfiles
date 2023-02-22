@@ -1,0 +1,182 @@
+# Warning: do not modify
+# Generated from /home/venky/.config/yadm/mutagen.yml##t.j2,e.yml
+#
+# We'd like to sync yadm-managed files through mutagen, but mutagen does not
+# support syncing files based on a dynamic list like `yadm ls-files`.
+#
+# Instead we generate the mutagen config from a template, by using `yadm
+# ls-files` to create a list of files to be unignored, and then including that
+# file here. (yadm alt will do the templating)
+#
+# J2 vs default template processor:
+#
+# Currently we use J2.
+#
+# The default template processor requires `{ % include "yadm_ls_files.yml" % }` to
+# be unindented, so that the resulting file won't have the correct indentation. We
+# could work around this by using anchors like so:
+#
+# .paths: &paths
+# - "*"
+# { % include ... % }
+#
+# sync:
+#   yadm:
+#     ignore:
+#       paths: *paths
+#
+# but this is prevented by https://github.com/mutagen-io/mutagen/issues/432
+#
+#
+#
+#
+
+sync:
+  defaults:
+    mode: "two-way-resolved"
+    ignore:
+      vcs: true
+    symlink:
+      mode: "posix-raw"
+  yadm:
+    alpha: "/home/venky/"
+    beta: "venky@deeplearning-1-vm.us-central1-c.instant-venky:/home/venky/"
+    ignore:
+      paths:
+        - "*"
+        # note this must be on oneline to prevent newlines from being injected
+        - '!.Brewfile##c.fin'
+        - '!.Brewfile##c.personal'
+        - '!.Brewfile##c.remote'
+        - '!.bashrc'
+        - '!.boto'
+        - '!.condarc'
+        - '!.config/LeechBlockOptions.txt'
+        - '!.config/TabNine/TabNine.toml'
+        - '!.config/TabNine/TabNine.toml.dist'
+        - '!.config/TabNine/registration_key'
+        - '!.config/TabNine/tabnine_config.json'
+        - '!.config/dconf/dump.ini##c.personal'
+        - '!.config/direnv/direnv.toml'
+        - '!.config/direnv/lib/00-disable.sh'
+        - '!.config/direnv/lib/05-cache.sh'
+        - '!.config/direnv/lib/05-layout_poetry.sh'
+        - '!.config/doom/config.el'
+        - '!.config/doom/config.org'
+        - '!.config/doom/init.el'
+        - '!.config/doom/packages.el'
+        - '!.config/doom/yankpad.org'
+        - '!.config/fontconfig/conf.d/09-Directories.conf'
+        - '!.config/fontconfig/conf.d/19-DefaultProperties.conf'
+        - '!.config/fontconfig/conf.d/78-Reject.conf'
+        - '!.config/gh/config.yml'
+        - '!.config/gh/hosts.yml'
+        - '!.config/gnome-shell-extensions-git-revs##c.personal'
+        - '!.config/gnome-shell-extensions-metadata.json##c.personal'
+        - '!.config/jupytext.toml'
+        - '!.config/lazydocker/config.yml'
+        - '!.config/paperwm/user.js'
+        - '!.config/pypoetry/config.toml'
+        - '!.config/rclone/rclone.conf'
+        - '!.config/starship.toml'
+        - '!.config/systemd/user/imwheel.service'
+        - '!.config/yadm/.gitignore'
+        - '!.config/yadm/bootstrap'
+        - '!.config/yadm/bootstrap.d/010-build-deps.sh##distro.Debian'
+        - '!.config/yadm/bootstrap.d/010-build-deps.sh##distro_family.debian'
+        - '!.config/yadm/bootstrap.d/020-prezto.sh'
+        - '!.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro.Debian'
+        - '!.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro_family.debian'
+        - '!.config/yadm/bootstrap.d/040-brew.sh'
+        - '!.config/yadm/bootstrap.d/050-asdf.sh'
+        - '!.config/yadm/bootstrap.d/051-mamba-conda.sh'
+        - '!.config/yadm/bootstrap.d/060-pipx.sh'
+        - '!.config/yadm/bootstrap.d/070-misc-utilities.zsh##t,e.zsh'
+        - '!.config/yadm/bootstrap.d/080-chemacs.sh##c.personal,e.sh'
+        - '!.config/yadm/bootstrap.d/090-doom-emacs.sh##c.personal,e.sh'
+        - '!.config/yadm/bootstrap.d/100-git-completion.sh'
+        - '!.config/yadm/bootstrap.d/110-leechblock.sh##c.personal,e.sh'
+        - '!.config/yadm/bootstrap.d/120-paywall.sh##c.personal,e.sh'
+        - '!.config/yadm/bootstrap.d/130-fonts.sh##c.personal,e.sh'
+        - '!.config/yadm/bootstrap.d/140-gcloud.sh##c.personal,e.sh'
+        - '!.config/yadm/bootstrap.just'
+        - '!.config/yadm/bootstrap.just##t'
+        - '!.config/yadm/bootstrap.org'
+        - '!.config/yadm/debug-template##t'
+        - '!.config/yadm/mutagen.yml##t.j2,e.yml'
+        - '!.config/yadm/ondemand/build-emacs/build-emacs-master.sh##c.personal,e.sh'
+        - '!.config/yadm/ondemand/build-emacs/build-emacs.org'
+        - '!.config/yadm/ondemand/build-emacs/configure-emacs.sh##c.personal,e.sh'
+        - '!.config/yadm/ondemand/docker.org'
+        - '!.config/yadm/ondemand/docker.sh##distro.Ubuntu,e.sh'
+        - '!.config/yadm/start.sh'
+        - '!.dir-locals.el'
+        - '!.editorconfig'
+        - '!.emacs-profiles.el'
+        - '!.gitattributes'
+        - '!.gitconfig##t'
+        - '!.gitignore'
+        - '!.imwheelrc'
+        - '!.inputrc'
+        - '!.jupyter/jupyter_notebook_config.json##c.personal'
+        - '!.jupyter/jupyter_notebook_config.json##c.remote'
+        - '!.jupyter/jupyter_server_config.json##c.remote'
+        - '!.jupyter/migrated'
+        - '!.jupyter/nbconfig/common.json##c.remote'
+        - '!.jupyter/nbconfig/notebook.json##c.remote'
+        - '!.jupyter/nbconfig/tree.json##c.remote'
+        - '!.justfile##t'
+        - '!.kaggle/kaggle.json'
+        - '!.local/share/Trash/files/10-venky-nofile.conf##c.remote'
+        - '!.local/share/Trash/info/10-venky-nofile.conf##c.remote.trashinfo'
+        - '!.pipx.json##c.personal'
+        - '!.pipx.json##c.remote'
+        - '!.pre-commit-config.yaml'
+        - '!.sqliterc'
+        - '!.ssh/config##c.personal'
+        - '!.ssh/id_rsa##c.personal'
+        - '!.ssh/id_rsa.pub##c.personal'
+        - '!.tigrc'
+        - '!.tmux.conf'
+        - '!.tool-versions##c.personal'
+        - '!.tool-versions##c.remote'
+        - '!.zlogin'
+        - '!.zlogout'
+        - '!.zpreztorc'
+        - '!.zprofile'
+        - '!.zshcustom/abduco.zsh'
+        - '!.zshcustom/aliases.zsh'
+        - '!.zshcustom/android.zsh'
+        - '!.zshcustom/asdf.zsh##t,e.zsh'
+        - '!.zshcustom/brew.zsh##t,e.zsh'
+        - '!.zshcustom/build.zsh##t,e.zsh'
+        - '!.zshcustom/conda.zsh'
+        - '!.zshcustom/cuda.zsh##c.remote,e.zsh'
+        - '!.zshcustom/direnv.zsh'
+        - '!.zshcustom/docker.zsh'
+        - '!.zshcustom/doom.zsh'
+        - '!.zshcustom/env.zsh##t,e.zsh'
+        - '!.zshcustom/fzf.zsh'
+        - '!.zshcustom/gcloud-completion.zsh'
+        - '!.zshcustom/gcloud.zsh'
+        - '!.zshcustom/git.zsh'
+        - '!.zshcustom/input.zsh'
+        - '!.zshcustom/misc.zsh'
+        - '!.zshcustom/noninteractive.zsh'
+        - '!.zshcustom/poetry.zsh'
+        - '!.zshcustom/prompt.zsh'
+        - '!.zshcustom/scriptlib.zsh'
+        - '!.zshcustom/secrets.zsh'
+        - '!.zshcustom/ssh.zsh##t,e.zsh'
+        - '!.zshcustom/tilix.zsh'
+        - '!.zshcustom/vterm.zsh'
+        - '!.zshcustom/zoxide.zsh'
+        - '!.zshenv'
+        - '!.zshrc##t'
+        - '!README.org'
+
+
+# Local Variables:
+# mode: yaml
+# eval: (apheleia-mode -1)
+# End:
