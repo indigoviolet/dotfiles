@@ -42,18 +42,17 @@ just --dump --dump-format json | jq '.recipes | keys'
 :END:
 
 * Yadm dotfiles
-
 ** Get started
 
-Run it like:
+- Run it on GCP like:
 
-~gcloud compute ssh ... --command "bash -s" < get-start.sh~
+  ~gcloud compute ssh ... --command "bash -s" < get-start.sh~
 
-or better yet:
+  or better yet:
 
-Use ~gcpvm~ from indigoviolet/gcloud:
+  Use ~gcpvm~ from indigoviolet/gcloud:
 
-~./gcpvm --dotenv-filename deeplearning-1-vm ssh "bash -s" < get-start.sh~
+  ~./gcpvm --dotenv-filename deeplearning-1-vm ssh "bash -s" < get-start.sh~
 
 #+begin_src shell :tangle ~/.config/yadm/run-start.sh :shebang "#!/usr/bin/env bash"
 GITHUB_PAT='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'
@@ -62,14 +61,15 @@ GITHUB_PAT='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'
 
 
 #+begin_src shell :tangle ~/.config/yadm/start.sh :shebang "#!/usr/bin/env bash" :noweb tangle
-set_init
+set -x
+set -euo pipefail
 <<start.sh>>
 #+end_src
 
 *** Get Brew
 
 #+begin_src shell :noweb-ref start.sh
-yes '' | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 #+end_src
 
@@ -79,10 +79,11 @@ brew has to be pinned to older version for now!
 
 recipes that break: fzf, direnv, micro, coreutils, abduco...
 
-*** Get yadm
+*** Get yadm and just
 
 #+begin_src shell :noweb-ref start.sh
 brew install yadm
+brew install just
 #+end_src
 
 *** Clone dotfiles
@@ -100,7 +101,7 @@ lives in ~.local/share/yadm/repo.git~)
 GITHUB_PAT='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'
 yadm clone "https://oauth2:$GITHUB_PAT@github.com/indigoviolet/dotfiles.git" --no-bootstrap
 
-read -p 'Set yadm local.class (<personal|fin|gcp>): ' yadmclass
+read -p 'Set yadm local.class (<personal|remote>): ' yadmclass
 yadm config local.class $yadmclass && yadm alt && yadm bootstrap
 #+end_src
 
@@ -110,10 +111,11 @@ We are using Transcrypt to encrypt some keys before checking in. Note that these
 files are "##c.personal", so they only need to be encrypted on the "personal"
 machine. For remote servers, use ssh forwarding instead.
 
-See https://github.com/elasticdog/transcrypt
+See https://github.com/elasticdog/transcrypt.
+
+Install with ~brew install transcrypt~
 
 #+begin_src shell
-
 ## on local machine (where transcrypt is already configured)
 yadm transcrypt --display
 
@@ -138,335 +140,25 @@ Configures which files are encrypted
 .config/rclone/rclone.conf filter=crypt diff=crypt merge=crypt
 #+end_src
 
-** Yadm Bootstrap
+*** Mutagen sync for dotfiles
 
-*** Dispatcher
+It is convenient to use mutagen to sync dotfiles over instead of using ~yadm push~
+and then ~yadm pull~.
 
-https://raw.githubusercontent.com/TheLocehiliosan/yadm/master/contrib/bootstrap/bootstrap-in-dir
+But mutagen takes a static config and yadm's files are scattered all over. To work around this:
 
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap
-# Save this file as ~/.config/yadm/bootstrap and make it executable. It will
-# execute all executable files (excluding templates and editor backups) in the
-# ~/.config/yadm/bootstrap.d directory when run.
+1. We use ~~/.config/yadm/mutagen.yml~ to describe a config where everything is ignored.
+2. Exclusions are specified via a templated include file ~yadm_ls_files_for_mutagen.yml~
+3. ~yadm_ls_files_for_mutagen.yml~ is written and templated in by ~just
+   yadm_ls_files_for_mutagen~
+4. A pre-commit config ensures that we run ~just yadm_ls_files_for_mutagen~ after commit
 
-set_init
+It may require a ~mutagen terminate~ and ~mutagen restart~ to pick up the new
+config. You may also need a ~yadm alt~ on the remote machine to update any alt
+files.
 
-# Directory to look for bootstrap executables in
-BOOTSTRAP_D="${BASH_SOURCE[0]}.d"
-
-if [[ ! -d "$BOOTSTRAP_D" ]]; then
-    echo "Error: bootstrap directory '$BOOTSTRAP_D' not found" >&2
-    exit 1
-fi
-
-find -L "$BOOTSTRAP_D" -type f | sort | while IFS= read -r bootstrap; do
-    if [[ -x "$bootstrap" && ! "$bootstrap" =~ "##" && ! "$bootstrap" =~ "~$" ]]; then
-        if ! "$bootstrap"; then
-            echo "Error: bootstrap '$bootstrap' failed" >&2
-            exit 1
-        fi
-    fi
-done
-
-#+end_src
-
-
-*** build deps
-
-for pyenv builds https://github.com/pyenv/pyenv/wiki/common-build-problems (which also affect asdf)
-
-distro_family is not always present and can't be overridden: https://github.com/TheLocehiliosan/yadm/issues/430
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/010-build-deps.sh##distro_family.debian :noweb tangle
-<<build-deps.sh>>
-#+end_src
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/010-build-deps.sh##distro.Debian :noweb tangle
-<<build-deps.sh>>
-#+end_src
-
-#+begin_src shell :noweb-ref build-deps.sh
-set_init
-sudo apt-get update
-sudo apt-get install --no-install-recommends -y clang
-sudo apt-get install --no-install-recommends -y \
-    make build-essential \
-    libssl-dev zlib1g-dev libbz2-dev \
-    libreadline-dev libsqlite3-dev \
-    wget llvm \
-    libncurses5 libncurses5-dev libncursesw5 \
-    xz-utils tk-dev \
-    libxml2-dev libffi-dev \
-    libxmlsec1-dev liblzma-dev
-#+end_src
-
-*** Prezto
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/020-prezto.sh
-set -ux
-git clone --recursive https://github.com/sorin-ionescu/prezto.git "${HOME}/.zprezto"
-git clone --recurse-submodules https://github.com/belak/prezto-contrib "${HOME}/.zprezto/contrib"
-cd ~/.zprezto/contrib && git pull
-#+end_src
-
-
-*** zsh login shell
-
-distro_family is not always present and can't be overridden: https://github.com/TheLocehiliosan/yadm/issues/430
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro_family.debian :noweb tangle
-<<login-shell-zsh.sh>>
-#+end_src
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro.Debian :noweb tangle
-<<login-shell-zsh.sh>>
-#+end_src
-
-#+begin_src shell :noweb-ref login-shell-zsh.sh
-set_init
-
-sudo apt-get install --no-install-recommends -y zsh && sudo chsh -s $(which zsh) $(whoami)
-#+end_src
-
-To check (Might need to reboot to get it to work on login??):
-
-#+begin_src
-grep $(whoami) /etc/passwd
-sudo su - $(whoami)
-#+end_src
-
-*** Brew
-
-+brew bundle dump --force --describe --casks --file=-+ See [[file:.zshcustom/brew.zsh::function brew-dump-leaves () {][brew-dump-leaves]] instead
-
-just =brew-dump-leaves >! ~/.Brewfile=
-
-Note that .Brewfile is an alt file
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/040-brew.sh
-set_init
-
-# install items
-if [[ -e ~/.Brewfile ]]; then
-	brew bundle --global check || brew bundle --global install -v
-fi
-#+end_src
-
-
-*** Asdf
-
-asdf installed with Brew
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/050-asdf.sh
-set -ux
-
-## https://github.com/asdf-vm/asdf/issues/276#issuecomment-907063520
-cut -d' ' -f1 .tool-versions | xargs -i asdf plugin add {}
-
-## installs from .tool-versions (which is an alt file)
-## the install-poetry installer is default with 1.2, but that is still alpha and has bugs <2022-02-07 Mon>
-# ASDF_POETRY_INSTALL_URL=https://install.python-poetry.org asdf install
-#+end_src
-
-*** Mamba (conda)
-
-https://github.com/conda-forge/miniforge#non-interactive-install
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/051-mamba-conda.sh
-set -ux
-cd /tmp
-wget -O Mambaforge.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
-bash Mambaforge.sh -b -p $HOME/.local/mambaforge
-#+end_src
-
-*** Pipx
-
-pipx is installed with Brew
-
-We use .pipx.json which is created by
-
-~just pipx_update_list~
-
-Note that .pipx.json is an alt file
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/060-pipx.sh
-set -ux
-if [[ -e ~/.pipx.json ]]; then
-    for p in $(cat ~/.pipx.json | jq -r '.venvs[].metadata.main_package.package_or_url'); do
-        pipx install $p
-    done
-fi
-exit 0
-#+end_src
-
-**** Handle injected packages?
-
-
-
-Long-term it would be nice to just have a comprehensive way to handle the exported json
-
-For example, we'd like to inject ipykernel into ipython, so that ipykernel
-doesn't need to be in every package that wants to use jupyter
-
-#+begin_src shell :results raw drawer
-pipx list --json \
-     | jq -r '.venvs[].metadata | {main_package: .main_package.package_or_url, injected: (.injected_packages | (keys[] // null))}' \
-     | jq -r '"pipx install \(.main_package)", if .injected != null then "pipx inject \(.main_package) \(.injected)" else "" end'
-#+end_src
-
-Another version:
-
-#+begin_example shell
-cat ~/.pipx.json | jq -cr '.venvs | map_values(.metadata.injected_packages | keys) | to_entries | map(.key + " " + (.value|join(",")))'
-#+end_example
-
-
-*** Misc utilities
-
-#+begin_src shell :shebang "#!/usr/bin/env zsh" :tangle ~/.config/yadm/bootstrap.d/070-misc-utilities.zsh##t,e.zsh
-set -eux
-
-# https://scriptingosx.com/2019/11/associative-arrays-in-zsh/
-declare -A utils
-utils=(
-    # these come with ubuntu
-    [less]=less
-    [notify-send]=libnotify-bin
-    # brew installs shitloads of dependencies
-    [svn]=subversion
-
-{% if yadm.class == "personal" %}
-{% endif %}
-
-{% if yadm.class == "gcp" %}
-    # not present in brew/Debian
-    # [nvtop]=nvtop
-    [netstat]=net-tools
-{% endif %}
-)
-for util lib in ${(kv)utils}; do
-    (command -v $util &> /dev/null) || sudo apt-get install --no-install-recommends -y $lib
-done
-
-## git-info
-mkdir -p ~/.local/bin && curl -fsSL https://raw.githubusercontent.com/gitbits/git-info/master/git-info --output ~/.local/bin/git-info && chmod +x ~/.local/bin/git-info
-
-## poetry completion in prezto (https://python-poetry.org/docs/master/#enable-tab-completion-for-bash-fish-or-zsh)
-## poetry installed with asdf
-# poetry completions zsh > ~/.zprezto/modules/completion/external/src/_poetry
-
-## Handy way to install things from github
-for ext in redraw/gh-install; do
-    (gh extension list | grep $ext) && echo "installed" || gh install $ext
-done
-
-## GCM core git credential helper (see https://blog.djnavarro.net/posts/2021-08-08_git-credential-helpers/)
-# this is interactive
-# gh install GitCredentialManager/git-credential-manager
-
-TEMPDIR=$(mktemp -d)
-gh release download -p '*.deb' -R GitCredentialManager/git-credential-manager --clobber -D $TEMPDIR && sudo dpkg -i $TEMPDIR/gcm*.deb
-git credential-manager configure
-
-# huawei matebook
-# https://github.com/qu1x/huawei-wmi/tree/master/debian#repository
-echo "deb https://deb.qu1x.org buster main" | sudo tee /etc/apt/sources.list.d/qu1x.list
-# sudo apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-keys 4503d1ab
-
-# matebook-applet
-echo "deb [signed-by=/usr/share/keyrings/matebook-applet.key] http://evgenykuznetsov.org/repo/ stable main" | sudo tee /etc/apt/sources.list.d/matebook-applet.list
-wget -qO - https://raw.githubusercontent.com/nekr0z/matebook-applet/master/matebook-applet.key | sudo tee /usr/share/keyrings/matebook-applet.key
-
-# twemoji fonts
-sudo apt-add-repository -y -S "deb https://ppa.launchpadcontent.net/eosrei/fonts/ubuntu/ impish main"
-sudo apt-get update
-sudo apt-get install -y fonts-twemoji-svginot
-
-
-# Tailscale
-curl -fsSL https://pkgs.tailscale.com/unstable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
-curl -fsSL https://pkgs.tailscale.com/unstable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
-sudo apt-get update
-sudo apt-get install -y tailscale
-#+end_src
-
-
-*** chemacs
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/080-chemacs.sh##c.personal,e.sh
-set_init
-{ git clone https://github.com/plexus/chemacs.git "${HOME}/.local/chemacs" && $HOME/.local/chemacs/install.sh; } || exit 0
-#+end_src
-
-*** Doom emacs
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/090-doom-emacs.sh##c.personal,e.sh
-set_init
-{ git clone https://github.com/hlissner/doom-emacs "${HOME}/.emacs.d" && $HOME/.emacs.d/bin/doom install; } || exit 0
-#+end_src
-
-*** git completion
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/100-git-completion.sh
-set -ux
-curl -o ${ZSH_CUSTOM_DIR}/git-completion.bash https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
-curl -o ${ZSH_CUSTOM_DIR}/_git https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh
-#+end_src
-
-*** Leechblock
-
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/110-leechblock.sh##c.personal,e.sh
-set -ux
-{ mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone indigoviolet/LeechBlockNG-chrome && cd LeechBlockNG-chrome && ./install-jquery.sh; } || exit 0
-#+end_src
-
-*** paywall
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/120-paywall.sh##c.personal,e.sh
-set -ux
-{ mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone iamadamdev/bypass-paywalls-chrome; } || exit 0
-#+end_src
-
-*** Fonts
-
-On Darwin we would do this with brew
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/130-fonts.sh##c.personal,e.sh
-set_init
-
-# Jetbrains Mono patched (https://github.com/ryanoasis/nerd-fonts#option-5-clone-the-repo)
-if [[ ! -d  $HOME/dev/nerd-fonts ]]; then
-    mkdir -p $HOME/dev
-    cd $HOME/dev
-    git clone --filter=blob:none --sparse git@github.com:ryanoasis/nerd-fonts
-else
-    cd $HOME/dev/nerd-fonts
-    git fetch
-fi
-
-for font in JetBrainsMono/Ligatures IBMPlexMono VictorMono Iosevka; do
-    git sparse-checkout add patched-fonts/$font
-    ./install.sh "${font%%/*}"
-done
-
-# Should we do this via doomscript? https://github.com/doomemacs/doomemacs/issues/6494
-echo 'y' | emacs -l ~/.config/doom/init.el --batch -f all-the-icons-install-fonts
-#+end_src
-
-
-
-*** Gcloud
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/140-gcloud.sh##c.personal,e.sh
-set_init
-
-sudo apt-get install apt-transport-https ca-certificates gnupg
-echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list
-curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-sudo apt-get update && sudo apt-get install --no-install-recommends -y google-cloud-sdk
-
-#+end_src
-
+Note that this doesn't remove the need to clone the repo on the remote machine,
+yadm probably still needs it.
 
 ** zsh secrets
 Make ~~/.zsh_secrets~ if you need any secrets that aren't committed. It is sourced via ~secrets.zsh~

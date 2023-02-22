@@ -161,7 +161,10 @@ fix-imagemagick-resources POLICY_XML: ensure-sudo
 
 # path := env_var('PATH')
 
-# Note: this won't work with set_init since $HOME/.bashrc isn't loaded
+# Note: this won't work with set_init since $HOME/.bashrc isn't loaded (use the
+# shebang below):
+#    #!/usr/bin/env -S bash --init-file ${HOME}/.bashrc
+#
 # Run via sudo, preserving env and PATH
 sudo *CMD:
     sudo -E --preserve-env=PATH,ABDUCO_SOCKET_DIR env {{CMD}}
@@ -304,7 +307,9 @@ subjust justcmd *cmd:
 
 yadm_ls_files_for_mutagen:
     yadm list -a | jq -R '. | "!" + .' | jq -s '.' | dasel -r json -w yaml > $HOME/.config/yadm/yadm_ls_files_for_mutagen.yml
-    yadm alt
+    ## we don't run yadm alt here because it will be run in pre-commit, altering files and making it hard to work with other pre-commit rules
+    ## instead we should run it in a recipe to restart the mutagen sync
+    # yadm alt
 
 
 # Local Variables:
