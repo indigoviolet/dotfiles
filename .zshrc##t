@@ -64,15 +64,11 @@ source ${ZSH_CUSTOM_DIR}/gcloud-completion.zsh
 source ${ZSH_CUSTOM_DIR}/docker.zsh
 {% endif %}
 
-{% if yadm.class == "gcp" %}
+{% if yadm.class == "remote" %}
 ## GCP includes
 # prepends to path, so keep it last
 source ${ZSH_CUSTOM_DIR}/cuda.sh
 source ${ZSH_CUSTOM_DIR}/docker.zsh
-{% endif %}
-
-{% if yadm.class == "fin" %}
-source ${ZSH_CUSTOM_DIR}/fin.zsh
 {% endif %}
 
 ## Prompt/directory tracking;

@@ -10,7 +10,7 @@ export ALTERNATE_EDITOR=""
 export EDITOR="emacsclient -c -a ''"
 {% endif %}
 
-{% if yadm.class == "gcp" %}
+{% if yadm.class == "remote" %}
 export EDITOR="micro" # installed via brew
 {% endif %}
 

@@ -135,7 +135,7 @@
     credentialStore = secretservice
 {% endif %}
 
-{% if yadm.class == "gcp" %}
+{% if yadm.class == "remote" %}
 ## on headless tty we'll use a long timeout for the ephemeral in-memory cache
     credentialStore = cache
     cacheOptions = "--timeout 604800" # 1 week
