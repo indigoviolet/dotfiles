@@ -7,3 +7,6 @@ yadm.source: {{ yadm.source }}
 yadm.distro_family: {{ yadm.distro_family }}
 yadm.classes: {{ yadm.classes }}
 yadm.arch: {{ yadm.arch }}
+
+# Includes: this must be at beginning-of-line (notice the recursive replacement)
+{% include "{{ yadm.source }}" %}

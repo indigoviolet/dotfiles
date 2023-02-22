@@ -59,11 +59,11 @@
   modus-themes-bold-constructs t
   modus-themes-mixed-fonts nil
   modus-themes-variable-pitch-ui nil
-  modus-themes-org-blocks 'tinted-background ; {nil,'gray-background,'tinted-background}
+  modus-themes-org-blocks 'gray-background ; {nil,'gray-background,'tinted-background}
   )
 (setq! modus-themes-common-palette-overrides
   '(
-     (bg-region bg-dim)
+     ;;(bg-region bg-dim)
      (fg-region unspecified)
      (border-mode-line-active unspecified)
      (border-mode-line-inactive unspecified)
@@ -763,15 +763,38 @@ message listing the hooks."
     ;; Useful for debugging: show window name in the modeline
     (concat (doom-modeline-spc) (format "%s" (get-buffer-window))))
 
+  (doom-modeline-def-segment recursion-depth
+    "Recursive-edit depth indicator. Used in yadm-status"
+    (let ((rd (recursion-depth)))
+      (when (> rd 0)
+        (concat doom-modeline-spc
+          (propertize
+            (concat
+              " "
+              (doom-modeline-icon 'faicon "recycle" nil nil
+                :face 'all-the-icons-dsilver
+                :height 0.9
+                :v-adjust 0.0)
+              (format " %s " rd))
+            'face 'doom-modeline-warning
+            'help-echo "Recursive-edit: C-] to quit")
+            ))))
+
+
   ;; best to name this 'main, since main gets set as the default in
   ;; doom-modeline. other names don't seem to take effect as default..
   (doom-modeline-def-modeline 'main
-    '(bar buffer-info-simple selection-info remote-host checker)
-    '(debug repl process lsp persp-name minor-modes major-mode vcs))
+    '(bar buffer-info-simple selection-info remote-host checker buffer-position recursion-depth)
+    '(debug repl process lsp persp-name minor-modes major-mode misc-info vcs))
 
   (doom-modeline-def-modeline 'org-src
     '(bar buffer-info-simple selection-info checker)
     '(debug lsp persp-name minor-modes major-mode))
+
+  (doom-modeline-def-modeline 'vcs
+    '(bar buffer-info-simple selection-info remote-host buffer-position recursion-depth)
+    '( debug github process persp-name minor-modes major-mode misc-info vcs))
+
 
   ;; don't think we need this, since we modified 'main
   ;;(add-hook! '(prog-mode-hook org-mode-hook) (doom-modeline-set-modeline 'main))
@@ -1036,7 +1059,7 @@ message listing the hooks."
         (group (filename-match "venv" (rx ".venv/")))
         (auto-mode)
         )
-        
+
       ;; Group remaining buffers by directory, then major mode.
       (auto-directory)
       (auto-mode)
@@ -1715,7 +1738,6 @@ message listing the hooks."
   :after-call doom-first-buffer-hook
   :custom
   (corfu-auto t)
-  (corfu-quit-no-match 'separator)
   (corfu-auto-delay 0.2)
   (corfu-auto-prefix 2)
   (completion-styles '(basic))
@@ -2692,24 +2714,21 @@ Results are reported in a compilation buffer."
 
 
 
-;; See https://www.reddit.com/r/emacs/comments/gjukb3/yadm_magit/gasc8n6/
+;; Quit recursive edit using C-]
 
 
-;; [[file:config.org::*Using Tramp for magit/yadm][Using Tramp for magit/yadm:1]]
-(after! tramp
-    ;; https://github.com/magit/magit/discussions/4750
-  (setq enable-remote-dir-locals t)
-  (add-to-list 'tramp-methods
-    '("yadm"
-       (tramp-login-program "yadm")
-       (tramp-login-args (("enter")))
-       (tramp-remote-shell "/bin/bash")
-       (tramp-remote-shell-args ("-c"))))
-    (defun yadm-status ()
-      (interactive)
-      (require 'tramp)
-      (with-current-buffer (magit-status "/yadm::"))))
-;; Using Tramp for magit/yadm:1 ends here
+;; [[file:config.org::*Another method, setting git flags][Another method, setting git flags:1]]
+(defun yadm-status ()
+  "Magit on dotfiles repo for the duration of a recursive edit."
+  (interactive)
+  (require 'magit)
+  (let ((magit-git-global-arguments
+          `(,(substitute-env-vars "--git-dir=/home/venky/.local/share/yadm/repo.git")
+             ,(substitute-env-vars "--work-tree=/home/venky")
+             ,@magit-git-global-arguments)))
+    (magit-status "~")
+    (recursive-edit)))
+;; Another method, setting git flags:1 ends here
 
 
 

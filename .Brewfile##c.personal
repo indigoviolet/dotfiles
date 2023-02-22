@@ -56,6 +56,8 @@ brew "htop"
 brew "hyperfine"
 # Improved colored diff
 brew "icdiff"
+# Command-line pager for JSON data
+brew "jless"
 # JSON output from a shell
 brew "jo"
 # Lightweight and flexible command-line JSON processor
@@ -84,6 +86,8 @@ brew "pandoc"
 brew "pigz"
 # Execute binaries from Python packages in isolated environments
 brew "pipx"
+# Framework for managing multi-language pre-commit hooks
+brew "pre-commit"
 # Rsync for cloud storage
 brew "rclone"
 # Search tool like grep and The Silver Searcher
@@ -118,7 +122,7 @@ brew "zoxide"
 brew "indigoviolet/tap/abduco", args: ["HEAD"]
 # simple drag-and-drop source/sink for X or Wayland
 brew "indigoviolet/tap/dragon", args: ["HEAD"]
-# A new generation cloud backup tool 
+# A new generation cloud backup tool
 brew "indigoviolet/tap/duplicacy"
 # Utilities for tabular data files
 brew "indigoviolet/tap/tsv-utils"

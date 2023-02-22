@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # [[file:../../README.org::*Get started][Get started:2]]
 set_init
-yes '' | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 brew install yadm
+brew install just
 
 # Note that this won't work on a single line: env var replacement happens before the command runs
 # You can do
