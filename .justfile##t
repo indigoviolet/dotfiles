@@ -12,13 +12,10 @@ default:
     just --list
 
 {% if yadm.class == "personal" %}
-EMACSDIR := env_var('EMACSDIR')
-DOOMDIR := env_var('DOOMDIR')
-
 doom-clean:
     # https://github.com/millejoh/emacs-ipython-notebook/issues/824
     doom clean
-    fd -g '*.elc' {{ EMACSDIR }} -uuu -x rm
+    fd -g '*.elc' {{ env_var('EMACSDIR') }} -uuu -x rm
     doom sync
 
 # Handle stale elc files
@@ -37,7 +34,7 @@ doom-rebuild-vterm:
     # Look into doomscript: https://github.com/doomemacs/doomemacs/issues/6494
 
 doom-tangle-config:
-    emacs --batch -Q --eval "(require 'org)" --eval '(org-babel-tangle-file "{{ DOOMDIR }}/config.org")'
+    emacs --batch -Q --eval "(require 'org)" --eval '(org-babel-tangle-file "{{ env_var('DOOMDIR') }}/config.org")'
 
 mutagen-project-start project:
     mutagen project start -f ~/dev/{{ project }}.yml
@@ -237,7 +234,7 @@ glances plugins=env_var_or_default("plugins", "") *args='':
 
 dl *cmd:
     just -f {{ justfile() }} subjust "/home/venky/dev/gcloud/gcpvm --dotenv-filename=/home/venky/dev/gcloud/deeplearning-1-vm.env" "$@"
-    
+
 pregen *cmd:
     just -f {{ justfile() }} subjust "/home/venky/dev/gcloud/gcpvm --dotenv-filename=/home/venky/dev/gcloud/prod-pregenerate.env" "$@"
 
@@ -303,6 +300,11 @@ duplicacy_home:
 [no-cd]
 subjust justcmd *cmd:
     {{ justcmd }} -- "${@:2}"
+
+
+yadm_ls_files_for_mutagen:
+    yadm list -a | jq -R '. | "!" + .' | jq -s '.' | dasel -r json -w yaml > $HOME/.config/yadm/yadm_ls_files_for_mutagen.yml
+    yadm alt
 
 
 # Local Variables:
