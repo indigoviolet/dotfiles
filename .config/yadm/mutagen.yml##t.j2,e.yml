@@ -1,0 +1,58 @@
+# Warning: do not modify
+# Generated from {{ YADM_SOURCE }}
+#
+# We'd like to sync yadm-managed files through mutagen, but mutagen does not
+# support syncing files based on a dynamic list like `yadm ls-files`.
+#
+# Instead we generate the mutagen config from a template, by using `yadm
+# ls-files` to create a list of files to be unignored, and then including that
+# file here. (yadm alt will do the templating)
+#
+# J2 vs default template processor:
+#
+# Currently we use J2.
+#
+# The default template processor requires `{ % include "yadm_ls_files.yml" % }` to
+# be unindented, so that the resulting file won't have the correct indentation. We
+# could work around this by using anchors like so:
+#
+# .paths: &paths
+# - "*"
+# { % include ... % }
+#
+# sync:
+#   yadm:
+#     ignore:
+#       paths: *paths
+#
+# but this is prevented by https://github.com/mutagen-io/mutagen/issues/432
+#
+#
+#
+#
+
+sync:
+  defaults:
+    mode: "two-way-resolved"
+    ignore:
+      vcs: true
+    symlink:
+      mode: "posix-raw"
+  yadm:
+    alpha: "/home/venky/"
+    beta: "venky@deeplearning-1-vm.us-central1-c.instant-venky:/home/venky/test_yadm/"
+    ignore:
+      paths:
+        - "*"
+        # note this must be on oneline to prevent newlines from being injected
+        {% filter indent(width=8) %}{% include "/home/venky/.config/yadm/yadm_ls_files_for_mutagen.yml"
+        | safe %}{% endfilter %}
+
+
+
+
+
+# Local Variables:
+# mode: yaml
+# eval: (apheleia-mode -1)
+# End:
