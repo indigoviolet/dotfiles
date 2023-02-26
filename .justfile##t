@@ -36,16 +36,13 @@ doom-rebuild-vterm:
 doom-tangle-config:
     emacs --batch -Q --eval "(require 'org)" --eval '(org-babel-tangle-file "{{ env_var('DOOMDIR') }}/config.org")'
 
-mutagen-project-start project:
-    mutagen project start -f ~/dev/{{ project }}.yml
+[no-cd]
+mutagen-project-restart:
+    -mutagen project terminate
+    mutagen project start
 
-mutagen-project-terminate project:
-    mutagen project terminate -f ~/dev/{{ project }}.yml
-
-mutagen-project-restart project: (mutagen-project-terminate project) (mutagen-project-start project)
-
-mutagen-sync-monitor name:
-    mutagen sync monitor {{ name }} --template '{{{{ json . }}' | jq '.[0].status'
+mutagen-sync-monitor:
+    mutagen sync list --template="{{{{ json . }}" | jq 'map(select(.labels."io.mutagen.project")) | reduce .[] as $item ({}; .[$item.labels."io.mutagen.project"] = reduce $item as $item2 (.[$item.labels."io.mutagen.project"]; .[$item2.name] = {path: $item2.alpha.path, connected: $item2.alpha.connected, status: $item2.status}) )'
 
 # Log into syslog
 syslog-notice NOTICE:
@@ -304,9 +301,38 @@ duplicacy_home:
 subjust justcmd *cmd:
     {{ justcmd }} -- "${@:2}"
 
+gitignore_specific_files:
+    #!/usr/bin/env python
+
+    from pathlib import Path
+    import sys
+    from typing import Generator
+
+    def all_parents(p: Path) -> Generator[Path, None, None]:
+        p = p.parent
+        while True:
+            if p.parent != p:
+                yield p
+            else:
+                return
+            p = p.parent
+
+    def main():
+        input_paths = [Path(p.strip()) for p in sys.stdin.readlines()]
+        parent_paths = set()
+        for p in input_paths:
+            parent_paths.update(all_parents(p))
+        for p in sorted(parent_paths):
+            print(f'!{p}')
+            print(f'{p}/*')
+        for p in input_paths:
+            print(f'!{p}')
+
+    if __name__ == '__main__':
+        main()
 
 yadm_ls_files_for_mutagen:
-    yadm list -a | jq -R '. | "!" + .' | jq -s '.' | dasel -r json -w yaml > $HOME/.config/yadm/yadm_ls_files_for_mutagen.yml
+    yadm list -a | just -f {{ justfile() }} gitignore_specific_files | jq -R '.' | jq -s '.' | dasel -r json -w yaml > $HOME/.config/yadm/yadm_ls_files_for_mutagen.yml
     ## we don't run yadm alt here because it will be run in pre-commit, altering files and making it hard to work with other pre-commit rules
     ## instead we should run it in a recipe to restart the mutagen sync
     # yadm alt

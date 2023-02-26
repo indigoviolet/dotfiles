@@ -1,5 +1,5 @@
 # before zoxide init
 autoload -Uz compinit
-compinit
+compinit -i
 
 eval "$(zoxide init zsh)"

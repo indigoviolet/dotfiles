@@ -35,6 +35,6 @@ alias pgrep="pgrep -laf"
 alias pkill="pkill -fe"
 alias g="git"
 alias just="just --unstable"
-alias z=zi
+# alias z=zi
 alias ls="lsd -h --date relative --group-dirs=first --blocks size,date,name --depth 3"
 alias e="exa -T --git -l --time modified --time-style default --sort modified -L 3"

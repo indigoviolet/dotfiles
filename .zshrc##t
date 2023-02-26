@@ -67,7 +67,7 @@ source ${ZSH_CUSTOM_DIR}/docker.zsh
 {% if yadm.class == "remote" %}
 ## GCP includes
 # prepends to path, so keep it last
-source ${ZSH_CUSTOM_DIR}/cuda.sh
+source ${ZSH_CUSTOM_DIR}/cuda.zsh
 source ${ZSH_CUSTOM_DIR}/docker.zsh
 {% endif %}
 

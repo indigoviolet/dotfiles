@@ -1490,16 +1490,43 @@ message listing the hooks."
 
 (custom-set-faces!
   '(ctrlf-highlight-passive :background "#3b3a3b" :foreground "#d8bf9c")
-  '(ctrlf-highlight-active :background nil :foreground nil :inherit isearch))
+  '(ctrlf-highlight-active :background unspecified :foreground unspecified :inherit isearch))
 ;; config:1 ends here
 
 ;; [[file:config.org::*Jumping][Jumping:2]]
 ;; better-jumper is built into doom
 (use-package! smart-jump
+  :custom
+  (smart-jump-find-references-fallback-function #'smart-jump-find-references-with-rg)
+  (smart-jump-bind-keys nil)
   :config
+
+  ;; this sets up hooks with the :modes, so it won't work without revert-buffer
+  ;; since we use :bind to load this package
+  (smart-jump-register :modes 'prog-mode
+                       :jump-fn #'+lookup/definition
+                       :pop-fn 'xref-pop-marker-stack
+                       :refs-fn #'+lookup/references
+                       :heuristic 'error
+                       :refs-heuristic 'error
+                       :should-jump t
+                       :order 2
+                       :async t)
+
+  (smart-jump-register :modes 'lsp-mode
+                       :jump-fn 'lsp-find-definition
+                       :pop-fn 'xref-pop-marker-stack
+                       :refs-fn 'lsp-find-references
+                       :heuristic 'point
+                       :refs-heuristic 'point
+                       :should-jump t
+                       :order 1
+                       :async t)
+
   (smart-jump-setup-default-registers)
-  (advice-add #'smart-jump-go :around #'better-jumper-set-jump)
   :bind (("M-." . smart-jump-go)
+          ;; seems to work with smart-jump without calling better-jumper-set-jump?
+          ;; also advicing smart-jump with better-jumper-set-jump seems to break
           ("M-," . better-jumper-jump-backward)
           ("M-?" . smart-jump-references))
   :commands (smart-jump-go smart-jump-back smart-jump-references)
@@ -1518,28 +1545,6 @@ message listing the hooks."
     ("t" +lookup/type-definition "Type")
     ("F" +lookup/file "file"))
    ))
-
-(after! smart-jump
-  (smart-jump-register :modes 'lsp-mode
-                       :jump-fn 'lsp-find-definition
-                       :pop-fn 'xref-pop-marker-stack
-                       :refs-fn 'lsp-find-references
-                       :heuristic 'point
-                       :refs-heuristic 'point
-                       :should-jump t
-                       :order 2
-                       :async t)
-
-  (smart-jump-register :modes 'prog-mode
-                       :jump-fn #'+lookup/definition
-                       :pop-fn 'xref-pop-marker-stack
-                       :refs-fn #'+lookup/references
-                       :heuristic 'error
-                       :refs-heuristic 'error
-                       :should-jump t
-                       :order 1
-                       :async t)
-  )
 ;; Jumping:2 ends here
 
 

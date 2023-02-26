@@ -68,8 +68,10 @@ set -euo pipefail
 
 *** Get Brew
 
+NONINTERACTIVE=1 only works if you have sudo access?
+
 #+begin_src shell :noweb-ref start.sh
-NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 #+end_src
 
@@ -82,8 +84,7 @@ recipes that break: fzf, direnv, micro, coreutils, abduco...
 *** Get yadm and just
 
 #+begin_src shell :noweb-ref start.sh
-brew install yadm
-brew install just
+brew install yadm just
 #+end_src
 
 *** Clone dotfiles
@@ -136,6 +137,8 @@ Configures which files are encrypted
 #+begin_src shell :tangle ~/.gitattributes
 .ssh/id_rsa.pub\#\#c.personal filter=crypt diff=crypt merge=crypt
 .ssh/id_rsa\#\#c.personal filter=crypt diff=crypt merge=crypt
+.ssh/id_ed25519.pub\#\#c.personal filter=crypt diff=crypt merge=crypt
+.ssh/id_ed25519\#\#c.personal filter=crypt diff=crypt merge=crypt
 .config/TabNine/registration_key filter=crypt diff=crypt merge=crypt
 .config/rclone/rclone.conf filter=crypt diff=crypt merge=crypt
 #+end_src

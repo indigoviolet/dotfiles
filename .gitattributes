@@ -6,6 +6,8 @@
 # [[file:README.org::*.gitattributes][.gitattributes:1]]
 .ssh/id_rsa.pub\#\#c.personal filter=crypt diff=crypt merge=crypt
 .ssh/id_rsa\#\#c.personal filter=crypt diff=crypt merge=crypt
+.ssh/id_ed25519.pub\#\#c.personal filter=crypt diff=crypt merge=crypt
+.ssh/id_ed25519\#\#c.personal filter=crypt diff=crypt merge=crypt
 .config/TabNine/registration_key filter=crypt diff=crypt merge=crypt
 .config/rclone/rclone.conf filter=crypt diff=crypt merge=crypt
 # .gitattributes:1 ends here

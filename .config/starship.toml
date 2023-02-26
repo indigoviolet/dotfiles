@@ -18,5 +18,5 @@ ssh_symbol = " "
 style = "bold inverted bright-green"
 
 [conda]
+#foo
 ignore_base = false
-
