@@ -1,6 +1,6 @@
 :DOC-CONFIG:
 #+startup: fold
-#+property: header-args :comments no :mkdirp yes :cache yes :tangle ~/.config/yadm/bootstrap.just##t :shebang #!/usr/bin/env -S just --justfile
+#+property: header-args :comments no :mkdirp yes :cache yes :tangle ~/.config/yadm/bootstrap##t :shebang #!/usr/bin/env -S just --justfile
 :END:
 
 * Preamble
@@ -54,7 +54,7 @@ build_deps:
     sudo apt-get update
     sudo apt-get install build-essential procps curl file git
     sudo apt-get install --no-install-recommends -y \
-       make clang\
+       make clang \
        libssl-dev zlib1g-dev libbz2-dev \
        libreadline-dev libsqlite3-dev \
        wget llvm \
@@ -73,14 +73,6 @@ prezto:
     cd ~/.zprezto/contrib && git pull
 #+end_src
 
-* zsh login shell
-
-
-#+begin_src just
-zsh_login_shell:
-    sudo apt-get install --no-install-recommends -y zsh && sudo chsh -s $(which zsh) $(whoami)
-#+end_src
-
 * Brew bundle
 
 +brew bundle dump --force --describe --casks --file=-+ See [[file:.zshcustom/brew.zsh::function brew-dump-leaves () {][brew-dump-leaves]] instead
@@ -91,7 +83,7 @@ Note that .Brewfile is an alt file
 
 #+begin_src just
 brew_bundle:
-    [ -f ~/.Brewfile ] && { brew bundle --global check || brew bundle --global install -v }
+    [ -f ~/.Brewfile ] && { brew bundle --global check || brew bundle --global install -v; }
 #+end_src
 
 * asdf
@@ -101,25 +93,12 @@ asdf installed with Brew
 #+begin_src just
 asdf:
     ## https://github.com/asdf-vm/asdf/issues/276#issuecomment-907063520
-    cut -d' ' -f1 $HOME/.tool-versions | xargs -i asdf plugin add {}
+    -cut -d' ' -f1 $HOME/.tool-versions | xargs -i asdf plugin add {}
 
     ## installs from .tool-versions (which is an alt file)
     ## the install-poetry installer is default with 1.2, but that is still alpha and has bugs <2022-02-07 Mon>
     # ASDF_POETRY_INSTALL_URL=https://install.python-poetry.org asdf install
-
-#+end_src
-
-
-* Mamba
-
-https://github.com/conda-forge/miniforge#non-interactive-install
-
-
-#+begin_src just
-mambaforge:
-    cd /tmp && \
-    curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh" && \
-    bash Mambaforge.sh -b -p $HOME/.local/mambaforge
+    asdf install
 #+end_src
 
 
@@ -132,12 +111,61 @@ We use .pipx.json which is created by
 ~just pipx_update_list~
 
 Note that .pipx.json is an alt file
-
+a
 #+begin_src just
 pipx:
     # ignoring errors
-    -[ -f ~/.pipx.json ] && { cat ~/.pipx.json | jq -r '.venvs[].metadata.main_package.package_or_url' | xargs -n1 pipx install }
+    -[ -f ~/.pipx.json ] && { cat ~/.pipx.json | jq -r '.venvs[].metadata.main_package.package_or_url' | xargs -n1 pipx install; }
 #+end_src
+
+* zsh login shell
+
+Need to make sure binary installs are done before this
+
+#+begin_src just
+zsh_login_shell:
+    sudo apt-get install --no-install-recommends -y zsh
+    sudo chsh -s $(which zsh) $(whoami)
+#+end_src
+
+* Mamba
+
+https://github.com/conda-forge/miniforge#non-interactive-install
+
+
+#+begin_src just
+mambaforge:
+    cd /tmp && \
+    curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh" && \
+    bash Mambaforge-$(uname)-$(uname -m).sh -b -p $HOME/.local/mambaforge
+#+end_src
+
+
+* gh extensions
+
+#+begin_src just
+gh_extensions:
+    ## Handy way to install things from github
+    { gh extension list | grep redraw/gh-install; } || gh extension install redraw/gh-install
+#+end_src
+
+* git credential-manager (assumes debian)
+
+#+begin_src just
+git-credential-manager:
+    cd /tmp && gh release download -p '*.deb' -R GitCredentialManager/git-credential-manager --clobber -D /tmp && sudo dpkg -i /tmp/gcm*.deb && git credential-manager configure
+#+end_src
+
+* misc_utils (assumes debian)
+
+#+begin_src just
+misc_utils:
+    command -v less || sudo apt-get install --no-install-recommends -y less
+    command -v notify-send || sudo apt-get install --no-install-recommends -y libnotify-bin
+    command -v svn || sudo apt-get install --no-install-recommends -y subversion # brew installs too many deps
+    command -v netstat || sudo apt-get install --no-install-recommends -y net-tools
+#+end_src
+
 
 * git completion
 
@@ -153,32 +181,6 @@ git_completion:
 git_info:
     mkdir -p ~/.local/bin && curl -fsSL https://raw.githubusercontent.com/gitbits/git-info/master/git-info --output ~/.local/bin/git-info && chmod +x ~/.local/bin/git-info
 #+end_src
-
-* gh extensions
-
-#+begin_src just
-gh_extensions:
-    ## Handy way to install things from github
-    { gh extension list | grep redraw/gh-install } || gh install redraw/gh-install
-#+end_src
-
-* git credential-manager (assumes debian)
-
-#+begin_src just
-git-credential-manager:
-    gh release download -p '*.deb' -R GitCredentialManager/git-credential-manager --clobber -D $TEMPDIR && sudo dpkg -i $TEMPDIR/gcm*.deb && git credential-manager configure
-#+end_src
-
-* misc_utils (assumes debian)
-
-#+begin_src just
-misc_utils:
-    command -v less || sudo apt-get install --no-install-recommends -y less
-    command -v notify-send || sudo apt-get install --no-install-recommends -y libnotify-bin
-    command -v svn || sudo apt-get install --no-install-recommends -y subversion # brew installs too many deps
-    command -v netstat || sudo apt-get install --no-install-recommends -y net-tools
-#+end_src
-
 
 * Personal
 
@@ -631,3 +633,26 @@ curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyr
 sudo apt-get update && sudo apt-get install --no-install-recommends -y google-cloud-sdk
 
 #+end_src
+* local variables
+
+
+#+begin_src just
+# Local Variables:
+# mode: just
+# End:
+#+end_src
+
+https://www.gnu.org/software/emacs/manual/html_node/emacs/Specifying-File-Variables.html
+
+#+begin_quote
+If some unrelated text might look to Emacs as a local variables list, you can
+countermand that by inserting a form-feed character (a page delimiter, see
+Pages) after that text. Emacs only looks for file-local variables in the last
+page of a file, after the last page delimiter.
+#+end_quote
+
+Formfeed (C-q C-l): (needs to be on its own line?)
+
+
+
+Without it, this file will load in just mode
