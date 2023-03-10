@@ -43,8 +43,13 @@ function set_window_title() {
 function set_cursor_norm() {
     tput cnorm
 }
-precmd_functions+=(set_window_title set_cursor_norm)
+precmd_functions+=(set_window_title)
 
 # colors xtrace prompts
 # https://unix.stackexchange.com/a/595628
 export PS4='%F{blue}%B+%N:%i>%b%f '
+
+# LS_COLORS, must come after PATH has been set to find vivid
+if command -v vivid >/dev/null 2>&1; then
+    export LS_COLORS=$(vivid generate dracula)
+fi

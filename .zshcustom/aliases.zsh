@@ -9,11 +9,6 @@ alias echo="echo -e"
 # alias grep="rg"  # breaks on mac os?
 alias htop="htop -u $(whoami)"
 
-## Many things don't work well with exa
-# alias ls="exa"
-# alias ll="exa -l --git"
-# alias lt="exa -l -snew --git"
-
 function zshtype {
     # equivalent of `type -t` from bash
     readonly thing=${1:?"zshtype of what?"}
@@ -35,6 +30,8 @@ alias pgrep="pgrep -laf"
 alias pkill="pkill -fe"
 alias g="git"
 alias just="just --unstable"
+alias cat="bat --wrap=never"
+# alias less="bat --paging=always --wrap=never"
 # alias z=zi
-alias ls="lsd -h --date relative --group-dirs=first --blocks size,date,name --depth 3"
-alias e="exa -T --git -l --time modified --time-style default --sort modified -L 3"
+alias ls="lsd -h --date relative --group-dirs=first --blocks size,date,permission,user,name --depth 3 --classify"
+alias tree="ls --tree"

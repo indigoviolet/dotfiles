@@ -138,7 +138,7 @@
       make-backup-files t)
 
 ;; Disable exit confirmation.
-(setq confirm-kill-emacs nil)
+(setq confirm-kill-emacs t)
 
 ;; indent anywhere, no completion on tab
 (setq tab-always-indent t)
@@ -257,6 +257,41 @@
     (persistent-scratch-setup-default)
     )
 ;; persistent scratch:2 ends here
+
+;; [[file:config.org::*backups][backups:1]]
+(defun vi/backup-enable-predicate (filename)
+  "Enable backup for files in specific directories and their subdirectories"
+  (let ((dirs '("~/.config/doom/"
+                 )))
+    (cl-some (lambda (dir)
+               (string-prefix-p (file-truename dir) (file-truename filename)))
+             dirs)))
+(defvar --backup-directory (concat doom-emacs-dir "backups"))
+(if (not (file-exists-p --backup-directory))
+        (make-directory --backup-directory t))
+
+(setq backup-directory-alist `(("." . ,--backup-directory)))
+(setq make-backup-files t               ; backup of a file the first time it is saved.
+      backup-by-copying t               ; don't clobber symlinks
+      version-control t                 ; version numbers for backup files
+      delete-old-versions t             ; delete excess backup files silently
+      delete-by-moving-to-trash t
+      kept-old-versions 6               ; oldest versions to keep when a new numbered backup is made (default: 2)
+      kept-new-versions 9               ; newest versions to keep when a new numbered backup is made (default: 2)
+
+  backup-enable-predicate #'vi/backup-enable-predicate
+      )
+
+(defun vi/backup-files ()
+  "Find backup files for a specified file."
+  (interactive)
+  (let* ((filename (read-file-name "Enter file name: "))
+         (backup-files (file-backup-file-names filename)))
+    (if backup-files
+      (let ((backup-file (completing-read "Select backup file: " backup-files)))
+        (find-file backup-file))
+      (message "No backup files found for %s" filename))))
+;; backups:1 ends here
 
 ;; [[file:config.org::*Global keybindings][Global keybindings:1]]
 (map! "M-i" #'delete-indentation
@@ -617,14 +652,16 @@
 
 ;; [[file:config.org::*with parens-mode][with parens-mode:1]]
 (after! paren
-  (setq show-paren-style 'expression)
-  (setq show-paren-priority -25)
-  (setq show-paren-delay 0.5)
-  (custom-set-faces!
-    '(show-paren-match :inherit secondary-selection)
-    '(show-paren-match-expression :background "darkgreen")
-    '(show-paren-mismatch :weight bold :underline t :slant normal)
-    ))
+    (setq show-paren-style 'expression)
+    (setq show-paren-priority -25)
+    (setq show-paren-delay 0.5)
+    (custom-set-faces!
+      '(show-paren-match :inherit secondary-selection)
+      '(show-paren-match-expression :background "darkgreen")
+      '(show-paren-mismatch :weight bold :underline t :slant normal)
+      ))
+;; https://github.com/doomemacs/doomemacs/issues/6223
+  (remove-hook 'doom-first-buffer-hook #'smartparens-global-mode)
 ;; with parens-mode:1 ends here
 
 ;; [[file:config.org::*wrap region][wrap region:2]]
@@ -642,8 +679,8 @@
 ;; [[file:config.org::*Garbage collection][Garbage collection:1]]
 (use-package! gcmh
     :custom
-    (gcmh-verbose nil)
-    (gcmh-idle-delay 1)                ;;'auto)
+    (gcmh-verbose t)
+    (gcmh-idle-delay 3)                ;;'auto)
     (gcmh-high-cons-threshold 1000000000)
   )
 ;; Garbage collection:1 ends here
@@ -784,7 +821,7 @@ message listing the hooks."
   ;; best to name this 'main, since main gets set as the default in
   ;; doom-modeline. other names don't seem to take effect as default..
   (doom-modeline-def-modeline 'main
-    '(bar buffer-info-simple selection-info remote-host checker buffer-position recursion-depth)
+    '(bar buffer-info-simple selection-info remote-host checker recursion-depth)
     '(debug repl process lsp persp-name minor-modes major-mode misc-info vcs))
 
   (doom-modeline-def-modeline 'org-src
@@ -792,7 +829,7 @@ message listing the hooks."
     '(debug lsp persp-name minor-modes major-mode))
 
   (doom-modeline-def-modeline 'vcs
-    '(bar buffer-info-simple selection-info remote-host buffer-position recursion-depth)
+    '(bar buffer-info-simple selection-info remote-host recursion-depth)
     '( debug github process persp-name minor-modes major-mode misc-info vcs))
 
 
@@ -1177,10 +1214,10 @@ message listing the hooks."
 ;; Adjust for display size change:2 ends here
 
 ;; [[file:config.org::*Kill/Yank/Mark regions][Kill/Yank/Mark regions:2]]
-(use-package! hungry-delete
-  :after-call doom-first-input-hook
-  :config
-  (global-hungry-delete-mode))
+;; (use-package! hungry-delete
+;;   :after-call doom-first-input-hook
+;;   :config
+;;   (global-hungry-delete-mode))
 
 (use-package! expand-region
   :commands (er/mark-inside-pairs er/mark-inside-quotes er/mark-outside-pairs er/mark-outside-quotes)
@@ -1408,6 +1445,32 @@ message listing the hooks."
   (separedit-default-mode 'org-mode)
   :bind ("M-\\" . separedit)
   )
+
+(after! edit-indirect
+  ;; https://github.com/Fanael/edit-indirect/issues/6
+  (require 's)
+  (require 'dash)
+
+  (defvar edit-indirect--left-margin 0)
+
+  (defun vbe:compute-left-margin (code)
+    "Compute left margin of a string of code."
+    (-min
+      (-map #'(lambda (line) (length (car (s-match "^\\s-*" line))))
+        (-remove 's-blank? (s-lines code)))))
+
+  (defun vbe:after-indirect-edit-remove-left-margin ()
+    "Remove left-margin and save it into a local variable."
+    (let ((lm (vbe:compute-left-margin (buffer-substring (point-min) (point-max)))))
+      (indent-rigidly (point-min) (point-max) (* -1 lm))
+      (setq-local edit-indirect--left-margin lm)))
+
+  (defun vbe:after-indirect-edit-restore-left-margin ()
+    "Restore left-margin before commiting."
+    (indent-rigidly (point-min) (point-max) edit-indirect--left-margin))
+
+  (add-hook 'edit-indirect-after-creation-hook #'vbe:after-indirect-edit-remove-left-margin)
+  (add-hook 'edit-indirect-before-commit-hook #'vbe:after-indirect-edit-restore-left-margin))
 ;; separedit:2 ends here
 
 ;; [[file:config.org::*Shift regions][Shift regions:1]]
@@ -1554,6 +1617,7 @@ message listing the hooks."
 
 ;; [[file:config.org::*consult customization][consult customization:1]]
 (add-hook! 'consult-after-jump-hook #'recenter-top-bottom)
+(setq! consult-fontify-max-size 1024)   ;https://github.com/minad/consult/issues/329
 ;; consult customization:1 ends here
 
 ;; [[file:config.org::*consult-dir][consult-dir:1]]
@@ -1804,21 +1868,70 @@ message listing the hooks."
   )
 ;; Corfu/Cape:2 ends here
 
-;; [[file:config.org::*copilot][copilot:2]]
+;; [[file:config.org::*config][config:1]]
 (use-package! copilot
   :after corfu
   :custom
-  (copilot-idle-delay 0.5)
-  :hook (prog-mode . copilot-mode)
+  (copilot-idle-delay 0.6)
+  :config
+  (defun rk/copilot-complete-or-accept ()
+    "Command that either triggers a completion or accepts one if one
+is available. Useful if you tend to hammer your keys like I do."
+    (interactive)
+    (if (copilot--overlay-visible)
+      (progn
+        (copilot-accept-completion)
+        (open-line 1)
+        (next-line))
+      (copilot-complete)))
+
+  (defun rk/copilot-tab ()
+    "Tab command that will complet with copilot if a completion is
+available. Otherwise will try company, yasnippet or normal
+tab-indent."
+    (interactive)
+    ;; indent-for-tab-command compares last-command to this-command in python-indent-line-function to decide whether to dedent.
+    ;; without this, it stops dedenting
+    (set 'this-command 'indent-for-tab-command)
+    (or (copilot-accept-completion)
+      ;; (company-yasnippet-or-completion)
+      (indent-for-tab-command)))
+
+  (defun rk/copilot-quit ()
+    "Run `copilot-clear-overlay' or `keyboard-quit'. If copilot is
+cleared, make sure the overlay doesn't come back too soon."
+    (interactive)
+    (condition-case err
+      (when copilot--overlay
+        (lexical-let ((pre-copilot-disable-predicates copilot-disable-predicates))
+          (setq copilot-disable-predicates (list (lambda () t)))
+          (copilot-clear-overlay)
+          (run-with-idle-timer
+            1.0
+            nil
+            (lambda ()
+              (setq copilot-disable-predicates pre-copilot-disable-predicates)))))
+      (error handler)))
+
+  ;; (advice-add 'keyboard-quit :before #'rk/copilot-quit)
+  (add-hook! 'doom-escape-hook
+    (defun vi/rk/copilot-quit()
+      ;; return nil so other hooks can run
+      (progn (rk/copilot-quit) nil)))
+
+  :hook ((prog-mode . copilot-mode) (conf-mode . copilot-mode))
   :bind (;; ("C-TAB" . 'copilot-accept-completion-by-word)
           ;; ("C-<tab>" . 'copilot-accept-completion-by-word)
-         :map copilot-completion-map
-         ("C-<tab>" . 'copilot-accept-completion)
-         ("C-TAB" . 'copilot-accept-completion)))
+          :map copilot-mode-map
+          ("<tab>" . 'rk/copilot-tab)
+          ("C-/" . 'rk/copilot-complete-or-accept)
+          ;; :map copilot-completion-map
+          ;; ("C-<tab>" . 'copilot-accept-completion)
+          ))
 
 ;; try to turn off keybindings (up/down) that company-mode interferes with
 ;; (add-hook! prog-mode :append (progn (message "disabling company mode") (company-mode -1) (message "disabled")))
-;; copilot:2 ends here
+;; config:1 ends here
 
 ;; [[file:config.org::*Iedit][Iedit:2]]
 (use-package! iedit
@@ -2277,8 +2390,8 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   :init
   (setq ein:polymode t)
   (setq ein:notebooklist-render-order '(render-opened-notebooks render-directory render-header))
-  (setq ein:truncate-long-cell-output 100)
-  (setq ein:cell-max-num-outputs 100)
+  (setq ein:truncate-long-cell-output 10000)
+  (setq ein:cell-max-num-outputs 10000)
   (setq ein:worksheet-enable-undo t)
   (setq ein:markdown-header-scaling nil)    ;this leads to variable pitch faces for
                                         ;markdown headers, which doesn't work so
@@ -2344,7 +2457,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
           ;; Reopen, but put it in the same window we were in
           (ein:notebook-open nurl npath nil
                              (lambda (nb _)
-                               (without-purpose (switch-to-buffer (ein:notebook-buffer nb)))))
+                               (switch-to-buffer (ein:notebook-buffer nb))))
 
           )))
   )
@@ -2355,10 +2468,12 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
     (("b" ein:notebooklist-open "Notebook list")
      ("l" ein:notebooklist-login "Login")
      ("s" ein:jupyter-server-start "Start")
-     ("t" ein:jupyter-server-stop "Stop")))
+     ("t" ein:jupyter-server-stop "Stop")
+      ("C" ein:byte-compile-ein "Byte-compile")
+      ))
   )
 
-(major-mode-hydra-define (ein:notebook-mode) (:quit-key ("q" "C-g") :exit t :foreign-keys run)
+(major-mode-hydra-define (ein:notebook-mode ein:shared-output-mode) (:quit-key ("q" "C-g") :exit t :foreign-keys run)
    (
     "Reconnect"
     (("r" ein:notebook-reconnect-session-command "Reconnect")
@@ -2380,9 +2495,10 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
     "Output"
     (
      ("o" ein:worksheet-toggle-output "Toggle output")
-     ("O" (ein:worksheet-set-output-visibility-all (ein:worksheet--get-ws-or-error) t) "Hide all output")
-     ("M-o" ein:worksheet-set-output-visibility-all "Show all output")
-     )
+      ("O" ein:shared-output-show-code-cell-at-point "Show in shared output")
+     ("M-o" (ein:worksheet-set-output-visibility-all (ein:worksheet--get-ws-or-error) t) "Hide all output")
+     ("M-O" ein:worksheet-set-output-visibility-all "Show all output")
+      )
     "Fix"
     (("i" vi/ein-toggle-inlined-images "Toggle inlined images")
      ;; ("M-f" vi/ein-fix "Fix")
@@ -2392,6 +2508,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
     (
      ("f" python-black-partial-dwim "Format")
      )
+
     ))
 
 ;; (setq scroll-preserve-screen-position t
@@ -2644,10 +2761,6 @@ Results are reported in a compilation buffer."
       "M-<tab>" nil
       )
 ;; magit/git:1 ends here
-
-;; [[file:config.org::*magit backups (wip)][magit backups (wip):1]]
-(add-hook! 'doom-first-file-hook #'magit-wip-mode)
-;; magit backups (wip):1 ends here
 
 ;; [[file:config.org::*ediff][ediff:1]]
 (defun vi/ediff-setup-windows-plain-merge (buf-A buf-B buf-C control-buffer)

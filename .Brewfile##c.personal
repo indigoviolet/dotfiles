@@ -108,6 +108,8 @@ brew "tidy-viewer"
 brew "tig"
 # Configure transparent encryption of files in a Git repo
 brew "transcrypt"
+# Generator for LS_COLORS with support for multiple color themes
+brew "vivid"
 # Execute commands when watched files change
 brew "watchexec"
 # Watch files and take action when they change

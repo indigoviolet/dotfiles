@@ -83,6 +83,8 @@ sync:
         - .config/yadm/ondemand/*
         - '!.config/yadm/ondemand/build-emacs'
         - .config/yadm/ondemand/build-emacs/*
+        - '!.docker'
+        - .docker/*
         - '!.jupyter'
         - .jupyter/*
         - '!.jupyter/nbconfig'
@@ -170,6 +172,7 @@ sync:
         - '!.config/yadm/ondemand/docker.sh##distro.Ubuntu,e.sh'
         - '!.config/yadm/start.sh'
         - '!.dir-locals.el'
+        - '!.docker/config.json'
         - '!.editorconfig'
         - '!.emacs-profiles.el'
         - '!.gitattributes'
@@ -193,8 +196,6 @@ sync:
         - '!.pre-commit-config.yaml'
         - '!.sqliterc'
         - '!.ssh/config##c.personal'
-        - '!.ssh/id_ed25519##c.personal'
-        - '!.ssh/id_ed25519.pub##c.personal'
         - '!.ssh/id_rsa##c.personal'
         - '!.ssh/id_rsa.pub##c.personal'
         - '!.tigrc'

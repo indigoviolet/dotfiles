@@ -230,7 +230,7 @@
 ;; Adjust for display size change:1 ends here
 
 ;; [[file:config.org::*Kill/Yank/Mark regions][Kill/Yank/Mark regions:1]]
-(package! hungry-delete)
+;; (package! hungry-delete)
 (package! easy-kill :recipe (:host github :repo "leoliu/easy-kill"))
 (package! easy-kill-extras)
 (package! expand-region)
@@ -342,10 +342,10 @@
 ;; (package! corfu-terminal :recipe (:type git :repo "https://codeberg.org/akib/emacs-corfu-terminal.git"))
 ;; Corfu/Cape:1 ends here
 
-;; [[file:config.org::*copilot][copilot:1]]
+;; [[file:config.org::*original package][original package:1]]
 (package! copilot
   :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))
-;; copilot:1 ends here
+;; original package:1 ends here
 
 ;; [[file:config.org::*Iedit][Iedit:1]]
 (package! iedit)

@@ -205,5 +205,5 @@
 
   :config
   ;; literate         ; for literate configs, (we prefer to use our own org-mode hook)
-  (default +bindings +smartparens))
+  (default +bindings));; +smartparens))
 ;; Active:1 ends here

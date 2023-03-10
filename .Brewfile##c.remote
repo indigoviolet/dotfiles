@@ -8,6 +8,10 @@ tap "saulpw/vd"
 brew "abduco"
 # Extendable version manager with support for Ruby, Node.js, Erlang & more
 brew "asdf"
+# Official Amazon AWS command-line interface
+brew "awscli"
+# Clone of cat(1) with syntax highlighting and Git integration
+brew "bat"
 # Get a file from an HTTP, HTTPS or FTP server
 brew "curl"
 # JSON, YAML, TOML, XML, and CSV query and modification tool
@@ -16,8 +20,8 @@ brew "dasel"
 brew "direnv"
 # HTTP load testing application written in Rust
 brew "drill"
-# Modern replacement for 'ls'
-brew "exa"
+# More intuitive version of du in rust
+brew "dust"
 # Simple, fast and user-friendly alternative to find
 brew "fd"
 # Command-line fuzzy finder written in Go
@@ -26,20 +30,28 @@ brew "fzf"
 brew "gcc"
 # GitHub command-line tool
 brew "gh"
+# Syntax-highlighting pager for git and diff output
+brew "git-delta"
 # Git extension for versioning large files
 brew "git-lfs"
 # Improved top (interactive process viewer)
 brew "htop"
+# Command-line pager for JSON data
+brew "jless"
 # Lightweight and flexible command-line JSON processor
 brew "jq"
 # Handy way to save and run project-specific commands
 brew "just"
+# Pager program similar to more
+brew "less"
 # Header files of the Linux kernel
 brew "linux-headers@4.4"
 # Clone of ls with colorful output, file type icons, and more
 brew "lsd"
 # Modern and intuitive terminal-based text editor
 brew "micro"
+# Process manager for Procfile-based applications and tmux
+brew "overmind"
 # Execute binaries from Python packages in isolated environments
 brew "pipx"
 # Search tool like grep and The Silver Searcher
@@ -50,6 +62,8 @@ brew "starship"
 brew "tidy-viewer"
 # Configure transparent encryption of files in a Git repo
 brew "transcrypt"
+# Generator for LS_COLORS with support for multiple color themes
+brew "vivid"
 # Yet Another Dotfiles Manager
 brew "yadm"
 # Shell extension to navigate your filesystem faster

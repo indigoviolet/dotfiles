@@ -20,7 +20,7 @@ export EDITOR="code --wait"
 
 export VISUAL=$EDITOR # for zsh edit-command-line
 export GIT_EDITOR=$EDITOR
-
+export LESS="-g -i -M -S --use-color -z-4 -R"
 export FZF_TMUX=0
 
 export HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history

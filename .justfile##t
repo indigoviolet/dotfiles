@@ -80,7 +80,7 @@ brew-list-dependencies:
 # Also see https://github.com/pypa/pipx/issues/687
 
 pipx-update-list:
-    pipx list --json > ~/.pipx.json
+    pipx list --json --include-injected > ~/.pipx.json
 
 
 {% if yadm.class == "personal" %}

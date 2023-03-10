@@ -3,8 +3,6 @@
     "password": "argon2:$argon2id$v=19$m=10240,t=10,p=8$v5AER0gd0nFiXU73TCnL/Q$ZZCfMnLNwgSe3gsxSPGNKQ",
     "allow_remote_access": true,
     "nbserver_extensions": {
-      "jupyter_http_over_ws": true,
-      "jupyter_nbextensions_configurator": true,
       "nbtag": true
     }
   }

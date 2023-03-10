@@ -2,12 +2,12 @@ zstyle ':completion:*:*:git:*' script ${ZSH_CUSTOM_DIR}/git-completion.bash
 fpath=(${ZSH_CUSTOM_DIR} $fpath)
 
 function _git_won() { _git_branch }
-function _git_stack() { _git_branch }
-function _git_m() { _git_branch }
-function _git_archive_branch() { _git_branch }
-function _git_restore_branch() { _git_tag }
-function _git_force_merge_theirs() { _git_branch }
-function _git_force_merge_ours() { _git_branch }
+# function _git_stack() { _git_branch }
+# function _git_m() { _git_branch }
+# function _git_archive_branch() { _git_branch }
+# function _git_restore_branch() { _git_tag }
+# function _git_force_merge_theirs() { _git_branch }
+# function _git_force_merge_ours() { _git_branch }
 
 # Used in gitconfig
 _gitmodified() {

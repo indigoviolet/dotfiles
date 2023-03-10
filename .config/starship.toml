@@ -3,20 +3,37 @@
 [gcloud]
 # For some reason there's a spurious block space character in the default
 symbol = " "
+disabled = true
 
 [python]
 symbol = " "
+format = '[${symbol}(${version} )(\($virtualenv\) )]($style)'
 
 [package]
 symbol = " "
+disabled = true
 
 [docker_context]
 symbol = " "
 
 [hostname]
-ssh_symbol = " "
+ssh_symbol = ""
 style = "bold inverted bright-green"
+format = '[$ssh_symbol$hostname]($style) '
 
 [conda]
-#foo
 ignore_base = false
+format = '[$symbol$environment]($style) '
+
+[aws]
+symbol = " "
+format = '[$symbol($profile)(\($region\))(\[$duration\])]($style)'
+
+[aws.profile_aliases]
+AdministratorAccess-818347758896 = 'instant'
+
+[aws.region_aliases]
+ca-central-1 = 'ca1'
+
+[username]
+format = '[$user]($style)'

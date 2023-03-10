@@ -106,25 +106,11 @@ mpl.rcParams["axes.facecolor"] = "white"
 mpl.rcParams["savefig.facecolor"] = "white"
 #+end_src
 
-** jupyter-terminal-display: :src:indent_nil:
-
-#+begin_src python
-# Datatables
-import polars as pr
-pr.Config.set_tbl_width_chars(550).set_fmt_str_lengths(200).set_tbl_rows(100).set_tbl_cols(50)
-# set_utf8_tables() is broken in emacs sometimes?
-# pr.Config.set_ascii_tables()
-pr.DataFrame({"a": [1, 2, 3], "b": [3, 4, 5]})
-
-from tqdm import tqdm
-for i in tqdm(range(3)):
-    pass
-#+end_src
-
 ** jupyter-altair-terminal :src:indent_nil:
 
 
 #+begin_src python
+import polars as pr
 import altair as alt
 import altair_viewer
 
@@ -155,6 +141,30 @@ import altair as alt
 alt.Chart(pr.DataFrame({"a": [1, 2, 3], "b": [3, 4, 5]}).to_pandas()).mark_bar()
 #+end_src
 
+
+** jupyter-terminal-display: :src:indent_nil:
+
+#+begin_src python
+# Datatables
+import polars as pr
+(pr.Config
+ .set_tbl_width_chars(550)
+ .set_fmt_str_lengths(100)
+ .set_tbl_rows(100)
+ .set_tbl_cols(50)
+ .set_tbl_hide_dtype_separator(True)
+ .set_tbl_column_data_type_inline(True)
+ .set_tbl_hide_column_data_types(True)
+ .set_tbl_formatting('UTF8_FULL_CONDENSED')
+)
+# set_utf8_tables() is broken in emacs sometimes?
+# pr.Config.set_ascii_tables()
+pr.DataFrame({"a": [1, 2, 3], "b": [3, 4, 5]})
+
+from tqdm import tqdm
+for i in tqdm(range(3)):
+    pass
+#+end_src
 
 ** jupyter-notebook-display: :src:indent_nil:
 

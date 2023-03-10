@@ -1,15 +1,6 @@
 {
   "load_extensions": {
-    "jupytext/index": true,
-    "jupyter-js-widgets/extension": true,
-    "nbextensions_configurator/config_menu/main": true,
-    "contrib_nbextensions_help_item/main": true,
-    "toc2/main": true,
-    "collapsible_headings/main": true,
-    "execute_time/ExecuteTime": true,
-    "freeze/main": false,
-    "init_cell/main": true,
-    "notify/notify": true
+    "jupytext/index": true
   },
   "toc2": {
     "navigate_menu": false,

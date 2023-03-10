@@ -4,43 +4,6 @@
 #+auto_tangle: nil
 :END:
 
-* Todos [12/15]
-
-** DONE Dispatcher
-** DONE Bootstrap script from dotbot
-** DONE Brewfile
-** DONE asdf setup script
-** DONE Remove .emacs and add script to install chemacs
-** DONE move personal laptop bootstrap scripts + config files to alt
-** DONE Handle fin alts
-** DONE Handle union of personal&gcp
-** DONE id_rsa and id_rsa.pub -> encrypt and add?
-
-** TODO Convert bootstrap to just script
-
-just --dump --dump-format json | jq '.recipes | keys'
-
-** TODO Build pipx json installer
-** TODO j2cli (pipx) https://github.com/kolypto/j2cli for templating
-
-*** can use j2cli/jinja for inclusion
-
-** DONE Create a direnv cacher
-:LOGBOOK:
-- State "DONE"       from "TODO"       [2022-08-23 Tue 11:20]
-:END:
-
-
-** DONE Use https://github.com/casey/just to collect all executable commands global and project-specific?
-:LOGBOOK:
-- State "DONE"       from              [2022-03-12 Sat 15:37]
-:END:
-
-** DONE netstat from apt net-tools
-:LOGBOOK:
-- State "DONE"       from "TODO"       [2022-02-22 Tue 21:09]
-:END:
-
 * Yadm dotfiles
 ** Get started
 
@@ -178,6 +141,8 @@ these or hiding them. They are addressed at point of use - ie. if it is a
 zshcustom file, we might use templates to include them correctly in zshrc.
 * TODO Paperwm (move to yadm)
 
+* TODO droidcam
+
 * Material shell
 
 https://github.com/material-shell/material-shell
@@ -209,7 +174,7 @@ Hide Nautilus: https://wiki.archlinux.org/title/Desktop_entries#Hide_desktop_ent
 
 See =~/.local/share/applications/org.gnome.Nautilus.desktop=
 
-* Kubuntu
+* COMMENT Kubuntu
 
 
 #+begin_src bash
