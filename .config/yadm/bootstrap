@@ -58,7 +58,16 @@ gh_extensions:
     { gh extension list | grep redraw/gh-install; } || gh extension install redraw/gh-install
 
 git-credential-manager:
-    cd /tmp && gh release download -p '*.deb' -R GitCredentialManager/git-credential-manager --clobber -D /tmp && sudo dpkg -i /tmp/gcm*.deb && git credential-manager configure
+    cd /tmp && eget -a '.deb' GitCredentialManager/git-credential-manager && sudo dpkg -i /tmp/gcm*.deb && git credential-manager configure
+
+atuin_install: atuin_login
+    atuin register -u indigoviolet -e indigoviolet@gmail.com
+    atuin key > ~/.config/atuin/key
+    atuin import auto
+    atuin sync
+
+atuin_login:
+    atuin login --key ~/.config/atuin/key
 
 misc_utils:
     command -v less || sudo apt-get install --no-install-recommends -y less

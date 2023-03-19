@@ -282,10 +282,6 @@
 (package! smartscan)
 ;; smartscan:1 ends here
 
-;; [[file:config.org::*ctrlf][ctrlf:1]]
-(package! ctrlf)
-;; ctrlf:1 ends here
-
 ;; [[file:config.org::*regex-based searching, using python/pcre][regex-based searching, using python/pcre:1]]
 (package! visual-regexp)
 (package! visual-regexp-steroids)

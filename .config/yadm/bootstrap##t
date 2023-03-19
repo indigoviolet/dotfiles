@@ -66,7 +66,7 @@ atuin_install: atuin_login
     atuin import auto
     atuin sync
 
-atuin:
+atuin_login:
     atuin login --key ~/.config/atuin/key
 
 misc_utils:

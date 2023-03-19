@@ -333,9 +333,9 @@ gitignore_specific_files:
 
 yadm_ls_files_for_mutagen:
     yadm list -a | just -f {{ justfile() }} gitignore_specific_files | jq -R '.' | jq -s '.' | dasel -r json -w yaml > $HOME/.config/yadm/yadm_ls_files_for_mutagen.yml
-    ## we don't run yadm alt here because it will be run in pre-commit, altering files and making it hard to work with other pre-commit rules
-    ## instead we should run it in a recipe to restart the mutagen sync
-    # yadm alt
+
+yadm_sync_restart: yadm_ls_files_for_mutagen
+    yadm alt && cd ~/.config/yadm && just mutagen-project-restart
 
 
 # Local Variables:

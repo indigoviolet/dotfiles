@@ -37,7 +37,8 @@ fi
 PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'
 
 function set_window_title() {
-    print -Pn "\e]2;%m:%2~\a"
+    # uname -n instead of %m, because %m is the hostname, which is sometimes changed
+    print -Pn "\e]2;$(uname -n):%2~\a"
 }
 
 function set_cursor_norm() {

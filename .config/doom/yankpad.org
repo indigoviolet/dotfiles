@@ -223,6 +223,21 @@ $1:
   beta: "venky@${GCLOUD_HOST}:/home/venky/dev/$1"
 #+end_src
 
+* just-mode
+** set-defaults: :src:
+
+#+begin_src just
+set shell := ["bash", "-uc"]
+set positional-arguments
+set fallback
+
+just := 'just --unstable --justfile "' + justfile() + '"'
+
+default:
+    {{ just }} --list --unsorted
+
+#+end_src
+
 * conf-unix-mode
 
 ** mypy-missing-import: :src:

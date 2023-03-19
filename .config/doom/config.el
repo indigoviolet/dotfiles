@@ -680,8 +680,8 @@
 (use-package! gcmh
     :custom
     (gcmh-verbose t)
-    (gcmh-idle-delay 3)                ;;'auto)
-    (gcmh-high-cons-threshold 1000000000)
+    (gcmh-idle-delay 30)                ;;'auto)
+    (gcmh-high-cons-threshold 10000000000)
   )
 ;; Garbage collection:1 ends here
 
@@ -1235,23 +1235,25 @@ message listing the hooks."
          )
   )
 
-(use-package! easy-kill-extras
-  :init
-  (setq easy-kill-ace-jump-enable-p nil)
-  :config
-  (require 'extra-things)
-  (require 'easy-kill-mc)
-  ;; Integrate `expand-region' functionality with easy-kill
-  :bind (:map easy-kill-base-map
-          ("o" . easy-kill-er-expand)
-          ("i" . easy-kill-er-unexpand))
-
-  ;; (define-key easy-kill-base-map (kbd "o") 'easy-kill-er-expand)
-  ;; (define-key easy-kill-base-map (kbd "i") 'easy-kill-er-unexpand)
-  )
 
 ;; Here we integrate some  expand-region marking as easy-kill candidates
 (after! easy-kill
+  (use-package! easy-kill-extras
+    :demand t                           ; don't wait for autoload via :bind
+    :init
+    (setq easy-kill-ace-jump-enable-p nil)
+    :config
+    (require 'extra-things)
+    (require 'easy-kill-mc)
+    ;; Integrate `expand-region' functionality with easy-kill
+    :bind (:map easy-kill-base-map
+            ("o" . easy-kill-er-expand)
+            ("i" . easy-kill-er-unexpand))
+
+    ;; (define-key easy-kill-base-map (kbd "o") 'easy-kill-er-expand)
+    ;; (define-key easy-kill-base-map (kbd "i") 'easy-kill-er-unexpand)
+    )
+
   (defsubst vi/did-mark (mark-fn)
     ;; Did mark-fn succeed in setting the mark?
     ;; Remove any existing mark
@@ -1524,48 +1526,17 @@ message listing the hooks."
   )
 ;; smartscan:2 ends here
 
-
-
-;; https://github.com/radian-software/ctrlf#customization
-
-
-;; [[file:config.org::*config][config:1]]
-(use-package! ctrlf
-  :after-call doom-first-input-hook
-  :custom
-  (ctrlf-auto-recenter t)
-  (ctrlf-default-search-style 'fuzzy)   ;C-s
-  (ctrlf-alternate-search-style 'literal) ;C-M-s
-  :config
-  (ctrlf-mode +1)
-  (add-hook! 'pdf-isearch-minor-mode-hook (ctrlf-local-mode -1))
-  )
-
-(after! ctrlf
-  (setf (alist-get 'pcre ctrlf-style-alist)
-        `(:prompt "regexp"
-                  :translator pcre-to-elisp
-                  :case-fold ctrlf-no-uppercase-regexp-p
-                  :fallback (isearch-forward-regexp
-                             . isearch-backward-regexp)))
-  )
-
-
-(custom-set-faces!
-  '(ctrlf-highlight-passive :background "#3b3a3b" :foreground "#d8bf9c")
-  '(ctrlf-highlight-active :background unspecified :foreground unspecified :inherit isearch))
-;; config:1 ends here
-
 ;; [[file:config.org::*Jumping][Jumping:2]]
 ;; better-jumper is built into doom
 (use-package! smart-jump
+  :after-call prog-mode-hook            ; don't defer till bind?
   :custom
   (smart-jump-find-references-fallback-function #'smart-jump-find-references-with-rg)
   (smart-jump-bind-keys nil)
   :config
 
   ;; this sets up hooks with the :modes, so it won't work without revert-buffer
-  ;; since we use :bind to load this package
+  ;; since we use :bind to load this package (see :after-call above)
   (smart-jump-register :modes 'prog-mode
                        :jump-fn #'+lookup/definition
                        :pop-fn 'xref-pop-marker-stack
@@ -1616,8 +1587,20 @@ message listing the hooks."
 
 
 ;; [[file:config.org::*consult customization][consult customization:1]]
-(add-hook! 'consult-after-jump-hook #'recenter-top-bottom)
-(setq! consult-fontify-max-size 1024)   ;https://github.com/minad/consult/issues/329
+(after! consult
+  (add-hook! 'consult-after-jump-hook #'recenter-top-bottom)
+  (setq! consult-fontify-max-size 1024)   ;https://github.com/minad/consult/issues/329
+
+
+  (defalias 'consult-line-thing-at-point 'consult-line)
+  (consult-customize consult-line-thing-at-point :initial (thing-at-point 'symbol))
+  (map!
+    "C-s" #'consult-line
+    "C-r" #'consult-line-thing-at-point)               ;deliberately not setting initial
+
+  (setq consult-line-start-from-top nil)
+  (setq consult-line-point-placement 'match-beginning)
+  )
 ;; consult customization:1 ends here
 
 ;; [[file:config.org::*consult-dir][consult-dir:1]]
@@ -1751,9 +1734,9 @@ message listing the hooks."
   :custom
   (outline-minor-mode-cycle t)
   :after-call doom-first-buffer-hook
-  ;; :hook (
-  ;;        (prog-mode . outline-minor-mode)
-  ;;        )
+  :hook (
+         (prog-mode . outline-minor-mode)
+         )
   :bind (:map outline-minor-mode-map
          ([C-tab] . outline-cycle)
          ("C-<iso-lefttab>" . outline-hide-other) ;C-S-<tab>
@@ -1766,7 +1749,7 @@ message listing the hooks."
    standard-display-table
    'selective-display
    (let ((face-offset (* (face-id 'shadow) (lsh 1 22))))
-     (vconcat (mapcar (lambda (c) (+ face-offset c)) " 祈"))))
+     (vconcat (mapcar (lambda (c) (+ face-offset c)) " ➤"))))
   )
 ;; outline:1 ends here
 
@@ -1830,12 +1813,19 @@ message listing the hooks."
 (use-package! cape
   :after corfu
   :config
-  (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
-  (defalias 'vi/cape-yankpad (cape-company-to-capf #'company-yankpad))
+  (require 'company)
+  (defalias 'vi/cape-tabnine+yankpad (cape-capf-buster (cape-company-to-capf (apply-partially #'company--multi-backend-adapter '(company-tabnine company-yankpad)))))
+
+  ;; (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
+  ;; (defalias 'vi/cape-yankpad (cape-capf-buster (cape-company-to-capf #'company-yankpad)))
+  ;; (defalias 'vi/cape-interactive-yankpad (cape-interactive-capf #'vi/cape-yankpad))
+
 
   (setq-hook! '(conf-mode-hook text-mode-hook json-mode-hook org-mode-hook ein:notebook-mode-hook)
     completion-at-point-functions
-    (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad #'cape-dabbrev)))
+    (list (cape-super-capf #'vi/cape-tabnine+yankpad
+            ;;#'vi/cape-yankpad
+            #'cape-dabbrev)))
 
   (defun vi/corfu-lsp-setup ()
     ;; Combine LSP via corfu so we can use it in combination with
@@ -1861,9 +1851,11 @@ message listing the hooks."
     ;; Optionally configure the cape-capf-buster.
     (setq-local completion-at-point-functions (list
                                                 (cape-super-capf
-                                                  #'vi/cape-tabnine
                                                   (cape-capf-buster #'lsp-completion-at-point)
-                                                  #'vi/cape-yankpad))))
+                                                  #'vi/cape-tabnine+yankpad
+                                                  ;;#'vi/cape-yankpad
+                                                  )
+                                                )))
   (add-hook! 'lsp-completion-mode-hook #'vi/corfu-lsp-setup)
   )
 ;; Corfu/Cape:2 ends here
@@ -2390,8 +2382,8 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   :init
   (setq ein:polymode t)
   (setq ein:notebooklist-render-order '(render-opened-notebooks render-directory render-header))
-  (setq ein:truncate-long-cell-output 10000)
-  (setq ein:cell-max-num-outputs 10000)
+  (setq ein:truncate-long-cell-output 1000)
+  (setq ein:cell-max-num-outputs 1000)
   (setq ein:worksheet-enable-undo t)
   (setq ein:markdown-header-scaling nil)    ;this leads to variable pitch faces for
                                         ;markdown headers, which doesn't work so

@@ -295,6 +295,9 @@ We start by simply defining the standard headers used by the three files. These 
 (defvar comp-deferred-compilation-deny-list nil)
 #+end_src
 
+#+RESULTS[18cf4f787585341b87168f71d76d5c343964a351]:
+: comp-deferred-compilation-deny-list
+
 ** packages.el
 #+begin_src emacs-lisp :tangle packages.el
 ;; -*- no-byte-compile: t; -*-
@@ -351,6 +354,8 @@ We start by simply defining the standard headers used by the three files. These 
 ;(unpin! t)
 #+end_src
 
+#+RESULTS[5aa8a8040c0f63c76b60db387e2d9489831d8696]:
+
 ** config.el
 #+begin_src emacs-lisp :tangle config.el
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
@@ -395,6 +400,9 @@ We start by simply defining the standard headers used by the three files. These 
 ;; they are implemented.
 #+end_src
 
+#+RESULTS[31c3354b6fadf8fc6c97ce0f528e3fee8fba52c2]:
+: /home/venky/Dropbox/org/
+
 * Themes
 
 #+begin_src emacs-lisp
@@ -404,6 +412,8 @@ We start by simply defining the standard headers used by the three files. These 
 
 
 #+end_src
+
+#+RESULTS[953c07e934584c8261f3ade235b184fa927cfb1f]:
 
 *** modus
 
@@ -1502,8 +1512,8 @@ show-smartparens mode is slower than show-paren mode
 (use-package! gcmh
     :custom
     (gcmh-verbose t)
-    (gcmh-idle-delay 3)                ;;'auto)
-    (gcmh-high-cons-threshold 1000000000)
+    (gcmh-idle-delay 30)                ;;'auto)
+    (gcmh-high-cons-threshold 10000000000)
   )
 #+end_src
 * Elisp
@@ -2525,23 +2535,25 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
          )
   )
 
-(use-package! easy-kill-extras
-  :init
-  (setq easy-kill-ace-jump-enable-p nil)
-  :config
-  (require 'extra-things)
-  (require 'easy-kill-mc)
-  ;; Integrate `expand-region' functionality with easy-kill
-  :bind (:map easy-kill-base-map
-          ("o" . easy-kill-er-expand)
-          ("i" . easy-kill-er-unexpand))
-
-  ;; (define-key easy-kill-base-map (kbd "o") 'easy-kill-er-expand)
-  ;; (define-key easy-kill-base-map (kbd "i") 'easy-kill-er-unexpand)
-  )
 
 ;; Here we integrate some  expand-region marking as easy-kill candidates
 (after! easy-kill
+  (use-package! easy-kill-extras
+    :demand t                           ; don't wait for autoload via :bind
+    :init
+    (setq easy-kill-ace-jump-enable-p nil)
+    :config
+    (require 'extra-things)
+    (require 'easy-kill-mc)
+    ;; Integrate `expand-region' functionality with easy-kill
+    :bind (:map easy-kill-base-map
+            ("o" . easy-kill-er-expand)
+            ("i" . easy-kill-er-unexpand))
+
+    ;; (define-key easy-kill-base-map (kbd "o") 'easy-kill-er-expand)
+    ;; (define-key easy-kill-base-map (kbd "i") 'easy-kill-er-unexpand)
+    )
+
   (defsubst vi/did-mark (mark-fn)
     ;; Did mark-fn succeed in setting the mark?
     ;; Remove any existing mark
@@ -2985,7 +2997,7 @@ Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact
   (add-hook! git-rebase-mode (smartscan-mode -1))
   )
 #+end_src
-** ctrlf
+** COMMENT ctrlf
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! ctrlf)
@@ -3021,6 +3033,7 @@ https://github.com/radian-software/ctrlf#customization
   '(ctrlf-highlight-passive :background "#3b3a3b" :foreground "#d8bf9c")
   '(ctrlf-highlight-active :background unspecified :foreground unspecified :inherit isearch))
 #+end_src
+
 ** regex-based searching, using python/pcre
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -3040,13 +3053,14 @@ https://github.com/radian-software/ctrlf#customization
 #+begin_src emacs-lisp
 ;; better-jumper is built into doom
 (use-package! smart-jump
+  :after-call prog-mode-hook            ; don't defer till bind?
   :custom
   (smart-jump-find-references-fallback-function #'smart-jump-find-references-with-rg)
   (smart-jump-bind-keys nil)
   :config
 
   ;; this sets up hooks with the :modes, so it won't work without revert-buffer
-  ;; since we use :bind to load this package
+  ;; since we use :bind to load this package (see :after-call above)
   (smart-jump-register :modes 'prog-mode
                        :jump-fn #'+lookup/definition
                        :pop-fn 'xref-pop-marker-stack
@@ -3096,8 +3110,20 @@ https://github.com/radian-software/ctrlf#customization
 # TODO: filter out dired-sidebar
 
 #+begin_src emacs-lisp
-(add-hook! 'consult-after-jump-hook #'recenter-top-bottom)
-(setq! consult-fontify-max-size 1024)   ;https://github.com/minad/consult/issues/329
+(after! consult
+  (add-hook! 'consult-after-jump-hook #'recenter-top-bottom)
+  (setq! consult-fontify-max-size 1024)   ;https://github.com/minad/consult/issues/329
+
+
+  (defalias 'consult-line-thing-at-point 'consult-line)
+  (consult-customize consult-line-thing-at-point :initial (thing-at-point 'symbol))
+  (map!
+    "C-s" #'consult-line
+    "C-r" #'consult-line-thing-at-point)               ;deliberately not setting initial
+
+  (setq consult-line-start-from-top nil)
+  (setq consult-line-point-placement 'match-beginning)
+  )
 #+end_src
 
 *** consult-dir
@@ -3283,7 +3309,7 @@ https://github.com/minad/vertico#completion-styles-and-tab-completion
 #+end_src
 
 
-*** isearch/ctrlf
+*** COMMENT isearch/ctrlf
 #+begin_src emacs-lisp
 
 ;; this isn't useful since we use ctrlf
@@ -3338,9 +3364,9 @@ https://github.com/minad/vertico#completion-styles-and-tab-completion
   :custom
   (outline-minor-mode-cycle t)
   :after-call doom-first-buffer-hook
-  ;; :hook (
-  ;;        (prog-mode . outline-minor-mode)
-  ;;        )
+  :hook (
+         (prog-mode . outline-minor-mode)
+         )
   :bind (:map outline-minor-mode-map
          ([C-tab] . outline-cycle)
          ("C-<iso-lefttab>" . outline-hide-other) ;C-S-<tab>
@@ -3353,7 +3379,7 @@ https://github.com/minad/vertico#completion-styles-and-tab-completion
    standard-display-table
    'selective-display
    (let ((face-offset (* (face-id 'shadow) (lsh 1 22))))
-     (vconcat (mapcar (lambda (c) (+ face-offset c)) " 祈"))))
+     (vconcat (mapcar (lambda (c) (+ face-offset c)) " ➤"))))
   )
 #+end_src
 
@@ -3487,12 +3513,19 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
 (use-package! cape
   :after corfu
   :config
-  (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
-  (defalias 'vi/cape-yankpad (cape-company-to-capf #'company-yankpad))
+  (require 'company)
+  (defalias 'vi/cape-tabnine+yankpad (cape-capf-buster (cape-company-to-capf (apply-partially #'company--multi-backend-adapter '(company-tabnine company-yankpad)))))
+
+  ;; (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
+  ;; (defalias 'vi/cape-yankpad (cape-capf-buster (cape-company-to-capf #'company-yankpad)))
+  ;; (defalias 'vi/cape-interactive-yankpad (cape-interactive-capf #'vi/cape-yankpad))
+
 
   (setq-hook! '(conf-mode-hook text-mode-hook json-mode-hook org-mode-hook ein:notebook-mode-hook)
     completion-at-point-functions
-    (list (cape-super-capf #'vi/cape-tabnine #'vi/cape-yankpad #'cape-dabbrev)))
+    (list (cape-super-capf #'vi/cape-tabnine+yankpad
+            ;;#'vi/cape-yankpad
+            #'cape-dabbrev)))
 
   (defun vi/corfu-lsp-setup ()
     ;; Combine LSP via corfu so we can use it in combination with
@@ -3518,12 +3551,15 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
     ;; Optionally configure the cape-capf-buster.
     (setq-local completion-at-point-functions (list
                                                 (cape-super-capf
-                                                  #'vi/cape-tabnine
                                                   (cape-capf-buster #'lsp-completion-at-point)
-                                                  #'vi/cape-yankpad))))
+                                                  #'vi/cape-tabnine+yankpad
+                                                  ;;#'vi/cape-yankpad
+                                                  )
+                                                )))
   (add-hook! 'lsp-completion-mode-hook #'vi/corfu-lsp-setup)
   )
 #+end_src
+
 
 ** copilot
 
@@ -4466,8 +4502,8 @@ doesn't work
   :init
   (setq ein:polymode t)
   (setq ein:notebooklist-render-order '(render-opened-notebooks render-directory render-header))
-  (setq ein:truncate-long-cell-output 10000)
-  (setq ein:cell-max-num-outputs 10000)
+  (setq ein:truncate-long-cell-output 1000)
+  (setq ein:cell-max-num-outputs 1000)
   (setq ein:worksheet-enable-undo t)
   (setq ein:markdown-header-scaling nil)    ;this leads to variable pitch faces for
                                         ;markdown headers, which doesn't work so
