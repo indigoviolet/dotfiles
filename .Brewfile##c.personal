@@ -12,6 +12,10 @@ tap "screenplaydev/tap"
 tap "thecasualcoder/stable"
 # Extendable version manager with support for Ruby, Node.js, Erlang & more
 brew "asdf"
+# Improved shell history for zsh and bash
+brew "atuin"
+# Clone of cat(1) with syntax highlighting and Git integration
+brew "bat"
 # Generate compilation database for clang tooling
 brew "bear"
 # Cross-platform make
@@ -26,6 +30,8 @@ brew "direnv"
 brew "dust"
 # Maintain consistent coding style between multiple editors
 brew "editorconfig"
+# Easily install prebuilt binaries from GitHub
+brew "eget"
 # Modern replacement for 'ls'
 brew "exa"
 # Simple, fast and user-friendly alternative to find

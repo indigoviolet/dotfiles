@@ -153,7 +153,21 @@ gh_extensions:
 
 #+begin_src just
 git-credential-manager:
-    cd /tmp && gh release download -p '*.deb' -R GitCredentialManager/git-credential-manager --clobber -D /tmp && sudo dpkg -i /tmp/gcm*.deb && git credential-manager configure
+    cd /tmp && eget -a '.deb' GitCredentialManager/git-credential-manager && sudo dpkg -i /tmp/gcm*.deb && git credential-manager configure
+#+end_src
+
+* atuin
+
+
+#+begin_src just
+atuin_install: atuin_login
+    atuin register -u indigoviolet -e indigoviolet@gmail.com
+    atuin key > ~/.config/atuin/key
+    atuin import auto
+    atuin sync
+
+atuin:
+    atuin login --key ~/.config/atuin/key
 #+end_src
 
 * misc_utils (assumes debian)
@@ -522,16 +536,12 @@ mkdir -p ~/.local/bin && curl -fsSL https://raw.githubusercontent.com/gitbits/gi
 # poetry completions zsh > ~/.zprezto/modules/completion/external/src/_poetry
 
 ## Handy way to install things from github
-for ext in redraw/gh-install; do
-    (gh extension list | grep $ext) && echo "installed" || gh install $ext
-done
+# for ext in redraw/gh-install; do
+#     (gh extension list | grep $ext) && echo "installed" || gh install $ext
+# done
 
 ## GCM core git credential helper (see https://blog.djnavarro.net/posts/2021-08-08_git-credential-helpers/)
-# this is interactive
-# gh install GitCredentialManager/git-credential-manager
-
-TEMPDIR=$(mktemp -d)
-gh release download -p '*.deb' -R GitCredentialManager/git-credential-manager --clobber -D $TEMPDIR && sudo dpkg -i $TEMPDIR/gcm*.deb
+eget -a '.deb' GitCredentialManager/git-credential-manager --to /dev/stdout | sudo dpkg -i /dev/stdin
 git credential-manager configure
 
 # huawei matebook
@@ -547,7 +557,6 @@ wget -qO - https://raw.githubusercontent.com/nekr0z/matebook-applet/master/mateb
 sudo apt-add-repository -y -S "deb https://ppa.launchpadcontent.net/eosrei/fonts/ubuntu/ impish main"
 sudo apt-get update
 sudo apt-get install -y fonts-twemoji-svginot
-
 
 # Tailscale
 curl -fsSL https://pkgs.tailscale.com/unstable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
@@ -653,6 +662,6 @@ page of a file, after the last page delimiter.
 
 Formfeed (C-q C-l): (needs to be on its own line?)
 
-
+
 
 Without it, this file will load in just mode
