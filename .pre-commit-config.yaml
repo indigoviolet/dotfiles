@@ -21,6 +21,8 @@ repos:
     rev: v3.2.0
     hooks:
       - id: trailing-whitespace
+        # org-mode local variables need explicit whitespace
+        exclude: "org"
       - id: end-of-file-fixer
       - id: check-yaml
         # Exclude templated files
