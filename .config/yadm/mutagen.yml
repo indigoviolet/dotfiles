@@ -49,6 +49,8 @@ sync:
         - .config/*
         - '!.config/TabNine'
         - .config/TabNine/*
+        - '!.config/atuin'
+        - .config/atuin/*
         - '!.config/dconf'
         - .config/dconf/*
         - '!.config/direnv'
@@ -77,14 +79,10 @@ sync:
         - .config/systemd/user/*
         - '!.config/yadm'
         - .config/yadm/*
-        - '!.config/yadm/bootstrap.d'
-        - .config/yadm/bootstrap.d/*
         - '!.config/yadm/ondemand'
         - .config/yadm/ondemand/*
         - '!.config/yadm/ondemand/build-emacs'
         - .config/yadm/ondemand/build-emacs/*
-        - '!.docker'
-        - .docker/*
         - '!.jupyter'
         - .jupyter/*
         - '!.jupyter/nbconfig'
@@ -101,11 +99,12 @@ sync:
         - .local/share/Trash/files/*
         - '!.local/share/Trash/info'
         - .local/share/Trash/info/*
+        - '!.local/share/atuin'
+        - .local/share/atuin/*
         - '!.ssh'
         - .ssh/*
         - '!.zshcustom'
         - .zshcustom/*
-        - '!.Brewfile##c.fin'
         - '!.Brewfile##c.personal'
         - '!.Brewfile##c.remote'
         - '!.bashrc'
@@ -116,6 +115,7 @@ sync:
         - '!.config/TabNine/TabNine.toml.dist'
         - '!.config/TabNine/registration_key'
         - '!.config/TabNine/tabnine_config.json'
+        - '!.config/atuin/config.toml'
         - '!.config/dconf/dump.ini##c.personal'
         - '!.config/direnv/direnv.toml'
         - '!.config/direnv/lib/00-disable.sh'
@@ -140,27 +140,7 @@ sync:
         - '!.config/rclone/rclone.conf'
         - '!.config/starship.toml'
         - '!.config/systemd/user/imwheel.service'
-        - '!.config/yadm/.gitignore'
-        - '!.config/yadm/bootstrap'
-        - '!.config/yadm/bootstrap.d/010-build-deps.sh##distro.Debian'
-        - '!.config/yadm/bootstrap.d/010-build-deps.sh##distro_family.debian'
-        - '!.config/yadm/bootstrap.d/020-prezto.sh'
-        - '!.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro.Debian'
-        - '!.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro_family.debian'
-        - '!.config/yadm/bootstrap.d/040-brew.sh'
-        - '!.config/yadm/bootstrap.d/050-asdf.sh'
-        - '!.config/yadm/bootstrap.d/051-mamba-conda.sh'
-        - '!.config/yadm/bootstrap.d/060-pipx.sh'
-        - '!.config/yadm/bootstrap.d/070-misc-utilities.zsh##t,e.zsh'
-        - '!.config/yadm/bootstrap.d/080-chemacs.sh##c.personal,e.sh'
-        - '!.config/yadm/bootstrap.d/090-doom-emacs.sh##c.personal,e.sh'
-        - '!.config/yadm/bootstrap.d/100-git-completion.sh'
-        - '!.config/yadm/bootstrap.d/110-leechblock.sh##c.personal,e.sh'
-        - '!.config/yadm/bootstrap.d/120-paywall.sh##c.personal,e.sh'
-        - '!.config/yadm/bootstrap.d/130-fonts.sh##c.personal,e.sh'
-        - '!.config/yadm/bootstrap.d/140-gcloud.sh##c.personal,e.sh'
-        - '!.config/yadm/bootstrap.just'
-        - '!.config/yadm/bootstrap.just##t'
+        - '!.config/yadm/bootstrap##t'
         - '!.config/yadm/bootstrap.org'
         - '!.config/yadm/debug-template##t'
         - '!.config/yadm/mutagen.yml'
@@ -172,7 +152,6 @@ sync:
         - '!.config/yadm/ondemand/docker.sh##distro.Ubuntu,e.sh'
         - '!.config/yadm/start.sh'
         - '!.dir-locals.el'
-        - '!.docker/config.json'
         - '!.editorconfig'
         - '!.emacs-profiles.el'
         - '!.gitattributes'
@@ -191,11 +170,14 @@ sync:
         - '!.kaggle/kaggle.json'
         - '!.local/share/Trash/files/10-venky-nofile.conf##c.remote'
         - '!.local/share/Trash/info/10-venky-nofile.conf##c.remote.trashinfo'
+        - '!.local/share/atuin/key'
         - '!.pipx.json##c.personal'
         - '!.pipx.json##c.remote'
         - '!.pre-commit-config.yaml'
         - '!.sqliterc'
         - '!.ssh/config##c.personal'
+        - '!.ssh/id_ed25519##c.personal'
+        - '!.ssh/id_ed25519.pub##c.personal'
         - '!.ssh/id_rsa##c.personal'
         - '!.ssh/id_rsa.pub##c.personal'
         - '!.tigrc'
@@ -210,6 +192,7 @@ sync:
         - '!.zshcustom/aliases.zsh'
         - '!.zshcustom/android.zsh'
         - '!.zshcustom/asdf.zsh##t,e.zsh'
+        - '!.zshcustom/atuin.zsh'
         - '!.zshcustom/brew.zsh##t,e.zsh'
         - '!.zshcustom/build.zsh##t,e.zsh'
         - '!.zshcustom/conda.zsh'

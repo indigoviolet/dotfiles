@@ -160,14 +160,15 @@ git-credential-manager:
 
 
 #+begin_src just
-atuin_install: atuin_login
+atuin_install:
     atuin register -u indigoviolet -e indigoviolet@gmail.com
-    atuin key > ~/.config/atuin/key
     atuin import auto
     atuin sync
 
 atuin_login:
-    atuin login --key ~/.config/atuin/key
+    atuin login -u indigoviolet --key $(cat ~/.local/share/atuin/key)
+    atuin import auto
+    atuin sync
 #+end_src
 
 * misc_utils (assumes debian)
