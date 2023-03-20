@@ -120,6 +120,8 @@ brew "yadm"
 brew "zoxide"
 # Provides session management: i.e. separate programs from terminals
 brew "indigoviolet/tap/abduco", args: ["HEAD"]
+# Chat with gpt-3.5/chatgpt in terminal.
+brew "indigoviolet/tap/aichat", args: ["HEAD"]
 # simple drag-and-drop source/sink for X or Wayland
 brew "indigoviolet/tap/dragon", args: ["HEAD"]
 # A new generation cloud backup tool
