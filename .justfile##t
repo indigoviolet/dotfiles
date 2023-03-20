@@ -331,12 +331,13 @@ gitignore_specific_files:
     if __name__ == '__main__':
         main()
 
+# Generate yadm files that aren't gitignored, for sync
 yadm_ls_files_for_mutagen:
     yadm list -a | just -f {{ justfile() }} gitignore_specific_files | jq -R '.' | jq -s '.' | dasel -r json -w yaml > $HOME/.config/yadm/yadm_ls_files_for_mutagen.yml
 
+# after we add new files to yadm, update the sync
 yadm_sync_restart: yadm_ls_files_for_mutagen
     yadm alt && cd ~/.config/yadm && just mutagen-project-restart
-
 
 # Local Variables:
 # mode: just

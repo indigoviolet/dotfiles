@@ -121,10 +121,18 @@ But mutagen takes a static config and yadm's files are scattered all over. To wo
 
 It may require a ~mutagen terminate~ and ~mutagen restart~ to pick up the new
 config. You may also need a ~yadm alt~ on the remote machine to update any alt
-files.
+files. (see ~just yadm_sync_restart~)
 
 Note that this doesn't remove the need to clone the repo on the remote machine,
-yadm probably still needs it.
+yadm still needs it.
+
+- The remote machine's yadm repo will get changes due to the sync
+- we cannot sync templated files (ie the outputs of the templating), and
+  therefore we should not vc-track templated files
+- ~yadm alt~ uses the repo to decide which files need templating; so we have to periodically update the repo like so:
+
+  ~yadm fetch --all && yadm reset --hard origin/master~
+
 
 ** zsh secrets
 Make ~~/.zsh_secrets~ if you need any secrets that aren't committed. It is sourced via ~secrets.zsh~

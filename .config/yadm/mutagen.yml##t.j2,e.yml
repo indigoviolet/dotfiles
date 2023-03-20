@@ -27,7 +27,7 @@
 #
 # but this is prevented by https://github.com/mutagen-io/mutagen/issues/432
 #
-#
+# See `just yadm_sync_restart` and `just yadm_ls_files_for_mutagen`
 #
 #
 
