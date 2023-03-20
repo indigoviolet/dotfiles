@@ -1,6 +1,5 @@
 # fzf searching shows dupes, and skim is slower, and fzy doesn't have options
-# export ATUIN_NOBIND="true"
-eval "$(atuin init zsh)"
+eval "$(atuin init zsh --disable-up-arrow)" # --disable-ctrl-r
 
 # zle -N _atuinr_widget _atuinr
 

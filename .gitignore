@@ -3,13 +3,13 @@
 *.pyc
 *.elc
 .aws/*
+.local/share/Trash/*
 .cache-loader*
-fin-app*
 .ipynb_checkpoints/
 __pycache__/
+*ediff-merge*
 .log/
 
 # Local Variables:
 # mode: gitignore
 # End:
-*ediff-merge*
