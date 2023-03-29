@@ -79,6 +79,7 @@
 ;; [[file:config.org::*Disabled/unpinned packages][Disabled/unpinned packages:1]]
 ;; magit-todos: was slow on the startup, unused
 (disable-packages! magit-todos)
+(disable-packages! which-key)
 
 ;; updates to a version that has org-store-link compatibility instead of 6633d82c6e3c921c486ec284cb6542f33278b605
 (unpin! helpful)
@@ -168,6 +169,14 @@
 ;; [[file:config.org::*pulsar][pulsar:1]]
 (package! pulsar)
 ;; pulsar:1 ends here
+
+;; [[file:config.org::*centered][centered:1]]
+(package! centered-cursor-mode)
+;; centered:1 ends here
+
+;; [[file:config.org::*highlights][highlights:1]]
+(package! goggles :recipe (:host github :repo "minad/goggles"))
+;; highlights:1 ends here
 
 ;; [[file:config.org::*wrap region][wrap region:1]]
 (package! wrap-region)
@@ -326,6 +335,10 @@
 ;; [[file:config.org::*outline faces][outline faces:1]]
 (package! outline-minor-faces :recipe (:host github :repo "tarsius/outline-minor-faces"))
 ;; outline faces:1 ends here
+
+;; [[file:config.org::*outli][outli:1]]
+(package! outli :recipe (:host github :repo "jdtsmith/outli"))
+;; outli:1 ends here
 
 ;; [[file:config.org::*Tabnine][Tabnine:1]]
 (package! company-tabnine)

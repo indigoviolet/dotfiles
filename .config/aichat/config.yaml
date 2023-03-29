@@ -1,2 +1,4 @@
 api_key: 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
+conversation_first: true
 save: true
+model: gpt-3.5-turbo

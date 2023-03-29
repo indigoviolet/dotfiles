@@ -44,7 +44,7 @@ function set_window_title() {
 function set_cursor_norm() {
     tput cnorm
 }
-precmd_functions+=(set_window_title)
+precmd_functions+=(set_window_title set_cursor_norm)
 
 # colors xtrace prompts
 # https://unix.stackexchange.com/a/595628

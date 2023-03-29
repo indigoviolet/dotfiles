@@ -151,10 +151,10 @@
 ;; https://stackoverflow.com/a/19782939/14044156
 (setq suggest-key-bindings nil)
 
-;; truncates lines so that when you scroll toward the end of one, the line
-;; itself moves to the left independently of the rest of the text.
-(setq auto-hscroll-mode 'current-line)
-
+;; ;; truncates lines so that when you scroll toward the end of one, the line
+;; ;; itself moves to the left independently of the rest of the text.
+;; (setq auto-hscroll-mode 'current-line)
+(setq auto-hscroll-mode t) ; not 'current-line
 
 ;; line wrapping
 ;;
@@ -297,6 +297,7 @@
 (map! "M-i" #'delete-indentation
       "M-t" #'beginning-of-buffer
       "M-z" #'end-of-buffer
+  "<escape>" #'keyboard-escape-quit
       "C-x k" #'kill-buffer-and-window
       "<f5>" (cmd! (revert-buffer t t)))
 ;; Global keybindings:1 ends here
@@ -585,6 +586,10 @@
 (custom-set-faces! '(pulsar-red :background "red"))
 ;; pulsar:2 ends here
 
+;; [[file:config.org::*centered][centered:2]]
+(global-centered-cursor-mode)
+;; centered:2 ends here
+
 
 
 ;; Does this make things faster?
@@ -650,14 +655,23 @@
     (tab-line-switch-to-prev-tab)))
 ;; switching tabs:1 ends here
 
+;; [[file:config.org::*highlights][highlights:2]]
+(volatile-highlights-mode -1)
+(use-package! goggles
+  :hook ((prog-mode text-mode org-mode) . goggles-mode)
+  :config
+  (setq-default goggles-pulse t)) ;; set to nil to disable pulsing
+;; highlights:2 ends here
+
 ;; [[file:config.org::*with parens-mode][with parens-mode:1]]
 (after! paren
     (setq show-paren-style 'expression)
     (setq show-paren-priority -25)
     (setq show-paren-delay 0.5)
     (custom-set-faces!
-      '(show-paren-match :inherit secondary-selection)
-      '(show-paren-match-expression :background "darkgreen")
+      ;; these are modus operandi themes
+      '(show-paren-match :inherit bg-paren-match)
+      '(show-paren-match-expression :inherit bg-paren-expression)
       '(show-paren-mismatch :weight bold :underline t :slant normal)
       ))
 ;; https://github.com/doomemacs/doomemacs/issues/6223
@@ -1375,15 +1389,37 @@ message listing the hooks."
   ;; different fonts at different sizes mess up the alignment in vundo
   ;; Iosevka 13 seems to be ok
   ;; (set-face-attribute 'vundo-default nil :family "DejaVu Sans Mono")
-  :after-call doom-first-buffer-hook
-  :bind ("C-x u" . vundo))
+
+  ;; https://github.com/casouri/vundo/issues/56
+  (defun vi/vundo-diff ()
+    (interactive)
+    (let* ((orig vundo--orig-buffer)
+            (source (vundo--current-node vundo--prev-mod-list))
+            (dest (vundo-m-parent source)))
+      (if (or (not dest) (eq source dest))
+        (message "vundo diff not available.")
+	(let ((buf (make-temp-name (concat (buffer-name orig) "-vundo-diff"))))
+          (vundo--move-to-node source dest orig vundo--prev-mod-list)
+          (with-current-buffer (get-buffer-create buf)
+	    (insert-buffer orig))
+          (vundo--refresh-buffer orig (current-buffer) 'incremental)
+          (vundo--move-to-node dest source orig vundo--prev-mod-list)
+          (vundo--refresh-buffer orig (current-buffer) 'incremental)
+          (diff-buffers buf orig)
+          (kill-buffer buf)))))
+
+  :bind (
+          ("C-x u" . vundo)
+          :map vundo-mode-map (("d" . #'vi/vundo-diff))
+          )
+  )
 
 (add-hook! 'vundo-mode-hook
-           #'hide-mode-line-mode
-           (visual-line-mode -1)
-           (setq window-size-fixed t)
-           ;; (buffer-face-set '(:family "DejaVu Sans Mono"))
-           )
+  #'hide-mode-line-mode
+  (visual-line-mode -1)
+  (setq window-size-fixed t)
+  ;; (buffer-face-set '(:family "DejaVu Sans Mono"))
+  )
 ;; vundo:2 ends here
 
 ;; [[file:config.org::*Last change][Last change:2]]
@@ -1581,72 +1617,6 @@ message listing the hooks."
    ))
 ;; Jumping:2 ends here
 
-
-
-;; # TODO: filter out dired-sidebar
-
-
-;; [[file:config.org::*consult customization][consult customization:1]]
-(after! consult
-  (add-hook! 'consult-after-jump-hook #'recenter-top-bottom)
-  (setq! consult-fontify-max-size 1024)   ;https://github.com/minad/consult/issues/329
-
-
-  (defalias 'consult-line-thing-at-point 'consult-line)
-  (consult-customize consult-line-thing-at-point :initial (thing-at-point 'symbol))
-  (map!
-    "C-s" #'consult-line
-    "C-r" #'consult-line-thing-at-point)               ;deliberately not setting initial
-
-  (setq consult-line-start-from-top nil)
-  (setq consult-line-point-placement 'match-beginning)
-  )
-;; consult customization:1 ends here
-
-;; [[file:config.org::*consult-dir][consult-dir:1]]
-(after! consult-dir
-  (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
-
-  ;; this is normally find-file, but it's perhaps more useful to find any file
-  ;; (setq consult-dir-default-command #'+vertico/consult-fd)
-  (setq consult-dir-default-command #'consult-dir-dired)
-
-  ;; https://github.com/karthink/consult-dir/issues/20#issuecomment-1193087091
-  (map! :map minibuffer-local-map "C-c b" #'embark-become)
-  (map! :map embark-become-file+buffer-map
-        "d" #'dired
-        "S" #'+vertico/consult-fd
-        "D" #'consult-dir)
-  )
-;; consult-dir:1 ends here
-
-;; [[file:config.org::*vicb][vicb:2]]
-(load! "lisp/vi-consult-buffers/vicb.el")
-(use-package! vicb
-  :after consult
-  :config
-  (vicb-setup)
-  )
-
-;; (after! '(consult vicb)
-;;   ;; (consult-customize consult-buffer :group nil :sort t)
-;;   )
-;; vicb:2 ends here
-
-;; [[file:config.org::*projectile][projectile:1]]
-(after! (consult projectile)
-   (setq consult-project-function (lambda (_) (projectile-project-root)))
-   )
-;; projectile:1 ends here
-
-;; [[file:config.org::*consult-projectile][consult-projectile:2]]
-(use-package! consult-projectile
-    :custom
-  ;; (+workspaces-switch-project-function (lambda (_) (consult-projectile-find-file)))
-  (consult-project-buffer-sources consult-projectile-sources)
-    )
-;; consult-projectile:2 ends here
-
 ;; [[file:config.org::*embark][embark:1]]
 (after! embark
   ;; try out embark-mixed-indicator which is more verbose than embark-which-key-indicator
@@ -1691,25 +1661,106 @@ message listing the hooks."
 
 
 
+;; # TODO: filter out dired-sidebar
+
+
+;; [[file:config.org::*consult customization][consult customization:1]]
+(after! consult
+  (add-hook! 'consult-after-jump-hook #'recenter-top-bottom)
+  (setq! consult-fontify-max-size 1024)   ;https://github.com/minad/consult/issues/329
+
+  (defalias 'consult-line-thing-at-point 'consult-line)
+  (consult-customize consult-line-thing-at-point :initial (thing-at-point 'symbol))
+
+  (map! "C-s" #'consult-line "C-r" #'consult-line)               ;deliberately not setting initial
+
+  (setq consult-line-start-from-top nil)
+  (setq consult-line-point-placement 'match-beginning)
+  )
+;; consult customization:1 ends here
+
+;; [[file:config.org::*consult-dir][consult-dir:1]]
+(after! consult-dir
+  (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
+
+  ;; this is normally find-file, but it's perhaps more useful to find any file
+  ;; (setq consult-dir-default-command #'+vertico/consult-fd)
+  (setq consult-dir-default-command #'consult-dir-dired)
+
+  ;; https://github.com/karthink/consult-dir/issues/20#issuecomment-1193087091
+  (map! :map minibuffer-local-map "C-c b" #'embark-become)
+  (map! :map embark-become-file+buffer-map
+        "d" #'dired
+        "S" #'+vertico/consult-fd
+        "D" #'consult-dir)
+  )
+;; consult-dir:1 ends here
+
+;; [[file:config.org::*vicb][vicb:2]]
+(load! "lisp/vi-consult-buffers/vicb.el")
+(use-package! vicb
+  :after consult
+  :config
+  (vicb-setup)
+
+  ;; delay previews so that these don't affect recency ranking
+  ;; https://github.com/minad/consult#live-previews
+  (eval `(consult-customize ,@consult-buffer-sources :preview-key '(:debounce 0.8 any)))
+  )
+
+;; (after! '(consult vicb)
+;;   ;; (consult-customize consult-buffer :group nil :sort t)
+;;   )
+;; vicb:2 ends here
+
+;; [[file:config.org::*projectile][projectile:1]]
+(after! (consult projectile)
+   (setq consult-project-function (lambda (_) (projectile-project-root)))
+   )
+;; projectile:1 ends here
+
+;; [[file:config.org::*consult-projectile][consult-projectile:2]]
+(use-package! consult-projectile
+    :custom
+  ;; (+workspaces-switch-project-function (lambda (_) (consult-projectile-find-file)))
+  (consult-project-buffer-sources consult-projectile-sources)
+    )
+;; consult-projectile:2 ends here
+
+
+
 ;; https://github.com/oantolin/orderless#interactively-changing-the-configuration
 ;; https://github.com/minad/vertico#completion-styles-and-tab-completion
 
+;; https://old.reddit.com/r/emacs/comments/o9pue1/changing_consultline_matching_with_orderless/
 
 ;; [[file:config.org::*Orderless][Orderless:1]]
 (after! orderless
-  (setq orderless-matching-styles '(orderless-literal orderless-regexp ))) ;;orderless-flex)))
+  ;; (orderless-define-completion-style orderless+initialism
+  ;;   (orderless-matching-styles '(orderless-initialism orderless-literal orderless-regexp)))
+  (setq completion-styles '(orderless)
+    completion-category-defaults nil
+    completion-category-overrides
+    '((file (styles partial-completion));; orderless+initialism))
+       ;; (buffer (styles orderless+initialism))
+       ;; (consult-multi (styles orderless+initialism))
+       ;; (command (styles orderless+initialism))
+       ;; (variable (styles orderless+initialism))
+       ;; (symbol (styles orderless+initialism))
+       )
+    orderless-matching-styles '(orderless-literal orderless-regexp)))
 
 (after! vertico
   (defun vi/match-components-literally ()
     "Components match literally for the rest of the session."
     (interactive)
     (setq-local orderless-matching-styles '(orderless-literal)
-                orderless-style-dispatchers nil))
+      orderless-style-dispatchers nil))
 
   ;; (define-key minibuffer-local-completion-map (kbd "C-l") #'vi/match-components-literally)
     (map! :map vertico-map
-          "C-l" #'vi/match-components-literally
-          "M-j" #'vertico-quick-jump)
+      "C-l" #'vi/match-components-literally)
+      ;;"M-j" #'vertico-quick-jump)
   )
 ;; Orderless:1 ends here
 
@@ -1760,6 +1811,10 @@ message listing the hooks."
 ;; [[file:config.org::*Python][Python:1]]
 (setq-hook! 'python-mode-hook outline-regexp (python-rx (* space) (or defun decorator)))
 ;; Python:1 ends here
+
+;; [[file:config.org::*outli][outli:2]]
+
+;; outli:2 ends here
 
 ;; [[file:config.org::*Tabnine][Tabnine:2]]
 (use-package! company-tabnine
@@ -1814,7 +1869,9 @@ message listing the hooks."
   :after corfu
   :config
   (require 'company)
-  (defalias 'vi/cape-tabnine+yankpad (cape-capf-buster (cape-company-to-capf (apply-partially #'company--multi-backend-adapter '(company-tabnine company-yankpad)))))
+  (defalias 'vi/cape-tabnine+yankpad (cape-capf-buster (cape-company-to-capf (apply-partially #'company--multi-backend-adapter
+                                                                               '( ;;company-tabnine
+                                                                                  company-yankpad)))))
 
   ;; (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
   ;; (defalias 'vi/cape-yankpad (cape-capf-buster (cape-company-to-capf #'company-yankpad)))
@@ -1864,7 +1921,7 @@ message listing the hooks."
 (use-package! copilot
   :after corfu
   :custom
-  (copilot-idle-delay 0.6)
+  (copilot-idle-delay 0.3)
   :config
   (defun rk/copilot-complete-or-accept ()
     "Command that either triggers a completion or accepts one if one
@@ -1879,8 +1936,7 @@ is available. Useful if you tend to hammer your keys like I do."
 
   (defun rk/copilot-tab ()
     "Tab command that will complet with copilot if a completion is
-available. Otherwise will try company, yasnippet or normal
-tab-indent."
+available. Otherwise will try tab-indent."
     (interactive)
     ;; indent-for-tab-command compares last-command to this-command in python-indent-line-function to decide whether to dedent.
     ;; without this, it stops dedenting
@@ -2590,6 +2646,11 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 ;; ;; shows in the misc-info segment
 ;; (add-to-list 'global-mode-string '(:eval (vi/vterm-copy)))
 
+(defun vi/vterm-reset ()
+  (interactive)
+  (vterm-send-string "tput cnorm"))
+
+(map! :map vterm-mode-map "C-c C-r" #'vi/vterm-reset)
 
 (defun vi/vterm-hooks ()
   ;; linkify urls

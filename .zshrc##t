@@ -60,6 +60,7 @@ source ${ZSH_CUSTOM_DIR}/poetry.zsh
 source ${ZSH_CUSTOM_DIR}/doom.zsh
 source ${ZSH_CUSTOM_DIR}/gcloud.zsh
 source ${ZSH_CUSTOM_DIR}/gcloud-completion.zsh
+source ${ZSH_CUSTOM_DIR}/just.zsh
 # source ${ZSH_CUSTOM_DIR}/android.zsh
 source ${ZSH_CUSTOM_DIR}/docker.zsh
 {% endif %}

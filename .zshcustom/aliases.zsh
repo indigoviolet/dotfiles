@@ -35,3 +35,4 @@ alias cat="bat --wrap=never"
 # alias z=zi
 alias ls="lsd -h --date relative --group-dirs=first --blocks size,date,permission,user,name --depth 3 --classify"
 alias tree="ls --tree"
+alias ll="ls -ltrL"

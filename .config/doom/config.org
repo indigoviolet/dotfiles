@@ -413,8 +413,6 @@ We start by simply defining the standard headers used by the three files. These 
 
 #+end_src
 
-#+RESULTS[953c07e934584c8261f3ade235b184fa927cfb1f]:
-
 *** modus
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -740,6 +738,7 @@ doesn't work.. so it's at the beginning of config.el and commented out.
 
 ;; magit-todos: was slow on the startup, unused
 (disable-packages! magit-todos)
+(disable-packages! which-key)
 
 ;; updates to a version that has org-store-link compatibility instead of 6633d82c6e3c921c486ec284cb6542f33278b605
 (unpin! helpful)
@@ -792,10 +791,10 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
 ;; https://stackoverflow.com/a/19782939/14044156
 (setq suggest-key-bindings nil)
 
-;; truncates lines so that when you scroll toward the end of one, the line
-;; itself moves to the left independently of the rest of the text.
-(setq auto-hscroll-mode 'current-line)
-
+;; ;; truncates lines so that when you scroll toward the end of one, the line
+;; ;; itself moves to the left independently of the rest of the text.
+;; (setq auto-hscroll-mode 'current-line)
+(setq auto-hscroll-mode t) ; not 'current-line
 
 ;; line wrapping
 ;;
@@ -965,6 +964,7 @@ https://emacs.stackexchange.com/a/24658 -- not sure if this works?
 (map! "M-i" #'delete-indentation
       "M-t" #'beginning-of-buffer
       "M-z" #'end-of-buffer
+  "<escape>" #'keyboard-escape-quit
       "C-x k" #'kill-buffer-and-window
       "<f5>" (cmd! (revert-buffer t t)))
 #+end_src
@@ -1383,6 +1383,18 @@ Hence we turn off solaire-mode in vterm by calling vterm buffers "real"
 
 (custom-set-faces! '(pulsar-red :background "red"))
 #+end_src
+*** centered
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! centered-cursor-mode)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(global-centered-cursor-mode)
+#+end_src
+
 ** font lock
 
 Does this make things faster?
@@ -1451,6 +1463,22 @@ https://github.com/alphapapa/bufler.el/issues/84
 
 
 #+end_src
+** highlights
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! goggles :recipe (:host github :repo "minad/goggles"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(volatile-highlights-mode -1)
+(use-package! goggles
+  :hook ((prog-mode text-mode org-mode) . goggles-mode)
+  :config
+  (setq-default goggles-pulse t)) ;; set to nil to disable pulsing
+#+end_src
+
 * Parens
 
 ** with parens-mode
@@ -1461,8 +1489,9 @@ https://github.com/alphapapa/bufler.el/issues/84
     (setq show-paren-priority -25)
     (setq show-paren-delay 0.5)
     (custom-set-faces!
-      '(show-paren-match :inherit secondary-selection)
-      '(show-paren-match-expression :background "darkgreen")
+      ;; these are modus operandi themes
+      '(show-paren-match :inherit bg-paren-match)
+      '(show-paren-match-expression :inherit bg-paren-expression)
       '(show-paren-mismatch :weight bold :underline t :slant normal)
       ))
 ;; https://github.com/doomemacs/doomemacs/issues/6223
@@ -2724,15 +2753,37 @@ seems to make things slow?
   ;; different fonts at different sizes mess up the alignment in vundo
   ;; Iosevka 13 seems to be ok
   ;; (set-face-attribute 'vundo-default nil :family "DejaVu Sans Mono")
-  :after-call doom-first-buffer-hook
-  :bind ("C-x u" . vundo))
+
+  ;; https://github.com/casouri/vundo/issues/56
+  (defun vi/vundo-diff ()
+    (interactive)
+    (let* ((orig vundo--orig-buffer)
+            (source (vundo--current-node vundo--prev-mod-list))
+            (dest (vundo-m-parent source)))
+      (if (or (not dest) (eq source dest))
+        (message "vundo diff not available.")
+	(let ((buf (make-temp-name (concat (buffer-name orig) "-vundo-diff"))))
+          (vundo--move-to-node source dest orig vundo--prev-mod-list)
+          (with-current-buffer (get-buffer-create buf)
+	    (insert-buffer orig))
+          (vundo--refresh-buffer orig (current-buffer) 'incremental)
+          (vundo--move-to-node dest source orig vundo--prev-mod-list)
+          (vundo--refresh-buffer orig (current-buffer) 'incremental)
+          (diff-buffers buf orig)
+          (kill-buffer buf)))))
+
+  :bind (
+          ("C-x u" . vundo)
+          :map vundo-mode-map (("d" . #'vi/vundo-diff))
+          )
+  )
 
 (add-hook! 'vundo-mode-hook
-           #'hide-mode-line-mode
-           (visual-line-mode -1)
-           (setq window-size-fixed t)
-           ;; (buffer-face-set '(:family "DejaVu Sans Mono"))
-           )
+  #'hide-mode-line-mode
+  (visual-line-mode -1)
+  (setq window-size-fixed t)
+  ;; (buffer-face-set '(:family "DejaVu Sans Mono"))
+  )
 #+end_src
 ** Last change
 
@@ -2997,43 +3048,6 @@ Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact
   (add-hook! git-rebase-mode (smartscan-mode -1))
   )
 #+end_src
-** COMMENT ctrlf
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! ctrlf)
-#+end_src
-
-*** config
-
-https://github.com/radian-software/ctrlf#customization
-
-#+begin_src emacs-lisp
-(use-package! ctrlf
-  :after-call doom-first-input-hook
-  :custom
-  (ctrlf-auto-recenter t)
-  (ctrlf-default-search-style 'fuzzy)   ;C-s
-  (ctrlf-alternate-search-style 'literal) ;C-M-s
-  :config
-  (ctrlf-mode +1)
-  (add-hook! 'pdf-isearch-minor-mode-hook (ctrlf-local-mode -1))
-  )
-
-(after! ctrlf
-  (setf (alist-get 'pcre ctrlf-style-alist)
-        `(:prompt "regexp"
-                  :translator pcre-to-elisp
-                  :case-fold ctrlf-no-uppercase-regexp-p
-                  :fallback (isearch-forward-regexp
-                             . isearch-backward-regexp)))
-  )
-
-
-(custom-set-faces!
-  '(ctrlf-highlight-passive :background "#3b3a3b" :foreground "#d8bf9c")
-  '(ctrlf-highlight-active :background unspecified :foreground unspecified :inherit isearch))
-#+end_src
-
 ** regex-based searching, using python/pcre
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -3105,6 +3119,49 @@ https://github.com/radian-software/ctrlf#customization
    ))
 
 #+end_src
+** embark
+
+
+#+begin_src emacs-lisp
+(after! embark
+  ;; try out embark-mixed-indicator which is more verbose than embark-which-key-indicator
+  (setq! embark-indicators '(embark--vertico-indicator embark-mixed-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
+  )
+#+end_src
+
+*** targets for buffer/file
+
+https://github.com/oantolin/embark/issues/231#issuecomment-854390476
+
+#+begin_src emacs-lisp
+(after! embark
+  (defun embark-target-this-buffer-file ()
+    (cons 'this-buffer-file (or (buffer-file-name) (buffer-name))))
+
+   (add-to-list 'embark-target-finders #'embark-target-this-buffer-file 'append)
+
+   (add-to-list 'embark-keymap-alist '(this-buffer-file . this-buffer-file-map))
+
+   (embark-define-keymap this-buffer-file-map
+         "Commands to act on current file or buffer."
+         ("l" load-file)
+         ("b" byte-compile-file)
+         ;; ("S" sudo-find-file)
+         ;; ("U" 0x0-upload)
+         ;; ("r" rename-file-and-buffer)
+         ;; ("d" diff-buffer-with-file)
+         ("=" ediff-buffers)
+         ("C-=" ediff-files)
+         ("!" shell-command)
+         ("&" async-shell-command)
+         ("x" consult-file-externally)
+         ;; ("C-a" mml-attach-file)
+         ("c" copy-file)
+         ("k" kill-buffer)
+         ("z" bury-buffer)
+         ("|" embark-shell-command-on-buffer)
+         ("g" revert-buffer)))
+#+end_src
 ** consult customization
 
 # TODO: filter out dired-sidebar
@@ -3114,12 +3171,10 @@ https://github.com/radian-software/ctrlf#customization
   (add-hook! 'consult-after-jump-hook #'recenter-top-bottom)
   (setq! consult-fontify-max-size 1024)   ;https://github.com/minad/consult/issues/329
 
-
   (defalias 'consult-line-thing-at-point 'consult-line)
   (consult-customize consult-line-thing-at-point :initial (thing-at-point 'symbol))
-  (map!
-    "C-s" #'consult-line
-    "C-r" #'consult-line-thing-at-point)               ;deliberately not setting initial
+
+  (map! "C-s" #'consult-line "C-r" #'consult-line)               ;deliberately not setting initial
 
   (setq consult-line-start-from-top nil)
   (setq consult-line-point-placement 'match-beginning)
@@ -3160,6 +3215,10 @@ We put this file directly in .config/doom/lisp (.doom.d) so that we can edit loc
   :after consult
   :config
   (vicb-setup)
+
+  ;; delay previews so that these don't affect recency ranking
+  ;; https://github.com/minad/consult#live-previews
+  (eval `(consult-customize ,@consult-buffer-sources :preview-key '(:debounce 0.8 any)))
   )
 
 ;; (after! '(consult vicb)
@@ -3208,133 +3267,41 @@ This looks great but has no projectile support
 
 
 
-** embark
-
-
-#+begin_src emacs-lisp
-(after! embark
-  ;; try out embark-mixed-indicator which is more verbose than embark-which-key-indicator
-  (setq! embark-indicators '(embark--vertico-indicator embark-mixed-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
-  )
-#+end_src
-
-*** targets for buffer/file
-
-https://github.com/oantolin/embark/issues/231#issuecomment-854390476
-
-#+begin_src emacs-lisp
-(after! embark
-  (defun embark-target-this-buffer-file ()
-    (cons 'this-buffer-file (or (buffer-file-name) (buffer-name))))
-
-   (add-to-list 'embark-target-finders #'embark-target-this-buffer-file 'append)
-
-   (add-to-list 'embark-keymap-alist '(this-buffer-file . this-buffer-file-map))
-
-   (embark-define-keymap this-buffer-file-map
-         "Commands to act on current file or buffer."
-         ("l" load-file)
-         ("b" byte-compile-file)
-         ;; ("S" sudo-find-file)
-         ;; ("U" 0x0-upload)
-         ;; ("r" rename-file-and-buffer)
-         ;; ("d" diff-buffer-with-file)
-         ("=" ediff-buffers)
-         ("C-=" ediff-files)
-         ("!" shell-command)
-         ("&" async-shell-command)
-         ("x" consult-file-externally)
-         ;; ("C-a" mml-attach-file)
-         ("c" copy-file)
-         ("k" kill-buffer)
-         ("z" bury-buffer)
-         ("|" embark-shell-command-on-buffer)
-         ("g" revert-buffer)))
-#+end_src
 ** Orderless
 
 https://github.com/oantolin/orderless#interactively-changing-the-configuration
 https://github.com/minad/vertico#completion-styles-and-tab-completion
 
+https://old.reddit.com/r/emacs/comments/o9pue1/changing_consultline_matching_with_orderless/
 #+begin_src emacs-lisp
 (after! orderless
-  (setq orderless-matching-styles '(orderless-literal orderless-regexp ))) ;;orderless-flex)))
+  ;; (orderless-define-completion-style orderless+initialism
+  ;;   (orderless-matching-styles '(orderless-initialism orderless-literal orderless-regexp)))
+  (setq completion-styles '(orderless)
+    completion-category-defaults nil
+    completion-category-overrides
+    '((file (styles partial-completion));; orderless+initialism))
+       ;; (buffer (styles orderless+initialism))
+       ;; (consult-multi (styles orderless+initialism))
+       ;; (command (styles orderless+initialism))
+       ;; (variable (styles orderless+initialism))
+       ;; (symbol (styles orderless+initialism))
+       )
+    orderless-matching-styles '(orderless-literal orderless-regexp)))
 
 (after! vertico
   (defun vi/match-components-literally ()
     "Components match literally for the rest of the session."
     (interactive)
     (setq-local orderless-matching-styles '(orderless-literal)
-                orderless-style-dispatchers nil))
+      orderless-style-dispatchers nil))
 
   ;; (define-key minibuffer-local-completion-map (kbd "C-l") #'vi/match-components-literally)
     (map! :map vertico-map
-          "C-l" #'vi/match-components-literally
-          "M-j" #'vertico-quick-jump)
+      "C-l" #'vi/match-components-literally)
+      ;;"M-j" #'vertico-quick-jump)
   )
 #+end_src
-** COMMENT avy
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! avy)
-#+end_src
-
-
-#+begin_src emacs-lisp
-(use-package! avy
-  :custom
-  (avy-single-candidate-jump t)
-  (avy-all-windows t)
-  (avy-timeout-seconds 0.2)
-  :bind (
-         ("M-j" . avy-goto-char-timer)
-         ("M-J" . avy-resume))
-  )
-#+end_src
-
-*** embark
-
-#+begin_src emacs-lisp
-(after! avy
-  (defun avy-action-embark (pt)
-    (unwind-protect
-        (save-excursion
-          (goto-char pt)
-          (embark-act))
-      (select-window
-       (cdr (ring-ref avy-ring 0))))
-    t)
-
-  (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark))
-#+end_src
-
-
-*** COMMENT isearch/ctrlf
-#+begin_src emacs-lisp
-
-;; this isn't useful since we use ctrlf
-(map! :map isearch-mode-map "M-j" #'avy-isearch)
-
-(after! ctrlf
-  (defun vi/avy-ctrlf ()
-    "Jump to one of the current ctrlf candidates. (based on avy-isearch)"
-    (interactive)
-    (require 'avy)
-    (with-selected-window (get-mru-window)
-      (avy-with avy-isearch
-        (let ((avy-background nil)
-              (avy-case-fold-search case-fold-search))
-          (avy-process
-           (avy--regex-candidates ctrlf--last-input)))))
-    (exit-minibuffer)
-    )
-
-  (map! :map ctrlf-minibuffer-mode-map "M-j" #'vi/avy-ctrlf)
-  )
-#+end_src
-
-
-
 * Narrowing
 
 
@@ -3443,7 +3410,18 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
 #+begin_src emacs-lisp :tangle packages.el
 (package! outshine)
 #+end_src
+** outli
 
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! outli :recipe (:host github :repo "jdtsmith/outli"))
+#+end_src
+
+
+
+#+begin_src emacs-lisp
+
+#+end_src
 * Completion
 
 ** Tabnine
@@ -3514,7 +3492,9 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
   :after corfu
   :config
   (require 'company)
-  (defalias 'vi/cape-tabnine+yankpad (cape-capf-buster (cape-company-to-capf (apply-partially #'company--multi-backend-adapter '(company-tabnine company-yankpad)))))
+  (defalias 'vi/cape-tabnine+yankpad (cape-capf-buster (cape-company-to-capf (apply-partially #'company--multi-backend-adapter
+                                                                               '( ;;company-tabnine
+                                                                                  company-yankpad)))))
 
   ;; (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
   ;; (defalias 'vi/cape-yankpad (cape-capf-buster (cape-company-to-capf #'company-yankpad)))
@@ -3585,7 +3565,7 @@ https://robert.kra.hn/posts/2023-02-22-copilot-emacs-setup/#copilot-emacs-packag
 (use-package! copilot
   :after corfu
   :custom
-  (copilot-idle-delay 0.6)
+  (copilot-idle-delay 0.3)
   :config
   (defun rk/copilot-complete-or-accept ()
     "Command that either triggers a completion or accepts one if one
@@ -3600,8 +3580,7 @@ is available. Useful if you tend to hammer your keys like I do."
 
   (defun rk/copilot-tab ()
     "Tab command that will complet with copilot if a completion is
-available. Otherwise will try company, yasnippet or normal
-tab-indent."
+available. Otherwise will try tab-indent."
     (interactive)
     ;; indent-for-tab-command compares last-command to this-command in python-indent-line-function to decide whether to dedent.
     ;; without this, it stops dedenting
@@ -4718,6 +4697,11 @@ doesn't work
 ;; ;; shows in the misc-info segment
 ;; (add-to-list 'global-mode-string '(:eval (vi/vterm-copy)))
 
+(defun vi/vterm-reset ()
+  (interactive)
+  (vterm-send-string "tput cnorm"))
+
+(map! :map vterm-mode-map "C-c C-r" #'vi/vterm-reset)
 
 (defun vi/vterm-hooks ()
   ;; linkify urls
