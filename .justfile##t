@@ -3,13 +3,14 @@
 
 # set_init: see ~/.bashrc for definition (mainly set -x)
 
-set shell := ["bash", "-uc"]
-set positional-arguments := true
+!include dev.justfile
 
-just := 'just --unstable --justfile "' + justfile() + '"'
-
-default:
-    {{ just }} --list --unsorted
+## commented because of !include
+# set shell := ["bash", "-uc"]
+# set positional-arguments := true
+# just := 'just --unstable --justfile "' + justfile() + '"'
+# default:
+#     {{ just }} --list --unsorted
 
 {% if yadm.class == "personal" %}
 doom-clean:

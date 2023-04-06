@@ -46,14 +46,14 @@ sync:
         - "/*"
         # note this must be on oneline to prevent newlines from being injected
         {% filter indent(width=8) %}{% include "/home/venky/.config/yadm/yadm_ls_files_for_mutagen.yml" | safe %}{% endfilter %}
-  yadm-gcp:
-    alpha: "/home/venky/"
-    beta: "venky@deeplearning-1-vm.us-central1-c.instant-venky:/home/venky/"
-    ignore:
-      paths:
-        - "/*"
-        # note this must be on oneline to prevent newlines from being injected
-        {% filter indent(width=8) %}{% include "/home/venky/.config/yadm/yadm_ls_files_for_mutagen.yml" | safe %}{% endfilter %}
+  # yadm-gcp:
+  #   alpha: "/home/venky/"
+  #   beta: "venky@deeplearning-1-vm.us-central1-c.instant-venky:/home/venky/"
+  #   ignore:
+  #     paths:
+  #       - "/*"
+  #       # note this must be on oneline to prevent newlines from being injected
+  #       {% filter indent(width=8) %}{% include "/home/venky/.config/yadm/yadm_ls_files_for_mutagen.yml" | safe %}{% endfilter %}
 
 # Local Variables:
 # mode: yaml

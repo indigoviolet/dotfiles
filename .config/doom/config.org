@@ -739,6 +739,8 @@ doesn't work.. so it's at the beginning of config.el and commented out.
 ;; magit-todos: was slow on the startup, unused
 (disable-packages! magit-todos)
 (disable-packages! which-key)
+(disable-packages! dired-git-info)
+
 
 ;; updates to a version that has org-store-link compatibility instead of 6633d82c6e3c921c486ec284cb6542f33278b605
 (unpin! helpful)
@@ -778,7 +780,7 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
       make-backup-files t)
 
 ;; Disable exit confirmation.
-(setq confirm-kill-emacs t)
+(setq confirm-kill-emacs nil)
 
 ;; indent anywhere, no completion on tab
 (setq tab-always-indent t)
@@ -813,9 +815,6 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
 (setq switch-to-buffer-obey-display-actions t)
 
 (global-git-gutter-mode t)
-(tab-bar-mode t)
-(tab-bar-history-mode t)
-(tab-line-mode t)
 
 ;; (repeat-mode 1)
 
@@ -829,7 +828,6 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
 ;; https://github.com/dakrone/eos/blob/master/eos.org
 (setq save-interprogram-paste-before-kill t)
 
-
 #+end_src
 
 ** uniquify
@@ -838,7 +836,7 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
 #+begin_src emacs-lisp
 (setq! uniquify-buffer-name-style 'post-forward
   uniquify-after-kill-buffer-p t
-  uniquify-min-dir-content 0
+  uniquify-min-dir-content 3
   uniquify-separator " | "
   uniquify-strip-common-prefix t)
 
@@ -1383,8 +1381,7 @@ Hence we turn off solaire-mode in vterm by calling vterm buffers "real"
 
 (custom-set-faces! '(pulsar-red :background "red"))
 #+end_src
-*** centered
-
+*** COMMENT centered
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! centered-cursor-mode)
@@ -1401,7 +1398,7 @@ Does this make things faster?
 #+begin_src emacs-lisp
 (setq font-lock-maximum-decoration nil)
 #+end_src
-** tabs
+** COMMENT tabs
 
 
 #+begin_src emacs-lisp
@@ -2088,7 +2085,7 @@ Bufler groups:
       )
     )
   :config
-  (bufler-workspace-tabs-mode)
+  ;; (bufler-workspace-tabs-mode)
 
   ;; Note: tab-bar doesn't always update immediately
   (add-hook! '(doom-switch-buffer-hook doom-switch-window-hook consult-after-jump-hook)
@@ -3124,8 +3121,10 @@ Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact
 
 #+begin_src emacs-lisp
 (after! embark
+  ;; since we disabled which-key
+  (advice-remove 'embark-completing-read-prompter '+vertico--embark-which-key-prompt-a)
   ;; try out embark-mixed-indicator which is more verbose than embark-which-key-indicator
-  (setq! embark-indicators '(embark--vertico-indicator embark-mixed-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
+  (setq! embark-indicators '(embark--vertico-indicator embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
   )
 #+end_src
 
@@ -3275,19 +3274,38 @@ https://github.com/minad/vertico#completion-styles-and-tab-completion
 https://old.reddit.com/r/emacs/comments/o9pue1/changing_consultline_matching_with_orderless/
 #+begin_src emacs-lisp
 (after! orderless
+  ;; https://github.com/minad/consult/issues/237
+  (defun consult-basic-all-completions (string table pred _point)
+    ;; Ignore the disambiguation prefix
+    (let ((completion-regexp-list (list (concat "\\`[\x100000-\x10FFFD]*" (regexp-quote string)))))
+      (all-completions "" table pred)))
+
+  (defun consult-basic-try-completion (string table pred _point)
+    ;; Ignore the disambiguation prefix
+    (let ((completion-regexp-list (list (concat "\\`[\x100000-\x10FFFD]*" (regexp-quote string)))))
+      (try-completion "" table pred)))
+
+  (add-to-list 'completion-styles-alist
+    '(consult-basic
+       consult-basic-try-completion consult-basic-all-completions
+       "Consult-compatible basic completion."))
+
+
   ;; (orderless-define-completion-style orderless+initialism
   ;;   (orderless-matching-styles '(orderless-initialism orderless-literal orderless-regexp)))
   (setq completion-styles '(orderless)
     completion-category-defaults nil
     completion-category-overrides
-    '((file (styles partial-completion));; orderless+initialism))
+    '((file (styles partial-completion))  ;; orderless+initialism))
+       (consult-location (styles consult-basic)) ;consult-line
        ;; (buffer (styles orderless+initialism))
        ;; (consult-multi (styles orderless+initialism))
        ;; (command (styles orderless+initialism))
        ;; (variable (styles orderless+initialism))
        ;; (symbol (styles orderless+initialism))
        )
-    orderless-matching-styles '(orderless-literal orderless-regexp)))
+    orderless-matching-styles '(orderless-literal orderless-regexp))
+  )
 
 (after! vertico
   (defun vi/match-components-literally ()
@@ -3680,7 +3698,7 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
   )
 #+end_src
 
-* Which-key
+* COMMENT Which-key
 
 #+begin_src emacs-lisp
 ;; Allow C-h to trigger which-key before it is done automatically
@@ -4691,7 +4709,9 @@ doesn't work
   (remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
 
   ;; This actually doesn't work with popper because it restores it to the old format
-  (add-hook! 'vterm-mode-hook (doom-modeline-set-modeline 'vi/vterm)))
+  (add-hook! 'vterm-mode-hook (doom-modeline-set-modeline 'vi/vterm)
+    ;; (centered-cursor-mode -1)
+    ))
 
 ;; (defun vi/vterm-copy ()
 ;; ;; shows in the misc-info segment
@@ -5119,48 +5139,7 @@ Quit recursive edit using C-]
     (magit-status "~")
     (recursive-edit)))
 #+end_src
-** Stage files from dired
 
-TODO: Use https://github.com/conao3/dired-git.el instead for the git portion of
-this. I wonder if it will also "just" work for the yadm case if I'm using
-/yadm:: dired via tramp
-
-https://gist.github.com/justinhj/5945047
-#+begin_src emacs-lisp
-
-(defun git-add-files(files)
-  "Run git add with the input file"
-  (shell-command (format "git add %s" files)))
-
-(defun yadm-add-files(files)
-  "Run git add with the input file"
-  (let ((default-directory "~/"))
-    (shell-command (format "yadm add %s" files))))
-
-(defun dired-git-add-marked-files()
-  "For each marked file in a dired buffer add it to the index"
-  (interactive)
-  (if (eq major-mode 'dired-mode)
-      (let ((filenames (dired-get-marked-files))
-	    (files ""))
-	(dolist (fn filenames)
-	  (setq fn (shell-quote-argument fn))
-	  (setq files (concat files " " fn)))
-	(git-add-files files))
-    (error (format "Not a Dired buffer \(%s\)" major-mode))))
-
-(defun dired-yadm-add-marked-files()
-  "For each marked file in a dired buffer add it to the index"
-  (interactive)
-  (if (eq major-mode 'dired-mode)
-      (let ((filenames (dired-get-marked-files))
-	    (files ""))
-	(dolist (fn filenames)
-	  (setq fn (shell-quote-argument fn))
-	  (setq files (concat files " " fn)))
-	(yadm-add-files files))
-    (error (format "Not a Dired buffer \(%s\)" major-mode))))
-#+end_src
 * LSP
 
 
@@ -5246,7 +5225,7 @@ https://gist.github.com/justinhj/5945047
   :hook (
           ;; (python-mode . lsp-deferred)
          (c++-mode . vi/setup-c++-lsp)
-         (lsp-mode . lsp-enable-which-key-integration)
+         ;; (lsp-mode . lsp-enable-which-key-integration)
          ;; (lsp-mode . lsp-treemacs-sync-mode)
          )
   :commands (lsp lsp-deferred))
@@ -5744,8 +5723,73 @@ In fact, sh-set-shell already has advice ~doom-shut-up-a~ around it
 
 ** dired
 
-- [ ] todo: add hydra
+- [X] todo: add hydra
 - See dired-subtree [https://github.com/Fuco1/dired-hacks#dired-subtree] and dired-sidebar [https://github.com/jojojames/dired-sidebar]
+
+
+
+*** dired git info/log
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! dired-git-log :recipe (:host github :repo "amno1/dired-git-log"))
+#+end_src
+
+doesn't work well with subtree inserts
+
+#+begin_src emacs-lisp
+;; (add-hook 'dired-after-readin-hook 'dired-git-log-mode)
+#+end_src
+
+*** COMMENT dired-git
+doesn't seem to do anything!
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! dired-git)
+#+end_src
+
+*** Stage files from dired
+
++TODO: Use https://github.com/conao3/dired-git.el instead for the git portion of+
++this. I wonder if it will also "just" work for the yadm case if I'm using+
++/yadm:: dired via tramp+ <-- this sucks
+
+https://gist.github.com/justinhj/5945047
+#+begin_src emacs-lisp
+
+(defun git-add-files(files)
+  "Run git add with the input file"
+  (shell-command (format "git add %s" files)))
+
+(defun yadm-add-files(files)
+  "Run git add with the input file"
+  (let ((default-directory "~/"))
+    (shell-command (format "yadm add %s" files))))
+
+(defun dired-git-add-marked-files()
+  "For each marked file in a dired buffer add it to the index"
+  (interactive)
+  (if (eq major-mode 'dired-mode)
+      (let ((filenames (dired-get-marked-files))
+	    (files ""))
+	(dolist (fn filenames)
+	  (setq fn (shell-quote-argument fn))
+	  (setq files (concat files " " fn)))
+	(git-add-files files))
+    (error (format "Not a Dired buffer \(%s\)" major-mode))))
+
+(defun dired-yadm-add-marked-files()
+  "For each marked file in a dired buffer add it to the index"
+  (interactive)
+  (if (eq major-mode 'dired-mode)
+      (let ((filenames (dired-get-marked-files))
+	    (files ""))
+	(dolist (fn filenames)
+	  (setq fn (shell-quote-argument fn))
+	  (setq files (concat files " " fn)))
+	(yadm-add-files files))
+    (error (format "Not a Dired buffer \(%s\)" major-mode))))
+#+end_src
 
 
 *** subtree
@@ -5831,7 +5875,6 @@ https://old.reddit.com/r/emacs/comments/imy9f1/all_the_icons_dired_subtree/
 		  '(".*" "\\`.+\\'" "/ssh:%h:"))))
 #+end_src
 
-
 *** hydra
 
 #+begin_src emacs-lisp
@@ -5843,10 +5886,11 @@ https://old.reddit.com/r/emacs/comments/imy9f1/all_the_icons_dired_subtree/
       ("C" dired-do-copy "Copy")        ;; Copy all marked files
       ("D" dired-do-delete "Delete")
       ("R" dired-do-rename "mv")
-      ("$" diredp-hide-subdir-nomove "hide-subdir")
+      ("$" dired-hide-subdir-nomove "hide-subdir")
       ("i" dired-maybe-insert-subdir "insert subdir")
       ("w" dired-kill-subdir "kill subdir")
       ("M-d" vi/dired-popup-dragon "Drag with dragon")
+       ("a" dired-git-add-marked-files "Git add")
       )
      "view"
      (
@@ -5862,8 +5906,8 @@ https://old.reddit.com/r/emacs/comments/imy9f1/all_the_icons_dired_subtree/
       ("(" dired-hide-details-mode "details")
       (")" dired-omit-mode "omit-mode")
       ("s" dired-sort-toggle-or-edit "sort")
-      ("?" dired-summary "summary")
-      ("l" dired-do-redisplay "redisplay")   ;; relist the marked or singel directory
+       ;; ("?" dired-summary "summary")
+      ;; ("l" dired-do-redisplay "redisplay")   ;; relist the marked or singel directory
       )
      "mark"
      (
@@ -5882,7 +5926,7 @@ https://old.reddit.com/r/emacs/comments/imy9f1/all_the_icons_dired_subtree/
       ("L" dired-do-symlink "symlink")
       ("M" dired-do-chmod "chmod")
       ("G" dired-do-chgrp "chgrp")
-         ("S" dired-toggle-sudo "SUDO")
+       ("S" dired-toggle-sudo "SUDO")
       )
      )
     )

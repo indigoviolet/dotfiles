@@ -138,7 +138,7 @@
       make-backup-files t)
 
 ;; Disable exit confirmation.
-(setq confirm-kill-emacs t)
+(setq confirm-kill-emacs nil)
 
 ;; indent anywhere, no completion on tab
 (setq tab-always-indent t)
@@ -173,9 +173,6 @@
 (setq switch-to-buffer-obey-display-actions t)
 
 (global-git-gutter-mode t)
-(tab-bar-mode t)
-(tab-bar-history-mode t)
-(tab-line-mode t)
 
 ;; (repeat-mode 1)
 
@@ -193,7 +190,7 @@
 ;; [[file:config.org::*uniquify][uniquify:1]]
 (setq! uniquify-buffer-name-style 'post-forward
   uniquify-after-kill-buffer-p t
-  uniquify-min-dir-content 0
+  uniquify-min-dir-content 3
   uniquify-separator " | "
   uniquify-strip-common-prefix t)
 ;; uniquify:1 ends here
@@ -586,10 +583,6 @@
 (custom-set-faces! '(pulsar-red :background "red"))
 ;; pulsar:2 ends here
 
-;; [[file:config.org::*centered][centered:2]]
-(global-centered-cursor-mode)
-;; centered:2 ends here
-
 
 
 ;; Does this make things faster?
@@ -597,63 +590,6 @@
 ;; [[file:config.org::*font lock][font lock:1]]
 (setq font-lock-maximum-decoration nil)
 ;; font lock:1 ends here
-
-;; [[file:config.org::*tabs][tabs:1]]
-(tab-bar-mode 1)                           ;; enable tab bar
-(global-tab-line-mode t)
-(setq tab-bar-show t)
-(setq tab-bar-close-button-show nil)       ;; hide tab close / X button
-(setq tab-bar-new-button-show nil)       ;; hide tab close / X button
-(setq tab-bar-tab-hints nil)                 ;; show tab numbers
-(setq tab-bar-format '(tab-bar-format-tabs tab-bar-separator))
-(setq tab-bar-auto-width nil)
-
-(setq tab-line-close-button-show nil)       ;; hide tab close / X button
-(setq tab-line-new-button-show nil)       ;; hide tab close / X button
-;; tabs:1 ends here
-
-
-
-;; https://github.com/alphapapa/bufler.el/issues/84
-
-;; - [] filter out hidden buffers and special tabs?
-;; - [] cycle?
-;; - wrap bufler's tabs function to be stable?
-
-
-;; [[file:config.org::*switching tabs][switching tabs:1]]
-(defun vi/tab-line-first-buffer ()
-  (seq-first (bufler-workspace-buffers)))
-
-(defun vi/tab-line-last-buffer ()
-  (let* (
-          (bufs (bufler-workspace-buffers))
-          (len (seq-length bufs))
-          )
-    (seq-elt bufs (- len 1))))
-
-;; these select the first/last buffer on the tab-line of the next tab so that bufler-tabs-mode won't revert back
-(defun vi/next-tab ()
-  (interactive)
-  (progn (tab-bar-switch-to-next-tab) (switch-to-buffer (vi/tab-line-first-buffer))))
-
-(defun vi/prev-tab ()
-  (interactive)
-  (progn (tab-bar-switch-to-next-tab) (switch-to-buffer (vi/tab-line-last-buffer))))
-
-;; these switch to the next buffer on the tab-line and then to the next tab when the last tab-line buffer is reached
-(defun vi/next-tab-buffer ()
-  (interactive)
-  (if (eq (current-buffer) (vi/tab-line-last-buffer))
-    (vi/next-tab)
-    (tab-line-switch-to-next-tab)))
-
-(defun vi/prev-tab-buffer ()
-  (interactive)
-  (if (eq (current-buffer) (vi/tab-line-first-buffer))
-    (vi/prev-tab)
-    (tab-line-switch-to-prev-tab)))
-;; switching tabs:1 ends here
 
 ;; [[file:config.org::*highlights][highlights:2]]
 (volatile-highlights-mode -1)
@@ -1117,7 +1053,7 @@ message listing the hooks."
       )
     )
   :config
-  (bufler-workspace-tabs-mode)
+  ;; (bufler-workspace-tabs-mode)
 
   ;; Note: tab-bar doesn't always update immediately
   (add-hook! '(doom-switch-buffer-hook doom-switch-window-hook consult-after-jump-hook)
@@ -1619,8 +1555,10 @@ message listing the hooks."
 
 ;; [[file:config.org::*embark][embark:1]]
 (after! embark
+  ;; since we disabled which-key
+  (advice-remove 'embark-completing-read-prompter '+vertico--embark-which-key-prompt-a)
   ;; try out embark-mixed-indicator which is more verbose than embark-which-key-indicator
-  (setq! embark-indicators '(embark--vertico-indicator embark-mixed-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
+  (setq! embark-indicators '(embark--vertico-indicator embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
   )
 ;; embark:1 ends here
 
@@ -1736,19 +1674,38 @@ message listing the hooks."
 
 ;; [[file:config.org::*Orderless][Orderless:1]]
 (after! orderless
+  ;; https://github.com/minad/consult/issues/237
+  (defun consult-basic-all-completions (string table pred _point)
+    ;; Ignore the disambiguation prefix
+    (let ((completion-regexp-list (list (concat "\\`[\x100000-\x10FFFD]*" (regexp-quote string)))))
+      (all-completions "" table pred)))
+
+  (defun consult-basic-try-completion (string table pred _point)
+    ;; Ignore the disambiguation prefix
+    (let ((completion-regexp-list (list (concat "\\`[\x100000-\x10FFFD]*" (regexp-quote string)))))
+      (try-completion "" table pred)))
+
+  (add-to-list 'completion-styles-alist
+    '(consult-basic
+       consult-basic-try-completion consult-basic-all-completions
+       "Consult-compatible basic completion."))
+
+
   ;; (orderless-define-completion-style orderless+initialism
   ;;   (orderless-matching-styles '(orderless-initialism orderless-literal orderless-regexp)))
   (setq completion-styles '(orderless)
     completion-category-defaults nil
     completion-category-overrides
-    '((file (styles partial-completion));; orderless+initialism))
+    '((file (styles partial-completion))  ;; orderless+initialism))
+       (consult-location (styles consult-basic)) ;consult-line
        ;; (buffer (styles orderless+initialism))
        ;; (consult-multi (styles orderless+initialism))
        ;; (command (styles orderless+initialism))
        ;; (variable (styles orderless+initialism))
        ;; (symbol (styles orderless+initialism))
        )
-    orderless-matching-styles '(orderless-literal orderless-regexp)))
+    orderless-matching-styles '(orderless-literal orderless-regexp))
+  )
 
 (after! vertico
   (defun vi/match-components-literally ()
@@ -1994,13 +1951,6 @@ cleared, make sure the overlay doesn't come back too soon."
   (wgrep-auto-save-buffer t)
   )
 ;; wgrep:2 ends here
-
-;; [[file:config.org::*Which-key][Which-key:1]]
-;; Allow C-h to trigger which-key before it is done automatically
-(after! which-key
-  (setq which-key-show-early-on-C-h t)
-  )
-;; Which-key:1 ends here
 
 ;; [[file:config.org::*Hydra][Hydra:2]]
 (after! major-mode-hydra
@@ -2640,7 +2590,9 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   (remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
 
   ;; This actually doesn't work with popper because it restores it to the old format
-  (add-hook! 'vterm-mode-hook (doom-modeline-set-modeline 'vi/vterm)))
+  (add-hook! 'vterm-mode-hook (doom-modeline-set-modeline 'vi/vterm)
+    ;; (centered-cursor-mode -1)
+    ))
 
 ;; (defun vi/vterm-copy ()
 ;; ;; shows in the misc-info segment
@@ -2901,49 +2853,6 @@ Results are reported in a compilation buffer."
     (recursive-edit)))
 ;; Another method, setting git flags:1 ends here
 
-
-
-;; TODO: Use https://github.com/conao3/dired-git.el instead for the git portion of
-;; this. I wonder if it will also "just" work for the yadm case if I'm using
-;; /yadm:: dired via tramp
-
-;; https://gist.github.com/justinhj/5945047
-
-;; [[file:config.org::*Stage files from dired][Stage files from dired:1]]
-(defun git-add-files(files)
-  "Run git add with the input file"
-  (shell-command (format "git add %s" files)))
-
-(defun yadm-add-files(files)
-  "Run git add with the input file"
-  (let ((default-directory "~/"))
-    (shell-command (format "yadm add %s" files))))
-
-(defun dired-git-add-marked-files()
-  "For each marked file in a dired buffer add it to the index"
-  (interactive)
-  (if (eq major-mode 'dired-mode)
-      (let ((filenames (dired-get-marked-files))
-	    (files ""))
-	(dolist (fn filenames)
-	  (setq fn (shell-quote-argument fn))
-	  (setq files (concat files " " fn)))
-	(git-add-files files))
-    (error (format "Not a Dired buffer \(%s\)" major-mode))))
-
-(defun dired-yadm-add-marked-files()
-  "For each marked file in a dired buffer add it to the index"
-  (interactive)
-  (if (eq major-mode 'dired-mode)
-      (let ((filenames (dired-get-marked-files))
-	    (files ""))
-	(dolist (fn filenames)
-	  (setq fn (shell-quote-argument fn))
-	  (setq files (concat files " " fn)))
-	(yadm-add-files files))
-    (error (format "Not a Dired buffer \(%s\)" major-mode))))
-;; Stage files from dired:1 ends here
-
 ;; [[file:config.org::*LSP][LSP:1]]
 (use-package! lsp-mode
   :init
@@ -3026,7 +2935,7 @@ Results are reported in a compilation buffer."
   :hook (
           ;; (python-mode . lsp-deferred)
          (c++-mode . vi/setup-c++-lsp)
-         (lsp-mode . lsp-enable-which-key-integration)
+         ;; (lsp-mode . lsp-enable-which-key-integration)
          ;; (lsp-mode . lsp-treemacs-sync-mode)
          )
   :commands (lsp lsp-deferred))
@@ -3164,6 +3073,58 @@ Results are reported in a compilation buffer."
 (add-hook! '(typescript-mode-hook rjsx-mode-hook) #'add-node-modules-path)
 ;; Javascript/Typescript:2 ends here
 
+
+
+;; doesn't work well with subtree inserts
+
+
+;; [[file:config.org::*dired git info/log][dired git info/log:2]]
+;; (add-hook 'dired-after-readin-hook 'dired-git-log-mode)
+;; dired git info/log:2 ends here
+
+
+
+;; +TODO: Use https://github.com/conao3/dired-git.el instead for the git portion of+
+;; +this. I wonder if it will also "just" work for the yadm case if I'm using+
+;; +/yadm:: dired via tramp+ <-- this sucks
+
+;; https://gist.github.com/justinhj/5945047
+
+;; [[file:config.org::*Stage files from dired][Stage files from dired:1]]
+(defun git-add-files(files)
+  "Run git add with the input file"
+  (shell-command (format "git add %s" files)))
+
+(defun yadm-add-files(files)
+  "Run git add with the input file"
+  (let ((default-directory "~/"))
+    (shell-command (format "yadm add %s" files))))
+
+(defun dired-git-add-marked-files()
+  "For each marked file in a dired buffer add it to the index"
+  (interactive)
+  (if (eq major-mode 'dired-mode)
+      (let ((filenames (dired-get-marked-files))
+	    (files ""))
+	(dolist (fn filenames)
+	  (setq fn (shell-quote-argument fn))
+	  (setq files (concat files " " fn)))
+	(git-add-files files))
+    (error (format "Not a Dired buffer \(%s\)" major-mode))))
+
+(defun dired-yadm-add-marked-files()
+  "For each marked file in a dired buffer add it to the index"
+  (interactive)
+  (if (eq major-mode 'dired-mode)
+      (let ((filenames (dired-get-marked-files))
+	    (files ""))
+	(dolist (fn filenames)
+	  (setq fn (shell-quote-argument fn))
+	  (setq files (concat files " " fn)))
+	(yadm-add-files files))
+    (error (format "Not a Dired buffer \(%s\)" major-mode))))
+;; Stage files from dired:1 ends here
+
 ;; [[file:config.org::*subtree][subtree:1]]
 (after! dired
   (map! :map dired-mode-map
@@ -3232,10 +3193,11 @@ Results are reported in a compilation buffer."
       ("C" dired-do-copy "Copy")        ;; Copy all marked files
       ("D" dired-do-delete "Delete")
       ("R" dired-do-rename "mv")
-      ("$" diredp-hide-subdir-nomove "hide-subdir")
+      ("$" dired-hide-subdir-nomove "hide-subdir")
       ("i" dired-maybe-insert-subdir "insert subdir")
       ("w" dired-kill-subdir "kill subdir")
       ("M-d" vi/dired-popup-dragon "Drag with dragon")
+       ("a" dired-git-add-marked-files "Git add")
       )
      "view"
      (
@@ -3251,8 +3213,8 @@ Results are reported in a compilation buffer."
       ("(" dired-hide-details-mode "details")
       (")" dired-omit-mode "omit-mode")
       ("s" dired-sort-toggle-or-edit "sort")
-      ("?" dired-summary "summary")
-      ("l" dired-do-redisplay "redisplay")   ;; relist the marked or singel directory
+       ;; ("?" dired-summary "summary")
+      ;; ("l" dired-do-redisplay "redisplay")   ;; relist the marked or singel directory
       )
      "mark"
      (
@@ -3271,7 +3233,7 @@ Results are reported in a compilation buffer."
       ("L" dired-do-symlink "symlink")
       ("M" dired-do-chmod "chmod")
       ("G" dired-do-chgrp "chgrp")
-         ("S" dired-toggle-sudo "SUDO")
+       ("S" dired-toggle-sudo "SUDO")
       )
      )
     )

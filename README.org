@@ -160,11 +160,12 @@ looks good on paper, but has some unresolved issues
 - seems to be larger than the screen on my display
 - installing from source didn't work
 
-* asdf v. brew
 
-- some of the plugins are not reliable (eg. jq plugin), plus there is no Brewfile counterpart
-- prefer brew for now, except for nodenv/pyenv replacements and things that can't be installed by brew:
-- python, nodejs, yarn, poetry
+* Issues:
+
+- Homebrew segmentation fault
+  https://github.com/Homebrew/homebrew-core/issues/116841#issuecomment-1409812549
+
 
 * Mac
 

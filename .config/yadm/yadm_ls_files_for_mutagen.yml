@@ -71,6 +71,7 @@
 - '!.config/direnv/direnv.toml'
 - '!.config/direnv/lib/00-disable.sh'
 - '!.config/direnv/lib/05-cache.sh'
+- '!.config/direnv/lib/05-layout_conda.sh'
 - '!.config/direnv/lib/05-layout_poetry.sh'
 - '!.config/doom/config.el'
 - '!.config/doom/config.org'
@@ -169,3 +170,4 @@
 - '!.zshenv'
 - '!.zshrc##t'
 - '!README.org'
+- '!dev.justfile'

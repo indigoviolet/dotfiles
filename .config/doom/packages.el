@@ -80,6 +80,8 @@
 ;; magit-todos: was slow on the startup, unused
 (disable-packages! magit-todos)
 (disable-packages! which-key)
+(disable-packages! dired-git-info)
+
 
 ;; updates to a version that has org-store-link compatibility instead of 6633d82c6e3c921c486ec284cb6542f33278b605
 (unpin! helpful)
@@ -169,10 +171,6 @@
 ;; [[file:config.org::*pulsar][pulsar:1]]
 (package! pulsar)
 ;; pulsar:1 ends here
-
-;; [[file:config.org::*centered][centered:1]]
-(package! centered-cursor-mode)
-;; centered:1 ends here
 
 ;; [[file:config.org::*highlights][highlights:1]]
 (package! goggles :recipe (:host github :repo "minad/goggles"))
@@ -475,6 +473,10 @@
 ;; [[file:config.org::*Javascript/Typescript][Javascript/Typescript:1]]
 (package! add-node-modules-path :recipe (:host github :repo "codesuki/add-node-modules-path"))
 ;; Javascript/Typescript:1 ends here
+
+;; [[file:config.org::*dired git info/log][dired git info/log:1]]
+(package! dired-git-log :recipe (:host github :repo "amno1/dired-git-log"))
+;; dired git info/log:1 ends here
 
 ;; [[file:config.org::*sidebar][sidebar:1]]
 (package! dired-sidebar)

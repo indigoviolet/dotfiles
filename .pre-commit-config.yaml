@@ -14,7 +14,7 @@ repos:
       - id: yadm_ls_files_for_mutagen
         name: yadm_ls_files_for_mutagen
         language: system
-        entry: just yadm_ls_files_for_mutagen
+        entry: just --unstable yadm_ls_files_for_mutagen
         always_run: true
         exclude: "."
   - repo: https://github.com/pre-commit/pre-commit-hooks

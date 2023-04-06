@@ -118,6 +118,7 @@ sync:
         - '!.config/direnv/direnv.toml'
         - '!.config/direnv/lib/00-disable.sh'
         - '!.config/direnv/lib/05-cache.sh'
+        - '!.config/direnv/lib/05-layout_conda.sh'
         - '!.config/direnv/lib/05-layout_poetry.sh'
         - '!.config/doom/config.el'
         - '!.config/doom/config.org'
@@ -149,6 +150,7 @@ sync:
         - '!.config/yadm/ondemand/docker.org'
         - '!.config/yadm/ondemand/docker.sh##distro.Ubuntu,e.sh'
         - '!.config/yadm/start.sh'
+        - '!.config/yadm/yadm_ls_files_for_mutagen.yml'
         - '!.dir-locals.el'
         - '!.editorconfig'
         - '!.emacs-profiles.el'
@@ -215,15 +217,16 @@ sync:
         - '!.zshenv'
         - '!.zshrc##t'
         - '!README.org'
+        - '!dev.justfile'
 
-  yadm-gcp:
-    alpha: "/home/venky/"
-    beta: "venky@deeplearning-1-vm.us-central1-c.instant-venky:/home/venky/"
-    ignore:
-      paths:
-        - "/*"
-        # note this must be on oneline to prevent newlines from being injected
-        - '!.config'
+  # yadm-gcp:
+  #   alpha: "/home/venky/"
+  #   beta: "venky@deeplearning-1-vm.us-central1-c.instant-venky:/home/venky/"
+  #   ignore:
+  #     paths:
+  #       - "/*"
+  #       # note this must be on oneline to prevent newlines from being injected
+  #       - '!.config'
         - .config/*
         - '!.config/TabNine'
         - .config/TabNine/*
@@ -296,6 +299,7 @@ sync:
         - '!.config/direnv/direnv.toml'
         - '!.config/direnv/lib/00-disable.sh'
         - '!.config/direnv/lib/05-cache.sh'
+        - '!.config/direnv/lib/05-layout_conda.sh'
         - '!.config/direnv/lib/05-layout_poetry.sh'
         - '!.config/doom/config.el'
         - '!.config/doom/config.org'
@@ -327,6 +331,7 @@ sync:
         - '!.config/yadm/ondemand/docker.org'
         - '!.config/yadm/ondemand/docker.sh##distro.Ubuntu,e.sh'
         - '!.config/yadm/start.sh'
+        - '!.config/yadm/yadm_ls_files_for_mutagen.yml'
         - '!.dir-locals.el'
         - '!.editorconfig'
         - '!.emacs-profiles.el'
@@ -393,6 +398,7 @@ sync:
         - '!.zshenv'
         - '!.zshrc##t'
         - '!README.org'
+        - '!dev.justfile'
 
 
 # Local Variables:
