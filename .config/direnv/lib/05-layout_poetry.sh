@@ -29,7 +29,7 @@ layout_poetry() {
   #
   #
   # This prints out the same info as `poetry env info --path`
-  local VENV="$(poetry env use $(asdf which python) -v --no-ansi | awk '{print $3}')"
+  local VENV="$(poetry env use $(rtx which python) -v --no-ansi | awk '{print $3}')"
 
   if [[ -z $VENV || ! -d $VENV/bin ]]; then
     log_error "No created poetry virtual environment found.  Use 'poetry install' to create one first. (venv=$VENV or $VENV/bin not found)"

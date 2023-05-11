@@ -1,6 +1,4 @@
 # Poetry
-path+=$(asdf where poetry)/bin
-
 function make_easy_install_pth () {
     # Workaround to add an easy-install.pth file for all "poetry
     # develop = true" editable installs so mypy can follow

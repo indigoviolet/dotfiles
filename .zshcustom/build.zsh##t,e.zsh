@@ -27,7 +27,7 @@ export CC="$(brew --prefix gcc)/bin/gcc-12"
 
 export MAKEFLAGS="-j $(nproc)"
 
-# PIPX_DEFAULT_PYTHON: see `pipx install -h`. By default this is a vendored Python, we use it from asdf
-export PIPX_DEFAULT_PYTHON=$HOME/.asdf/shims/python
+# PIPX_DEFAULT_PYTHON: see `pipx install -h`. By default this is a vendored Python, we use it from rtx
+export PIPX_DEFAULT_PYTHON=$(rtx where python@3.9.12)/bin/python
 
 {% endif %}
