@@ -238,11 +238,24 @@
 
 ;; [[file:config.org::*Kill/Yank/Mark regions][Kill/Yank/Mark regions:1]]
 ;; (package! hungry-delete)
-(package! easy-kill :recipe (:host github :repo "leoliu/easy-kill"))
-(package! easy-kill-extras)
-(package! expand-region)
-(package! multiple-cursors)
 ;; Kill/Yank/Mark regions:1 ends here
+
+;; [[file:config.org::*visible mark][visible mark:1]]
+(package! visible-mark)
+;; visible mark:1 ends here
+
+;; [[file:config.org::*expand region][expand region:1]]
+(package! expand-region)
+;; expand region:1 ends here
+
+;; [[file:config.org::*easy-kill base][easy-kill base:1]]
+(package! easy-kill :recipe (:host github :repo "leoliu/easy-kill"))
+;; easy-kill base:1 ends here
+
+;; [[file:config.org::*easy-kill-extras][easy-kill-extras:1]]
+(package! easy-kill-extras)
+(package! multiple-cursors)
+;; easy-kill-extras:1 ends here
 
 
 ;; https://github.com/NicholasBHubbard/clean-kill-ring.el
@@ -251,6 +264,10 @@
 ;; [[file:config.org::*clean-kill-ring][clean-kill-ring:1]]
 (package! clean-kill-ring :recipe (:host github :repo "NicholasBHubbard/clean-kill-ring.el"))
 ;; clean-kill-ring:1 ends here
+
+;; [[file:config.org::*move-text][move-text:1]]
+(package! move-text)
+;; move-text:1 ends here
 
 ;; [[file:config.org::*vundo][vundo:1]]
 (package! vundo :recipe (:host github :repo "casouri/vundo"))
@@ -280,6 +297,15 @@
 ;; [[file:config.org::*separedit][separedit:1]]
 (package! separedit)
 ;; separedit:1 ends here
+
+
+
+;; Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact badly with org-indent-modern
+
+
+;; [[file:config.org::*Guides][Guides:1]]
+(package! highlight-indent-guides)
+;; Guides:1 ends here
 
 ;; [[file:config.org::*Movement][Movement:1]]
 (package! mwim)
@@ -334,10 +360,6 @@
 (package! outline-minor-faces :recipe (:host github :repo "tarsius/outline-minor-faces"))
 ;; outline faces:1 ends here
 
-;; [[file:config.org::*outli][outli:1]]
-(package! outli :recipe (:host github :repo "jdtsmith/outli"))
-;; outli:1 ends here
-
 ;; [[file:config.org::*Tabnine][Tabnine:1]]
 (package! company-tabnine)
 ;; Tabnine:1 ends here
@@ -353,6 +375,10 @@
 (package! copilot
   :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))
 ;; original package:1 ends here
+
+;; [[file:config.org::*chatgpt shell][chatgpt shell:1]]
+(package! chatgpt-shell)
+;; chatgpt shell:1 ends here
 
 ;; [[file:config.org::*Iedit][Iedit:1]]
 (package! iedit)
@@ -433,7 +459,8 @@
 ;; Github flavored Markdown:1 ends here
 
 ;; [[file:config.org::*ein][ein:1]]
-(package! ein :pin "6063cee")
+;; (package! ein :pin "6063cee")           ;dec 25 2021 - previous working version
+(package! ein :pin "87f4448")           ;apr 26 2023
 ;; ein:1 ends here
 
 ;; [[file:config.org::*vterm][vterm:1]]
@@ -473,6 +500,10 @@
 ;; [[file:config.org::*Javascript/Typescript][Javascript/Typescript:1]]
 (package! add-node-modules-path :recipe (:host github :repo "codesuki/add-node-modules-path"))
 ;; Javascript/Typescript:1 ends here
+
+;; [[file:config.org::*dirvish][dirvish:1]]
+(package! dirvish)
+;; dirvish:1 ends here
 
 ;; [[file:config.org::*dired git info/log][dired git info/log:1]]
 (package! dired-git-log :recipe (:host github :repo "amno1/dired-git-log"))

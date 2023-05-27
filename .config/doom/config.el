@@ -64,6 +64,7 @@
 (setq! modus-themes-common-palette-overrides
   '(
      ;;(bg-region bg-dim)
+
      (fg-region unspecified)
      (border-mode-line-active unspecified)
      (border-mode-line-inactive unspecified)
@@ -75,12 +76,15 @@
      (bg-paren-match bg-magenta-intense)
      (prose-done green-intense)
      (prose-todo red-intense)
+
+     ;; headings
+     (fg-heading-1 fg-main)
+     (bg-heading-1 bg-dim)
+     (overline-heading-1 border)
+
      )
   )
 (setq doom-theme 'modus-vivendi-tinted)
-(custom-set-faces!
-  '(highlight-indent-guides-character-face :foreground "#2b3045")
-  )
 ;; modus:2 ends here
 
 
@@ -249,10 +253,12 @@
 
 ;; [[file:config.org::*persistent scratch][persistent scratch:2]]
 (use-package! persistent-scratch
-    :after-call doom-first-buffer-hook
-    :config
-    (persistent-scratch-setup-default)
-    )
+  :after-call doom-first-buffer-hook
+  :custom
+  (persistent-scratch-save-file (concat doom-emacs-dir "persistent-scratch"))
+  :config
+  (persistent-scratch-setup-default)
+  )
 ;; persistent scratch:2 ends here
 
 ;; [[file:config.org::*backups][backups:1]]
@@ -522,7 +528,8 @@
   (vi-rainbow-identifiers--define-faces)
 
   :hook
-  (prog-mode . rainbow-identifiers-mode)
+  ((prog-mode . rainbow-identifiers-mode)
+  (yaml-mode . rainbow-identifiers-mode))
   )
 ;; Rainbow:2 ends here
 
@@ -605,7 +612,7 @@
     (setq show-paren-priority -25)
     (setq show-paren-delay 0.5)
     (custom-set-faces!
-      ;; these are modus operandi themes
+      ;; these are modus operandi faces
       '(show-paren-match :inherit bg-paren-match)
       '(show-paren-match-expression :inherit bg-paren-expression)
       '(show-paren-mismatch :weight bold :underline t :slant normal)
@@ -738,7 +745,7 @@ message listing the hooks."
     show-help-function nil
     ;; doom-modeline-icon nil
     ;; doom-modeline-major-mode-color-icon nil
-    doom-modeline-persp-name t)
+    doom-modeline-persp-name nil)
 
   (doom-modeline-def-segment purpose
     ;; Purpose-mode segment
@@ -754,7 +761,7 @@ message listing the hooks."
     "Recursive-edit depth indicator. Used in yadm-status"
     (let ((rd (recursion-depth)))
       (when (> rd 0)
-        (concat doom-modeline-spc
+        (concat (doom-modeline-spc)
           (propertize
             (concat
               " "
@@ -772,15 +779,15 @@ message listing the hooks."
   ;; doom-modeline. other names don't seem to take effect as default..
   (doom-modeline-def-modeline 'main
     '(bar buffer-info-simple selection-info remote-host checker recursion-depth)
-    '(debug repl process lsp persp-name minor-modes major-mode misc-info vcs))
+    '(debug repl process lsp minor-modes major-mode misc-info vcs))
 
   (doom-modeline-def-modeline 'org-src
     '(bar buffer-info-simple selection-info checker)
-    '(debug lsp persp-name minor-modes major-mode))
+    '(debug lsp minor-modes major-mode))
 
   (doom-modeline-def-modeline 'vcs
     '(bar buffer-info-simple selection-info remote-host recursion-depth)
-    '( debug github process persp-name minor-modes major-mode misc-info vcs))
+    '( debug github process minor-modes major-mode misc-info vcs))
 
 
   ;; don't think we need this, since we modified 'main
@@ -1056,19 +1063,18 @@ message listing the hooks."
   ;; (bufler-workspace-tabs-mode)
 
   ;; Note: tab-bar doesn't always update immediately
-  (add-hook! '(doom-switch-buffer-hook doom-switch-window-hook consult-after-jump-hook)
-    (defun vi/bufler-workspace-focus-buffer ()
-      (when (not (eq major-mode #'minibuffer-mode))
-        ;; (message (format "Focusing %s %s" (current-buffer) (bufler-workspace-focus-buffer (current-buffer))))))
-        (bufler-workspace-focus-buffer (current-buffer))))
-    )
+  ;; (add-hook! '(doom-switch-buffer-hook doom-switch-window-hook consult-after-jump-hook)
+  ;;   (defun vi/bufler-workspace-focus-buffer ()
+  ;;     (when (not (eq major-mode #'minibuffer-mode))
+  ;;       ;; (message (format "Focusing %s %s" (current-buffer) (bufler-workspace-focus-buffer (current-buffer))))))
+  ;;       (bufler-workspace-focus-buffer (current-buffer))))
+  ;;   )
 
   :bind
   ("C-x C-b" . bufler)
   )
 
 (after! bufler
-
   (bufler-define-buffer-command revert "Revert buffer."
     (lambda (buffer)
       (when (buffer-file-name buffer)
@@ -1163,7 +1169,16 @@ message listing the hooks."
   )
 ;; Adjust for display size change:2 ends here
 
-;; [[file:config.org::*Kill/Yank/Mark regions][Kill/Yank/Mark regions:2]]
+;; [[file:config.org::*visible mark][visible mark:2]]
+(use-package! visible-mark
+  :custom
+  (visible-mark-max 1)
+  :config
+  (global-visible-mark-mode t)
+  )
+;; visible mark:2 ends here
+
+;; [[file:config.org::*expand region][expand region:2]]
 ;; (use-package! hungry-delete
 ;;   :after-call doom-first-input-hook
 ;;   :config
@@ -1172,20 +1187,56 @@ message listing the hooks."
 (use-package! expand-region
   :commands (er/mark-inside-pairs er/mark-inside-quotes er/mark-outside-pairs er/mark-outside-quotes)
   )
+;; expand region:2 ends here
 
+;; [[file:config.org::*easy-kill base][easy-kill base:2]]
 (use-package! easy-kill
   :custom
+
   ;; Used for first marking
   (easy-mark-try-things '(symbol line forward-line-edge sexp)) ;see easy-kill-alist
   (easy-kill-try-things '(symbol line forward-line-edge sexp)) ;see easy-kill-alist
   :bind (
-         ([remap kill-ring-save] . easy-kill) ; M-w
-         ([remap set-mark-command] . easy-mark) ;C-SPC
-         ;; ("M-SPC" . easy-mark)
-         )
+          ([remap kill-ring-save] . easy-kill) ; M-w
+          ;; easy-mark supposedly sets the region immediately but it breaks
+          ;; sometimes. Also doesn't use easy-kill-selection face
+          ([remap set-mark-command] . easy-mark) ;C-SPC
+
+          ;; ("M-SPC" . easy-mark)
+          )
+
+  :config
+  (custom-set-faces! '(easy-kill-selection :inherit modus-themes-mark-sel))
+
+  ;; These take arguments
+  (setq easy-kill-cycle-ignored '(string-to-char-forward string-up-to-char-forward))
+
+  ;; easy-kill/mark will cycle through things in this order (except for easy-kill-cycle-ignored)
+  (setq easy-kill-alist
+    '((?w word " ")
+       (?s symbol " ")               ;added from extras
+       ;; (?W WORD " ")
+       (?l line "\n")
+       (?< inside-pairs "");added from extras
+       (?> outside-pairs "");added from extras
+       (?\' inside-quotes "");added from extras
+       (?\" outside-quotes "");added from extras
+       (?$ forward-line-edge "")
+       (?^ backward-line-edge "")
+       (?d defun "\n\n")
+       (?b buffer "")
+       (?x sexp "\n")
+       (?L list "\n")
+       (?f string-to-char-forward "")
+       (?F string-up-to-char-forward "")
+       (?f filename "\n")
+       (?D defun-name " ")
+       (?b buffer-file-name)))
+
   )
+;; easy-kill base:2 ends here
 
-
+;; [[file:config.org::*easy-kill-extras][easy-kill-extras:2]]
 ;; Here we integrate some  expand-region marking as easy-kill candidates
 (after! easy-kill
   (use-package! easy-kill-extras
@@ -1219,7 +1270,8 @@ message listing the hooks."
     ;; if it set the region, and if so, adjusts the easy kill candidate.
     `(defun ,(intern (concat "easy-kill-on-" thing)) (_n)
          (when (vi/did-mark #',(intern (concat "er/mark-" thing)))
-           (easy-kill-adjust-candidate ',(intern thing) (mark) (point)))
+           (easy-kill-adjust-candidate ',(intern thing) (mark) (point))
+           )
     ))
 
   (vi/er-easy-kill "symbol")
@@ -1228,32 +1280,8 @@ message listing the hooks."
   (vi/er-easy-kill "inside-quotes")
   (vi/er-easy-kill "outside-quotes")
 
-  ;; These take arguments
-  (setq easy-kill-cycle-ignored '(string-to-char-forward string-up-to-char-forward))
-
-  ;; easy-mark will cycle through things in this order (expect for easy-kill-cycle-ignored)
-  (setq easy-kill-alist
-        '((?w word " ")
-          (?s symbol " ")
-          ;; (?W WORD " ")
-          (?l line "\n")
-          (?< inside-pairs "")
-          (?> outside-pairs "")
-          (?\' inside-quotes "")
-          (?\" outside-quotes "")
-          (?$ forward-line-edge "")
-          (?^ backward-line-edge "")
-          (?d defun "\n\n")
-          (?b buffer "")
-          (?x sexp "\n")
-          (?L list "\n")
-          (?f string-to-char-forward "")
-          (?F string-up-to-char-forward "")
-          (?f filename "\n")
-          (?D defun-name " ")
-          (?b buffer-file-name)))
   )
-;; Kill/Yank/Mark regions:2 ends here
+;; easy-kill-extras:2 ends here
 
 ;; [[file:config.org::*clean-kill-ring][clean-kill-ring:2]]
 (use-package! clean-kill-ring
@@ -1262,6 +1290,20 @@ message listing the hooks."
   (clean-kill-ring-mode)
   )
 ;; clean-kill-ring:2 ends here
+
+;; [[file:config.org::*move-text][move-text:2]]
+(use-package! move-text
+  :config
+  (move-text-default-bindings)          ;M-<up>, M-<down>
+
+  (remove-hook 'org-metadown-hook #'org-babel-pop-to-session-maybe)
+  (remove-hook 'org-metaup-hook #'org-babel-load-in-session-maybe)
+
+  ;; messes with moving headings
+  ;; (add-hook! 'org-metadown-hook (progn (apply #'move-text-down (move-text-get-region-and-prefix)) t))
+  ;; (add-hook! 'org-metaup-hook (progn (apply #'move-text-up (move-text-get-region-and-prefix)) t))
+  )
+;; move-text:2 ends here
 
 
 
@@ -1447,6 +1489,23 @@ message listing the hooks."
   (add-hook 'edit-indirect-before-commit-hook #'vbe:after-indirect-edit-restore-left-margin))
 ;; separedit:2 ends here
 
+;; [[file:config.org::*Guides][Guides:2]]
+(use-package! highlight-indent-guides
+  :after-call doom-first-buffer-hook
+  :custom
+  (highlight-indent-guides-auto-enabled nil)
+  (highlight-indent-guides-delay 1)
+  (highlight-indent-guides-method 'bitmap)
+  :config
+  :hook (prog-mode . highlight-indent-guides-mode)
+  )
+
+(add-hook! highlight-indent-guides-mode
+  (custom-set-faces!
+    '(highlight-indent-guides-character-face :foreground "#2b3045") ;bg-inactive
+    ))
+;; Guides:2 ends here
+
 ;; [[file:config.org::*Shift regions][Shift regions:1]]
 ;; Shift the selected region right if distance is postive, left if
 ;; negative
@@ -1572,29 +1631,32 @@ message listing the hooks."
   (defun embark-target-this-buffer-file ()
     (cons 'this-buffer-file (or (buffer-file-name) (buffer-name))))
 
-   (add-to-list 'embark-target-finders #'embark-target-this-buffer-file 'append)
+  (add-to-list 'embark-target-finders #'embark-target-this-buffer-file 'append)
 
-   (add-to-list 'embark-keymap-alist '(this-buffer-file . this-buffer-file-map))
+  (add-to-list 'embark-keymap-alist '(this-buffer-file . this-buffer-file-map))
 
-   (embark-define-keymap this-buffer-file-map
-         "Commands to act on current file or buffer."
-         ("l" load-file)
-         ("b" byte-compile-file)
-         ;; ("S" sudo-find-file)
-         ;; ("U" 0x0-upload)
-         ;; ("r" rename-file-and-buffer)
-         ;; ("d" diff-buffer-with-file)
-         ("=" ediff-buffers)
-         ("C-=" ediff-files)
-         ("!" shell-command)
-         ("&" async-shell-command)
-         ("x" consult-file-externally)
-         ;; ("C-a" mml-attach-file)
-         ("c" copy-file)
-         ("k" kill-buffer)
-         ("z" bury-buffer)
-         ("|" embark-shell-command-on-buffer)
-         ("g" revert-buffer)))
+  (defvar-keymap this-buffer-file-map
+    :doc"Commands to act on current file or buffer."
+    :parent embark-general-map
+    "l" #'load-file
+    "b" #'byte-compile-file
+    ;; ("S" sudo-find-file)
+    ;; ("U" 0x0-upload)
+    ;; ("r" rename-file-and-buffer)
+    ;; ("d" diff-buffer-with-file)
+    "=" #'ediff-buffers
+    "C-=" #'ediff-files
+    "!" #'shell-command
+    "&" #'async-shell-command
+    "x" #'consult-file-externally
+    ;; ("C-a" mml-attach-file)
+    "c" #'copy-file
+    "k" #'kill-buffer
+    "z" #'bury-buffer
+    "|" #'embark-shell-command-on-buffer
+    "g" #'revert-buffer
+    )
+  )
 ;; targets for buffer/file:1 ends here
 
 
@@ -1697,7 +1759,7 @@ message listing the hooks."
     completion-category-defaults nil
     completion-category-overrides
     '((file (styles partial-completion))  ;; orderless+initialism))
-       (consult-location (styles consult-basic)) ;consult-line
+       ;; (consult-location (styles consult-basic)) ;consult-line
        ;; (buffer (styles orderless+initialism))
        ;; (consult-multi (styles orderless+initialism))
        ;; (command (styles orderless+initialism))
@@ -1733,18 +1795,15 @@ message listing the hooks."
   )
 ;; Narrowing:2 ends here
 
-
-;; - bicycle doesn't seem to do anything more than outline-cycle and outline-cycle-buffer
-
-
-;; [[file:config.org::*outline][outline:1]]
+;; [[file:config.org::*outline faces][outline faces:2]]
 (use-package! outline
   :custom
   (outline-minor-mode-cycle t)
+  (outline-minor-mode-use-buttons t)
   :after-call doom-first-buffer-hook
-  :hook (
-         (prog-mode . outline-minor-mode)
-         )
+  ;; :hook (
+  ;;         (prog-mode . outline-minor-mode)
+  ;;        )
   :bind (:map outline-minor-mode-map
          ([C-tab] . outline-cycle)
          ("C-<iso-lefttab>" . outline-hide-other) ;C-S-<tab>
@@ -1759,7 +1818,7 @@ message listing the hooks."
    (let ((face-offset (* (face-id 'shadow) (lsh 1 22))))
      (vconcat (mapcar (lambda (c) (+ face-offset c)) " ➤"))))
   )
-;; outline:1 ends here
+;; outline faces:2 ends here
 
 
 
@@ -1768,10 +1827,6 @@ message listing the hooks."
 ;; [[file:config.org::*Python][Python:1]]
 (setq-hook! 'python-mode-hook outline-regexp (python-rx (* space) (or defun decorator)))
 ;; Python:1 ends here
-
-;; [[file:config.org::*outli][outli:2]]
-
-;; outli:2 ends here
 
 ;; [[file:config.org::*Tabnine][Tabnine:2]]
 (use-package! company-tabnine
@@ -1826,20 +1881,18 @@ message listing the hooks."
   :after corfu
   :config
   (require 'company)
-  (defalias 'vi/cape-tabnine+yankpad (cape-capf-buster (cape-company-to-capf (apply-partially #'company--multi-backend-adapter
-                                                                               '( ;;company-tabnine
-                                                                                  company-yankpad)))))
+  (defalias 'vi/cape-yankpad (cape-capf-buster (cape-company-to-capf #'company-yankpad)))
+
+                        ;; (apply-partially #'company--multi-backend-adapter
+                        ;;   '( ;;company-tabnine
+                        ;;      company-yankpad)))))
 
   ;; (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
-  ;; (defalias 'vi/cape-yankpad (cape-capf-buster (cape-company-to-capf #'company-yankpad)))
-  ;; (defalias 'vi/cape-interactive-yankpad (cape-interactive-capf #'vi/cape-yankpad))
-
+  (defalias 'vi/cape-interactive-yankpad (cape-interactive-capf #'vi/cape-yankpad))
 
   (setq-hook! '(conf-mode-hook text-mode-hook json-mode-hook org-mode-hook ein:notebook-mode-hook)
     completion-at-point-functions
-    (list (cape-super-capf #'vi/cape-tabnine+yankpad
-            ;;#'vi/cape-yankpad
-            #'cape-dabbrev)))
+    (list #'vi/cape-yankpad #'cape-dabbrev))
 
   (defun vi/corfu-lsp-setup ()
     ;; Combine LSP via corfu so we can use it in combination with
@@ -1866,8 +1919,8 @@ message listing the hooks."
     (setq-local completion-at-point-functions (list
                                                 (cape-super-capf
                                                   (cape-capf-buster #'lsp-completion-at-point)
-                                                  #'vi/cape-tabnine+yankpad
-                                                  ;;#'vi/cape-yankpad
+                                                  #'vi/cape-yankpad
+                                                  #'cape-dabbrev
                                                   )
                                                 )))
   (add-hook! 'lsp-completion-mode-hook #'vi/corfu-lsp-setup)
@@ -1880,6 +1933,8 @@ message listing the hooks."
   :custom
   (copilot-idle-delay 0.3)
   :config
+
+  ;; https://github.com/rksm/copilot-emacsd/blob/master/init.el
   (defun rk/copilot-complete-or-accept ()
     "Command that either triggers a completion or accepts one if one
 is available. Useful if you tend to hammer your keys like I do."
@@ -1902,17 +1957,23 @@ available. Otherwise will try tab-indent."
       ;; (company-yasnippet-or-completion)
       (indent-for-tab-command)))
 
+
+  (defun rk/copilot-complete-if-active (next-func n)
+    (let ((completed (when copilot-mode (copilot-accept-completion))))
+      (unless completed (funcall next-func n))))
+
+
   (defun rk/copilot-quit ()
     "Run `copilot-clear-overlay' or `keyboard-quit'. If copilot is
 cleared, make sure the overlay doesn't come back too soon."
     (interactive)
     (condition-case err
-      (when copilot--overlay
+      (when (copilot--overlay-visible)
         (lexical-let ((pre-copilot-disable-predicates copilot-disable-predicates))
           (setq copilot-disable-predicates (list (lambda () t)))
           (copilot-clear-overlay)
           (run-with-idle-timer
-            1.0
+            0.3
             nil
             (lambda ()
               (setq copilot-disable-predicates pre-copilot-disable-predicates)))))
@@ -1924,19 +1985,49 @@ cleared, make sure the overlay doesn't come back too soon."
       ;; return nil so other hooks can run
       (progn (rk/copilot-quit) nil)))
 
+  ;; complete by pressing right or tab but only when copilot completions are
+  ;; shown. This means we leave the normal functionality intact.
+  ;;(advice-add 'right-char :around #'rk/copilot-complete-if-active)
+  ;; (advice-add 'indent-for-tab-command :around #'rk/copilot-complete-if-active)
+
   :hook ((prog-mode . copilot-mode) (conf-mode . copilot-mode))
-  :bind (;; ("C-TAB" . 'copilot-accept-completion-by-word)
-          ;; ("C-<tab>" . 'copilot-accept-completion-by-word)
-          :map copilot-mode-map
-          ("<tab>" . 'rk/copilot-tab)
-          ("C-/" . 'rk/copilot-complete-or-accept)
-          ;; :map copilot-completion-map
-          ;; ("C-<tab>" . 'copilot-accept-completion)
-          ))
+  :bind (
+         :map copilot-completion-map
+          ;; ("C-g" . 'copilot-clear-overlay)
+         ;; ("<tab>" . 'copilot-accept-completion)
+          ("<right>" . 'copilot-accept-completion)
+         ("C-<up>" . 'copilot-previous-completion)
+         ("C-<down>" . 'copilot-next-completion)
+         ("C-<right>" . 'copilot-accept-completion-by-word)
+         ("C-M-<right>" . 'copilot-accept-completion-by-line))
+  ;; :bind (;; ("C-TAB" . 'copilot-accept-completion-by-word)
+  ;;         ;; ("C-<tab>" . 'copilot-accept-completion-by-word)
+  ;;         :map copilot-mode-map
+  ;;         ;;;("C-/" . 'rk/copilot-complete-or-accept)
+  ;;         ;; :map copilot-completion-map
+  ;;         ;; ("C-<tab>" . 'copilot-accept-completion)
+  ;;         )
+  )
+
+(add-hook! 'copilot-mode-hook (map! "C-<return>" #'rk/copilot-complete-or-accept))
 
 ;; try to turn off keybindings (up/down) that company-mode interferes with
 ;; (add-hook! prog-mode :append (progn (message "disabling company mode") (company-mode -1) (message "disabled")))
 ;; config:1 ends here
+
+;; [[file:config.org::*chatgpt shell][chatgpt shell:2]]
+(use-package chatgpt-shell
+  :custom
+  (chatgpt-shell-openai-key
+    (lambda ()
+      ;; ~/.authinfo.gpg
+      (auth-source-pick-first-password :host "api.openai.com")))
+  :bind (
+          :map shell-maker-map
+          (("C-<return>" . comint-send-input) ("<return>" . newline))
+          )
+  )
+;; chatgpt shell:2 ends here
 
 ;; [[file:config.org::*Iedit][Iedit:2]]
 (use-package! iedit
@@ -1970,7 +2061,9 @@ cleared, make sure the overlay doesn't come back too soon."
 (defun vi/revert-buffer ()
   (interactive)
   (find-alternate-file (buffer-file-name)))
+;; Hydra:2 ends here
 
+;; [[file:config.org::*Global hydra][Global hydra:1]]
 (pretty-hydra-define global-hydra (:exit t :quit-key ("q" "C-g"))
   ("Searching"
    (;; ("f" +vertico/consult-fd "fd")
@@ -1984,6 +2077,7 @@ cleared, make sure the overlay doesn't come back too soon."
     ("T" dired-sidebar-jump-to-sidebar "Goto Tree")
     ("t" dired-sidebar-toggle-sidebar "Toggle tree")
      ("R" vi/revert-buffer "Revert")
+     ("M-k" vi/force-kill-buffer "Force kill")
     ;; ("t" treemacs-select-window "treemacs")
     ;; ("T" +treemacs/toggle "Toggle treemacs")
      ;; ("`" popper-toggle-latest "Latest Popup")
@@ -2027,7 +2121,7 @@ cleared, make sure the overlay doesn't come back too soon."
     ("M-y" yankpad-insert "yankpad")
     ("g" magit-status-here "magit")
     ("M-\\" edit-indirect-region "edit indirect region")
-    ("d" dired-jump "dired" )
+    ("d" dirvish-dwim "dired" )
     ("r" consult-notes-org-roam-find-node "find node")
     ("M-l" org-store-link "store link")
     ("A" org-agenda-list "Agenda")
@@ -2038,7 +2132,7 @@ cleared, make sure the overlay doesn't come back too soon."
 
 (key-chord-define-global "hh" #'global-hydra/body)
 (key-chord-define-global "jj" #'vi/major-mode-hydra)
-;; Hydra:2 ends here
+;; Global hydra:1 ends here
 
 ;; [[file:config.org::*org-mode config][org-mode config:1]]
 (after! org
@@ -2432,83 +2526,94 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
     ;; This is required for lexical-let
     (eval-when-compile (require 'cl))
     (aif (ein:get-notebook)
-        (lexical-let ((ws (ein:worksheet--get-ws-or-error)))
-          (ein:kernel-delete-session
-           (lambda (kernel)
-             (ein:events-trigger (ein:$kernel-events kernel) 'status_restarting.Kernel)
-             (ein:kernel-retrieve-session kernel 0
-                                          (lambda (kernel)
-                                            (ein:events-trigger (ein:$kernel-events kernel) 'status_restarted.Kernel)
-                                            (ein:worksheet-execute-all-cells-above ws))))
-           :kernel (ein:$notebook-kernel it)))
+      (lexical-let ((ws (ein:worksheet--get-ws-or-error)))
+        (ein:kernel-delete-session
+          (lambda (kernel)
+            (ein:events-trigger (ein:$kernel-events kernel) 'status_restarting.Kernel)
+            (ein:kernel-retrieve-session kernel 0
+              (lambda (kernel)
+                (ein:events-trigger (ein:$kernel-events kernel) 'status_restarted.Kernel)
+                (ein:worksheet-execute-all-cells-above ws))))
+          :kernel (ein:$notebook-kernel it)))
       (message "Not in notebook buffer!"))
+    )
+
+  (defun vi/ein:select-cell-text (cell)
+    (interactive (list (ein:worksheet-get-current-cell)))
+    (let* ((beg (ein:cell-input-pos-min cell))
+            (end (ein:cell-input-pos-max cell)))
+      (set-mark (goto-char beg))
+      (goto-char end))
     )
 
   (defun vi/revert-notebook ()
     (interactive)
     (aif (ein:get-notebook)
-        (let ((nurl (ein:$notebook-url-or-port it))
-              (npath (ein:$notebook-notebook-path it)))
-          ;; fix disabled undo
-          (setq! ein:worksheet-enable-undo t)
-          (ein:notebook-close it)
-          ;; Reopen, but put it in the same window we were in
-          (ein:notebook-open nurl npath nil
-                             (lambda (nb _)
-                               (switch-to-buffer (ein:notebook-buffer nb))))
-
-          )))
+      (let ((nurl (ein:$notebook-url-or-port it))
+             (npath (ein:$notebook-notebook-path it)))
+        ;; fix disabled undo
+        (setq! ein:worksheet-enable-undo t)
+        (ein:notebook-close it)
+        ;; Reopen, but put it in the same window we were in
+        (ein:notebook-open nurl npath nil
+          (lambda (nb _)
+            (switch-to-buffer (ein:notebook-buffer nb))))
+        )))
   )
+;; ein:2 ends here
 
+;; [[file:config.org::*ein][ein:3]]
 ;; ein-hydra
 (pretty-hydra-define ein-global-hydra (:exit t :quit-key ("q" "C-g"))
   ("Connect"
     (("b" ein:notebooklist-open "Notebook list")
-     ("l" ein:notebooklist-login "Login")
-     ("s" ein:jupyter-server-start "Start")
-     ("t" ein:jupyter-server-stop "Stop")
+      ("l" ein:notebooklist-login "Login")
+      ("s" ein:jupyter-server-start "Start")
+      ("t" ein:jupyter-server-stop "Stop")
       ("C" ein:byte-compile-ein "Byte-compile")
       ))
   )
 
 (major-mode-hydra-define (ein:notebook-mode ein:shared-output-mode) (:quit-key ("q" "C-g") :exit t :foreign-keys run)
-   (
+  (
     "Reconnect"
     (("r" ein:notebook-reconnect-session-command "Reconnect")
-     ("R" ein:notebook-restart-session-command "Restart")
-     ("z" ein:notebook-kernel-interrupt-command "interrupt")
-     ("v" vi/revert-notebook "Revert")
-     ("K" ein:notebook-switch-kernel "Switch Kernel"))
+      ("R" ein:notebook-restart-session-command "Restart")
+      ("z" ein:notebook-kernel-interrupt-command "interrupt")
+      ("v" vi/revert-notebook "Revert")
+      ("K" ein:notebook-switch-kernel "Switch Kernel"))
     "Exec"
     (
-     ("x" ein:worksheet-execute-all-cells-above "Execute all above")
-     ("X" vi/restart-and-execute-all-above "Restart & x")
-     )
+      ("x" ein:worksheet-execute-all-cells-above "Execute all above")
+      ("X" vi/restart-and-execute-all-above "Restart & x")
+      )
     "Nav"
     (
-     ("p" ein:worksheet-goto-prev-input-km "Prev Cell" :exit nil)
-     ("n" ein:worksheet-goto-next-input-km "Next Cell" :exit nil)
-     ("/" ein:notebook-scratchsheet-open-km "Scratch")
-     )
+      ("p" ein:worksheet-goto-prev-input-km "Prev Cell" :exit nil)
+      ("n" ein:worksheet-goto-next-input-km "Next Cell" :exit nil)
+      ("SPC" vi/ein:select-cell-text "Select cell")
+      ("/" ein:notebook-scratchsheet-open-km "Scratch")
+      )
     "Output"
     (
-     ("o" ein:worksheet-toggle-output "Toggle output")
+      ("o" ein:worksheet-toggle-output "Toggle output")
       ("O" ein:shared-output-show-code-cell-at-point "Show in shared output")
-     ("M-o" (ein:worksheet-set-output-visibility-all (ein:worksheet--get-ws-or-error) t) "Hide all output")
-     ("M-O" ein:worksheet-set-output-visibility-all "Show all output")
+      ("M-o" (ein:worksheet-set-output-visibility-all (ein:worksheet--get-ws-or-error) t) "Hide all output")
+      ("M-O" ein:worksheet-set-output-visibility-all "Show all output")
       )
     "Fix"
     (("i" vi/ein-toggle-inlined-images "Toggle inlined images")
-     ;; ("M-f" vi/ein-fix "Fix")
-     ("N" ein:notebook-rename-command "Rename")
-     )
+      ;; ("M-f" vi/ein-fix "Fix")
+      ("N" ein:notebook-rename-command "Rename")
+      )
     "Python"
     (
-     ("f" python-black-partial-dwim "Format")
-     )
-
+      ("f" python-black-partial-dwim "Format")
+      )
     ))
+;; ein:3 ends here
 
+;; [[file:config.org::*ein][ein:4]]
 ;; (setq scroll-preserve-screen-position t
 ;;       scroll-conservatively 0
 ;;       maximum-scroll-margin 0.5
@@ -2523,33 +2628,43 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 ;;   )
 
 
-;; outline-minor-faces-mode seems to cause some glitches with C-c C-b/a
-(add-hook! 'ein:notebook-mode-hook
-  #'outline-minor-mode) ;; #'outline-minor-faces-mode)
+
 (setq-hook! 'ein:notebook-mode-hook
   outline-minor-mode-use-buttons t
-  outline-regexp "##+")           ;capture markdown headings, excluding level 1 for comments
+  outline-regexp "##+"
+  )           ;capture markdown headings, excluding level 1 for comments
 
+(add-hook! 'ein:notebook-mode-hook
+  #'rainbow-delimiters-mode-disable
 
+  ;; These fail on first load in this hook, but seem to work in poly-ein-mode-hook?
+
+  ;; (outline-minor-faces-mode t)
+  ;; (outline-minor-mode t)
+  )
+
+(add-hook! 'poly-ein-mode-hook
+  ;;(outline-minor-faces-mode t)
+  (outline-minor-mode t))               ;we disable outline-minor-mode in prog-mode, but turn it on in ein
 
 ;; Unsets M-n in ein polymode (which is normally bound to polymode-map) so that
 ;; we can use our smartscan-mode bindings
 (map! :mode poly-ein-mode
-      :map polymode-mode-map
-      "M-n" nil)
+  :map polymode-mode-map
+  "M-n" nil)
 
 (map! :map ein:notebook-mode-map
-      "C-n" #'ein:worksheet-goto-next-input-km
-      "C-p" #'ein:worksheet-goto-prev-input-km
-      )
+  "C-n" #'ein:worksheet-goto-next-input-km
+  "C-p" #'ein:worksheet-goto-prev-input-km
+  )
 
 
-  ;; (advice-add 'json-parse-buffer :around
-  ;;             (lambda (orig &rest rest)
-  ;;               (while (re-search-forward "\\u0000" nil t)
-  ;;                 (replace-match ""))
-  ;;               (apply orig rest)))
-;; ein:2 ends here
+;; (advice-add 'json-parse-buffer :around
+;;             (lambda (orig &rest rest)
+;;               (while (re-search-forward "\\u0000" nil t)
+;;                 (replace-match ""))
+;;               (apply orig rest)))
+;; ein:4 ends here
 
 ;; [[file:config.org::*vterm][vterm:2]]
 (setq vterm-module-cmake-args "-DUSE_SYSTEM_LIBVTERM=no")
@@ -2580,12 +2695,12 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
     "Returns 'Copy' when vterm-copy-mode is active"
     (when
       (and (eq major-mode 'vterm-mode) vterm-copy-mode)
-      (concat doom-modeline-spc "[Copy]")))
+      (concat (doom-modeline-spc) "[Copy]")))
 
 
   (doom-modeline-def-modeline 'vi/vterm
     '(bar buffer-info-simple vterm-copy-mode selection-info remote-host)
-    '(purpose persp-name minor-modes major-mode))
+    '(minor-modes major-mode))
 
   (remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
 
@@ -2646,7 +2761,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 ;; handle opening in tramp
 (defun vi/vterm-local (&optional force-create)
   (interactive)
-  (if (tramp-tramp-file-p default-directory)
+  (if (and (fboundp 'tramp-tramp-file-p) (tramp-tramp-file-p default-directory))
       (progn
         (message "Tramp dir: opening local vterm")
         (let ((default-directory (getenv "HOME")))
@@ -2865,8 +2980,11 @@ Results are reported in a compilation buffer."
   ;; https://emacs-lsp.github.io/lsp-mode/page/settings/
   (lsp-auto-configure t)
   (lsp-enable-imenu t)
-  ;; controls doc buffers at bottom (via eldoc?)
-  (lsp-signature-auto-activate nil)
+
+  ;; controls doc buffers at bottom (this is not eldoc -- which in python-mode is truncated, so useless)
+  ;; shows signature automatically inside arg params or <C-c l h s>
+  ;; see lsp-ui-doc-mode for on cursor
+  (lsp-signature-auto-activate '(:on-trigger-char :on-server-request))
   (lsp-signature-render-documentation nil)
   (lsp-headerline-breadcrumb-enable t)
   (lsp-headerline-breadcrumb-enable-diagnostics nil)
@@ -2894,12 +3012,6 @@ Results are reported in a compilation buffer."
   (lsp-ui-sideline-show-diagnostics t)
   (lsp-ui-sideline-show-code-actions t)
   (lsp-ui-sideline-delay 0.1)
-  ;; doc
-  (lsp-ui-doc-enable t)
-  (lsp-ui-doc-include-signature t)
-  (lsp-ui-doc-show-with-cursor t)
-  (lsp-ui-doc-header nil)
-  (lsp-ui-doc-delay 1)
   ;; peek
   (lsp-ui-peek-enable t)
   ;; imenu
@@ -2920,7 +3032,8 @@ Results are reported in a compilation buffer."
              ;; lsp-diagnostics-updated-hook, so this will fail the first time
              ;; through
     (if (facep 'lsp-flycheck-info-unnecessary-face)
-        (set-face-attribute 'lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil)))
+        (set-face-attribute 'lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil))
+    )
 
   :pretty-hydra
   ((
@@ -2931,14 +3044,18 @@ Results are reported in a compilation buffer."
      ;; ("e" lsp-treemacs-errors-list "Errors"))
     )
     )
-  :after-call doom-first-buffer-hook
-  :hook (
-          ;; (python-mode . lsp-deferred)
-         (c++-mode . vi/setup-c++-lsp)
-         ;; (lsp-mode . lsp-enable-which-key-integration)
-         ;; (lsp-mode . lsp-treemacs-sync-mode)
-         )
-  :commands (lsp lsp-deferred))
+  )
+
+(setq-hook! 'lsp-ui-doc-mode-hook
+    ;; doc in childframe
+  lsp-ui-doc-enable t
+  lsp-ui-doc-include-signature t
+  lsp-ui-doc-show-with-cursor t
+  lsp-ui-doc-position 'bottom
+  lsp-ui-doc-header nil
+  lsp-ui-doc-max-height 50
+  lsp-ui-doc-max-width 75
+  lsp-ui-doc-delay 1)
 ;; LSP:1 ends here
 
 
@@ -3056,6 +3173,9 @@ Results are reported in a compilation buffer."
   (setf (alist-get 'isort apheleia-formatters) '("isort" "--profile=black" "--stdout" "-"))
   (setf (alist-get 'usort apheleia-formatters) '("usort" "format" "-"))
 
+  ;; this may require `npm install -g prettier prettier-plugin-toml --save-dev --save-exact`
+  (setf (alist-get 'prettier-toml apheleia-formatters) '(npx "prettier" "--stdin-filepath" filepath "--parser=toml"))
+
   ;; Black uses config in ~/.config/black but not if a pyproject.toml is present (https://github.com/psf/black/issues/2863)
   (setf (alist-get 'black apheleia-formatters) '("black" "--config" (substitute-in-file-name "$HOME/.config/black") "-"))
 
@@ -3065,6 +3185,7 @@ Results are reported in a compilation buffer."
   ;; (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
 
   (setf (alist-get 'python-mode apheleia-mode-alist) '(usort black))
+  (setf (alist-get 'conf-toml-mode apheleia-mode-alist) '(prettier-toml))
   (apheleia-global-mode)
   )
 ;; apheleia:2 ends here
@@ -3072,6 +3193,13 @@ Results are reported in a compilation buffer."
 ;; [[file:config.org::*Javascript/Typescript][Javascript/Typescript:2]]
 (add-hook! '(typescript-mode-hook rjsx-mode-hook) #'add-node-modules-path)
 ;; Javascript/Typescript:2 ends here
+
+;; [[file:config.org::*dirvish][dirvish:2]]
+(use-package! dirvish
+  :config
+  (dirvish-override-dired-mode)
+  (dirvish-peek-mode))
+;; dirvish:2 ends here
 
 
 
@@ -3207,6 +3335,7 @@ Results are reported in a compilation buffer."
       ("F" dired-do-find-marked-files "find marked")
       ("A" dired-do-find-regexp "find rx")
       ("Q" dired-do-find-regexp-and-replace "rx replace")
+
       )
      "listing"
      (
@@ -3356,10 +3485,9 @@ current buffer's, reload dir-locals."
 ;; docker:2 ends here
 
 ;; [[file:config.org::*Tramp][Tramp:1]]
-(use-package! tramp
-  :custom
-  ;; set in .ssh/config
-  (tramp-use-ssh-controlmaster-options nil)
+;; set in .ssh/config
+(after! tramp
+  (setq tramp-use-ssh-controlmaster-options nil)
   )
 ;; Tramp:1 ends here
 
@@ -3426,6 +3554,13 @@ Version 2016-01-08"
   ( org-latex-impatient-tex2svg-bin "/home/venky/.asdf/shims/tex2svg")
   )
 ;; latex:2 ends here
+
+;; [[file:config.org::*Force kill buffer][Force kill buffer:1]]
+(defun vi/force-kill-buffer ()
+  (interactive)
+  (let (kill-buffer-hook kill-buffer-query-functions)
+    (kill-buffer)))
+;; Force kill buffer:1 ends here
 
 ;; [[file:config.org::*atomic chrome][atomic chrome:2]]
 (use-package! atomic-chrome

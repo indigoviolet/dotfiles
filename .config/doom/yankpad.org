@@ -56,7 +56,6 @@ $0
 #+end
 
 * python-mode
-
 ** ipydb: Jupyter debugger :src:
 #+begin_src python
 from IPython.core.debugger import set_trace
@@ -76,7 +75,7 @@ ipdb.set_trace()
 %%script echo ${1:nope}
 #+end_src
 
-** ein-first-cell: :src:
+** einfirstcell: :src:
 
 
 #+begin_src python
@@ -142,7 +141,7 @@ alt.Chart(pr.DataFrame({"a": [1, 2, 3], "b": [3, 4, 5]}).to_pandas()).mark_bar()
 #+end_src
 
 
-** jupyter-terminal-display: :src:indent_nil:
+** jupyterterminaldisplay: :src:indent_nil:
 
 #+begin_src python
 # Datatables

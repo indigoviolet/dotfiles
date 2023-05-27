@@ -433,6 +433,7 @@ https://protesilaos.com/emacs/modus-themes
 (setq! modus-themes-common-palette-overrides
   '(
      ;;(bg-region bg-dim)
+
      (fg-region unspecified)
      (border-mode-line-active unspecified)
      (border-mode-line-inactive unspecified)
@@ -444,12 +445,15 @@ https://protesilaos.com/emacs/modus-themes
      (bg-paren-match bg-magenta-intense)
      (prose-done green-intense)
      (prose-todo red-intense)
+
+     ;; headings
+     (fg-heading-1 fg-main)
+     (bg-heading-1 bg-dim)
+     (overline-heading-1 border)
+
      )
   )
 (setq doom-theme 'modus-vivendi-tinted)
-(custom-set-faces!
-  '(highlight-indent-guides-character-face :foreground "#2b3045")
-  )
 #+end_src
 
 *** COMMENT doom theme
@@ -627,7 +631,7 @@ here as-is for now, as it is quite well structured and clear.
   ;;idris             ; a language you can depend on
   json              ; At least it ain't XML
   ;;(java +lsp)       ; the poster child for carpal tunnel syndrome
-  ;;(javascript +lsp)        ; all(hope(abandon(ye(who(enter(here))))))
+  (javascript +lsp)        ; all(hope(abandon(ye(who(enter(here))))))
   ;;julia             ; a better, faster MATLAB
   ;;kotlin            ; a better, slicker Java(Script)
   ;;latex             ; writing papers in Emacs has never been so fun
@@ -690,8 +694,204 @@ Use `ediff-regions-listwise` to merge the latest version of this with the block
 above.
 
 #+begin_src bash :results output :wrap SRC emacs-lisp
-curl https://raw.githubusercontent.com/hlissner/doom-emacs/master/init.example.el
+curl https://raw.githubusercontent.com/doomemacs/doomemacs/develop/init.example.el
 #+end_src
+
+#+RESULTS:
+#+begin_SRC emacs-lisp
+;;; init.el -*- lexical-binding: t; -*-
+
+;; This file controls what Doom modules are enabled and what order they load
+;; in. Remember to run 'doom sync' after modifying it!
+
+;; NOTE Press 'SPC h d h' (or 'C-h d h' for non-vim users) to access Doom's
+;;      documentation. There you'll find a "Module Index" link where you'll find
+;;      a comprehensive list of Doom's modules and what flags they support.
+
+;; NOTE Move your cursor over a module's name (or its flags) and press 'K' (or
+;;      'C-c c k' for non-vim users) to view its documentation. This works on
+;;      flags as well (those symbols that start with a plus).
+;;
+;;      Alternatively, press 'gd' (or 'C-c c d') on a module to browse its
+;;      directory (for easy access to its source code).
+
+(doom! :input
+       ;;chinese
+       ;;japanese
+       ;;layout            ; auie,ctsrnm is the superior home row
+
+       :completion
+       company           ; the ultimate code completion backend
+       ;;helm              ; the *other* search engine for love and life
+       ;;ido               ; the other *other* search engine...
+       ;;ivy               ; a search engine for love and life
+       vertico           ; the search engine of the future
+
+       :ui
+       ;;deft              ; notational velocity for Emacs
+       doom              ; what makes DOOM look the way it does
+       doom-dashboard    ; a nifty splash screen for Emacs
+       doom-quit         ; DOOM quit-message prompts when you quit Emacs
+       ;;(emoji +unicode)  ; 🙂
+       hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
+       ;;hydra
+       ;;indent-guides     ; highlighted indent columns
+       ;;ligatures         ; ligatures and symbols to make your code pretty again
+       ;;minimap           ; show a map of the code on the side
+       modeline          ; snazzy, Atom-inspired modeline, plus API
+       ;;nav-flash         ; blink cursor line after big motions
+       ;;neotree           ; a project drawer, like NERDTree for vim
+       ophints           ; highlight the region an operation acts on
+       (popup +defaults)   ; tame sudden yet inevitable temporary windows
+       ;;tabs              ; a tab bar for Emacs
+       ;;treemacs          ; a project drawer, like neotree but cooler
+       ;;unicode           ; extended unicode support for various languages
+       vc-gutter         ; vcs diff in the fringe
+       vi-tilde-fringe   ; fringe tildes to mark beyond EOB
+       ;;window-select     ; visually switch windows
+       workspaces        ; tab emulation, persistence & separate workspaces
+       ;;zen               ; distraction-free coding or writing
+
+       :editor
+       (evil +everywhere); come to the dark side, we have cookies
+       file-templates    ; auto-snippets for empty files
+       fold              ; (nigh) universal code folding
+       ;;(format +onsave)  ; automated prettiness
+       ;;god               ; run Emacs commands without modifier keys
+       ;;lispy             ; vim for lisp, for people who don't like vim
+       ;;multiple-cursors  ; editing in many places at once
+       ;;objed             ; text object editing for the innocent
+       ;;parinfer          ; turn lisp into python, sort of
+       ;;rotate-text       ; cycle region at point between text candidates
+       snippets          ; my elves. They type so I don't have to
+       ;;word-wrap         ; soft wrapping with language-aware indent
+
+       :emacs
+       dired             ; making dired pretty [functional]
+       electric          ; smarter, keyword-based electric-indent
+       ;;ibuffer         ; interactive buffer management
+       undo              ; persistent, smarter undo for your inevitable mistakes
+       vc                ; version-control and Emacs, sitting in a tree
+
+       :term
+       ;;eshell            ; the elisp shell that works everywhere
+       ;;shell             ; simple shell REPL for Emacs
+       ;;term              ; basic terminal emulator for Emacs
+       ;;vterm             ; the best terminal emulation in Emacs
+
+       :checkers
+       syntax              ; tasing you for every semicolon you forget
+       ;;(spell +flyspell) ; tasing you for misspelling mispelling
+       ;;grammar           ; tasing grammar mistake every you make
+
+       :tools
+       ;;ansible
+       ;;biblio            ; Writes a PhD for you (citation needed)
+       ;;debugger          ; FIXME stepping through code, to help you add bugs
+       ;;direnv
+       ;;docker
+       ;;editorconfig      ; let someone else argue about tabs vs spaces
+       ;;ein               ; tame Jupyter notebooks with emacs
+       (eval +overlay)     ; run code, run (also, repls)
+       ;;gist              ; interacting with github gists
+       lookup              ; navigate your code and its documentation
+       ;;lsp               ; M-x vscode
+       magit             ; a git porcelain for Emacs
+       ;;make              ; run make tasks from Emacs
+       ;;pass              ; password manager for nerds
+       ;;pdf               ; pdf enhancements
+       ;;prodigy           ; FIXME managing external services & code builders
+       ;;rgb               ; creating color strings
+       ;;taskrunner        ; taskrunner for all your projects
+       ;;terraform         ; infrastructure as code
+       ;;tmux              ; an API for interacting with tmux
+       ;;upload            ; map local to remote projects via ssh/ftp
+
+       :os
+       (:if IS-MAC macos)  ; improve compatibility with macOS
+       ;;tty               ; improve the terminal Emacs experience
+
+       :lang
+       ;;agda              ; types of types of types of types...
+       ;;beancount         ; mind the GAAP
+       ;;cc                ; C > C++ == 1
+       ;;clojure           ; java with a lisp
+       ;;common-lisp       ; if you've seen one lisp, you've seen them all
+       ;;coq               ; proofs-as-programs
+       ;;crystal           ; ruby at the speed of c
+       ;;csharp            ; unity, .NET, and mono shenanigans
+       ;;data              ; config/data formats
+       ;;(dart +flutter)   ; paint ui and not much else
+       ;;dhall
+       ;;elixir            ; erlang done right
+       ;;elm               ; care for a cup of TEA?
+       emacs-lisp        ; drown in parentheses
+       ;;erlang            ; an elegant language for a more civilized age
+       ;;ess               ; emacs speaks statistics
+       ;;factor
+       ;;faust             ; dsp, but you get to keep your soul
+       ;;fortran           ; in FORTRAN, GOD is REAL (unless declared INTEGER)
+       ;;fsharp            ; ML stands for Microsoft's Language
+       ;;fstar             ; (dependent) types and (monadic) effects and Z3
+       ;;gdscript          ; the language you waited for
+       ;;(go +lsp)         ; the hipster dialect
+       ;;(haskell +lsp)    ; a language that's lazier than I am
+       ;;hy                ; readability of scheme w/ speed of python
+       ;;idris             ; a language you can depend on
+       ;;json              ; At least it ain't XML
+       ;;(java +meghanada) ; the poster child for carpal tunnel syndrome
+       ;;javascript        ; all(hope(abandon(ye(who(enter(here))))))
+       ;;julia             ; a better, faster MATLAB
+       ;;kotlin            ; a better, slicker Java(Script)
+       ;;latex             ; writing papers in Emacs has never been so fun
+       ;;lean              ; for folks with too much to prove
+       ;;ledger            ; be audit you can be
+       ;;lua               ; one-based indices? one-based indices
+       markdown          ; writing docs for people to ignore
+       ;;nim               ; python + lisp at the speed of c
+       ;;nix               ; I hereby declare "nix geht mehr!"
+       ;;ocaml             ; an objective camel
+       org               ; organize your plain life in plain text
+       ;;php               ; perl's insecure younger brother
+       ;;plantuml          ; diagrams for confusing people more
+       ;;purescript        ; javascript, but functional
+       ;;python            ; beautiful is better than ugly
+       ;;qt                ; the 'cutest' gui framework ever
+       ;;racket            ; a DSL for DSLs
+       ;;raku              ; the artist formerly known as perl6
+       ;;rest              ; Emacs as a REST client
+       ;;rst               ; ReST in peace
+       ;;(ruby +rails)     ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
+       ;;rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+       ;;scala             ; java, but good
+       ;;(scheme +guile)   ; a fully conniving family of lisps
+       sh                ; she sells {ba,z,fi}sh shells on the C xor
+       ;;sml
+       ;;solidity          ; do you need a blockchain? No.
+       ;;swift             ; who asked for emoji variables?
+       ;;terra             ; Earth and Moon in alignment for performance.
+       ;;web               ; the tubes
+       ;;yaml              ; JSON, but readable
+       ;;zig               ; C, but simpler
+
+       :email
+       ;;(mu4e +org +gmail)
+       ;;notmuch
+       ;;(wanderlust +gmail)
+
+       :app
+       ;;calendar
+       ;;emms
+       ;;everywhere        ; *leave* Emacs!? You must be joking
+       ;;irc               ; how neckbeards socialize
+       ;;(rss +org)        ; emacs as an RSS reader
+       ;;twitter           ; twitter client https://twitter.com/vnought
+
+       :config
+       ;;literate
+       (default +bindings +smartparens))
+#+end_SRC
+
 * startup profiling/debugging
 
 ** profiling code
@@ -908,10 +1108,12 @@ https://emacs.stackexchange.com/a/24658 -- not sure if this works?
 
 #+begin_src emacs-lisp
 (use-package! persistent-scratch
-    :after-call doom-first-buffer-hook
-    :config
-    (persistent-scratch-setup-default)
-    )
+  :after-call doom-first-buffer-hook
+  :custom
+  (persistent-scratch-save-file (concat doom-emacs-dir "persistent-scratch"))
+  :config
+  (persistent-scratch-setup-default)
+  )
 #+end_src
 
 ** backups
@@ -1266,7 +1468,8 @@ https://dzone.com/articles/rare-letter-combinations-and
   (vi-rainbow-identifiers--define-faces)
 
   :hook
-  (prog-mode . rainbow-identifiers-mode)
+  ((prog-mode . rainbow-identifiers-mode)
+  (yaml-mode . rainbow-identifiers-mode))
   )
 #+end_src
 
@@ -1486,7 +1689,7 @@ https://github.com/alphapapa/bufler.el/issues/84
     (setq show-paren-priority -25)
     (setq show-paren-delay 0.5)
     (custom-set-faces!
-      ;; these are modus operandi themes
+      ;; these are modus operandi faces
       '(show-paren-match :inherit bg-paren-match)
       '(show-paren-match-expression :inherit bg-paren-expression)
       '(show-paren-mismatch :weight bold :underline t :slant normal)
@@ -1678,7 +1881,7 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
     show-help-function nil
     ;; doom-modeline-icon nil
     ;; doom-modeline-major-mode-color-icon nil
-    doom-modeline-persp-name t)
+    doom-modeline-persp-name nil)
 
   (doom-modeline-def-segment purpose
     ;; Purpose-mode segment
@@ -1694,7 +1897,7 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
     "Recursive-edit depth indicator. Used in yadm-status"
     (let ((rd (recursion-depth)))
       (when (> rd 0)
-        (concat doom-modeline-spc
+        (concat (doom-modeline-spc)
           (propertize
             (concat
               " "
@@ -1712,15 +1915,15 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
   ;; doom-modeline. other names don't seem to take effect as default..
   (doom-modeline-def-modeline 'main
     '(bar buffer-info-simple selection-info remote-host checker recursion-depth)
-    '(debug repl process lsp persp-name minor-modes major-mode misc-info vcs))
+    '(debug repl process lsp minor-modes major-mode misc-info vcs))
 
   (doom-modeline-def-modeline 'org-src
     '(bar buffer-info-simple selection-info checker)
-    '(debug lsp persp-name minor-modes major-mode))
+    '(debug lsp minor-modes major-mode))
 
   (doom-modeline-def-modeline 'vcs
     '(bar buffer-info-simple selection-info remote-host recursion-depth)
-    '( debug github process persp-name minor-modes major-mode misc-info vcs))
+    '( debug github process minor-modes major-mode misc-info vcs))
 
 
   ;; don't think we need this, since we modified 'main
@@ -2088,19 +2291,18 @@ Bufler groups:
   ;; (bufler-workspace-tabs-mode)
 
   ;; Note: tab-bar doesn't always update immediately
-  (add-hook! '(doom-switch-buffer-hook doom-switch-window-hook consult-after-jump-hook)
-    (defun vi/bufler-workspace-focus-buffer ()
-      (when (not (eq major-mode #'minibuffer-mode))
-        ;; (message (format "Focusing %s %s" (current-buffer) (bufler-workspace-focus-buffer (current-buffer))))))
-        (bufler-workspace-focus-buffer (current-buffer))))
-    )
+  ;; (add-hook! '(doom-switch-buffer-hook doom-switch-window-hook consult-after-jump-hook)
+  ;;   (defun vi/bufler-workspace-focus-buffer ()
+  ;;     (when (not (eq major-mode #'minibuffer-mode))
+  ;;       ;; (message (format "Focusing %s %s" (current-buffer) (bufler-workspace-focus-buffer (current-buffer))))))
+  ;;       (bufler-workspace-focus-buffer (current-buffer))))
+  ;;   )
 
   :bind
   ("C-x C-b" . bufler)
   )
 
 (after! bufler
-
   (bufler-define-buffer-command revert "Revert buffer."
     (lambda (buffer)
       (when (buffer-file-name buffer)
@@ -2531,12 +2733,33 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
 
 * Kill/Yank/Mark regions
 
+
 #+begin_src emacs-lisp :tangle packages.el
 ;; (package! hungry-delete)
-(package! easy-kill :recipe (:host github :repo "leoliu/easy-kill"))
-(package! easy-kill-extras)
+#+end_src
+
+** visible mark
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! visible-mark)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! visible-mark
+  :custom
+  (visible-mark-max 1)
+  :config
+  (global-visible-mark-mode t)
+  )
+#+end_src
+** expand region
+
+
+
+#+begin_src emacs-lisp :tangle packages.el
 (package! expand-region)
-(package! multiple-cursors)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -2548,20 +2771,72 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
 (use-package! expand-region
   :commands (er/mark-inside-pairs er/mark-inside-quotes er/mark-outside-pairs er/mark-outside-quotes)
   )
+#+end_src
 
+** easy-kill base
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! easy-kill :recipe (:host github :repo "leoliu/easy-kill"))
+#+end_src
+
+
+#+begin_src emacs-lisp
 (use-package! easy-kill
   :custom
+
   ;; Used for first marking
   (easy-mark-try-things '(symbol line forward-line-edge sexp)) ;see easy-kill-alist
   (easy-kill-try-things '(symbol line forward-line-edge sexp)) ;see easy-kill-alist
   :bind (
-         ([remap kill-ring-save] . easy-kill) ; M-w
-         ([remap set-mark-command] . easy-mark) ;C-SPC
-         ;; ("M-SPC" . easy-mark)
-         )
+          ([remap kill-ring-save] . easy-kill) ; M-w
+          ;; easy-mark supposedly sets the region immediately but it breaks
+          ;; sometimes. Also doesn't use easy-kill-selection face
+          ([remap set-mark-command] . easy-mark) ;C-SPC
+
+          ;; ("M-SPC" . easy-mark)
+          )
+
+  :config
+  (custom-set-faces! '(easy-kill-selection :inherit modus-themes-mark-sel))
+
+  ;; These take arguments
+  (setq easy-kill-cycle-ignored '(string-to-char-forward string-up-to-char-forward))
+
+  ;; easy-kill/mark will cycle through things in this order (except for easy-kill-cycle-ignored)
+  (setq easy-kill-alist
+    '((?w word " ")
+       (?s symbol " ")               ;added from extras
+       ;; (?W WORD " ")
+       (?l line "\n")
+       (?< inside-pairs "");added from extras
+       (?> outside-pairs "");added from extras
+       (?\' inside-quotes "");added from extras
+       (?\" outside-quotes "");added from extras
+       (?$ forward-line-edge "")
+       (?^ backward-line-edge "")
+       (?d defun "\n\n")
+       (?b buffer "")
+       (?x sexp "\n")
+       (?L list "\n")
+       (?f string-to-char-forward "")
+       (?F string-up-to-char-forward "")
+       (?f filename "\n")
+       (?D defun-name " ")
+       (?b buffer-file-name)))
+
   )
 
+#+end_src
 
+** easy-kill-extras
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! easy-kill-extras)
+(package! multiple-cursors)
+#+end_src
+
+#+begin_src emacs-lisp
 ;; Here we integrate some  expand-region marking as easy-kill candidates
 (after! easy-kill
   (use-package! easy-kill-extras
@@ -2595,7 +2870,8 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
     ;; if it set the region, and if so, adjusts the easy kill candidate.
     `(defun ,(intern (concat "easy-kill-on-" thing)) (_n)
          (when (vi/did-mark #',(intern (concat "er/mark-" thing)))
-           (easy-kill-adjust-candidate ',(intern thing) (mark) (point)))
+           (easy-kill-adjust-candidate ',(intern thing) (mark) (point))
+           )
     ))
 
   (vi/er-easy-kill "symbol")
@@ -2604,30 +2880,6 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
   (vi/er-easy-kill "inside-quotes")
   (vi/er-easy-kill "outside-quotes")
 
-  ;; These take arguments
-  (setq easy-kill-cycle-ignored '(string-to-char-forward string-up-to-char-forward))
-
-  ;; easy-mark will cycle through things in this order (expect for easy-kill-cycle-ignored)
-  (setq easy-kill-alist
-        '((?w word " ")
-          (?s symbol " ")
-          ;; (?W WORD " ")
-          (?l line "\n")
-          (?< inside-pairs "")
-          (?> outside-pairs "")
-          (?\' inside-quotes "")
-          (?\" outside-quotes "")
-          (?$ forward-line-edge "")
-          (?^ backward-line-edge "")
-          (?d defun "\n\n")
-          (?b buffer "")
-          (?x sexp "\n")
-          (?L list "\n")
-          (?f string-to-char-forward "")
-          (?F string-up-to-char-forward "")
-          (?f filename "\n")
-          (?D defun-name " ")
-          (?b buffer-file-name)))
   )
 #+end_src
 
@@ -2665,6 +2917,27 @@ https://github.com/NicholasBHubbard/clean-kill-ring.el
   :after-call doom-first-input-hook
   :config
   (clean-kill-ring-mode)
+  )
+#+end_src
+** move-text
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! move-text)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! move-text
+  :config
+  (move-text-default-bindings)          ;M-<up>, M-<down>
+
+  (remove-hook 'org-metadown-hook #'org-babel-pop-to-session-maybe)
+  (remove-hook 'org-metaup-hook #'org-babel-load-in-session-maybe)
+
+  ;; messes with moving headings
+  ;; (add-hook! 'org-metadown-hook (progn (apply #'move-text-down (move-text-get-region-and-prefix)) t))
+  ;; (add-hook! 'org-metaup-hook (progn (apply #'move-text-up (move-text-get-region-and-prefix)) t))
   )
 #+end_src
 
@@ -2958,7 +3231,7 @@ We don't use this in practice...
 
 * Indentation
 
-** COMMENT Guides
+** Guides
 
 Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact badly with org-indent-modern
 
@@ -2970,10 +3243,18 @@ Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact
 (use-package! highlight-indent-guides
   :after-call doom-first-buffer-hook
   :custom
+  (highlight-indent-guides-auto-enabled nil)
   (highlight-indent-guides-delay 1)
   (highlight-indent-guides-method 'bitmap)
+  :config
   :hook (prog-mode . highlight-indent-guides-mode)
   )
+
+(add-hook! highlight-indent-guides-mode
+  (custom-set-faces!
+    '(highlight-indent-guides-character-face :foreground "#2b3045") ;bg-inactive
+    ))
+
 #+end_src
 
 ** Shift regions
@@ -3137,29 +3418,32 @@ https://github.com/oantolin/embark/issues/231#issuecomment-854390476
   (defun embark-target-this-buffer-file ()
     (cons 'this-buffer-file (or (buffer-file-name) (buffer-name))))
 
-   (add-to-list 'embark-target-finders #'embark-target-this-buffer-file 'append)
+  (add-to-list 'embark-target-finders #'embark-target-this-buffer-file 'append)
 
-   (add-to-list 'embark-keymap-alist '(this-buffer-file . this-buffer-file-map))
+  (add-to-list 'embark-keymap-alist '(this-buffer-file . this-buffer-file-map))
 
-   (embark-define-keymap this-buffer-file-map
-         "Commands to act on current file or buffer."
-         ("l" load-file)
-         ("b" byte-compile-file)
-         ;; ("S" sudo-find-file)
-         ;; ("U" 0x0-upload)
-         ;; ("r" rename-file-and-buffer)
-         ;; ("d" diff-buffer-with-file)
-         ("=" ediff-buffers)
-         ("C-=" ediff-files)
-         ("!" shell-command)
-         ("&" async-shell-command)
-         ("x" consult-file-externally)
-         ;; ("C-a" mml-attach-file)
-         ("c" copy-file)
-         ("k" kill-buffer)
-         ("z" bury-buffer)
-         ("|" embark-shell-command-on-buffer)
-         ("g" revert-buffer)))
+  (defvar-keymap this-buffer-file-map
+    :doc"Commands to act on current file or buffer."
+    :parent embark-general-map
+    "l" #'load-file
+    "b" #'byte-compile-file
+    ;; ("S" sudo-find-file)
+    ;; ("U" 0x0-upload)
+    ;; ("r" rename-file-and-buffer)
+    ;; ("d" diff-buffer-with-file)
+    "=" #'ediff-buffers
+    "C-=" #'ediff-files
+    "!" #'shell-command
+    "&" #'async-shell-command
+    "x" #'consult-file-externally
+    ;; ("C-a" mml-attach-file)
+    "c" #'copy-file
+    "k" #'kill-buffer
+    "z" #'bury-buffer
+    "|" #'embark-shell-command-on-buffer
+    "g" #'revert-buffer
+    )
+  )
 #+end_src
 ** consult customization
 
@@ -3297,7 +3581,7 @@ https://old.reddit.com/r/emacs/comments/o9pue1/changing_consultline_matching_wit
     completion-category-defaults nil
     completion-category-overrides
     '((file (styles partial-completion))  ;; orderless+initialism))
-       (consult-location (styles consult-basic)) ;consult-line
+       ;; (consult-location (styles consult-basic)) ;consult-line
        ;; (buffer (styles orderless+initialism))
        ;; (consult-multi (styles orderless+initialism))
        ;; (command (styles orderless+initialism))
@@ -3344,14 +3628,24 @@ https://old.reddit.com/r/emacs/comments/o9pue1/changing_consultline_matching_wit
 ** outline
 - bicycle doesn't seem to do anything more than outline-cycle and outline-cycle-buffer
 
+*** outline faces
+
+- clutters in prog-mode, but probably useful in ein:notebook-mode
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! outline-minor-faces :recipe (:host github :repo "tarsius/outline-minor-faces"))
+#+end_src
+
+
 #+begin_src emacs-lisp
 (use-package! outline
   :custom
   (outline-minor-mode-cycle t)
+  (outline-minor-mode-use-buttons t)
   :after-call doom-first-buffer-hook
-  :hook (
-         (prog-mode . outline-minor-mode)
-         )
+  ;; :hook (
+  ;;         (prog-mode . outline-minor-mode)
+  ;;        )
   :bind (:map outline-minor-mode-map
          ([C-tab] . outline-cycle)
          ("C-<iso-lefttab>" . outline-hide-other) ;C-S-<tab>
@@ -3375,13 +3669,6 @@ https://old.reddit.com/r/emacs/comments/e2u5n9/code_folding_with_outlineminormod
 (setq-hook! 'python-mode-hook outline-regexp (python-rx (* space) (or defun decorator)))
 #+end_src
 
-*** outline faces
-
-- clutters in prog-mode, but probably useful in ein:notebook-mode
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! outline-minor-faces :recipe (:host github :repo "tarsius/outline-minor-faces"))
-#+end_src
 
 
 
@@ -3428,7 +3715,7 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
 #+begin_src emacs-lisp :tangle packages.el
 (package! outshine)
 #+end_src
-** outli
+** COMMENT outli
 
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -3437,9 +3724,6 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
 
 
 
-#+begin_src emacs-lisp
-
-#+end_src
 * Completion
 
 ** Tabnine
@@ -3510,20 +3794,18 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
   :after corfu
   :config
   (require 'company)
-  (defalias 'vi/cape-tabnine+yankpad (cape-capf-buster (cape-company-to-capf (apply-partially #'company--multi-backend-adapter
-                                                                               '( ;;company-tabnine
-                                                                                  company-yankpad)))))
+  (defalias 'vi/cape-yankpad (cape-capf-buster (cape-company-to-capf #'company-yankpad)))
+
+                        ;; (apply-partially #'company--multi-backend-adapter
+                        ;;   '( ;;company-tabnine
+                        ;;      company-yankpad)))))
 
   ;; (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
-  ;; (defalias 'vi/cape-yankpad (cape-capf-buster (cape-company-to-capf #'company-yankpad)))
-  ;; (defalias 'vi/cape-interactive-yankpad (cape-interactive-capf #'vi/cape-yankpad))
-
+  (defalias 'vi/cape-interactive-yankpad (cape-interactive-capf #'vi/cape-yankpad))
 
   (setq-hook! '(conf-mode-hook text-mode-hook json-mode-hook org-mode-hook ein:notebook-mode-hook)
     completion-at-point-functions
-    (list (cape-super-capf #'vi/cape-tabnine+yankpad
-            ;;#'vi/cape-yankpad
-            #'cape-dabbrev)))
+    (list #'vi/cape-yankpad #'cape-dabbrev))
 
   (defun vi/corfu-lsp-setup ()
     ;; Combine LSP via corfu so we can use it in combination with
@@ -3550,8 +3832,8 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
     (setq-local completion-at-point-functions (list
                                                 (cape-super-capf
                                                   (cape-capf-buster #'lsp-completion-at-point)
-                                                  #'vi/cape-tabnine+yankpad
-                                                  ;;#'vi/cape-yankpad
+                                                  #'vi/cape-yankpad
+                                                  #'cape-dabbrev
                                                   )
                                                 )))
   (add-hook! 'lsp-completion-mode-hook #'vi/corfu-lsp-setup)
@@ -3585,6 +3867,8 @@ https://robert.kra.hn/posts/2023-02-22-copilot-emacs-setup/#copilot-emacs-packag
   :custom
   (copilot-idle-delay 0.3)
   :config
+
+  ;; https://github.com/rksm/copilot-emacsd/blob/master/init.el
   (defun rk/copilot-complete-or-accept ()
     "Command that either triggers a completion or accepts one if one
 is available. Useful if you tend to hammer your keys like I do."
@@ -3607,17 +3891,23 @@ available. Otherwise will try tab-indent."
       ;; (company-yasnippet-or-completion)
       (indent-for-tab-command)))
 
+
+  (defun rk/copilot-complete-if-active (next-func n)
+    (let ((completed (when copilot-mode (copilot-accept-completion))))
+      (unless completed (funcall next-func n))))
+
+
   (defun rk/copilot-quit ()
     "Run `copilot-clear-overlay' or `keyboard-quit'. If copilot is
 cleared, make sure the overlay doesn't come back too soon."
     (interactive)
     (condition-case err
-      (when copilot--overlay
+      (when (copilot--overlay-visible)
         (lexical-let ((pre-copilot-disable-predicates copilot-disable-predicates))
           (setq copilot-disable-predicates (list (lambda () t)))
           (copilot-clear-overlay)
           (run-with-idle-timer
-            1.0
+            0.3
             nil
             (lambda ()
               (setq copilot-disable-predicates pre-copilot-disable-predicates)))))
@@ -3629,15 +3919,31 @@ cleared, make sure the overlay doesn't come back too soon."
       ;; return nil so other hooks can run
       (progn (rk/copilot-quit) nil)))
 
+  ;; complete by pressing right or tab but only when copilot completions are
+  ;; shown. This means we leave the normal functionality intact.
+  ;;(advice-add 'right-char :around #'rk/copilot-complete-if-active)
+  ;; (advice-add 'indent-for-tab-command :around #'rk/copilot-complete-if-active)
+
   :hook ((prog-mode . copilot-mode) (conf-mode . copilot-mode))
-  :bind (;; ("C-TAB" . 'copilot-accept-completion-by-word)
-          ;; ("C-<tab>" . 'copilot-accept-completion-by-word)
-          :map copilot-mode-map
-          ("<tab>" . 'rk/copilot-tab)
-          ("C-/" . 'rk/copilot-complete-or-accept)
-          ;; :map copilot-completion-map
-          ;; ("C-<tab>" . 'copilot-accept-completion)
-          ))
+  :bind (
+         :map copilot-completion-map
+          ;; ("C-g" . 'copilot-clear-overlay)
+         ;; ("<tab>" . 'copilot-accept-completion)
+          ("<right>" . 'copilot-accept-completion)
+         ("C-<up>" . 'copilot-previous-completion)
+         ("C-<down>" . 'copilot-next-completion)
+         ("C-<right>" . 'copilot-accept-completion-by-word)
+         ("C-M-<right>" . 'copilot-accept-completion-by-line))
+  ;; :bind (;; ("C-TAB" . 'copilot-accept-completion-by-word)
+  ;;         ;; ("C-<tab>" . 'copilot-accept-completion-by-word)
+  ;;         :map copilot-mode-map
+  ;;         ;;;("C-/" . 'rk/copilot-complete-or-accept)
+  ;;         ;; :map copilot-completion-map
+  ;;         ;; ("C-<tab>" . 'copilot-accept-completion)
+  ;;         )
+  )
+
+(add-hook! 'copilot-mode-hook (map! "C-<return>" #'rk/copilot-complete-or-accept))
 
 ;; try to turn off keybindings (up/down) that company-mode interferes with
 ;; (add-hook! prog-mode :append (progn (message "disabling company mode") (company-mode -1) (message "disabled")))
@@ -3669,6 +3975,27 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
   (setq chatgpt-repo-path (expand-file-name "straight/repos/ChatGPT.el/" doom-local-dir))
   (set-popup-rule! (regexp-quote "*ChatGPT*")
     :side 'bottom :size .5 :ttl nil :quit t :modeline nil))
+#+end_src
+
+** chatgpt shell
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! chatgpt-shell)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package chatgpt-shell
+  :custom
+  (chatgpt-shell-openai-key
+    (lambda ()
+      ;; ~/.authinfo.gpg
+      (auth-source-pick-first-password :host "api.openai.com")))
+  :bind (
+          :map shell-maker-map
+          (("C-<return>" . comint-send-input) ("<return>" . newline))
+          )
+  )
 #+end_src
 
 * Iedit
@@ -3732,7 +4059,10 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
 (defun vi/revert-buffer ()
   (interactive)
   (find-alternate-file (buffer-file-name)))
+#+end_src
 
+** Global hydra
+#+begin_src emacs-lisp
 (pretty-hydra-define global-hydra (:exit t :quit-key ("q" "C-g"))
   ("Searching"
    (;; ("f" +vertico/consult-fd "fd")
@@ -3746,6 +4076,7 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
     ("T" dired-sidebar-jump-to-sidebar "Goto Tree")
     ("t" dired-sidebar-toggle-sidebar "Toggle tree")
      ("R" vi/revert-buffer "Revert")
+     ("M-k" vi/force-kill-buffer "Force kill")
     ;; ("t" treemacs-select-window "treemacs")
     ;; ("T" +treemacs/toggle "Toggle treemacs")
      ;; ("`" popper-toggle-latest "Latest Popup")
@@ -3789,7 +4120,7 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
     ("M-y" yankpad-insert "yankpad")
     ("g" magit-status-here "magit")
     ("M-\\" edit-indirect-region "edit indirect region")
-    ("d" dired-jump "dired" )
+    ("d" dirvish-dwim "dired" )
     ("r" consult-notes-org-roam-find-node "find node")
     ("M-l" org-store-link "store link")
     ("A" org-agenda-list "Agenda")
@@ -3891,8 +4222,6 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
   )
 #+end_src
 
-#+RESULTS[eb7f9148e1e50806d730fae6567c437b05234fe8]:
-: major-mode-hydras/org-mode/body
 
 *** COMMENT Electric pairs
 
@@ -4489,7 +4818,8 @@ doesn't work
 * ein
 
 #+begin_src emacs-lisp :tangle packages.el
-(package! ein :pin "6063cee")
+;; (package! ein :pin "6063cee")           ;dec 25 2021 - previous working version
+(package! ein :pin "87f4448")           ;apr 26 2023
 #+end_src
 
 #+begin_src emacs-lisp
@@ -4543,83 +4873,94 @@ doesn't work
     ;; This is required for lexical-let
     (eval-when-compile (require 'cl))
     (aif (ein:get-notebook)
-        (lexical-let ((ws (ein:worksheet--get-ws-or-error)))
-          (ein:kernel-delete-session
-           (lambda (kernel)
-             (ein:events-trigger (ein:$kernel-events kernel) 'status_restarting.Kernel)
-             (ein:kernel-retrieve-session kernel 0
-                                          (lambda (kernel)
-                                            (ein:events-trigger (ein:$kernel-events kernel) 'status_restarted.Kernel)
-                                            (ein:worksheet-execute-all-cells-above ws))))
-           :kernel (ein:$notebook-kernel it)))
+      (lexical-let ((ws (ein:worksheet--get-ws-or-error)))
+        (ein:kernel-delete-session
+          (lambda (kernel)
+            (ein:events-trigger (ein:$kernel-events kernel) 'status_restarting.Kernel)
+            (ein:kernel-retrieve-session kernel 0
+              (lambda (kernel)
+                (ein:events-trigger (ein:$kernel-events kernel) 'status_restarted.Kernel)
+                (ein:worksheet-execute-all-cells-above ws))))
+          :kernel (ein:$notebook-kernel it)))
       (message "Not in notebook buffer!"))
+    )
+
+  (defun vi/ein:select-cell-text (cell)
+    (interactive (list (ein:worksheet-get-current-cell)))
+    (let* ((beg (ein:cell-input-pos-min cell))
+            (end (ein:cell-input-pos-max cell)))
+      (set-mark (goto-char beg))
+      (goto-char end))
     )
 
   (defun vi/revert-notebook ()
     (interactive)
     (aif (ein:get-notebook)
-        (let ((nurl (ein:$notebook-url-or-port it))
-              (npath (ein:$notebook-notebook-path it)))
-          ;; fix disabled undo
-          (setq! ein:worksheet-enable-undo t)
-          (ein:notebook-close it)
-          ;; Reopen, but put it in the same window we were in
-          (ein:notebook-open nurl npath nil
-                             (lambda (nb _)
-                               (switch-to-buffer (ein:notebook-buffer nb))))
-
-          )))
+      (let ((nurl (ein:$notebook-url-or-port it))
+             (npath (ein:$notebook-notebook-path it)))
+        ;; fix disabled undo
+        (setq! ein:worksheet-enable-undo t)
+        (ein:notebook-close it)
+        ;; Reopen, but put it in the same window we were in
+        (ein:notebook-open nurl npath nil
+          (lambda (nb _)
+            (switch-to-buffer (ein:notebook-buffer nb))))
+        )))
   )
+#+end_src
 
+#+begin_src emacs-lisp
 ;; ein-hydra
 (pretty-hydra-define ein-global-hydra (:exit t :quit-key ("q" "C-g"))
   ("Connect"
     (("b" ein:notebooklist-open "Notebook list")
-     ("l" ein:notebooklist-login "Login")
-     ("s" ein:jupyter-server-start "Start")
-     ("t" ein:jupyter-server-stop "Stop")
+      ("l" ein:notebooklist-login "Login")
+      ("s" ein:jupyter-server-start "Start")
+      ("t" ein:jupyter-server-stop "Stop")
       ("C" ein:byte-compile-ein "Byte-compile")
       ))
   )
 
 (major-mode-hydra-define (ein:notebook-mode ein:shared-output-mode) (:quit-key ("q" "C-g") :exit t :foreign-keys run)
-   (
+  (
     "Reconnect"
     (("r" ein:notebook-reconnect-session-command "Reconnect")
-     ("R" ein:notebook-restart-session-command "Restart")
-     ("z" ein:notebook-kernel-interrupt-command "interrupt")
-     ("v" vi/revert-notebook "Revert")
-     ("K" ein:notebook-switch-kernel "Switch Kernel"))
+      ("R" ein:notebook-restart-session-command "Restart")
+      ("z" ein:notebook-kernel-interrupt-command "interrupt")
+      ("v" vi/revert-notebook "Revert")
+      ("K" ein:notebook-switch-kernel "Switch Kernel"))
     "Exec"
     (
-     ("x" ein:worksheet-execute-all-cells-above "Execute all above")
-     ("X" vi/restart-and-execute-all-above "Restart & x")
-     )
+      ("x" ein:worksheet-execute-all-cells-above "Execute all above")
+      ("X" vi/restart-and-execute-all-above "Restart & x")
+      )
     "Nav"
     (
-     ("p" ein:worksheet-goto-prev-input-km "Prev Cell" :exit nil)
-     ("n" ein:worksheet-goto-next-input-km "Next Cell" :exit nil)
-     ("/" ein:notebook-scratchsheet-open-km "Scratch")
-     )
+      ("p" ein:worksheet-goto-prev-input-km "Prev Cell" :exit nil)
+      ("n" ein:worksheet-goto-next-input-km "Next Cell" :exit nil)
+      ("SPC" vi/ein:select-cell-text "Select cell")
+      ("/" ein:notebook-scratchsheet-open-km "Scratch")
+      )
     "Output"
     (
-     ("o" ein:worksheet-toggle-output "Toggle output")
+      ("o" ein:worksheet-toggle-output "Toggle output")
       ("O" ein:shared-output-show-code-cell-at-point "Show in shared output")
-     ("M-o" (ein:worksheet-set-output-visibility-all (ein:worksheet--get-ws-or-error) t) "Hide all output")
-     ("M-O" ein:worksheet-set-output-visibility-all "Show all output")
+      ("M-o" (ein:worksheet-set-output-visibility-all (ein:worksheet--get-ws-or-error) t) "Hide all output")
+      ("M-O" ein:worksheet-set-output-visibility-all "Show all output")
       )
     "Fix"
     (("i" vi/ein-toggle-inlined-images "Toggle inlined images")
-     ;; ("M-f" vi/ein-fix "Fix")
-     ("N" ein:notebook-rename-command "Rename")
-     )
+      ;; ("M-f" vi/ein-fix "Fix")
+      ("N" ein:notebook-rename-command "Rename")
+      )
     "Python"
     (
-     ("f" python-black-partial-dwim "Format")
-     )
-
+      ("f" python-black-partial-dwim "Format")
+      )
     ))
+#+end_src
 
+#+begin_src emacs-lisp
 ;; (setq scroll-preserve-screen-position t
 ;;       scroll-conservatively 0
 ;;       maximum-scroll-margin 0.5
@@ -4634,33 +4975,44 @@ doesn't work
 ;;   )
 
 
-;; outline-minor-faces-mode seems to cause some glitches with C-c C-b/a
-(add-hook! 'ein:notebook-mode-hook
-  #'outline-minor-mode) ;; #'outline-minor-faces-mode)
+
 (setq-hook! 'ein:notebook-mode-hook
   outline-minor-mode-use-buttons t
-  outline-regexp "##+")           ;capture markdown headings, excluding level 1 for comments
+  outline-regexp "##+"
+  )           ;capture markdown headings, excluding level 1 for comments
 
+(add-hook! 'ein:notebook-mode-hook
+  #'rainbow-delimiters-mode-disable
 
+  ;; These fail on first load in this hook, but seem to work in poly-ein-mode-hook?
+
+  ;; (outline-minor-faces-mode t)
+  ;; (outline-minor-mode t)
+  )
+
+(add-hook! 'poly-ein-mode-hook
+  ;;(outline-minor-faces-mode t)
+  (outline-minor-mode t))               ;we disable outline-minor-mode in prog-mode, but turn it on in ein
 
 ;; Unsets M-n in ein polymode (which is normally bound to polymode-map) so that
 ;; we can use our smartscan-mode bindings
 (map! :mode poly-ein-mode
-      :map polymode-mode-map
-      "M-n" nil)
+  :map polymode-mode-map
+  "M-n" nil)
 
 (map! :map ein:notebook-mode-map
-      "C-n" #'ein:worksheet-goto-next-input-km
-      "C-p" #'ein:worksheet-goto-prev-input-km
-      )
+  "C-n" #'ein:worksheet-goto-next-input-km
+  "C-p" #'ein:worksheet-goto-prev-input-km
+  )
 
 
-  ;; (advice-add 'json-parse-buffer :around
-  ;;             (lambda (orig &rest rest)
-  ;;               (while (re-search-forward "\\u0000" nil t)
-  ;;                 (replace-match ""))
-  ;;               (apply orig rest)))
+;; (advice-add 'json-parse-buffer :around
+;;             (lambda (orig &rest rest)
+;;               (while (re-search-forward "\\u0000" nil t)
+;;                 (replace-match ""))
+;;               (apply orig rest)))
 #+end_src
+
 
 
 * vterm
@@ -4699,12 +5051,12 @@ doesn't work
     "Returns 'Copy' when vterm-copy-mode is active"
     (when
       (and (eq major-mode 'vterm-mode) vterm-copy-mode)
-      (concat doom-modeline-spc "[Copy]")))
+      (concat (doom-modeline-spc) "[Copy]")))
 
 
   (doom-modeline-def-modeline 'vi/vterm
     '(bar buffer-info-simple vterm-copy-mode selection-info remote-host)
-    '(purpose persp-name minor-modes major-mode))
+    '(minor-modes major-mode))
 
   (remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
 
@@ -4769,7 +5121,7 @@ doesn't work
 ;; handle opening in tramp
 (defun vi/vterm-local (&optional force-create)
   (interactive)
-  (if (tramp-tramp-file-p default-directory)
+  (if (and (fboundp 'tramp-tramp-file-p) (tramp-tramp-file-p default-directory))
       (progn
         (message "Tramp dir: opening local vterm")
         (let ((default-directory (getenv "HOME")))
@@ -5155,8 +5507,11 @@ Quit recursive edit using C-]
   ;; https://emacs-lsp.github.io/lsp-mode/page/settings/
   (lsp-auto-configure t)
   (lsp-enable-imenu t)
-  ;; controls doc buffers at bottom (via eldoc?)
-  (lsp-signature-auto-activate nil)
+
+  ;; controls doc buffers at bottom (this is not eldoc -- which in python-mode is truncated, so useless)
+  ;; shows signature automatically inside arg params or <C-c l h s>
+  ;; see lsp-ui-doc-mode for on cursor
+  (lsp-signature-auto-activate '(:on-trigger-char :on-server-request))
   (lsp-signature-render-documentation nil)
   (lsp-headerline-breadcrumb-enable t)
   (lsp-headerline-breadcrumb-enable-diagnostics nil)
@@ -5184,12 +5539,6 @@ Quit recursive edit using C-]
   (lsp-ui-sideline-show-diagnostics t)
   (lsp-ui-sideline-show-code-actions t)
   (lsp-ui-sideline-delay 0.1)
-  ;; doc
-  (lsp-ui-doc-enable t)
-  (lsp-ui-doc-include-signature t)
-  (lsp-ui-doc-show-with-cursor t)
-  (lsp-ui-doc-header nil)
-  (lsp-ui-doc-delay 1)
   ;; peek
   (lsp-ui-peek-enable t)
   ;; imenu
@@ -5210,7 +5559,8 @@ Quit recursive edit using C-]
              ;; lsp-diagnostics-updated-hook, so this will fail the first time
              ;; through
     (if (facep 'lsp-flycheck-info-unnecessary-face)
-        (set-face-attribute 'lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil)))
+        (set-face-attribute 'lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil))
+    )
 
   :pretty-hydra
   ((
@@ -5221,18 +5571,24 @@ Quit recursive edit using C-]
      ;; ("e" lsp-treemacs-errors-list "Errors"))
     )
     )
-  :after-call doom-first-buffer-hook
-  :hook (
-          ;; (python-mode . lsp-deferred)
-         (c++-mode . vi/setup-c++-lsp)
-         ;; (lsp-mode . lsp-enable-which-key-integration)
-         ;; (lsp-mode . lsp-treemacs-sync-mode)
-         )
-  :commands (lsp lsp-deferred))
+  )
 
+(setq-hook! 'lsp-ui-doc-mode-hook
+    ;; doc in childframe
+  lsp-ui-doc-enable t
+  lsp-ui-doc-include-signature t
+  lsp-ui-doc-show-with-cursor t
+  lsp-ui-doc-position 'bottom
+  lsp-ui-doc-header nil
+  lsp-ui-doc-max-height 50
+  lsp-ui-doc-max-width 75
+  lsp-ui-doc-delay 1)
 
 
 #+end_src
+
+#+RESULTS[9eb169e25c585457cc9148d64b34fb64285b42e2]:
+| doom--setq-lsp-ui-doc-delay-for-lsp-ui-doc-mode-h | doom--setq-lsp-ui-doc-max-width-for-lsp-ui-doc-mode-h | doom--setq-lsp-ui-doc-max-height-for-lsp-ui-doc-mode-h | doom--setq-lsp-ui-doc-header-for-lsp-ui-doc-mode-h | doom--setq-lsp-ui-doc-position-for-lsp-ui-doc-mode-h | doom--setq-lsp-ui-doc-show-with-cursor-for-lsp-ui-doc-mode-h | doom--setq-lsp-ui-doc-include-signature-for-lsp-ui-doc-mode-h | doom--setq-lsp-ui-doc-enable-for-lsp-ui-doc-mode-h |
 
 ** COMMENT treemacs/lsp
 
@@ -5600,6 +5956,9 @@ set-formatter! can silently break the chain (?)
   (setf (alist-get 'isort apheleia-formatters) '("isort" "--profile=black" "--stdout" "-"))
   (setf (alist-get 'usort apheleia-formatters) '("usort" "format" "-"))
 
+  ;; this may require `npm install -g prettier prettier-plugin-toml --save-dev --save-exact`
+  (setf (alist-get 'prettier-toml apheleia-formatters) '(npx "prettier" "--stdin-filepath" filepath "--parser=toml"))
+
   ;; Black uses config in ~/.config/black but not if a pyproject.toml is present (https://github.com/psf/black/issues/2863)
   (setf (alist-get 'black apheleia-formatters) '("black" "--config" (substitute-in-file-name "$HOME/.config/black") "-"))
 
@@ -5609,6 +5968,7 @@ set-formatter! can silently break the chain (?)
   ;; (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
 
   (setf (alist-get 'python-mode apheleia-mode-alist) '(usort black))
+  (setf (alist-get 'conf-toml-mode apheleia-mode-alist) '(prettier-toml))
   (apheleia-global-mode)
   )
 #+end_src
@@ -5727,6 +6087,22 @@ In fact, sh-set-shell already has advice ~doom-shut-up-a~ around it
 - See dired-subtree [https://github.com/Fuco1/dired-hacks#dired-subtree] and dired-sidebar [https://github.com/jojojames/dired-sidebar]
 
 
+
+*** dirvish
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! dirvish)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! dirvish
+  :config
+  (dirvish-override-dired-mode)
+  (dirvish-peek-mode))
+
+#+end_src
 
 *** dired git info/log
 
@@ -5900,6 +6276,7 @@ https://old.reddit.com/r/emacs/comments/imy9f1/all_the_icons_dired_subtree/
       ("F" dired-do-find-marked-files "find marked")
       ("A" dired-do-find-regexp "find rx")
       ("Q" dired-do-find-regexp-and-replace "rx replace")
+
       )
      "listing"
      (
@@ -6089,10 +6466,9 @@ So we could:
 
 
 #+begin_src emacs-lisp
-(use-package! tramp
-  :custom
-  ;; set in .ssh/config
-  (tramp-use-ssh-controlmaster-options nil)
+;; set in .ssh/config
+(after! tramp
+  (setq tramp-use-ssh-controlmaster-options nil)
   )
 #+end_src
 
@@ -6219,6 +6595,17 @@ alternative: https://github.com/karthink/org-auctex
 
 
 
+
+** Force kill buffer
+
+
+
+#+begin_src emacs-lisp
+(defun vi/force-kill-buffer ()
+  (interactive)
+  (let (kill-buffer-hook kill-buffer-query-functions)
+    (kill-buffer)))
+#+end_src
 
 * atomic chrome
 
