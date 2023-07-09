@@ -1,20 +1,23 @@
 tap "eth-p/software"
 tap "homebrew/bundle"
 tap "homebrew/core"
+tap "homebrew/services"
+tap "indigoviolet/tap"
 tap "jesseduffield/lazydocker"
+tap "mistertea/et"
 tap "mutagen-io/mutagen"
 tap "rs/tap"
 tap "saulpw/vd"
 # Provides session management: i.e. separate programs from terminals
 brew "abduco"
-# Extendable version manager with support for Ruby, Node.js, Erlang & more
-brew "asdf"
+# ChatGPT cli
+brew "aichat"
 # Improved shell history for zsh and bash
 brew "atuin"
 # Official Amazon AWS command-line interface
 brew "awscli"
-# Get a file from an HTTP, HTTPS or FTP server
-brew "curl"
+# Human-friendly and fast alternative to cut and (sometimes) awk
+brew "choose-rust"
 # JSON, YAML, TOML, XML, and CSV query and modification tool
 brew "dasel"
 # Load/unload environment variables based on $PWD
@@ -23,28 +26,34 @@ brew "direnv"
 brew "dive"
 # HTTP load testing application written in Rust
 brew "drill"
+# Emulates the detach feature of screen
+brew "dtach"
 # More intuitive version of du in rust
 brew "dust"
 # Easily install prebuilt binaries from GitHub
 brew "eget"
 # Simple, fast and user-friendly alternative to find
 brew "fd"
+# Play, record, convert, and stream audio and video
+brew "ffmpeg"
 # Command-line fuzzy finder written in Go
 brew "fzf"
-# GNU compiler collection
-brew "gcc"
 # GitHub command-line tool
 brew "gh"
 # Git extension for versioning large files
 brew "git-lfs"
 # Improved top (interactive process viewer)
 brew "htop"
+# Image loading and rendering library
+brew "imlib2"
 # Command-line pager for JSON data
 brew "jless"
 # Lightweight and flexible command-line JSON processor
 brew "jq"
 # Handy way to save and run project-specific commands
 brew "just"
+# Kubernetes command-line interface
+brew "kubernetes-cli"
 # Pager program similar to more
 brew "less"
 # Header files of the Linux kernel
@@ -53,25 +62,47 @@ brew "linux-headers@4.4"
 brew "lsd"
 # Modern and intuitive terminal-based text editor
 brew "micro"
+# Fast Cross-Platform Package Manager
+brew "micromamba"
+# Remote terminal application
+brew "mosh"
 # Process manager for Procfile-based applications and tmux
 brew "overmind"
+# CLI for Postgres with auto-completion and syntax highlighting
+brew "pgcli"
 # Execute binaries from Python packages in isolated environments
 brew "pipx"
+# Cloud native development platform
+brew "pulumi"
+# Polyglot runtime manager (asdf rust clone)
+brew "rtx"
 # Cross-shell prompt for astronauts
 brew "starship"
+# Display images in a terminal using block graphic characters
+brew "terminalimageviewer"
 # CLI csv pretty printer
 brew "tidy-viewer"
 # Configure transparent encryption of files in a Git repo
 brew "transcrypt"
 # Generator for LS_COLORS with support for multiple color themes
 brew "vivid"
+# JavaScript toolchain manager for reproducible environments
+brew "volta"
+# Fast CSV toolkit written in Rust
+brew "xsv"
 # Yet Another Dotfiles Manager
 brew "yadm"
+# Process YAML, JSON, XML, CSV and properties documents from the CLI
+brew "yq"
 # Shell extension to navigate your filesystem faster
 brew "zoxide"
 # Bash scripts that integrate bat with various command-line tools
 brew "eth-p/software/bat-extras"
+# NVIDIA NGC CLI
+brew "indigoviolet/tap/nvidia_ngc_cli"
 # A simple terminal UI for docker, written in Go
 brew "jesseduffield/lazydocker/lazydocker"
 # Fast file synchronization and network forwarding for remote development
 brew "mutagen-io/mutagen/mutagen-beta"
+# Terminal utility for exploring and arranging tabular data
+brew "saulpw/vd/visidata"

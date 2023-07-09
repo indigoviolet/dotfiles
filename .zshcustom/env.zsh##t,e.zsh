@@ -44,6 +44,10 @@ setopt HIST_IGNORE_SPACE
 path[1,0]=$HOME/.local/bin/
 path[1,0]=$HOME/.cargo/bin/
 
+# https://github.com/jdxcode/rtx#ide-integration (vscode doesn't load the function from .zshcustom/asdf.zsh)
+path[1,0]=$HOME/.local/share/rtx/shims/
+
+
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#808080,underline"
 export ZSH_AUTOSUGGEST_STRATEGY=(completion history)
 

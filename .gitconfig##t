@@ -126,7 +126,7 @@
 
 ## the credential manager is cross-platform
 [credential]
-    helper = git-credential-manager-core
+    helper = manager            # git-credential-manager
 
 ## on windows/osx the store is the keychain by default
 

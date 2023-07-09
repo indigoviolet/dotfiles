@@ -5587,8 +5587,6 @@ Quit recursive edit using C-]
 
 #+end_src
 
-#+RESULTS[9eb169e25c585457cc9148d64b34fb64285b42e2]:
-| doom--setq-lsp-ui-doc-delay-for-lsp-ui-doc-mode-h | doom--setq-lsp-ui-doc-max-width-for-lsp-ui-doc-mode-h | doom--setq-lsp-ui-doc-max-height-for-lsp-ui-doc-mode-h | doom--setq-lsp-ui-doc-header-for-lsp-ui-doc-mode-h | doom--setq-lsp-ui-doc-position-for-lsp-ui-doc-mode-h | doom--setq-lsp-ui-doc-show-with-cursor-for-lsp-ui-doc-mode-h | doom--setq-lsp-ui-doc-include-signature-for-lsp-ui-doc-mode-h | doom--setq-lsp-ui-doc-enable-for-lsp-ui-doc-mode-h |
 
 ** COMMENT treemacs/lsp
 

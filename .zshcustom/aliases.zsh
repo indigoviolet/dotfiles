@@ -22,7 +22,8 @@ if [[ $(zshtype l) == 'alias' ]]; then
 fi
 
 alias rm="rm -iv"
-alias py="ipython"
+# alias py="ipython"
+alias py="python -c 'import IPython; IPython.terminal.ipapp.launch_new_instance()'"
 # alias t="tmux -2 -u -CC a || tmux -2 -u -CC"
 alias htopt="htop -p \"$(ps a -o 'pid' | tail -n +2 | perl -0777 -lne 'chop; s/\n/,/g; print')\""
 alias find=fd

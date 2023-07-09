@@ -3,10 +3,15 @@
 
 
 {% if yadm.class == "personal" %}
-# On graphical Ubuntu, gnome-keyring-daemon is running but doesn't set the right
-# SSH_AUTH_SOCK variable
-# https://warlord0blog.wordpress.com/2020/01/29/gnome-keyring-and-ssh-agent/
-export SSH_AUTH_SOCK=/run/user/$(id -u)/keyring/ssh
+# https://jamezrin.name/my-perfect-ssh-agent-configuration
+eval $(gnome-keyring-daemon --start)
+export SSH_AUTH_SOCK
+
+# # On graphical Ubuntu, gnome-keyring-daemon is running but doesn't set the right
+# # SSH_AUTH_SOCK variable
+# # https://warlord0blog.wordpress.com/2020/01/29/gnome-keyring-and-ssh-agent/
+# export SSH_AUTH_SOCK=/run/user/$(id -u)/keyring/ssh
+
 ssh-add -l >/dev/null || ssh-add
 {% endif %}
 

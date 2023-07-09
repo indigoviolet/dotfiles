@@ -75,6 +75,8 @@ sync:
         - .config/pypoetry/*
         - '!.config/rclone'
         - .config/rclone/*
+        - '!.config/rtx'
+        - .config/rtx/*
         - '!.config/systemd'
         - .config/systemd/*
         - '!.config/systemd/user'
@@ -137,6 +139,8 @@ sync:
         - '!.config/paperwm/user.js'
         - '!.config/pypoetry/config.toml'
         - '!.config/rclone/rclone.conf'
+        - '!.config/rtx/config.toml##c.personal,e.toml'
+        - '!.config/rtx/config.toml##c.remote,e.toml'
         - '!.config/starship.toml'
         - '!.config/systemd/user/imwheel.service'
         - '!.config/yadm/bootstrap##t'
@@ -180,8 +184,6 @@ sync:
         - '!.ssh/id_rsa.pub##c.personal'
         - '!.tigrc'
         - '!.tmux.conf'
-        - '!.tool-versions##c.personal'
-        - '!.tool-versions##c.remote'
         - '!.zlogin'
         - '!.zlogout'
         - '!.zpreztorc'
@@ -190,7 +192,6 @@ sync:
         - '!.zshcustom/aliases.zsh'
         - '!.zshcustom/android.zsh'
         - '!.zshcustom/asdf.zsh'
-        - '!.zshcustom/asdf.zsh##t,e.zsh'
         - '!.zshcustom/atuin.zsh'
         - '!.zshcustom/brew.zsh##t,e.zsh'
         - '!.zshcustom/build.zsh##t,e.zsh'
@@ -257,6 +258,8 @@ sync:
         - .config/pypoetry/*
         - '!.config/rclone'
         - .config/rclone/*
+        - '!.config/rtx'
+        - .config/rtx/*
         - '!.config/systemd'
         - .config/systemd/*
         - '!.config/systemd/user'
@@ -319,6 +322,8 @@ sync:
         - '!.config/paperwm/user.js'
         - '!.config/pypoetry/config.toml'
         - '!.config/rclone/rclone.conf'
+        - '!.config/rtx/config.toml##c.personal,e.toml'
+        - '!.config/rtx/config.toml##c.remote,e.toml'
         - '!.config/starship.toml'
         - '!.config/systemd/user/imwheel.service'
         - '!.config/yadm/bootstrap##t'
@@ -362,8 +367,6 @@ sync:
         - '!.ssh/id_rsa.pub##c.personal'
         - '!.tigrc'
         - '!.tmux.conf'
-        - '!.tool-versions##c.personal'
-        - '!.tool-versions##c.remote'
         - '!.zlogin'
         - '!.zlogout'
         - '!.zpreztorc'
@@ -372,7 +375,6 @@ sync:
         - '!.zshcustom/aliases.zsh'
         - '!.zshcustom/android.zsh'
         - '!.zshcustom/asdf.zsh'
-        - '!.zshcustom/asdf.zsh##t,e.zsh'
         - '!.zshcustom/atuin.zsh'
         - '!.zshcustom/brew.zsh##t,e.zsh'
         - '!.zshcustom/build.zsh##t,e.zsh'

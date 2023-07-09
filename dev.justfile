@@ -11,29 +11,28 @@ conda_cpm_t5_env:
 
 
 [no-cd]
-rebuild_venv ENV_FILE *args:
-    mamba env update -f {{ ENV_FILE }}  -p ./.venv "$@"
-    direnv reload
-    pip install --no-build-isolation --no-deps -e .
+mamba_rebuild_venv ENV_FILE *args:
+    mamba env update -f {{ ENV_FILE }}  -p ./.venv "${@:2}"
+    mamba run pip install --no-build-isolation --no-deps -e .
 
 [no-cd]
-micro_rebuild_venv ENV_FILE *args:
+rebuild_venv ENV_FILE *args:
+    # micromamba create -f {{ ENV_FILE }} -p ./.venv "${@:2}"
+    micromamba update -f {{ ENV_FILE }} -p ./.venv "${@:2}"
     # https://github.com/mamba-org/mamba/issues/2221
-    # micromamba update -f {{ ENV_FILE }}  -p ./.venv "$@"
-    mamba env update -f {{ ENV_FILE }}  -p ./.venv "$@"#
-    direnv reload
-    pip install --no-build-isolation --no-deps -e .
+    micromamba run -p ./.venv pip install $(yq e '.dependencies[] | select(has("pip")).pip[]' {{ ENV_FILE }})
+    micromamba run -p ./.venv pip install --no-build-isolation --no-deps -e .
 
 
 THELIO_HOST := `tailscale status --json | jq -r '.Peer[] | select(.HostName == "thelio") | .DNSName | rtrimstr(".")'`
 
 thelio_ssh:
-    ssh {{ THELIO_HOST }}
+    autossh {{ THELIO_HOST }}
 
 
 run_jupyter port='55667':
     # should be run on thelio
-    pkill -u venky jupyter; cd /home/venky/dev/instant-science; jupyter server --no-browser --port={{ port }}
+    pkill -u venky jupyter; cd /home/venky/dev/instant-science; jupyter server --no-browser --port={{ port }} --ServerApp.iopub_data_rate_limit=1.0e10
 
 [no-cd]
 overmind CMD:

@@ -38,7 +38,7 @@ external_plugins=(
     ## deliberately using the module externally instead of from prezto; so we
     ## can set ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE ourselves in env.zsh
     zsh-users/zsh-autosuggestions
-
+    Aloxaf/fzf-tab
     # TODO: Add regexp support to this plugin (with =~ and PCRE) https://github.com/indigoviolet/zsh-history-filter/blob/master/zsh-history-filter.plugin.zsh#L28
     # TODO: Use `rg` to rewrite_history
     # MichaelAquilina/zsh-history-filter
@@ -64,10 +64,12 @@ zstyle ':prezto:load' pmodule \
     'utility' \
     'history' \
     'completion' \
+    'fzf-tab' \
     'zsh-autosuggestions' \
     'zsh-hist'
 # 'zsh-history-filter'
 
+    #
 # 'ssh' \ # Managed in .zshcustom/ssh.zsh
 # 'history-substring-search' # see input.zsh
 # 'contrib-prompt' \

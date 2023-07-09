@@ -9,6 +9,7 @@
 __pycache__/
 *ediff-merge*
 .log/
+node_modules/
 
 # Local Variables:
 # mode: gitignore

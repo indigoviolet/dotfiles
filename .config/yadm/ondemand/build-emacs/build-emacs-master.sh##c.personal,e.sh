@@ -5,13 +5,13 @@
 set -ev
 
 BUILD_DIR=~/dev/emacs
-BRANCH='emacs-29'
-
-# BUILD_DIR=~/dev/emacs-29
 # BRANCH='emacs-29'
+BRANCH='master'
 
-PINNED='HEAD'
-# PINNED='c5af19'
+# PINNED='HEAD'
+
+# https://discourse.doomemacs.org/t/emacs-head-30-0-50-support/3241/8
+PINNED='42fba8f36b19536964d6deb6a34f3fd1c02b43dd'
 
 echo "Using pinned commit $PINNED on $BRANCH in $BUILD_DIR (RETURN to continue, ^C to quit)"
 read nought
@@ -19,9 +19,8 @@ read nought
 cd $BUILD_DIR
 git fetch
 
-## on nativecomp: Pinned commit for https://discord.com/channels/406534637242810369/406536226166800384/797785171767197716
-# PINNED='213b5d73159cafbdd52b9c0fb0479544cca98a77'
-
+# ensure that the pinned sha is available even though shallow
+git fetch --depth=1 origin $PINNED
 git checkout $BRANCH && git pull --ff && git clean -dfx && make clean
 git checkout $PINNED
 
@@ -34,7 +33,7 @@ sudo apt-get install --no-install-recommends -y \
 
 # .zshcustom/build.zsh
 # 7:export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
-CC= ~/.config/yadm/ondemand/build-emacs/configure-emacs.sh
+PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig CC= ~/.config/yadm/ondemand/build-emacs/configure-emacs.sh
 
 make -j8
 
@@ -51,7 +50,7 @@ read nought
 sudo make -j8 install
 
 installed_commit=$(git rev-parse --short HEAD)
-echo "Installed: $installed_commit" | ts >> build-emacs.log
+echo "Installed: $installed_commit" | ts >> ~/.config/yadm/ondemand/build-emacs/completed-builds.log
 
 systemctl --user disable emacs.service
 sudo rm /usr/local/share/applications/{emacsclient,emacs-mail,emacsclient-mail}.desktop
