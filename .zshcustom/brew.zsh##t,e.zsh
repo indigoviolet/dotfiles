@@ -7,7 +7,7 @@ test -x /home/linuxbrew/.linuxbrew/bin/brew && eval $(/home/linuxbrew/.linuxbrew
 {% else %}
 # Darwin
 # yadm's default template processor does not support elif
-eval $(brew shellenv)
+eval $(/opt/homebrew/bin/brew shellenv)
 {% endif %}
 
 if type brew &>/dev/null; then
