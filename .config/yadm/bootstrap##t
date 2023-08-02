@@ -7,9 +7,6 @@ set positional-arguments
 default:
     just --list -u -f {{ justfile() }}
 
-@execute_bootstrap *args:
-    just --summary --unsorted -f {{ justfile() }} | xargs -n1 echo | rg -vw 'default|execute_bootstrap' | xargs -n1 just -f {{ justfile() }} --verbose "$@"
-
 {% if yadm.distro == "Ubuntu" %}
 build_deps:
     sudo apt-get update
@@ -75,8 +72,6 @@ git_completion:
 
 git_info:
     mkdir -p ~/.local/bin && curl -fsSL https://raw.githubusercontent.com/gitbits/git-info/master/git-info --output ~/.local/bin/git-info && chmod +x ~/.local/bin/git-info
-
-{% if yadm.class == "personal" %}
 
 chemacs:
     git clone https://github.com/plexus/chemacs.git "${HOME}/.local/chemacs" && $HOME/.local/chemacs/install.sh
@@ -149,8 +144,6 @@ twemoji_fonts:
     sudo apt-add-repository -y -S "deb https://ppa.launchpadcontent.net/eosrei/fonts/ubuntu/ impish main"
     sudo apt-get update
     sudo apt-get install -y fonts-twemoji-svginot
-{% endif %}
-
 {% endif %}
 
 # Local Variables:

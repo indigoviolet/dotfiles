@@ -19,7 +19,12 @@ default:
     just --list -u -f {{ justfile() }}
 #+end_src
 
-* Execute
+* COMMENT Execute
+
+We can't do this -- execute all tasks in order -- because we can't template on
+two variables (class and distro) simultaneously, and we want some personal on
+ubuntu and some personal on mac. so we might have to instead list out the
+bootstrap tasks for each class.
 
 #+begin_src just
 @execute_bootstrap *args:
@@ -91,6 +96,8 @@ brew_bundle:
 
 * COMMENT asdf
 
+TODO: replace with rtx
+
 asdf installed with Brew
 
 #+begin_src just
@@ -132,6 +139,9 @@ zsh_login_shell:
 #+end_src
 
 * COMMENT Mamba
+
+
+TODO: we're using rye + micromamba maybe these days
 
 https://github.com/conda-forge/miniforge#non-interactive-install
 
@@ -204,27 +214,22 @@ git_info:
     mkdir -p ~/.local/bin && curl -fsSL https://raw.githubusercontent.com/gitbits/git-info/master/git-info --output ~/.local/bin/git-info && chmod +x ~/.local/bin/git-info
 #+end_src
 
-* Personal
 
-#+begin_src just
-{% if yadm.class == "personal" %}
-#+end_src
-
-** chemacs
+* chemacs
 
 #+begin_src just
 chemacs:
     git clone https://github.com/plexus/chemacs.git "${HOME}/.local/chemacs" && $HOME/.local/chemacs/install.sh
 #+end_src
 
-** doom emacs
+* doom emacs
 
 #+begin_src just
 doom_emacs:
     git clone https://github.com/hlissner/doom-emacs "${HOME}/.emacs.d" && $HOME/.emacs.d/bin/doom install
 #+end_src
 
-** Tailscale
+* Tailscale
 
 #+begin_src just
 {% if yadm.distro == "Ubuntu" %}
@@ -241,14 +246,14 @@ tailscale:
 
 
 
-** Leechblock
+* Leechblock
 
 #+begin_src just
 leechblock:
     mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone indigoviolet/LeechBlockNG-chrome && cd LeechBlockNG-chrome && ./install-jquery.sh
 #+end_src
 
-** Paywall
+* Paywall
 
 #+begin_src just
 paywall:
@@ -256,7 +261,7 @@ paywall:
 #+end_src
 
 
-** Gcloud
+* Gcloud
 
 #+begin_src just
 {% if yadm.distro == "Ubuntu" %}
@@ -268,7 +273,7 @@ gcloud:
 {% endif %}
 #+end_src
 
-** huawei matebook
+* huawei matebook
 
 #+begin_src just
 {% if yadm.distro == "Ubuntu" %}
@@ -283,7 +288,7 @@ add_matebook_ppas:
 {% endif %}
 #+end_src
 
-** Fonts
+* Fonts
 
 On Darwin we would do this with brew
 
@@ -309,7 +314,7 @@ nerd_fonts:
 {% endif %}
 #+end_src
 
-*** all-the-icons
+** all-the-icons
 
 #+begin_src just
 doom_all_the_icons:
@@ -317,7 +322,7 @@ doom_all_the_icons:
     echo 'y' | emacs -l ~/.config/doom/init.el --batch -f all-the-icons-install-fonts
 #+end_src
 
-*** twemoji
+** twemoji
 
 
 #+begin_src just
@@ -329,335 +334,8 @@ twemoji_fonts:
 {% endif %}
 #+end_src
 
-** endif
 
-#+begin_src just
-{% endif %}
-#+end_src
 
-
-* COMMENT Old
-** COMMENT Dispatcher
-
-https://raw.githubusercontent.com/TheLocehiliosan/yadm/master/contrib/bootstrap/bootstrap-in-dir
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap
-# Save this file as ~/.config/yadm/bootstrap and make it executable. It will
-# execute all executable files (excluding templates and editor backups) in the
-# ~/.config/yadm/bootstrap.d directory when run.
-
-set_init
-
-# Directory to look for bootstrap executables in
-BOOTSTRAP_D="${BASH_SOURCE[0]}.d"
-
-if [[ ! -d "$BOOTSTRAP_D" ]]; then
-    echo "Error: bootstrap directory '$BOOTSTRAP_D' not found" >&2
-    exit 1
-fi
-
-find -L "$BOOTSTRAP_D" -type f | sort | while IFS= read -r bootstrap; do
-    if [[ -x "$bootstrap" && ! "$bootstrap" =~ "##" && ! "$bootstrap" =~ "~$" ]]; then
-        if ! "$bootstrap"; then
-            echo "Error: bootstrap '$bootstrap' failed" >&2
-            exit 1
-        fi
-    fi
-done
-
-#+end_src
-
-
-** COMMENT build deps
-
-for pyenv builds https://github.com/pyenv/pyenv/wiki/common-build-problems (which also affect asdf)
-
-distro_family is not always present and can't be overridden: https://github.com/TheLocehiliosan/yadm/issues/430
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/010-build-deps.sh##distro_family.debian :noweb tangle
-<<build-deps.sh>>
-#+end_src
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/010-build-deps.sh##distro.Debian :noweb tangle
-<<build-deps.sh>>
-#+end_src
-
-#+begin_src shell :noweb-ref build-deps.sh
-set_init
-sudo apt-get update
-sudo apt-get install --no-install-recommends -y clang
-sudo apt-get install --no-install-recommends -y \
-    make build-essential \
-    libssl-dev zlib1g-dev libbz2-dev \
-    libreadline-dev libsqlite3-dev \
-    wget llvm \
-    libncurses5 libncurses5-dev libncursesw5 \
-    xz-utils tk-dev \
-    libxml2-dev libffi-dev \
-    libxmlsec1-dev liblzma-dev
-#+end_src
-
-** COMMENT Prezto
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/020-prezto.sh
-set -ux
-git clone --recursive https://github.com/sorin-ionescu/prezto.git "${HOME}/.zprezto"
-git clone --recurse-submodules https://github.com/belak/prezto-contrib "${HOME}/.zprezto/contrib"
-cd ~/.zprezto/contrib && git pull
-#+end_src
-
-
-** COMMENT zsh login shell
-
-distro_family is not always present and can't be overridden: https://github.com/TheLocehiliosan/yadm/issues/430
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro_family.debian :noweb tangle
-<<login-shell-zsh.sh>>
-#+end_src
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/030-login-shell-zsh.sh##distro.Debian :noweb tangle
-<<login-shell-zsh.sh>>
-#+end_src
-
-#+begin_src shell :noweb-ref login-shell-zsh.sh
-set_init
-
-sudo apt-get install --no-install-recommends -y zsh && sudo chsh -s $(which zsh) $(whoami)
-#+end_src
-
-To check (Might need to reboot to get it to work on login??):
-
-#+begin_src
-grep $(whoami) /etc/passwd
-sudo su - $(whoami)
-#+end_src
-
-** COMMENT Brew
-
-+brew bundle dump --force --describe --casks --file=-+ See [[file:.zshcustom/brew.zsh::function brew-dump-leaves () {][brew-dump-leaves]] instead
-
-just =brew-dump-leaves >! ~/.Brewfile=
-
-Note that .Brewfile is an alt file
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/040-brew.sh
-set_init
-
-# install items
-if [[ -e ~/.Brewfile ]]; then
-	brew bundle --global check || brew bundle --global install -v
-fi
-#+end_src
-
-
-** COMMENT Asdf
-
-asdf installed with Brew
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/050-asdf.sh
-set -ux
-
-## https://github.com/asdf-vm/asdf/issues/276#issuecomment-907063520
-cut -d' ' -f1 .tool-versions | xargs -i asdf plugin add {}
-
-## installs from .tool-versions (which is an alt file)
-## the install-poetry installer is default with 1.2, but that is still alpha and has bugs <2022-02-07 Mon>
-# ASDF_POETRY_INSTALL_URL=https://install.python-poetry.org asdf install
-#+end_src
-
-** COMMENT Mamba (conda)
-
-https://github.com/conda-forge/miniforge#non-interactive-install
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/051-mamba-conda.sh
-set -ux
-cd /tmp
-wget -O Mambaforge.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
-bash Mambaforge.sh -b -p $HOME/.local/mambaforge
-#+end_src
-
-** COMMENT Pipx
-
-pipx is installed with Brew
-
-We use .pipx.json which is created by
-
-~just pipx_update_list~
-
-Note that .pipx.json is an alt file
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/060-pipx.sh
-set -ux
-if [[ -e ~/.pipx.json ]]; then
-    for p in $(cat ~/.pipx.json | jq -r '.venvs[].metadata.main_package.package_or_url'); do
-        pipx install $p
-    done
-fi
-exit 0
-#+end_src
-
-*** Handle injected packages?
-
-
-
-Long-term it would be nice to just have a comprehensive way to handle the exported json
-
-For example, we'd like to inject ipykernel into ipython, so that ipykernel
-doesn't need to be in every package that wants to use jupyter
-
-#+begin_src shell :results raw drawer
-pipx list --json \
-     | jq -r '.venvs[].metadata | {main_package: .main_package.package_or_url, injected: (.injected_packages | (keys[] // null))}' \
-     | jq -r '"pipx install \(.main_package)", if .injected != null then "pipx inject \(.main_package) \(.injected)" else "" end'
-#+end_src
-
-Another version:
-
-#+begin_example shell
-cat ~/.pipx.json | jq -cr '.venvs | map_values(.metadata.injected_packages | keys) | to_entries | map(.key + " " + (.value|join(",")))'
-#+end_example
-
-
-** COMMENT Misc utilities
-
-#+begin_src shell :shebang "#!/usr/bin/env zsh" :tangle ~/.config/yadm/bootstrap.d/070-misc-utilities.zsh##t,e.zsh
-set -eux
-
-# https://scriptingosx.com/2019/11/associative-arrays-in-zsh/
-declare -A utils
-utils=(
-    # these come with ubuntu
-    [less]=less
-    [notify-send]=libnotify-bin
-    # brew installs shitloads of dependencies
-    [svn]=subversion
-
-{% if yadm.class == "personal" %}
-{% endif %}
-
-{% if yadm.class == "gcp" %}
-    # not present in brew/Debian
-    # [nvtop]=nvtop
-    [netstat]=net-tools
-{% endif %}
-)
-for util lib in ${(kv)utils}; do
-    (command -v $util &> /dev/null) || sudo apt-get install --no-install-recommends -y $lib
-done
-
-## git-info
-mkdir -p ~/.local/bin && curl -fsSL https://raw.githubusercontent.com/gitbits/git-info/master/git-info --output ~/.local/bin/git-info && chmod +x ~/.local/bin/git-info
-
-## poetry completion in prezto (https://python-poetry.org/docs/master/#enable-tab-completion-for-bash-fish-or-zsh)
-## poetry installed with asdf
-# poetry completions zsh > ~/.zprezto/modules/completion/external/src/_poetry
-
-## Handy way to install things from github
-# for ext in redraw/gh-install; do
-#     (gh extension list | grep $ext) && echo "installed" || gh install $ext
-# done
-
-## GCM core git credential helper (see https://blog.djnavarro.net/posts/2021-08-08_git-credential-helpers/)
-eget -a '.deb' GitCredentialManager/git-credential-manager --to /dev/stdout | sudo dpkg -i /dev/stdin
-git credential-manager configure
-
-# huawei matebook
-# https://github.com/qu1x/huawei-wmi/tree/master/debian#repository
-echo "deb https://deb.qu1x.org buster main" | sudo tee /etc/apt/sources.list.d/qu1x.list
-# sudo apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-keys 4503d1ab
-
-# matebook-applet
-echo "deb [signed-by=/usr/share/keyrings/matebook-applet.key] http://evgenykuznetsov.org/repo/ stable main" | sudo tee /etc/apt/sources.list.d/matebook-applet.list
-wget -qO - https://raw.githubusercontent.com/nekr0z/matebook-applet/master/matebook-applet.key | sudo tee /usr/share/keyrings/matebook-applet.key
-
-# twemoji fonts
-sudo apt-add-repository -y -S "deb https://ppa.launchpadcontent.net/eosrei/fonts/ubuntu/ impish main"
-sudo apt-get update
-sudo apt-get install -y fonts-twemoji-svginot
-
-# Tailscale
-curl -fsSL https://pkgs.tailscale.com/unstable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
-curl -fsSL https://pkgs.tailscale.com/unstable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
-sudo apt-get update
-sudo apt-get install -y tailscale
-#+end_src
-
-
-** COMMENT chemacs
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/080-chemacs.sh##c.personal,e.sh
-set_init
-{ git clone https://github.com/plexus/chemacs.git "${HOME}/.local/chemacs" && $HOME/.local/chemacs/install.sh; } || exit 0
-#+end_src
-
-** COMMENT Doom emacs
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/090-doom-emacs.sh##c.personal,e.sh
-set_init
-{ git clone https://github.com/hlissner/doom-emacs "${HOME}/.emacs.d" && $HOME/.emacs.d/bin/doom install; } || exit 0
-#+end_src
-
-** COMMENT git completion
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/100-git-completion.sh
-set -ux
-curl -o ${ZSH_CUSTOM_DIR}/git-completion.bash https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
-curl -o ${ZSH_CUSTOM_DIR}/_git https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh
-#+end_src
-
-** COMMENT Leechblock
-
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/110-leechblock.sh##c.personal,e.sh
-set -ux
-{ mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone indigoviolet/LeechBlockNG-chrome && cd LeechBlockNG-chrome && ./install-jquery.sh; } || exit 0
-#+end_src
-
-** COMMENT paywall
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/120-paywall.sh##c.personal,e.sh
-set -ux
-{ mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone iamadamdev/bypass-paywalls-chrome; } || exit 0
-#+end_src
-
-** COMMENT Fonts
-
-On Darwin we would do this with brew
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/130-fonts.sh##c.personal,e.sh
-set_init
-
-# Jetbrains Mono patched (https://github.com/ryanoasis/nerd-fonts#option-5-clone-the-repo)
-if [[ ! -d  $HOME/dev/nerd-fonts ]]; then
-    mkdir -p $HOME/dev
-    cd $HOME/dev
-    git clone --filter=blob:none --sparse git@github.com:ryanoasis/nerd-fonts
-else
-    cd $HOME/dev/nerd-fonts
-    git fetch
-fi
-
-for font in JetBrainsMono/Ligatures IBMPlexMono VictorMono Iosevka; do
-    git sparse-checkout add patched-fonts/$font
-    ./install.sh "${font%%/*}"
-done
-
-# Should we do this via doomscript? https://github.com/doomemacs/doomemacs/issues/6494
-echo 'y' | emacs -l ~/.config/doom/init.el --batch -f all-the-icons-install-fonts
-#+end_src
-
-
-
-** COMMENT Gcloud
-
-#+begin_src shell :shebang "#!/usr/bin/env bash" :tangle ~/.config/yadm/bootstrap.d/140-gcloud.sh##c.personal,e.sh
-set_init
-
-sudo apt-get install apt-transport-https ca-certificates gnupg
-echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list
-curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-sudo apt-get update && sudo apt-get install --no-install-recommends -y google-cloud-sdk
-
-#+end_src
 * local variables
 
 
