@@ -17,6 +17,7 @@ PaperWM:bindHotkeys({
     center_window = {{"cmd", "shift"}, "c"},
     full_width    = {{"cmd", "shift"}, "f"},
     cycle_width   = {{"cmd", "shift"}, "r"},
+    split_screen = {{"cmd", "shift"}, "s"},
     -- cycle_height  = {{"ctrl", "alt", "cmd", "shift"}, "r"},
 
     -- move focused window into / out of a column

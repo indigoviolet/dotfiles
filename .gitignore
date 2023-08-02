@@ -10,6 +10,7 @@ __pycache__/
 *ediff-merge*
 .log/
 node_modules/
+.DS_Store
 
 # Local Variables:
 # mode: gitignore

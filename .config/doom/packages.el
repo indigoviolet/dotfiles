@@ -1,3 +1,5 @@
+;; packages.el
+
 ;; [[file:config.org::*packages.el][packages.el:1]]
 ;; -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
@@ -53,11 +55,14 @@
 ;(unpin! t)
 ;; packages.el:1 ends here
 
+;; modus
+
+
 ;; [[file:config.org::*modus][modus:1]]
 (package! modus-themes :recipe (:host github :repo "protesilaos/modus-themes"))
 ;; modus:1 ends here
 
-
+;; profiling code
 
 ;; https://github.com/hlissner/doom-emacs/issues/4498
 
@@ -67,11 +72,14 @@
 (package! benchmark-init)
 ;; profiling code:1 ends here
 
+;; debugging
+
+
 ;; [[file:config.org::*debugging][debugging:1]]
 (package! bug-hunter)
 ;; debugging:1 ends here
 
-
+;; Disabled/unpinned packages
 
 ;; [[file:~/.emacs.d/lisp/packages.el][file:~/.emacs.d/lisp/packages.el]] see Pinned package versions
 
@@ -87,19 +95,29 @@
 (unpin! helpful)
 ;; Disabled/unpinned packages:1 ends here
 
+;; persistent scratch
+
+
+
 ;; [[file:config.org::*persistent scratch][persistent scratch:1]]
 (package! persistent-scratch)
 ;; persistent scratch:1 ends here
+
+;; Eval
+
 
 ;; [[file:config.org::*Eval][Eval:1]]
 (package! pp+ :recipe (:host github :repo "emacsmirror/pp-plus"))
 ;; Eval:1 ends here
 
+;; (Disable) Mouse
+
+
 ;; [[file:config.org::*(Disable) Mouse][(Disable) Mouse:1]]
 (package! disable-mouse)
 ;; (Disable) Mouse:1 ends here
 
-
+;; Chords
 
 ;; https://dzone.com/articles/rare-letter-combinations-and
 
@@ -141,7 +159,7 @@
 (package! key-chord)
 ;; Chords:1 ends here
 
-
+;; dim other buffers
 
 ;; +Leads to all kinds of hell -- errors everywhere. unclear what this is conflicting with.
 ;; +https://github.com/mina86/auto-dim-other-buffers.el/issues/32+
@@ -151,7 +169,7 @@
 (package! auto-dim-other-buffers)
 ;; dim other buffers:1 ends here
 
-
+;; Rainbow
 ;; :LOGBOOK:
 ;; - State "KILL"       from "DONE"       [2022-01-26 Wed 17:28]
 ;; - State "DONE"       from "WAIT"       [2022-01-26 Wed 17:28]
@@ -168,19 +186,30 @@
 (package! rainbow-identifiers)
 ;; Rainbow:1 ends here
 
+;; pulsar
+
+
+
 ;; [[file:config.org::*pulsar][pulsar:1]]
 (package! pulsar)
 ;; pulsar:1 ends here
+
+;; highlights
+
+
 
 ;; [[file:config.org::*highlights][highlights:1]]
 (package! goggles :recipe (:host github :repo "minad/goggles"))
 ;; highlights:1 ends here
 
+;; wrap region
+
+
 ;; [[file:config.org::*wrap region][wrap region:1]]
 (package! wrap-region)
 ;; wrap region:1 ends here
 
-
+;; Libraries
 ;; https://xenodium.com/modern-elisp-libraries/
 
 ;; TODO: Look into seq, map, cl- instead of dash/ht
@@ -195,31 +224,50 @@
 (package! ts)
 ;; Libraries:1 ends here
 
+;; Find file - mark readonly
+
+
 ;; [[file:config.org::*Find file - mark readonly][Find file - mark readonly:1]]
 (package! hardhat :recipe (:host github :repo "rolandwalker/hardhat"))
 ;; Find file - mark readonly:1 ends here
+
+;; minor modes
 
 ;; [[file:config.org::*minor modes][minor modes:1]]
 (package! minions)
 ;; minor modes:1 ends here
 
+;; mode minder
+
+
 ;; [[file:config.org::*mode minder][mode minder:1]]
 (package! mode-minder :recipe (:host github :repo "jdtsmith/mode-minder"))
 ;; mode minder:1 ends here
+
+;; Movement
+
+
 
 ;; [[file:config.org::*Movement][Movement:1]]
 (package! windmove)
 ;; Movement:1 ends here
 
+;; Restore
+
+
 ;; [[file:config.org::*Restore][Restore:1]]
 (package! winner)
 ;; Restore:1 ends here
+
+;; bufler
+
+
 
 ;; [[file:config.org::*bufler][bufler:1]]
 (package! bufler)
 ;; bufler:1 ends here
 
-
+;; Popups
 
 
 ;; https://github.com/karthink/popper/issues/38
@@ -232,32 +280,55 @@
 ;; (package! popper )
 ;; Popups:2 ends here
 
+;; Adjust for display size change
+
+
 ;; [[file:config.org::*Adjust for display size change][Adjust for display size change:1]]
 (package! dispwatch :recipe (:host github :repo "mnp/dispwatch"))
 ;; Adjust for display size change:1 ends here
+
+;; Kill/Yank/Mark regions
+
+
 
 ;; [[file:config.org::*Kill/Yank/Mark regions][Kill/Yank/Mark regions:1]]
 ;; (package! hungry-delete)
 ;; Kill/Yank/Mark regions:1 ends here
 
+;; visible mark
+
+
+
 ;; [[file:config.org::*visible mark][visible mark:1]]
 (package! visible-mark)
 ;; visible mark:1 ends here
+
+;; expand region
+
+
+
 
 ;; [[file:config.org::*expand region][expand region:1]]
 (package! expand-region)
 ;; expand region:1 ends here
 
+;; easy-kill base
+
+
 ;; [[file:config.org::*easy-kill base][easy-kill base:1]]
 (package! easy-kill :recipe (:host github :repo "leoliu/easy-kill"))
 ;; easy-kill base:1 ends here
+
+;; easy-kill-extras
+
+
 
 ;; [[file:config.org::*easy-kill-extras][easy-kill-extras:1]]
 (package! easy-kill-extras)
 (package! multiple-cursors)
 ;; easy-kill-extras:1 ends here
 
-
+;; clean-kill-ring
 ;; https://github.com/NicholasBHubbard/clean-kill-ring.el
 
 
@@ -265,40 +336,64 @@
 (package! clean-kill-ring :recipe (:host github :repo "NicholasBHubbard/clean-kill-ring.el"))
 ;; clean-kill-ring:1 ends here
 
+;; move-text
+
+
+
 ;; [[file:config.org::*move-text][move-text:1]]
 (package! move-text)
 ;; move-text:1 ends here
+
+;; vundo
 
 ;; [[file:config.org::*vundo][vundo:1]]
 (package! vundo :recipe (:host github :repo "casouri/vundo"))
 ;; vundo:1 ends here
 
+;; Last change
+
+
+
 ;; [[file:config.org::*Last change][Last change:1]]
 (package! goto-chg :recipe (:host github :repo "emacs-evil/goto-chg"))
 ;; Last change:1 ends here
 
+;; point
+
+
+
 ;; [[file:config.org::*point][point:1]]
 (package! point-undo :recipe (:host github :repo "emacsmirror/point-undo"))
 ;; point:1 ends here
+
+;; Snippets
+
 
 ;; [[file:config.org::*Snippets][Snippets:1]]
 (package! yankpad :recipe (:host github :repo "Kungsgeten/yankpad"))
 (package! yasnippet)
 ;; Snippets:1 ends here
 
+;; unfill paragraphs
+
 ;; [[file:config.org::*unfill paragraphs][unfill paragraphs:1]]
 (package! unfill)
 ;; unfill paragraphs:1 ends here
+
+;; Boxing
 
 ;; [[file:config.org::*Boxing][Boxing:1]]
 (package! rebox2)
 ;; Boxing:1 ends here
 
+;; separedit
+
+
 ;; [[file:config.org::*separedit][separedit:1]]
 (package! separedit)
 ;; separedit:1 ends here
 
-
+;; Guides
 
 ;; Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact badly with org-indent-modern
 
@@ -307,25 +402,38 @@
 (package! highlight-indent-guides)
 ;; Guides:1 ends here
 
+;; Movement
+
+
+
 ;; [[file:config.org::*Movement][Movement:1]]
 (package! mwim)
 ;; Movement:1 ends here
 
+;; smartscan
+
 ;; [[file:config.org::*smartscan][smartscan:1]]
 (package! smartscan)
 ;; smartscan:1 ends here
+
+;; regex-based searching, using python/pcre
+
 
 ;; [[file:config.org::*regex-based searching, using python/pcre][regex-based searching, using python/pcre:1]]
 (package! visual-regexp)
 (package! visual-regexp-steroids)
 ;; regex-based searching, using python/pcre:1 ends here
 
+;; Jumping
+
+
+
 ;; [[file:config.org::*Jumping][Jumping:1]]
 (package! smart-jump)
 (package! rg)                           ;For smart-jump-find-references-with-rg
 ;; Jumping:1 ends here
 
-
+;; vicb
 
 ;; https://github.com/doomemacs/doomemacs/issues/1213
 
@@ -336,7 +444,7 @@
 ;; (package! vi-consult-buffers :recipe (:host github :repo "indigoviolet/vi-consult-buffers"))
 ;; vicb:1 ends here
 
-
+;; consult-projectile
 
 ;; +This is not very useful in practice:+ doom has built in support for project
 ;; switching that works better with workspaces; but we can use just the find-file
@@ -347,11 +455,15 @@
 (package! consult-projectile :recipe (:host gitlab :repo "OlMon/consult-projectile"))
 ;; consult-projectile:1 ends here
 
+;; Narrowing
+
+
+
 ;; [[file:config.org::*Narrowing][Narrowing:1]]
 (package! recursive-narrow)
 ;; Narrowing:1 ends here
 
-
+;; outline faces
 
 ;; - clutters in prog-mode, but probably useful in ein:notebook-mode
 
@@ -360,9 +472,15 @@
 (package! outline-minor-faces :recipe (:host github :repo "tarsius/outline-minor-faces"))
 ;; outline faces:1 ends here
 
+;; Tabnine
+
+
 ;; [[file:config.org::*Tabnine][Tabnine:1]]
 (package! company-tabnine)
 ;; Tabnine:1 ends here
+
+;; Corfu/Cape
+
 
 ;; [[file:config.org::*Corfu/Cape][Corfu/Cape:1]]
 (package! corfu :recipe (:host github :repo "minad/corfu" :files (:defaults "extensions/*.el")))
@@ -371,27 +489,44 @@
 ;; (package! corfu-terminal :recipe (:type git :repo "https://codeberg.org/akib/emacs-corfu-terminal.git"))
 ;; Corfu/Cape:1 ends here
 
+;; original package
+
+
 ;; [[file:config.org::*original package][original package:1]]
 (package! copilot
   :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))
 ;; original package:1 ends here
 
+;; chatgpt shell
+
+
 ;; [[file:config.org::*chatgpt shell][chatgpt shell:1]]
 (package! chatgpt-shell)
 ;; chatgpt shell:1 ends here
+
+;; Iedit
+
 
 ;; [[file:config.org::*Iedit][Iedit:1]]
 (package! iedit)
 ;; Iedit:1 ends here
 
+;; wgrep
+
+
 ;; [[file:config.org::*wgrep][wgrep:1]]
 (package! wgrep)
 ;; wgrep:1 ends here
+
+;; Hydra
+
 
 ;; [[file:config.org::*Hydra][Hydra:1]]
 (package! pretty-hydra)
 (package! major-mode-hydra)
 ;; Hydra:1 ends here
+
+;; org-mode package
 
 ;; [[file:config.org::*org-mode package][org-mode package:1]]
 ;; Pinning for unfolding org-mode overlays while searching
@@ -400,11 +535,14 @@
 ;; (package! org :pin "6001313b8f8bc2c717b44070d6e7b19afc6125ec")
 ;; org-mode package:1 ends here
 
+;; show delimiters
+
+
 ;; [[file:config.org::*show delimiters][show delimiters:1]]
 (package! org-appear :recipe (:host github :repo "awth13/org-appear"))
 ;; show delimiters:1 ends here
 
-
+;; Use auto-tangle
 
 ;; +Fails with /sudo tangle files https://github.com/yilkalargaw/org-auto-tangle/issues/9+
 
@@ -425,23 +563,36 @@
 (package! org-auto-tangle :recipe (:host github :repo "yilkalargaw/org-auto-tangle"))
 ;; Use auto-tangle:1 ends here
 
+;; Images
+
+
+
 ;; [[file:config.org::*Images][Images:1]]
 (package! org-download)
 ;; Images:1 ends here
+
+;; Import from various formats into org
+
 
 ;; [[file:config.org::*Import from various formats into org][Import from various formats into org:1]]
 (package! org-pandoc-import :recipe (:host github :repo "tecosaur/org-pandoc-import" :files ("*.el" "filters" "preprocessors")))
 ;; Import from various formats into org:1 ends here
 
+;; literate calc
+
+
 ;; [[file:config.org::*literate calc][literate calc:1]]
 (package! literate-calc-mode)
 ;; literate calc:1 ends here
+
+;; table of contents
+
 
 ;; [[file:config.org::*table of contents][table of contents:1]]
 (package! org-make-toc)
 ;; table of contents:1 ends here
 
-
+;; consult-notes
 
 ;; Alternative: https://github.com/jgru/consult-org-roam
 
@@ -450,24 +601,37 @@
 (package! consult-notes :recipe (:host github :repo "mclear-tools/consult-notes"))
 ;; consult-notes:1 ends here
 
+;; colored-text
+
+
 ;; [[file:config.org::*colored-text][colored-text:1]]
 (package! org-colored-text :recipe (:host github :repo "indigoviolet/org-colored-text"))
 ;; colored-text:1 ends here
 
+;; Github flavored Markdown
+
+
+
 ;; [[file:config.org::*Github flavored Markdown][Github flavored Markdown:1]]
 (package! ox-gfm)
 ;; Github flavored Markdown:1 ends here
+
+;; ein
+
 
 ;; [[file:config.org::*ein][ein:1]]
 ;; (package! ein :pin "6063cee")           ;dec 25 2021 - previous working version
 (package! ein :pin "87f4448")           ;apr 26 2023
 ;; ein:1 ends here
 
+;; vterm
+
+
 ;; [[file:config.org::*vterm][vterm:1]]
 (unpin! vterm)
 ;; vterm:1 ends here
 
-
+;; Code Formatting
 
 ;; [[https://github.com/lassik/emacs-format-all-the-code/issues/170#issuecomment-1079740651][See]] for some context on the comparison b/w apheleia and format-all available --
 ;; these may be merged in the near future. Based on the table there, we are
@@ -484,11 +648,15 @@
 (package! py-isort :disable t)
 ;; Code Formatting:1 ends here
 
+;; apheleia
+
+
+
 ;; [[file:config.org::*apheleia][apheleia:1]]
 (package! apheleia)
 ;; apheleia:1 ends here
 
-
+;; python-black
 
 ;; For ein notebooks. this requires black-macchiato via pipx
 
@@ -497,31 +665,53 @@
 (package! python-black)
 ;; python-black:1 ends here
 
+;; Javascript/Typescript
+
+
 ;; [[file:config.org::*Javascript/Typescript][Javascript/Typescript:1]]
 (package! add-node-modules-path :recipe (:host github :repo "codesuki/add-node-modules-path"))
 ;; Javascript/Typescript:1 ends here
+
+;; dirvish
+
+
 
 ;; [[file:config.org::*dirvish][dirvish:1]]
 (package! dirvish)
 ;; dirvish:1 ends here
 
+;; dired git info/log
+
+
+
 ;; [[file:config.org::*dired git info/log][dired git info/log:1]]
 (package! dired-git-log :recipe (:host github :repo "amno1/dired-git-log"))
 ;; dired git info/log:1 ends here
+
+;; sidebar
+
 
 ;; [[file:config.org::*sidebar][sidebar:1]]
 (package! dired-sidebar)
 ;; sidebar:1 ends here
 
+;; all the icons
+
+
+
 ;; [[file:config.org::*all the icons][all the icons:1]]
 (package! all-the-icons-dired)
 ;; all the icons:1 ends here
+
+;; sudo
+
+
 
 ;; [[file:config.org::*sudo][sudo:1]]
 (package! dired-togle-sudo :recipe (:host github :repo "renard/dired-toggle-sudo"))
 ;; sudo:1 ends here
 
-
+;; Firestarter
 
 ;; Execute commands on save
 ;; https://github.com/emacsmirror/firestarter
@@ -531,9 +721,15 @@
 (package! firestarter)
 ;; Firestarter:1 ends here
 
+;; docker
+
+
 ;; [[file:config.org::*docker][docker:1]]
 (package! dockerfile-mode)
 ;; docker:1 ends here
+
+;; Misc
+
 
 ;; [[file:config.org::*Misc][Misc:1]]
 (package! git-modes)
@@ -542,20 +738,31 @@
 (package! sparql-mode)
 ;; Misc:1 ends here
 
+;; jsonnet
+
+
+
 ;; [[file:config.org::*jsonnet][jsonnet:1]]
 (package! jsonnet-mode)
 ;; jsonnet:1 ends here
+
+;; Just
+
 
 ;; [[file:config.org::*Just][Just:1]]
 (package! just-mode)
 (package! justl)
 ;; Just:1 ends here
 
+;; numbers commas
+
+
+
 ;; [[file:config.org::*numbers commas][numbers commas:1]]
 (package! commify)
 ;; numbers commas:1 ends here
 
-
+;; latex
 
 ;; alternative: https://github.com/karthink/org-auctex
 
@@ -565,21 +772,39 @@
 (package! org-latex-impatient)
 ;; latex:1 ends here
 
+;; atomic chrome
+
+
+
+
 ;; [[file:config.org::*atomic chrome][atomic chrome:1]]
 (package! atomic-chrome)
 ;; atomic chrome:1 ends here
+
+;; gif screencast
+
 
 ;; [[file:config.org::*gif screencast][gif screencast:1]]
 (package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
 ;; gif screencast:1 ends here
 
+;; Keycast
+
 ;; [[file:config.org::*Keycast][Keycast:1]]
 (package! keycast :recipe (:host github :repo "tarsius/keycast"))
 ;; Keycast:1 ends here
 
+;; PDF
+
+
+
 ;; [[file:config.org::*PDF][PDF:1]]
 (unpin! pdf-tools)
 ;; PDF:1 ends here
+
+;; pdf tools fork with smooth scrolling
+
+
 
 ;; [[file:config.org::*pdf tools fork with smooth scrolling][pdf tools fork with smooth scrolling:1]]
 (package! pdf-tools :recipe
@@ -597,25 +822,48 @@
                  :repo "dalanicolai/image-roll.el"))
 ;; pdf tools fork with smooth scrolling:1 ends here
 
+;; zotxt (zotero + emacs)
+
+
+
 ;; [[file:config.org::*zotxt (zotero + emacs)][zotxt (zotero + emacs):1]]
 (package! zotxt)
 ;; zotxt (zotero + emacs):1 ends here
+
+;; org-noter
+
+
 
 ;; [[file:config.org::*org-noter][org-noter:1]]
 (package! org-noter)
 ;; org-noter:1 ends here
 
+;; Pomodoro
+
+
+
 ;; [[file:config.org::*Pomodoro][Pomodoro:1]]
 (package! org-pomodoro)
 ;; Pomodoro:1 ends here
+
+;; detached
+
+
 
 ;; [[file:config.org::*detached][detached:1]]
 (package! detached)
 ;; detached:1 ends here
 
+;; dev-docs
+
+
 ;; [[file:config.org::*dev-docs][dev-docs:1]]
 (package! devdocs)
 ;; dev-docs:1 ends here
+
+;; Keyfreq
+
+
 
 ;; [[file:config.org::*Keyfreq][Keyfreq:1]]
 (package! keyfreq :recipe (:host github :repo "dacap/keyfreq"))

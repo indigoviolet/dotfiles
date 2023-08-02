@@ -130,9 +130,13 @@
 
 ## on windows/osx the store is the keychain by default
 
-{% if yadm.class == "personal" %}
+{% if yadm.class == "personal_ubuntu" %}
 ## on graphical linux we can use the freedesktop api (gnome keyring etc.)
     credentialStore = secretservice
+{% endif %}
+
+{% if yadm.class == "personal_mac" %}
+    credentialStore = keychain
 {% endif %}
 
 {% if yadm.class == "remote" %}

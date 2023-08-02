@@ -777,3 +777,17 @@ fs.inotify.max_user_instances=1048576
 #+end_src
 
 #+RESULTS:
+
+* TODO Mac OS X setup notes
+
+  - yadm classes: personal, personal_mac (so that we can also do personal_ubuntu)
+  - maccy* for clipboard editor
+  - paperwm.spoon, hammerspoon -> needs some manual settings changes*
+  - iterm2* + config*
+  - mouse speed, keyboard repeat rate*
+  - nerd fonts via brew cask (iosevka) -> should be in Brewfile
+  - emacs-plus -> should be in Brewfile (but not options --with-dragon-icon --with-native-comp)
+  - vscode settings config (sync against stable!)
+  - lots of prompt stuff in prezto unnecessary - we're using starship
+  - atuin login + import
+  - yadm bootstrap

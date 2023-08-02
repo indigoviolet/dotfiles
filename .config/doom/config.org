@@ -375,8 +375,10 @@ We start by simply defining the standard headers used by the three files. These 
 ;;
 ;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
 ;; font string. You generally only need these two:
-;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
-;;   doom-variable-pitch-font (font-spec :family "sans" :size 13))
+
+;; On ubuntu this would be set in Tweaks, but on mac we have to set it here
+(setq doom-font (font-spec :family "Iosevka Nerd Font Mono" :size 12))
+;;  doom-variable-pitch-font (font-spec :family "sans" :size 13))
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
