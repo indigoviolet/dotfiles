@@ -50,6 +50,7 @@ From https://docs.brew.sh/Homebrew-on-Linux
 also for pyenv builds https://github.com/pyenv/pyenv/wiki/common-build-problems (which also affect asdf)
 
 #+begin_src just
+{% if yadm.distro == "Ubuntu" %}
 build_deps:
     sudo apt-get update
     sudo apt-get install build-essential procps curl file git
@@ -62,6 +63,8 @@ build_deps:
        xz-utils tk-dev \
        libxml2-dev libffi-dev \
        libxmlsec1-dev liblzma-dev
+
+{% endif %}
 #+end_src
 
 * Prezto
@@ -86,7 +89,7 @@ brew_bundle:
     [ -f ~/.Brewfile ] && { brew bundle --global check || brew bundle --global install -v; }
 #+end_src
 
-* asdf
+* COMMENT asdf
 
 asdf installed with Brew
 
@@ -128,7 +131,7 @@ zsh_login_shell:
     sudo chsh -s $(which zsh) $(whoami)
 #+end_src
 
-* Mamba
+* COMMENT Mamba
 
 https://github.com/conda-forge/miniforge#non-interactive-install
 
@@ -152,8 +155,10 @@ gh_extensions:
 * git credential-manager (assumes debian)
 
 #+begin_src just
+{% if yadm.distro == "Ubuntu" %}
 git-credential-manager:
     cd /tmp && eget -a '.deb' GitCredentialManager/git-credential-manager && sudo dpkg -i /tmp/gcm*.deb && git credential-manager configure
+[% endif %}
 #+end_src
 
 * atuin
@@ -174,11 +179,13 @@ atuin_login:
 * misc_utils (assumes debian)
 
 #+begin_src just
+{% if yadm.distro == "Ubuntu" %}
 misc_utils:
     command -v less || sudo apt-get install --no-install-recommends -y less
     command -v notify-send || sudo apt-get install --no-install-recommends -y libnotify-bin
     command -v svn || sudo apt-get install --no-install-recommends -y subversion # brew installs too many deps
     command -v netstat || sudo apt-get install --no-install-recommends -y net-tools
+{% endif %}
 #+end_src
 
 
@@ -220,6 +227,7 @@ doom_emacs:
 ** Tailscale
 
 #+begin_src just
+{% if yadm.distro == "Ubuntu" %}
 _tailscale:
     curl -fsSL https://pkgs.tailscale.com/unstable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
     curl -fsSL https://pkgs.tailscale.com/unstable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
@@ -228,7 +236,7 @@ _tailscale:
 
 tailscale:
     command -v tailscale || just -f {{ justfile() }} _tailscale
-
+{% endif %}
 #+end_src
 
 
@@ -251,16 +259,19 @@ paywall:
 ** Gcloud
 
 #+begin_src just
+{% if yadm.distro == "Ubuntu" %}
 gcloud:
     sudo apt-get install apt-transport-https ca-certificates gnupg
     echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
     sudo apt-get update && sudo apt-get install --no-install-recommends -y google-cloud-sdk
+{% endif %}
 #+end_src
 
 ** huawei matebook
 
 #+begin_src just
+{% if yadm.distro == "Ubuntu" %}
 add_matebook_ppas:
     # https://github.com/qu1x/huawei-wmi/tree/master/debian#repository
     echo "deb https://deb.qu1x.org buster main" | sudo tee /etc/apt/sources.list.d/qu1x.list
@@ -269,7 +280,7 @@ add_matebook_ppas:
     # matebook-applet
     echo "deb [signed-by=/usr/share/keyrings/matebook-applet.key] http://evgenykuznetsov.org/repo/ stable main" | sudo tee /etc/apt/sources.list.d/matebook-applet.list
     wget -qO - https://raw.githubusercontent.com/nekr0z/matebook-applet/master/matebook-applet.key | sudo tee /usr/share/keyrings/matebook-applet.key
-
+{% endif %}
 #+end_src
 
 ** Fonts
@@ -277,6 +288,7 @@ add_matebook_ppas:
 On Darwin we would do this with brew
 
 #+begin_src just
+{% if yadm.distro == "Ubuntu" %}
 nerd_fonts:
     #!/usr/bin/env bash --init-file ${HOME}/.bashrc
     set_init
@@ -294,6 +306,7 @@ nerd_fonts:
         git sparse-checkout add patched-fonts/$font
         ./install.sh "${font%%/*}"
     done
+{% endif %}
 #+end_src
 
 *** all-the-icons
@@ -308,10 +321,12 @@ doom_all_the_icons:
 
 
 #+begin_src just
+{% if yadm.distro == "Ubuntu" %}
 twemoji_fonts:
     sudo apt-add-repository -y -S "deb https://ppa.launchpadcontent.net/eosrei/fonts/ubuntu/ impish main"
     sudo apt-get update
     sudo apt-get install -y fonts-twemoji-svginot
+{% endif %}
 #+end_src
 
 ** endif

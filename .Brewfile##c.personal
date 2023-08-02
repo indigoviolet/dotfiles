@@ -1,0 +1,172 @@
+tap "beeftornado/rmtree"
+tap "cube2222/octosql"
+tap "dbcli/tap"
+tap "homebrew/bundle"
+tap "homebrew/cask-fonts"
+tap "homebrew/core"
+tap "indigoviolet/tap", "git@github.com:indigoviolet/homebrew-tap.git"
+tap "ko1nksm/getoptions"
+tap "linuxbrew/xorg"
+tap "mistertea/et"
+tap "mutagen-io/mutagen"
+tap "saulpw/vd"
+tap "screenplaydev/tap"
+tap "thecasualcoder/stable"
+# Improved shell history for zsh and bash
+brew "atuin"
+# Tool for generating GNU Standards-compliant Makefiles
+brew "automake"
+# Clone of cat(1) with syntax highlighting and Git integration
+brew "bat"
+# Generate compilation database for clang tooling
+brew "bear"
+# Format bazel BUILD files with a standard convention
+brew "buildifier"
+# Human-friendly and fast alternative to cut and (sometimes) awk
+brew "choose-rust"
+# Cross-platform make
+brew "cmake"
+# JSON, YAML, TOML, XML, and CSV query and modification tool
+brew "dasel"
+# Load/unload environment variables based on $PWD
+brew "direnv"
+# More intuitive version of du in rust
+brew "dust"
+# Maintain consistent coding style between multiple editors
+brew "editorconfig"
+# Easily install prebuilt binaries from GitHub
+brew "eget"
+# Modern replacement for 'ls'
+brew "exa"
+# Simple, fast and user-friendly alternative to find
+brew "fd"
+# Command-line fuzzy finder written in Go
+brew "fzf"
+# GNU Compiler Collection
+brew "gcc@5"
+# GitHub command-line tool
+brew "gh"
+# Syntax-highlighting pager for git and diff output
+brew "git-delta"
+# Blazing fast terminal-ui for git written in rust
+brew "gitui"
+# Go implementation of configuration language for defining JSON data
+brew "go-jsonnet"
+# Generate introspection data for GObject libraries
+brew "gobject-introspection"
+# Graph visualization software from AT&T and Bell Labs
+brew "graphviz"
+# Tool for glamorous shell scripts
+brew "gum"
+# Improved top (interactive process viewer)
+brew "htop"
+# Command-line benchmarking tool
+brew "hyperfine"
+# Improved colored diff
+brew "icdiff"
+# Command-line pager for JSON data
+brew "jless"
+# JSON output from a shell
+brew "jo"
+# Lightweight and flexible command-line JSON processor
+brew "jq"
+# Handy way to save and run project-specific commands
+brew "just"
+# Statically typed programming language for the JVM
+brew "kotlin"
+# Lazier way to manage everything docker
+brew "lazydocker"
+# Clone of ls with colorful output, file type icons, and more
+brew "lsd"
+# Modern and intuitive terminal-based text editor
+brew "micro"
+# Fast Cross-Platform Package Manager
+brew "micromamba"
+# Remote terminal application
+brew "mosh"
+# Linux networking base tools
+brew "net-tools"
+# HTTP/2 C Library
+brew "nghttp2"
+# Platform built on V8 to build network applications
+brew "node"
+# Platform built on V8 to build network applications
+brew "node@16"
+# Process manager for Procfile-based applications and tmux
+brew "overmind"
+# Swiss-army knife of markup format conversion
+brew "pandoc"
+# CLI for Postgres with auto-completion and syntax highlighting
+brew "pgcli"
+# Parallel gzip
+brew "pigz"
+# Execute binaries from Python packages in isolated environments
+brew "pipx"
+brew "virtualenv"
+# Framework for managing multi-language pre-commit hooks
+brew "pre-commit"
+# Rsync for cloud storage
+brew "rclone"
+# Search tool like grep and The Silver Searcher
+brew "ripgrep"
+# Polyglot runtime manager (asdf rust clone)
+brew "rtx"
+# Safe, concurrent, practical language
+brew "rust"
+# Static analysis and lint tool, for (ba)sh scripts
+brew "shellcheck"
+# Autoformat shell script source code
+brew "shfmt"
+# Cross-shell prompt for astronauts
+brew "starship"
+# Tool Command Language
+brew "tcl-tk"
+# Very fast implementation of tldr in Rust
+brew "tealdeer"
+# Official documentation format of the GNU project
+brew "texinfo"
+# Text interface for Git repositories
+brew "tig"
+# Configure transparent encryption of files in a Git repo
+brew "transcrypt"
+# Generator for LS_COLORS with support for multiple color themes
+brew "vivid"
+# JavaScript toolchain manager for reproducible environments
+brew "volta"
+# Execute commands when watched files change
+brew "watchexec"
+# Watch files and take action when they change
+brew "watchman"
+# Fast CSV toolkit written in Rust
+brew "xsv"
+# Yet Another Dotfiles Manager
+brew "yadm"
+# Process YAML, JSON, XML, CSV and properties documents from the CLI
+brew "yq"
+# Shell extension to navigate your filesystem faster
+brew "zoxide"
+# Provides session management: i.e. separate programs from terminals
+brew "indigoviolet/tap/abduco", args: ["HEAD"]
+# Chat with gpt-3.5/chatgpt in terminal.
+brew "indigoviolet/tap/aichat", args: ["HEAD"]
+# Interactive batteries viewer
+brew "indigoviolet/tap/battop"
+# simple drag-and-drop source/sink for X or Wayland
+brew "indigoviolet/tap/dragon", args: ["HEAD"]
+# A new generation cloud backup tool
+brew "indigoviolet/tap/duplicacy"
+# NVIDIA NGC CLI
+brew "indigoviolet/tap/nvidia_ngc_cli"
+# an experimental alternative to poetry/pip/pipenv/pyenv/venv/virtualenv/pdm/hatch
+brew "indigoviolet/tap/rye", args: ["HEAD"]
+# Utilities for tabular data files
+brew "indigoviolet/tap/tsv-utils"
+# Fast file synchronization and network forwarding for remote development
+brew "mutagen-io/mutagen/mutagen-beta"
+# A Blazingly fast diff tool for comparing csv files
+brew "thecasualcoder/stable/csvdiff"
+vscode "KevinGhadyani.vscode-colormate"
+vscode "kokakiwi.vscode-just"
+vscode "redhat.vscode-xml"
+vscode "Rubymaniac.vscode-direnv"
+vscode "skellock.just"

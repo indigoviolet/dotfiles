@@ -10,6 +10,7 @@ default:
 @execute_bootstrap *args:
     just --summary --unsorted -f {{ justfile() }} | xargs -n1 echo | rg -vw 'default|execute_bootstrap' | xargs -n1 just -f {{ justfile() }} --verbose "$@"
 
+{% if yadm.distro == "Ubuntu" %}
 build_deps:
     sudo apt-get update
     sudo apt-get install build-essential procps curl file git
@@ -23,6 +24,8 @@ build_deps:
        libxml2-dev libffi-dev \
        libxmlsec1-dev liblzma-dev
 
+{% endif %}
+
 prezto:
     git clone --recursive https://github.com/sorin-ionescu/prezto.git "${HOME}/.zprezto"
     git clone --recurse-submodules https://github.com/belak/prezto-contrib "${HOME}/.zprezto/contrib"
@@ -30,15 +33,6 @@ prezto:
 
 brew_bundle:
     [ -f ~/.Brewfile ] && { brew bundle --global check || brew bundle --global install -v; }
-
-asdf:
-    ## https://github.com/asdf-vm/asdf/issues/276#issuecomment-907063520
-    -cut -d' ' -f1 $HOME/.tool-versions | xargs -i asdf plugin add {}
-
-    ## installs from .tool-versions (which is an alt file)
-    ## the install-poetry installer is default with 1.2, but that is still alpha and has bugs <2022-02-07 Mon>
-    # ASDF_POETRY_INSTALL_URL=https://install.python-poetry.org asdf install
-    asdf install
 
 pipx:
     # ignoring errors
@@ -48,17 +42,14 @@ zsh_login_shell:
     sudo apt-get install --no-install-recommends -y zsh
     sudo chsh -s $(which zsh) $(whoami)
 
-mambaforge:
-    cd /tmp && \
-    curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh" && \
-    bash Mambaforge-$(uname)-$(uname -m).sh -b -p $HOME/.local/mambaforge
-
 gh_extensions:
     ## Handy way to install things from github
     { gh extension list | grep redraw/gh-install; } || gh extension install redraw/gh-install
 
+{% if yadm.distro == "Ubuntu" %}
 git-credential-manager:
     cd /tmp && eget -a '.deb' GitCredentialManager/git-credential-manager && sudo dpkg -i /tmp/gcm*.deb && git credential-manager configure
+[% endif %}
 
 atuin_install:
     atuin register -u indigoviolet -e indigoviolet@gmail.com
@@ -70,11 +61,13 @@ atuin_login:
     atuin import auto
     atuin sync
 
+{% if yadm.distro == "Ubuntu" %}
 misc_utils:
     command -v less || sudo apt-get install --no-install-recommends -y less
     command -v notify-send || sudo apt-get install --no-install-recommends -y libnotify-bin
     command -v svn || sudo apt-get install --no-install-recommends -y subversion # brew installs too many deps
     command -v netstat || sudo apt-get install --no-install-recommends -y net-tools
+{% endif %}
 
 git_completion:
     curl -o ${ZSH_CUSTOM_DIR}/git-completion.bash https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
@@ -91,6 +84,7 @@ chemacs:
 doom_emacs:
     git clone https://github.com/hlissner/doom-emacs "${HOME}/.emacs.d" && $HOME/.emacs.d/bin/doom install
 
+{% if yadm.distro == "Ubuntu" %}
 _tailscale:
     curl -fsSL https://pkgs.tailscale.com/unstable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
     curl -fsSL https://pkgs.tailscale.com/unstable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
@@ -99,6 +93,7 @@ _tailscale:
 
 tailscale:
     command -v tailscale || just -f {{ justfile() }} _tailscale
+{% endif %}
 
 leechblock:
     mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone indigoviolet/LeechBlockNG-chrome && cd LeechBlockNG-chrome && ./install-jquery.sh
@@ -106,12 +101,15 @@ leechblock:
 paywall:
     mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone iamadamdev/bypass-paywalls-chrome
 
+{% if yadm.distro == "Ubuntu" %}
 gcloud:
     sudo apt-get install apt-transport-https ca-certificates gnupg
     echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
     sudo apt-get update && sudo apt-get install --no-install-recommends -y google-cloud-sdk
+{% endif %}
 
+{% if yadm.distro == "Ubuntu" %}
 add_matebook_ppas:
     # https://github.com/qu1x/huawei-wmi/tree/master/debian#repository
     echo "deb https://deb.qu1x.org buster main" | sudo tee /etc/apt/sources.list.d/qu1x.list
@@ -120,9 +118,11 @@ add_matebook_ppas:
     # matebook-applet
     echo "deb [signed-by=/usr/share/keyrings/matebook-applet.key] http://evgenykuznetsov.org/repo/ stable main" | sudo tee /etc/apt/sources.list.d/matebook-applet.list
     wget -qO - https://raw.githubusercontent.com/nekr0z/matebook-applet/master/matebook-applet.key | sudo tee /usr/share/keyrings/matebook-applet.key
+{% endif %}
 
+{% if yadm.distro == "Ubuntu" %}
 nerd_fonts:
-    #!/usr/bin/env -S bash --init-file ${HOME}/.bashrc
+    #!/usr/bin/env bash --init-file ${HOME}/.bashrc
     set_init
     # Jetbrains Mono patched (https://github.com/ryanoasis/nerd-fonts#option-5-clone-the-repo)
     if [[ ! -d  $HOME/dev/nerd-fonts ]]; then
@@ -138,21 +138,18 @@ nerd_fonts:
         git sparse-checkout add patched-fonts/$font
         ./install.sh "${font%%/*}"
     done
+{% endif %}
 
 doom_all_the_icons:
     # Should we do this via doomscript? https://github.com/doomemacs/doomemacs/issues/6494
     echo 'y' | emacs -l ~/.config/doom/init.el --batch -f all-the-icons-install-fonts
 
+{% if yadm.distro == "Ubuntu" %}
 twemoji_fonts:
     sudo apt-add-repository -y -S "deb https://ppa.launchpadcontent.net/eosrei/fonts/ubuntu/ impish main"
     sudo apt-get update
     sudo apt-get install -y fonts-twemoji-svginot
-
-vscode:
-    curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo apt-key --keyring /etc/apt/trusted.gpg.d/microsoft.gpg add -
-    sudo apt-add-repository -y "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
-    sudo apt update
-    sudo apt install -y code-insiders
+{% endif %}
 
 {% endif %}
 
