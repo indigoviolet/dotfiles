@@ -9,21 +9,22 @@ BREW_PREFIX=$(brew --prefix)
 
 export BREW_PKG_CONFIG=$BREW_PREFIX/lib/pkgconfig:$BREW_PREFIX/share/pkgconfig
 
-export PKG_CONFIG_PATH=$BREW_PKG_CONFIG:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
+# Unclear if I should be setting these -- we seem to do CC= a lot
+# export PKG_CONFIG_PATH=$BREW_PKG_CONFIG:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
 
-#
-# * For python-build, use Brew (libffi.so.8)
-#
-# For python-build, esp. on 20.04, where python-build wants libffi.so.8, but
-# "apt libffi-dev" only provides libffi.so.7 (see
-# https://dev.to/ajkerrigan/homebrew-pyenv-ctypes-oh-my-3d9)
-#
-# * For emacs build, we want to use the apt gcc-11 (libgccjit)
-#
-# unset it like so:
-#
-# > CC= <command>
-export CC="$(brew --prefix gcc)/bin/gcc-12"
+# #
+# # * For python-build, use Brew (libffi.so.8)
+# #
+# # For python-build, esp. on 20.04, where python-build wants libffi.so.8, but
+# # "apt libffi-dev" only provides libffi.so.7 (see
+# # https://dev.to/ajkerrigan/homebrew-pyenv-ctypes-oh-my-3d9)
+# #
+# # * For emacs build, we want to use the apt gcc-11 (libgccjit)
+# #
+# # unset it like so:
+# #
+# # > CC= <command>
+# export CC="$(brew --prefix gcc)/bin/gcc-12"
 
 export MAKEFLAGS="-j $(nproc)"
 

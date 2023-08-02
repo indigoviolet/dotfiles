@@ -229,6 +229,7 @@ $1:
 set shell := ["bash", "-uc"]
 set positional-arguments
 set fallback
+set ignore-comments
 
 just := 'just --unstable --justfile "' + justfile() + '"'
 

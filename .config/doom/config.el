@@ -1142,22 +1142,24 @@ message listing the hooks."
 (defun vi/adjust-font-size-for-display (disp)
   (message "rejiggering for %s" disp)
   (cond ((equal disp '(3440 . 1440))   ; LG monitor
-         (vi/set-font-size 13.0))
-        ((equal disp '(3000 . 2000))    ; laptop @ 100%, 200%
-         (vi/set-font-size 13.0))
-        ((equal disp '(4800 . 3200))    ; laptop @ 125%
-         (vi/set-font-size 14.0))
-        ((equal disp '(4002 . 2668))    ; laptop @ 150%
-         (vi/set-font-size 14.0))
-        ((equal disp '(3426 . 2284))    ; laptop @ 175%
-         (vi/set-font-size 13.0))
-        (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
+          (vi/set-font-size 13.0))
+    ((equal disp '(3000 . 2000))    ; laptop @ 100%, 200%
+      (vi/set-font-size 13.0))
+    ((equal disp '(4800 . 3200))    ; laptop @ 125%
+      (vi/set-font-size 14.0))
+    ((equal disp '(4002 . 2668))    ; laptop @ 150%
+      (vi/set-font-size 14.0))
+    ((equal disp '(3426 . 2284))    ; laptop @ 175%
+      (vi/set-font-size 13.0))
+    ((equal disp '(1920 . 1080))    ; asus monitor
+      (vi/set-font-size 12.0))
+    (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
 
 (defun vi/trigger-dispwatch ()
   (interactive)
   (vi/adjust-font-size-for-display
-   ;; extract dotted pair from display info
-   (apply #'cons (-take-last 2 (nth 1 dispwatch-current-display))))
+    ;; extract dotted pair from display info
+    (apply #'cons (-take-last 2 (nth 1 dispwatch-current-display))))
   )
 (add-hook! 'doom-first-buffer-hook #'vi/trigger-dispwatch)
 
@@ -2136,6 +2138,11 @@ cleared, make sure the overlay doesn't come back too soon."
 
 ;; [[file:config.org::*org-mode config][org-mode config:1]]
 (after! org
+  ;; Add created timestamps to all headings (https://stackoverflow.com/questions/12262220/add-created-date-property-to-todos-in-org-mode/13285957#13285957)
+  (require 'org-expiry)
+  (org-expiry-insinuate)
+  (setq org-expiry-inactive-timestamps t)
+
   ;; hide org markup indicators
   (setq org-hide-emphasis-markers t
         ;; Insert Org headings at point, not after the current subtree (this is enabled by default by Doom).

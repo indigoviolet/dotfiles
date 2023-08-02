@@ -291,6 +291,37 @@ https://kinesis-ergo.com/wp-content/uploads/kb500-qsg.pdf
   + Copy alt to left shift
   + Copy win to key below X
 
+- set repeat rate to 10cps Program-F9-F5
+
+*** Extra info
+:PROPERTIES:
+:CREATED:  [2023-07-21 Fri 00:04]
+:END:
+
+#+begin_example
+Progrm-Ctrl-F10   Reset keyboard memory
+
+Progrm-Backslash  Toggle keyclick mode
+Progrm-Hyphen     Toggle tones for caps lock, etc.
+Progrm-F9-xx      Change repeat rate to xx
+                    F1 .5 cps  F2  3 cps F3  5 cps  F4   7 cps  F5   10 cps  F6   15 cps
+                    F7 20 cps  F8 30 cps F9 40 cps  F10 60 cps  F11 125 cps  F12 300 cps
+
+Progrm-Ctrl-F5    Toggle Dvorak/Qwerty mode
+
+Progrm-Shift-F6   Toggle shift as sticky modifier
+Progrm-Ctrl-F6    Toggle control as sticky modifier
+Progrm-Alt-F6     Toggle alt as sticky modifier
+
+Progrm-F12        Enter/exit remapping mode
+
+Progrm-F11        Enter/exit macro definition mode
+Progrm-F7         Make macro pause for data / End entering macro data
+Progrm-F8         Put a half-second delay into a macro
+Progrm-F10        Disable/Enable all macros
+
+Shift-Shift-F12   Report firmware version (press both shift keys)
+#+end_example
 
 *** Multimedia keys :ATTACH:
 

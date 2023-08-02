@@ -22,6 +22,8 @@
 - .config/gh/*
 - '!.config/lazydocker'
 - .config/lazydocker/*
+- '!.config/lsd'
+- .config/lsd/*
 - '!.config/paperwm'
 - .config/paperwm/*
 - '!.config/pypoetry'
@@ -89,6 +91,7 @@
 - '!.config/gnome-shell-extensions-metadata.json##c.personal'
 - '!.config/jupytext.toml'
 - '!.config/lazydocker/config.yml'
+- '!.config/lsd/config.yaml'
 - '!.config/paperwm/user.js'
 - '!.config/pypoetry/config.toml'
 - '!.config/rclone/rclone.conf'

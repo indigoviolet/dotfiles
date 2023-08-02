@@ -6,18 +6,18 @@ symbol = " "
 disabled = true
 
 [python]
-symbol = " "
+# symbol = " "
 format = '[${symbol}(${version} )(\($virtualenv\) )]($style)'
 
 [package]
-symbol = " "
+# symbol = " "
 disabled = true
 
 [docker_context]
 symbol = " "
 
 [hostname]
-ssh_symbol = ""
+# ssh_symbol = ""
 style = "bold inverted bright-green"
 format = '[$ssh_symbol$hostname]($style) '
 
