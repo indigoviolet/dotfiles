@@ -4,10 +4,13 @@
 {% if yadm.os == "Linux" %}
 # Brew is in /home/linuxbrew/.linuxbrew on Linux
 test -x /home/linuxbrew/.linuxbrew/bin/brew && eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
-{% else %}
-# Darwin
-# yadm's default template processor does not support elif
+{% endif %}
+
+{% if yadm.os == "Darwin" %}
 eval $(/opt/homebrew/bin/brew shellenv)
+
+# coreutils, but use non-g-prefixed names
+PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
 {% endif %}
 
 if type brew &>/dev/null; then

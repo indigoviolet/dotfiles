@@ -63,9 +63,10 @@ update-calibre: ensure-sudo
 
 # Brew capture manually installed "leaves"
 brew-dump-leaves:
-    #!/usr/bin/env bash
-    set_init
-    { brew leaves --installed-on-request; echo "^tap"; } | rg --file - <(brew bundle dump --describe --file=-) --before-context 1 --no-line-number --no-context-separator --word-regexp --color=never > ~/.Brewfile
+    brew bundle dump --all --describe --file=- > ~/.Brewfile
+    # #!/usr/bin/env bash
+    # set_init
+    # { brew leaves --installed-on-request; echo "^tap"; } | rg --file - <(brew bundle dump --all --describe --file=-) --before-context 1 --no-line-number --no-context-separator --word-regexp --color=never > ~/.Brewfile
 
 brew-list-used-by:
     # # https://www.thingy-ma-jig.co.uk/blog/22-09-2014/homebrew-list-packages-and-what-uses-them

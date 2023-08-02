@@ -1,10 +1,12 @@
 tap "beeftornado/rmtree"
 tap "cube2222/octosql"
+tap "d12frosted/emacs-plus"
 tap "dbcli/tap"
 tap "homebrew/bundle"
 tap "homebrew/cask-fonts"
 tap "indigoviolet/tap", "git@github.com:indigoviolet/homebrew-tap.git"
 tap "ko1nksm/getoptions"
+tap "koekeishiya/formulae"
 tap "linuxbrew/xorg"
 tap "mistertea/et"
 tap "mutagen-io/mutagen"
@@ -23,6 +25,8 @@ brew "buildifier"
 brew "choose-rust"
 # Cross-platform make
 brew "cmake"
+# GNU File, Shell, and Text utilities
+brew "coreutils"
 # JSON, YAML, TOML, XML, and CSV query and modification tool
 brew "dasel"
 # Load/unload environment variables based on $PWD
@@ -37,8 +41,8 @@ brew "eget"
 brew "fd"
 # Command-line fuzzy finder written in Go
 brew "fzf"
-# GNU Compiler Collection
-brew "gcc@5"
+# GNU awk utility
+brew "gawk"
 # GitHub command-line tool
 brew "gh"
 # Syntax-highlighting pager for git and diff output
@@ -69,8 +73,12 @@ brew "lazydocker"
 brew "lsd"
 # Modern and intuitive terminal-based text editor
 brew "micro"
-# Linux networking base tools
-brew "net-tools"
+# HTTP/2 C Library
+brew "nghttp2"
+# Platform built on V8 to build network applications
+brew "node"
+# Platform built on V8 to build network applications
+brew "node@16"
 # Process manager for Procfile-based applications and tmux
 brew "overmind"
 # Swiss-army knife of markup format conversion
@@ -81,6 +89,7 @@ brew "pgcli"
 brew "pigz"
 # Execute binaries from Python packages in isolated environments
 brew "pipx"
+# Tool for creating isolated virtual python environments
 brew "virtualenv"
 # Framework for managing multi-language pre-commit hooks
 brew "pre-commit"
@@ -98,6 +107,8 @@ brew "shellcheck"
 brew "shfmt"
 # Cross-shell prompt for astronauts
 brew "starship"
+# Very fast implementation of tldr in Rust
+brew "tealdeer"
 # Text interface for Git repositories
 brew "tig"
 # Configure transparent encryption of files in a Git repo
@@ -116,23 +127,23 @@ brew "yadm"
 brew "yq"
 # Shell extension to navigate your filesystem faster
 brew "zoxide"
-# Provides session management: i.e. separate programs from terminals
-brew "indigoviolet/tap/abduco", args: ["HEAD"]
+brew "d12frosted/emacs-plus/emacs-plus@30", args: ["with-dragon-icon", "with-native-comp"]
 # Chat with gpt-3.5/chatgpt in terminal.
 brew "indigoviolet/tap/aichat", args: ["HEAD"]
-# Interactive batteries viewer
-brew "indigoviolet/tap/battop"
-# simple drag-and-drop source/sink for X or Wayland
-brew "indigoviolet/tap/dragon", args: ["HEAD"]
-# A new generation cloud backup tool
-brew "indigoviolet/tap/duplicacy"
-# NVIDIA NGC CLI
-brew "indigoviolet/tap/nvidia_ngc_cli"
-# an experimental alternative to poetry/pip/pipenv/pyenv/venv/virtualenv/pdm/hatch
-brew "indigoviolet/tap/rye", args: ["HEAD"]
-# Utilities for tabular data files
-brew "indigoviolet/tap/tsv-utils"
 # Fast file synchronization and network forwarding for remote development
 brew "mutagen-io/mutagen/mutagen-beta"
 # A Blazingly fast diff tool for comparing csv files
 brew "thecasualcoder/stable/csvdiff"
+# Developer targeted fonts with a high number of glyphs
+cask "font-iosevka-nerd-font"
+# Desktop automation application
+cask "hammerspoon"
+# Terminal emulator as alternative to Apple's Terminal app
+cask "iterm2"
+# Open-source code editor
+cask "visual-studio-code"
+vscode "KevinGhadyani.vscode-colormate"
+vscode "kokakiwi.vscode-just"
+vscode "redhat.vscode-xml"
+vscode "Rubymaniac.vscode-direnv"
+vscode "skellock.just"
