@@ -14,6 +14,6 @@ if type brew &>/dev/null; then
     fpath=($(brew --prefix)/share/zsh/site-functions $fpath)
 fi
 
-export HOMEBREW_NO_AUTO_UPDATE=1
+# export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_INSTALL_CLEANUP=1
-export HOMEBREW_GITHUB_API_TOKEN=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
+export HOMEBREW_GITHUB_API_TOKEN=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
