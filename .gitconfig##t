@@ -46,7 +46,7 @@
 
     # Always use this to switch branches- will autostash, and un-autostash
     # `:` silences git checkout
-    won = !"f() {( : git checkout; git autostash-save && git switch-and-apply $* )}; test -n $1 && f"
+    won = !"f() { : git checkout ; git autostash-save && git switch-and-apply $* ; }; test -n $1 && f"
 
     # Will update
     up = !"f() {( OLDBR=$( git thisbr ); MASTERBR=$(git master-or-main); git won $MASTERBR; git pull; git checkout $OLDBR && git rebase $MASTERBR && git autostash-pop )}; f"

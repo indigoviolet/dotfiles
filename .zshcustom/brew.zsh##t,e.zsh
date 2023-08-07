@@ -15,6 +15,7 @@ PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
 
 if type brew &>/dev/null; then
     fpath=($(brew --prefix)/share/zsh/site-functions $fpath)
+    zstyle ':completion:*:*:git:*' script $(brew --prefix)/share/zsh/site-functions/git-completion.bash
 fi
 
 # export HOMEBREW_NO_AUTO_UPDATE=1
