@@ -25,7 +25,7 @@
     pu = !git push origin `git thisbr`
 
     # Force push to Github
-    puf = !git pu -f
+    puf = !git pu --force-with-lease --force-if-includes
 
     # autostash: Puts changes on stash in a specifically named way
     autostash-msg = !"f() {( echo \"autostash on $( git thisbr )\" )}; f"
@@ -46,7 +46,11 @@
 
     # Always use this to switch branches- will autostash, and un-autostash
     # `:` silences git checkout
-    won = !"f() { : git checkout ; git autostash-save && git switch-and-apply $* ; }; test -n $1 && f"
+    # export GIT_COMPLETION_CHECKOUT_NO_GUESS=1 will prevent completion of remote branches
+    won = !"f() { : git switch ; git autostash-save && git switch-and-apply $* ; }; test -n $1 && f"
+
+    # TODO: See https://github.com/kbd/setup/blob/master/HOME/.config/git/config
+    # (for nice fzf-picker aliases, but for now we'll just use magit)
 
     # Will update
     up = !"f() {( OLDBR=$( git thisbr ); MASTERBR=$(git master-or-main); git won $MASTERBR; git pull; git checkout $OLDBR && git rebase $MASTERBR && git autostash-pop )}; f"
@@ -114,12 +118,16 @@
   # tool = emerge
   conflictstyle = diff3
 
+[rerere]
+    enabled = true
+
 [init]
     defaultBranch = main
 
 [core]
     excludesfile = ~/.gitignore
     pager = delta
+	abbrev = 7                  #length of shas
 
 [push]
     default = simple
@@ -136,7 +144,7 @@
 {% endif %}
 
 {% if yadm.class == "personal_mac" %}
-    credentialStore = keychain
+   credentialStore = keychain
 {% endif %}
 
 {% if yadm.class == "remote" %}
@@ -145,10 +153,10 @@
     cacheOptions = "--timeout 604800" # 1 week
 {% endif %}
 
-[filter "lfs"]
-    clean = git-lfs clean -- %f
-    smudge = git-lfs smudge -- %f
-    required = true
+# [filter "lfs"]
+#     clean = git-lfs clean -- %f
+#     smudge = git-lfs smudge -- %f
+#     required = true
 
 # Github repos will use ssh instead of https (more secure, efficient, can be shared over ssh)
 # Add an ssh key to make this work without a password https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account
@@ -156,7 +164,7 @@
     insteadOf = github.com
 
 [pull]
-    rebase = false
+    rebase = true
 
 [interactive]
     diffFilter = delta --color-only --features=interactive

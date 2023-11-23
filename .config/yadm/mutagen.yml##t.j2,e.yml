@@ -1,4 +1,3 @@
-# Warning: do not modify
 # Generated from {{ YADM_SOURCE }}
 #
 # We'd like to sync yadm-managed files through mutagen, but mutagen does not
@@ -38,22 +37,23 @@ sync:
       vcs: true
     symlink:
       mode: "posix-raw"
-  yadm:
-    alpha: "/home/venky/"
-    beta: "venky@thelio.tail98a37.ts.net:/home/venky/"
-    ignore:
-      paths:
-        - "/*"
-        # note this must be on oneline to prevent newlines from being injected
-        {% filter indent(width=8) %}{% include "/home/venky/.config/yadm/yadm_ls_files_for_mutagen.yml" | safe %}{% endfilter %}
+  # yadm:
+  #   alpha: "/home/venky/"
+  #   beta: "venky@thelio.tail98a37.ts.net:/home/venky/"
+  #   ignore:
+  #     paths:
+  #       - "/*"
+  #       # note this must be on oneline to prevent newlines from being injected
+  #       {% filter indent(width=8) %}{% include env("HOME") + "/.config/yadm/yadm_ls_files_for_mutagen.yml" | safe %}{% endfilter %}
   # yadm-gcp:
   #   alpha: "/home/venky/"
   #   beta: "venky@deeplearning-1-vm.us-central1-c.instant-venky:/home/venky/"
   #   ignore:
   #     paths:
   #       - "/*"
+# Warning: do not modify
   #       # note this must be on oneline to prevent newlines from being injected
-  #       {% filter indent(width=8) %}{% include "/home/venky/.config/yadm/yadm_ls_files_for_mutagen.yml" | safe %}{% endfilter %}
+  #       {% filter indent(width=8) %}{% include env("HOME") + "/.config/yadm/yadm_ls_files_for_mutagen.yml" | safe %}{% endfilter %}
 
 # Local Variables:
 # mode: yaml

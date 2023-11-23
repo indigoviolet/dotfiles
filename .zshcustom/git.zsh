@@ -57,3 +57,5 @@ gitinfo() {
 
 # https://stackoverflow.com/a/62401418
 export GIT_MERGE_AUTOEDIT=no
+
+export GT_RENAME=1

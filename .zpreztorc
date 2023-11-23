@@ -44,6 +44,7 @@ external_plugins=(
     # MichaelAquilina/zsh-history-filter
 
     marlonrichert/zsh-hist
+    olets/zsh-window-title
 )
 for repo in $external_plugins; do
     if [[ ! -d $ZPREZTODIR/contrib/${repo:t} ]]; then
@@ -64,12 +65,10 @@ zstyle ':prezto:load' pmodule \
     'utility' \
     'history' \
     'completion' \
-    'fzf-tab' \
     'zsh-autosuggestions' \
+    'fzf-tab' \
     'zsh-hist'
-# 'zsh-history-filter'
-
-    #
+    # 'zsh-history-filter' \
 # 'ssh' \ # Managed in .zshcustom/ssh.zsh
 # 'history-substring-search' # see input.zsh
 # 'contrib-prompt' \

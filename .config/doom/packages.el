@@ -280,6 +280,17 @@
 ;; (package! popper )
 ;; Popups:2 ends here
 
+;; buffer expose
+;; :PROPERTIES:
+;; :CREATED:  [2023-10-23 Mon 15:13]
+;; :END:
+
+
+
+;; [[file:config.org::*buffer expose][buffer expose:1]]
+(package! buffer-expose)
+;; buffer expose:1 ends here
+
 ;; Adjust for display size change
 
 
@@ -312,12 +323,9 @@
 (package! expand-region)
 ;; expand region:1 ends here
 
-;; easy-kill base
-
-
-;; [[file:config.org::*easy-kill base][easy-kill base:1]]
+;; [[file:config.org::*easy-kill base][easy-kill base:2]]
 (package! easy-kill :recipe (:host github :repo "leoliu/easy-kill"))
-;; easy-kill base:1 ends here
+;; easy-kill base:2 ends here
 
 ;; easy-kill-extras
 
@@ -433,27 +441,16 @@
 (package! rg)                           ;For smart-jump-find-references-with-rg
 ;; Jumping:1 ends here
 
-;; vicb
-
-;; https://github.com/doomemacs/doomemacs/issues/1213
-
-;; We put this file directly in .config/doom/lisp (.doom.d) so that we can edit locally, and added to yadm
-
-
-;; [[file:config.org::*vicb][vicb:1]]
-;; (package! vi-consult-buffers :recipe (:host github :repo "indigoviolet/vi-consult-buffers"))
-;; vicb:1 ends here
-
-;; consult-projectile
-
-;; +This is not very useful in practice:+ doom has built in support for project
-;; switching that works better with workspaces; but we can use just the find-file
-;; function, which is better than +doom-project-find-file
+;; tags
+;; :PROPERTIES:
+;; :CREATED:  [2023-11-17 Fri 17:09]
+;; :END:
 
 
-;; [[file:config.org::*consult-projectile][consult-projectile:1]]
-(package! consult-projectile :recipe (:host gitlab :repo "OlMon/consult-projectile"))
-;; consult-projectile:1 ends here
+
+;; [[file:config.org::*tags][tags:1]]
+(package! citre)
+;; tags:1 ends here
 
 ;; Narrowing
 
@@ -592,14 +589,15 @@
 (package! org-make-toc)
 ;; table of contents:1 ends here
 
-;; consult-notes
+;; consult-org-roam
+;; :PROPERTIES:
+;; :CREATED:  [2023-08-09 Wed 13:21]
+;; :END:
 
-;; Alternative: https://github.com/jgru/consult-org-roam
 
-
-;; [[file:config.org::*consult-notes][consult-notes:1]]
-(package! consult-notes :recipe (:host github :repo "mclear-tools/consult-notes"))
-;; consult-notes:1 ends here
+;; [[file:config.org::*consult-org-roam][consult-org-roam:1]]
+(package! consult-org-roam :recipe (:host github :repo "jgru/consult-org-roam"))
+;; consult-org-roam:1 ends here
 
 ;; colored-text
 
@@ -630,6 +628,24 @@
 ;; [[file:config.org::*vterm][vterm:1]]
 (unpin! vterm)
 ;; vterm:1 ends here
+
+;; sticky shell prompt
+
+
+
+;; [[file:config.org::*sticky shell prompt][sticky shell prompt:1]]
+(package! sticky-shell)
+;; sticky shell prompt:1 ends here
+
+;; browse at remote
+;; :PROPERTIES:
+;; :CREATED:  [2023-11-10 Fri 00:20]
+;; :END:
+
+
+;; [[file:config.org::*browse at remote][browse at remote:1]]
+(package! browse-at-remote :recipe (:host github :repo "rmuslimov/browse-at-remote"))
+;; browse at remote:1 ends here
 
 ;; Code Formatting
 
@@ -688,13 +704,6 @@
 (package! dired-git-log :recipe (:host github :repo "amno1/dired-git-log"))
 ;; dired git info/log:1 ends here
 
-;; sidebar
-
-
-;; [[file:config.org::*sidebar][sidebar:1]]
-(package! dired-sidebar)
-;; sidebar:1 ends here
-
 ;; all the icons
 
 
@@ -736,6 +745,7 @@
 (package! ssh-config-mode)
 (package! jsonnet-mode)
 (package! sparql-mode)
+(package! jinja2-mode)
 ;; Misc:1 ends here
 
 ;; jsonnet

@@ -20,7 +20,7 @@
 ;; font string. You generally only need these two:
 
 ;; On ubuntu this would be set in Tweaks, but on mac we have to set it here
-(setq doom-font (font-spec :family "Iosevka Nerd Font Mono" :size 12))
+(setq doom-font (font-spec :family "Iosevka Nerd Font Mono"))
 ;;  doom-variable-pitch-font (font-spec :family "sans" :size 13))
 
 ;; If you use `org' and don't want your org files in the default location below,
@@ -83,12 +83,12 @@
      (bg-paren-match bg-magenta-intense)
      (prose-done green-intense)
      (prose-todo red-intense)
-
+     (bg-term-black bg-term-black-bright)
+     (fg-term-black fg-term-black-bright)
      ;; headings
      (fg-heading-1 fg-main)
      (bg-heading-1 bg-dim)
      (overline-heading-1 border)
-
      )
   )
 (setq doom-theme 'modus-vivendi-tinted)
@@ -189,6 +189,7 @@
 
 ;; (repeat-mode 1)
 
+;; (setq server-socket-dir "~/.emacs.d/server")
 (require 'server)
 (unless (server-running-p)
   (server-start))
@@ -198,6 +199,9 @@
 ;; replacing it with the Emacs’ text.
 ;; https://github.com/dakrone/eos/blob/master/eos.org
 (setq save-interprogram-paste-before-kill t)
+
+(defvar vi/home-dir (expand-file-name "~/")
+  "The home directory path.")
 ;; General:1 ends here
 
 ;; uniquify
@@ -280,6 +284,8 @@
   :after-call doom-first-buffer-hook
   :custom
   (persistent-scratch-save-file (concat doom-emacs-dir "persistent-scratch"))
+  (persistent-scratch-backup-directory (concat doom-emacs-dir "/backups"))
+  (persistent-scratch-backup-file-name-format "persistent-scratch-%Y-%m-%d--%H-%M-%S-%N")
   :config
   (persistent-scratch-setup-default)
   )
@@ -294,23 +300,23 @@
 ;; [[file:config.org::*backups][backups:1]]
 (defun vi/backup-enable-predicate (filename)
   "Enable backup for files in specific directories and their subdirectories"
-  (let ((dirs '("~/.config/doom/"
-                 )))
+  (let ((dirs '("~/.config/doom/" "~/")))
     (cl-some (lambda (dir)
                (string-prefix-p (file-truename dir) (file-truename filename)))
              dirs)))
-(defvar --backup-directory (concat doom-emacs-dir "backups"))
+(defvar --backup-directory (concat doom-emacs-dir "/backups"))
 (if (not (file-exists-p --backup-directory))
         (make-directory --backup-directory t))
 
 (setq backup-directory-alist `(("." . ,--backup-directory)))
 (setq make-backup-files t               ; backup of a file the first time it is saved.
+  backup-inhibited nil
       backup-by-copying t               ; don't clobber symlinks
       version-control t                 ; version numbers for backup files
       delete-old-versions t             ; delete excess backup files silently
       delete-by-moving-to-trash t
-      kept-old-versions 6               ; oldest versions to keep when a new numbered backup is made (default: 2)
-      kept-new-versions 9               ; newest versions to keep when a new numbered backup is made (default: 2)
+  kept-old-versions 25               ; oldest versions to keep when a new numbered backup is made (default: 2)
+  kept-new-versions 25              ; newest versions to keep when a new numbered backup is made (default: 2)
 
   backup-enable-predicate #'vi/backup-enable-predicate
       )
@@ -374,7 +380,8 @@
 (use-package! disable-mouse
   :after-call doom-first-input-hook
   :config
-  (global-disable-mouse-mode))
+  ;;(global-disable-mouse-mode)
+  )
 ;; (Disable) Mouse:2 ends here
 
 ;; [[file:config.org::*Chords][Chords:2]]
@@ -390,8 +397,8 @@
 
   ;; Max time delay between two presses of the same key to be considered a key chord.
   ;; Should normally be a little longer than `key-chord-two-keys-delay'.
-  (key-chord-one-key-delay 0.3) ; default 0.2
-
+  (key-chord-one-key-delay 0.4) ; default 0.2
+  (key-chord-safety-interval-forward 0.0)
   :config (key-chord-mode 1)
   )
 ;; Chords:2 ends here
@@ -439,6 +446,11 @@
                                                 js2-object-property-access
 
                                                 ))
+
+  ;; :config
+  ;; (setq rainbow-identifiers-face-count 50)
+  ;; (setq rainbow-identifiers-cie-l*a*b*-color-count 50)
+  ;; (setq rainbow-identifiers-choose-face-function #'rainbow-identifiers-cie-l*a*b*-choose-face)
 
 
   :config
@@ -620,7 +632,8 @@
   (pulsar-highlight-face 'pulsar-yellow)
   :config
   (pulsar-global-mode 1)
-  :hook ((consult-after-jump . pulsar-recenter-top)
+  :hook (
+          ;;(consult-after-jump . pulsar-recenter-top)
           (consult-after-jump . pulsar-reveal-entry)
           )
   :bind (
@@ -652,7 +665,7 @@
 
 
 ;; [[file:config.org::*with parens-mode][with parens-mode:1]]
-  (after! paren
+(after! paren
     (setq show-paren-style 'expression)
     (setq show-paren-priority -25)
     (setq show-paren-delay 0.5)
@@ -1200,6 +1213,156 @@ message listing the hooks."
 (add-hook! 'doom-first-input-hook #'recentf-mode)
 ;; recentf:1 ends here
 
+;; home grown
+;; :PROPERTIES:
+;; :CREATED:  [2023-10-23 Mon 15:29]
+;; :END:
+
+
+
+;; [[file:config.org::*home grown][home grown:1]]
+(defun vi/get-buffers-by-predicate (pred)
+  "Return a list of buffers that satisfy the given predicate."
+  (seq-filter pred (buffer-list)))
+
+(defun is-prime (n)
+  "Check if N is a prime number."
+  (if (< n 2)
+      nil
+    (not (cl-some (lambda (x) (= 0 (% n x))) (number-sequence 2 (floor (sqrt n)))))))
+
+(defun closest-factors-based-on-frame (n w h)
+  "Find the closest factors of N based on frame dimensions W x H."
+  (message "n=%s w=%s h=%s" n w h)
+  (if (< n 4)
+      (list 1 n)
+    (let ((aspect-ratio (/ (float w) h))
+           (best-diff 9999999)
+           (best-factors nil))
+      (dotimes (i (floor (sqrt n)))
+        (let* ((rows (1+ i))
+                (cols (ceiling (/ (float n) rows)))
+                (grid-aspect-ratio (/ (float cols) rows))
+                (diff (abs (- aspect-ratio grid-aspect-ratio))))
+          (when (and (< diff best-diff)
+                  (> rows 1))  ; Avoid 1xn grids
+            (setq best-diff diff)
+            (setq best-factors (list rows cols)))))
+      best-factors)))
+
+(defun split-window-multiple-ways (x y)
+  "Split the current frame into a grid of X columns and Y rows."
+  (interactive "nColumns: \nnRows: ")
+  ;; one window
+  (delete-other-windows)
+  (dotimes (i (1- x))
+      (split-window-horizontally)
+      (dotimes (j (1- y))
+	(split-window-vertically))
+      (other-window y))
+  (dotimes (j (1- y))
+    (split-window-vertically))
+  (balance-windows))
+
+(autoload 'windmove-find-other-window "windmove"
+"Return the window object in direction DIR.
+
+\(fn dir &optional arg window)")
+
+(declare-function windmove-find-other-window "windmove" (dir &optional arg window))
+
+(defun get-window-in-frame (x y &optional frame)
+  "Find Xth horizontal and Yth vertical window from top-left of FRAME."
+  (let ((orig-x x) (orig-y y)
+        (w (frame-first-window frame)))
+    (while (and (windowp w) (> x 0))
+      (setq w (windmove-find-other-window 'right 1 w)
+            x (1- x)))
+    (while (and (windowp w) (> y 0))
+      (setq w (windmove-find-other-window 'down 1 w)
+            y (1- y)))
+    (unless (windowp w)
+      (error "No window at (%d, %d)" orig-x orig-y))
+    w))
+
+(defun set-window-buffer-in-frame (x y buffer &optional frame)
+  "Set Xth horizontal and Yth vertical window to BUFFER from top-left of FRAME."
+  (set-window-buffer (get-window-in-frame x y frame) buffer))
+
+(defun vi/layout-buffers-in-grid (buffer-list)
+  "Layout buffers in a grid."
+  (let* ((total-buffers (length buffer-list))
+         (is-total-buffers-prime (is-prime total-buffers))
+         (w (frame-width))
+         (h (frame-height))
+         (factors (closest-factors-based-on-frame (if is-total-buffers-prime
+                                                      (1+ total-buffers)
+                                                    total-buffers) w h))
+         (rows (car factors))
+         (cols (cadr factors))
+         (counter 0))
+
+    (if is-total-buffers-prime
+        (setq buffer-list (append buffer-list (list (generate-new-buffer " *dummy*")))))
+
+    (message "%s %s %s %s" total-buffers rows cols factors)
+
+    ;; Use your function to split the window into a grid
+    (split-window-multiple-ways cols rows)
+
+    (balance-windows)
+
+    ;; Populate windows with buffers
+    (dotimes (y rows)
+      (dotimes (x cols)
+        (when (< counter total-buffers)
+          (set-window-buffer-in-frame x y (nth counter buffer-list))
+          (setq counter (1+ counter)))))
+
+    ;; Cleanup
+    (when is-total-buffers-prime
+      (kill-buffer " *dummy*"))))
+
+
+(defun vi/tile-buffers-for-mode (mode)
+  "Tile all buffers with the given major mode."
+  (let ((buffers (vi/get-buffers-by-predicate (lambda (buf)
+                                                (with-current-buffer buf
+                                                  (eq major-mode mode))))))
+    (delete-other-windows)
+    (vi/layout-buffers-in-grid buffers)))
+
+
+(defun vi/tile-vterm-buffers ()
+  "Tile all vterm buffers."
+  (interactive)
+  (vi/tile-buffers-for-mode 'vterm-mode))
+
+
+(defun vi/get-project-buffers ()
+  "Get all non-* buffers in the current project."
+  (let ((project-root (projectile-project-root)))
+    (if project-root
+        (vi/get-buffers-by-predicate
+         (lambda (buf)
+           (and (not (string-prefix-p "*" (buffer-name buf)))
+                (string-prefix-p project-root (or (buffer-file-name buf) "")))))
+      (progn
+        (message "Project root is nil")
+        '()))))
+
+
+(defun vi/tile-project-buffers ()
+  "Tile all non-* buffers in the current project."
+  (interactive)
+  (let ((project-buffers (vi/get-project-buffers)))
+    (if project-buffers
+      (vi/layout-buffers-in-grid project-buffers)
+      (message "No project buffers found."))))
+
+;; TODO: make package https://chat.openai.com/share/7dfa1e04-31f2-459d-bb47-a914a85e9889
+;; home grown:1 ends here
+
 ;; [[file:config.org::*Adjust for display size change][Adjust for display size change:2]]
 (defun vi/set-font-size (sz)
   (setq doom-font (font-spec :size sz))
@@ -1214,7 +1377,7 @@ message listing the hooks."
 (defun vi/adjust-font-size-for-display (disp)
   (message "rejiggering for %s" disp)
   (cond ((equal disp '(3440 . 1440))   ; LG monitor
-          (vi/set-font-size 13.0))
+          (vi/set-font-size 16.0))
     ((equal disp '(3000 . 2000))    ; laptop @ 100%, 200%
       (vi/set-font-size 13.0))
     ((equal disp '(4800 . 3200))    ; laptop @ 125%
@@ -1223,6 +1386,8 @@ message listing the hooks."
       (vi/set-font-size 14.0))
     ((equal disp '(3426 . 2284))    ; laptop @ 175%
       (vi/set-font-size 13.0))
+    ((equal disp '(1710 . 1107))         ;macbook air 15"
+      (vi/set-font-size 15.0))
     ((equal disp '(1920 . 1080))    ; asus monitor
       (vi/set-font-size 12.0))
     (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
@@ -1263,13 +1428,16 @@ message listing the hooks."
   )
 ;; expand region:2 ends here
 
-;; [[file:config.org::*easy-kill base][easy-kill base:2]]
+;; easy-kill base
+
+
+;; [[file:config.org::*easy-kill base][easy-kill base:1]]
 (use-package! easy-kill
   :custom
 
   ;; Used for first marking
-  (easy-mark-try-things '(symbol line forward-line-edge sexp)) ;see easy-kill-alist
-  (easy-kill-try-things '(symbol line forward-line-edge sexp)) ;see easy-kill-alist
+  (easy-mark-try-things '(line symbol forward-line-edge sexp)) ;see easy-kill-alist
+  (easy-kill-try-things '(line symbol forward-line-edge sexp)) ;see easy-kill-alist
   :bind (
           ([remap kill-ring-save] . easy-kill) ; M-w
           ;; easy-mark supposedly sets the region immediately but it breaks
@@ -1287,10 +1455,11 @@ message listing the hooks."
 
   ;; easy-kill/mark will cycle through things in this order (except for easy-kill-cycle-ignored)
   (setq easy-kill-alist
-    '((?w word " ")
+    '(
+       (?l line "\n")
+       (?w word " ")
        (?s symbol " ")               ;added from extras
        ;; (?W WORD " ")
-       (?l line "\n")
        (?< inside-pairs "");added from extras
        (?> outside-pairs "");added from extras
        (?\' inside-quotes "");added from extras
@@ -1308,7 +1477,7 @@ message listing the hooks."
        (?b buffer-file-name)))
 
   )
-;; easy-kill base:2 ends here
+;; easy-kill base:1 ends here
 
 ;; [[file:config.org::*easy-kill-extras][easy-kill-extras:2]]
 ;; Here we integrate some  expand-region marking as easy-kill candidates
@@ -1569,7 +1738,7 @@ message listing the hooks."
   :custom
   (highlight-indent-guides-auto-enabled nil)
   (highlight-indent-guides-delay 1)
-  (highlight-indent-guides-method 'bitmap)
+  (highlight-indent-guides-method 'character)
   :config
   :hook (prog-mode . highlight-indent-guides-mode)
   )
@@ -1691,6 +1860,12 @@ message listing the hooks."
    ))
 ;; Jumping:2 ends here
 
+;; [[file:config.org::*tags][tags:2]]
+;; https://git.sr.ht/~northyear/dotemacs/tree/e9b75ccce4e840525c4ec664777694e21c69bc6e/item/site-lisp/consult-citre.el
+;; stored in .config/doom/lisp
+(load! "lisp/consult-citre.el")
+;; tags:2 ends here
+
 ;; embark
 
 
@@ -1781,23 +1956,6 @@ message listing the hooks."
   )
 ;; consult-dir:1 ends here
 
-;; [[file:config.org::*vicb][vicb:2]]
-(load! "lisp/vi-consult-buffers/vicb.el")
-(use-package! vicb
-  :after consult
-  :config
-  (vicb-setup)
-
-  ;; delay previews so that these don't affect recency ranking
-  ;; https://github.com/minad/consult#live-previews
-  (eval `(consult-customize ,@consult-buffer-sources :preview-key '(:debounce 0.8 any)))
-  )
-
-;; (after! '(consult vicb)
-;;   ;; (consult-customize consult-buffer :group nil :sort t)
-;;   )
-;; vicb:2 ends here
-
 ;; projectile
 
 
@@ -1808,14 +1966,6 @@ message listing the hooks."
    (setq consult-project-function (lambda (_) (projectile-project-root)))
    )
 ;; projectile:1 ends here
-
-;; [[file:config.org::*consult-projectile][consult-projectile:2]]
-(use-package! consult-projectile
-    :custom
-  ;; (+workspaces-switch-project-function (lambda (_) (consult-projectile-find-file)))
-  (consult-project-buffer-sources consult-projectile-sources)
-    )
-;; consult-projectile:2 ends here
 
 ;; Orderless
 
@@ -1870,6 +2020,7 @@ message listing the hooks."
     (map! :map vertico-map
       "C-l" #'vi/match-components-literally)
       ;;"M-j" #'vertico-quick-jump)
+
   )
 ;; Orderless:1 ends here
 
@@ -1982,7 +2133,7 @@ message listing the hooks."
 
   (setq-hook! '(conf-mode-hook text-mode-hook json-mode-hook org-mode-hook ein:notebook-mode-hook)
     completion-at-point-functions
-    (list #'vi/cape-yankpad #'cape-dabbrev))
+    (list #'vi/cape-yankpad)) ;; #'cape-dabbrev))
 
   (defun vi/corfu-lsp-setup ()
     ;; Combine LSP via corfu so we can use it in combination with
@@ -1993,7 +2144,7 @@ message listing the hooks."
 
     ;;;; these are set in LSP use-package
     ;; (setq-local lsp-enable-completion-at-point t)
-    ;; (setq-local lsp-completion-provider :none)       ;we use corfu!
+    ;; (setq-local lsp-completion-provider :none)       ;we use corfu (but we do have LSP set up through that)!
 
     (defun my/orderless-dispatch-flex-first (_pattern index _total)
       (and (eq index 0) 'orderless-flex))
@@ -2003,14 +2154,14 @@ message listing the hooks."
         '(orderless)))
 
     ;; Optionally configure the first word as flex filtered.
-    (add-hook 'orderless-style-dispatchers #'my/orderless-dispatch-flex-first nil 'local)
+    ;; (add-hook 'orderless-style-dispatchers #'my/orderless-dispatch-flex-first nil 'local)
 
     ;; Optionally configure the cape-capf-buster.
     (setq-local completion-at-point-functions (list
                                                 (cape-super-capf
                                                   (cape-capf-buster #'lsp-completion-at-point)
                                                   #'vi/cape-yankpad
-                                                  #'cape-dabbrev
+                                                  ;; #'cape-dabbrev
                                                   )
                                                 )))
   (add-hook! 'lsp-completion-mode-hook #'vi/corfu-lsp-setup)
@@ -2083,11 +2234,11 @@ cleared, make sure the overlay doesn't come back too soon."
   ;;(advice-add 'right-char :around #'rk/copilot-complete-if-active)
   ;; (advice-add 'indent-for-tab-command :around #'rk/copilot-complete-if-active)
 
-  :hook ((prog-mode . copilot-mode) (conf-mode . copilot-mode))
+  :hook ((prog-mode . copilot-mode) (conf-mode . copilot-mode) (yaml-mode . copilot-mode))
   :bind (
          :map copilot-completion-map
           ;; ("C-g" . 'copilot-clear-overlay)
-         ;; ("<tab>" . 'copilot-accept-completion)
+         ;;("<tab>" . 'copilot-accept-completion)
           ("<right>" . 'copilot-accept-completion)
          ("C-<up>" . 'copilot-previous-completion)
          ("C-<down>" . 'copilot-next-completion)
@@ -2102,7 +2253,8 @@ cleared, make sure the overlay doesn't come back too soon."
   ;;         )
   )
 
-(add-hook! 'copilot-mode-hook (map! "C-<return>" #'rk/copilot-complete-or-accept))
+(add-hook! 'copilot-mode-hook (map! :map copilot-mode-map "C-<return>" #'rk/copilot-complete-or-accept))
+(add-hook! 'copilot-mode-hook (map! :map prog-mode-map "<tab>" #'rk/copilot-tab))
 
 ;; try to turn off keybindings (up/down) that company-mode interferes with
 ;; (add-hook! prog-mode :append (progn (message "disabling company mode") (company-mode -1) (message "disabled")))
@@ -2163,20 +2315,19 @@ cleared, make sure the overlay doesn't come back too soon."
   ("Searching"
    (;; ("f" +vertico/consult-fd "fd")
     ("s" +vertico/project-search "rg in project")
+     ("t" consult-citre "tags search")
     ("l" consult-line "Line isearch")
      ("j" jump-hydra/body "Jump")
      )
    "Buffers"
    (("b" consult-buffer "Buffers")
-     ("P" consult-projectile "Project buffers")
-    ("T" dired-sidebar-jump-to-sidebar "Goto Tree")
-    ("t" dired-sidebar-toggle-sidebar "Toggle tree")
+     ("P" project-find-file "Project buffers")
+    ("M-P" projectile-save-project-buffers "Save Project Buffers")
+    ;; ("T" dired-sidebar-jump-to-sidebar "Goto Tree")
+    ;; ("t" dired-sidebar-toggle-with-current-directory "Toggle tree")
+     ("T" dirvish-side)
      ("R" vi/revert-buffer "Revert")
      ("M-k" vi/force-kill-buffer "Force kill")
-    ;; ("t" treemacs-select-window "treemacs")
-    ;; ("T" +treemacs/toggle "Toggle treemacs")
-     ;; ("`" popper-toggle-latest "Latest Popup")
-    ;; ("'" popper-cycle "Popup cycles" :exit nil)
     )
    "Intra-buffer"
    (
@@ -2189,15 +2340,7 @@ cleared, make sure the overlay doesn't come back too soon."
     )
    "vterms"
     (
-     ;;("v" multi-vterm-next "vterm-toggle")
-     ;; ("V" multi-vterm "vterm")
-
-
-     ;; TODO: handle no project case
-     ;; ("v" multi-vterm-project "vterm toggle")
-     ;; ("V" multi-vterm "vterm")
-
-     ("v" vi/vterm-local "vterm-toggle")
+     ("v" vi/tile-vterm-buffers "vterm-toggle")
      ("V" (vi/vterm-local t) "vterm")
       ("D" detached-list-sessions "Detached list sessions")
     )
@@ -2217,7 +2360,8 @@ cleared, make sure the overlay doesn't come back too soon."
     ("g" magit-status-here "magit")
     ("M-\\" edit-indirect-region "edit indirect region")
     ("d" dirvish-dwim "dired" )
-    ("r" consult-notes-org-roam-find-node "find node")
+    ;; ("r" consult-notes-org-roam-find-node "find node")
+    ("r" consult-org-roam-file-find "find node")
     ("M-l" org-store-link "store link")
     ("A" org-agenda-list "Agenda")
     ("W" vi/dedup-windows "Dedupe windows")
@@ -2545,13 +2689,37 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
  )
 ;; Org Roam:1 ends here
 
-;; [[file:config.org::*consult-notes][consult-notes:2]]
-(use-package! consult-notes
-  :commands (consult-notes consult-notes-search-in-all-notes consult-notes-org-roam-find-node consult-notes-org-roam-find-node-relation)
-  :config
-  (consult-notes-org-roam-mode)
-  )
-;; consult-notes:2 ends here
+;; [[file:config.org::*consult-org-roam][consult-org-roam:2]]
+(use-package! consult-org-roam
+   :after org-roam
+   :init
+   ;; Activate the minor mode
+   (consult-org-roam-mode 1)
+   :custom
+   ;; Use `ripgrep' for searching with `consult-org-roam-search'
+   (consult-org-roam-grep-func #'consult-ripgrep)
+   ;; Configure a custom narrow key for `consult-buffer'
+   (consult-org-roam-buffer-narrow-key ?r)
+   ;; Display org-roam buffers right after non-org-roam buffers
+   ;; in consult-buffer (and not down at the bottom)
+   (consult-org-roam-buffer-after-buffers t)
+   :config
+  (setq org-roam-node-display-template
+    (concat "${title:80} " (propertize "${tags:20}" 'face 'org-tag))
+    org-roam-node-annotation-function
+    (lambda (node) (marginalia--time (org-roam-node-file-mtime node))))
+
+   ;; Eventually suppress previewing for certain functions
+   (consult-customize
+    consult-org-roam-forward-links
+    :preview-key (kbd "M-.")))
+   ;; :bind
+   ;; ;; Define some convenient keybindings as an addition
+   ;; ("C-c n e" . consult-org-roam-file-find)
+   ;; ("C-c n b" . consult-org-roam-backlinks)
+   ;; ("C-c n l" . consult-org-roam-forward-links)
+   ;; ("C-c n r" . consult-org-roam-search))
+;; consult-org-roam:2 ends here
 
 ;; fill paragraph
 
@@ -2900,6 +3068,17 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   (flycheck-highlighting-style '(conditional 10 level-face (delimiters "" "")))
   (flycheck-global-modes '(prog-mode))
   :config
+  ;; Show indicators in the left margin
+  (setq flycheck-indication-mode 'left-margin)
+
+  ;; Adjust margins and fringe widths…
+  (defun my/set-flycheck-margins ()
+    (setq left-fringe-width 8 right-fringe-width 8
+      left-margin-width 1 right-margin-width 0)
+    (flycheck-refresh-fringes-and-margins))
+
+  ;; …every time Flycheck is activated in a new buffer
+  (add-hook! 'flycheck-mode-hook #'my/set-flycheck-margins)
   (global-flycheck-mode -1)
   :hook ((prog-mode . flycheck-mode))
   :pretty-hydra
@@ -2997,19 +3176,70 @@ Results are reported in a compilation buffer."
 
   ;; set to 'all, this seems to make commits slow?
   (setq magit-diff-refine-hunk t)
+  (setq magit-log-section-commit-count 30)
+  (setq magit-status-sections-hook
 
-  ;; Add ignored files section to magit status
-  ;; This makes yadm-status very slow: https://github.com/magit/magit/discussions/4750
-  (magit-add-section-hook 'magit-status-sections-hook
-                          'magit-insert-ignored-files       ;insert this one
-                          'magit-insert-unstaged-changes t) ;after this one
+    '(magit-insert-status-headers
+       magit-insert-merge-log
+       magit-insert-rebase-sequence
+       magit-insert-am-sequence
+       magit-insert-sequencer-sequence
+       magit-insert-bisect-output
+       magit-insert-bisect-rest
+       magit-insert-bisect-log
+       magit-insert-untracked-files
+       magit-insert-unstaged-changes
+
+       ;; Add ignored files section to magit status
+       ;; This makes yadm-status very slow: https://github.com/magit/magit/discussions/4750
+       magit-insert-ignored-files
+
+       magit-insert-staged-changes
+       magit-insert-stashes
+       magit-insert-unpushed-to-pushremote
+       magit-insert-unpulled-from-pushremote
+       magit-insert-unpushed-to-upstream
+       magit-insert-unpulled-from-upstream
+       magit-insert-recent-commits
+       ))
+
+  ;; https://magit.vc/manual/magit/Status-Header-Sections.html
+  (setq magit-status-headers-hook
+    '(magit-insert-error-header
+       magit-insert-diff-filter-header
+       magit-insert-head-branch-header
+       magit-insert-upstream-branch-header
+       magit-insert-push-branch-header
+       magit-insert-tags-header))
+
+  (setq magit-wip-namespace "refs/magit-wip/")
+
+  ;; Protect against accidental pushes to upstream
+  ;; https://github.com/magit/magit/wiki/Tips-and-Tricks#ask-for-confirmation-before-pushing-to-originmaster
+  (define-advice magit-push-current-to-upstream (:before (args) query-yes-or-no)
+    "Prompt for confirmation before permitting a push to upstream."
+    (when-let ((branch (magit-get-current-branch)))
+      (unless (yes-or-no-p (format "Push %s branch upstream to %s? "
+                             branch
+                             (or (magit-get-upstream-branch branch)
+                               (magit-get "branch" branch "remote"))))
+        (user-error "Push to upstream aborted by user"))))
+
+  (add-hook 'magit-process-prompt-functions 'magit-process-git-credential-manager-core)
   )
 
 (map! :map magit-mode-map
-      "s-<tab>" #'magit-section-cycle-diffs
-      "M-<tab>" nil
-      )
+  "s-<tab>" #'magit-section-cycle-diffs
+  "M-<tab>" nil
+  )
 ;; magit/git:1 ends here
+
+;; magit backups (wip)
+
+
+;; [[file:config.org::*magit backups (wip)][magit backups (wip):1]]
+(add-hook! 'doom-first-file-hook #'magit-wip-mode)
+;; magit backups (wip):1 ends here
 
 ;; ediff
 
@@ -3079,7 +3309,15 @@ Results are reported in a compilation buffer."
     (minimize-window)
     (ediff-setup-control-buffer control-buffer)
     ))
-
+(defun ediff-copy-both-to-C ()
+  (interactive)
+  (ediff-copy-diff ediff-current-difference nil 'C nil
+                   (concat
+                    (ediff-get-region-contents ediff-current-difference 'A ediff-control-buffer)
+                    (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
+(defun add-d-to-ediff-mode-map () (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
+(add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
+(add-hook! 'ediff-cleanup-hook 'ediff-delete-temp-files)
 (add-hook! '(ediff-before-setup-hook ediff-before-setup-windows-hook) (setq ediff-window-setup-function #'vi/ediff-setup-windows-plain-merge))
 ;; ediff:1 ends here
 
@@ -3094,8 +3332,10 @@ Results are reported in a compilation buffer."
   (interactive)
   (require 'magit)
   (let ((magit-git-global-arguments
-          `(,(substitute-env-vars "--git-dir=/home/venky/.local/share/yadm/repo.git")
-             ,(substitute-env-vars "--work-tree=/home/venky")
+          `(,(concat "--git-dir=" vi/home-dir "/.local/share/yadm/repo.git")
+            ,(concat "--work-tree=" vi/home-dir)
+          ;; `(,(substitute-env-vars "--git-dir=/home/venky/.local/share/yadm/repo.git")
+          ;;    ,(substitute-env-vars "--work-tree=/home/venky")
              ,@magit-git-global-arguments)))
     (magit-status "~")
     (recursive-edit)))
@@ -3124,21 +3364,21 @@ Results are reported in a compilation buffer."
   (lsp-signature-auto-activate '(:on-trigger-char :on-server-request))
   (lsp-signature-render-documentation nil)
   (lsp-headerline-breadcrumb-enable t)
-  (lsp-headerline-breadcrumb-enable-diagnostics nil)
+  (lsp-headerline-breadcrumb-enable-diagnostics t)
   (lsp-keep-workspace-alive nil)
   (lsp-semantic-tokens-enable nil)      ;no semantic highlighting: rainbow-identifiers
   (lsp-symbol-highlighting-skip-current t)
   (lsp-enable-xref nil)
   (lsp-lens-enable t)
   (lsp-idle-delay 0.1)
-  (lsp-disabled-clients '((python-mode . '(pyls pylsp mspyls))))
+  ;; (lsp-disabled-clients '((python-mode . '(pyls mspyls))))
 
     ;; This will disable the flycheck checkers. (we use them directly to have better control)
   ;; (lsp-diagnostics-provider :flycheck)
   (lsp-diagnostic-clean-after-change t)
   ;; https://github.com/emacs-lsp/lsp-mode#performance
   (read-process-output-max (* 1024 1024)) ;; 1mb
-  (lsp-file-watch-threshold 2000)
+  (lsp-file-watch-threshold 10000)
   (lsp-enable-completion-at-point t)
   (lsp-completion-provider :none)       ;disable company-mode
 
@@ -3159,6 +3399,8 @@ Results are reported in a compilation buffer."
   :config
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.venv\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.mypy_cache\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.ruff_cache\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.pdm-build\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]wandb\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]__pycache__\\'")
 
@@ -3238,7 +3480,9 @@ Results are reported in a compilation buffer."
 
   ;; This needs to happen after lsp else:
   ;; Error (python-mode-hook): Error running hook "vi/setup-python-flycheck" because: (user-error lsp is not a syntax checker)
+
   (flycheck-select-checker 'lsp)
+  ;; (flycheck-add-next-checker 'lsp '(t . python-ruff))
 
   ;; Not sure if we need flake8 - it pegs the CPU on some buffers
   ;; (flycheck-add-next-checker 'lsp 'python-flake8-vi)
@@ -3248,22 +3492,43 @@ Results are reported in a compilation buffer."
   ;; (flycheck-add-next-checker 'lsp 'python-mypy-vi)
 
   ;; Check if the file is broken
-  (flycheck-add-next-checker 'lsp 'python-pycompile)
+  ;; (flycheck-add-next-checker 'python-ruff '(t . python-pycompile))
+  (flycheck-add-next-checker 'lsp '(t . python-pycompile))
 
   ;; we could disable mypy as well, since pyright does most of it, but pyright doesn't support attrs yet?
   (setq-local flycheck-disabled-checkers '(python-pylint python-mypy))
   )
 ;; Python:2 ends here
 
+;; pylsp
+
+
+;; [[file:config.org::*pylsp][pylsp:1]]
+(setq! lsp-pylsp-plugins-yapf-enabled nil)
+(setq! lsp-pylsp-plugins-flake8-enabled nil)
+(setq! lsp-pylsp-plugins-autopep8-enabled nil)
+(setq! lsp-pylsp-plugins-pydocstyle-enabled nil)
+(setq! lsp-pylsp-plugins-pycodestyle-enabled nil)
+(setq! lsp-pylsp-plugins-mccabe-enabled nil)
+(setq! lsp-pylsp-plugins-pylint-enabled nil)
+(setq! lsp-pylsp-plugins-black-enabled t)
+(setq! lsp-pylsp-plugins-rope-completion-enabled t)
+;; pylsp:1 ends here
+
 ;; LSP setup
+;; :PROPERTIES:
+;; :CREATED:  [2023-08-13 Sun 15:17]
+;; :END:
+
 
 ;; [[file:config.org::*LSP setup][LSP setup:1]]
 (defun vi/python-mode-lsp ()
 
-  ;;;; EDIT: this also filters out the visual rendering (https://discord.com/channels/789885435026604033/789890622424219658/993942950331551814)
+  ;;;; EDIT: this also filters out the visual rendering (https://discord.com/channels/789885435026604033/b789890622424219658/993942950331551814)
   ;;;; Filter out "lsp-info-flycheck-"
   ;;;; severity=4 ("hint"), tag=1 ("unnecessary") -- see vi/filter-tag-diagnostics for reference
   ;; (setq-local lsp-diagnostic-filter (lambda (param work) (vi/filter-lsp-diagnostics param 4 1)))
+
 
   ;; So that lsp is available as a checker
   (add-hook! 'lsp-after-open-hook #'vi/setup-python-flycheck)
@@ -3318,19 +3583,25 @@ Results are reported in a compilation buffer."
   (setf (alist-get 'isort apheleia-formatters) '("isort" "--profile=black" "--stdout" "-"))
   (setf (alist-get 'usort apheleia-formatters) '("usort" "format" "-"))
 
+  ;; pipx install ruff
+  (setf (alist-get 'ruff apheleia-formatters) '("ruff" "check" "--fix" "--exit-zero" "-" "--stdin-filename" filepath))
+
   ;; this may require `npm install -g prettier prettier-plugin-toml --save-dev --save-exact`
   (setf (alist-get 'prettier-toml apheleia-formatters) '(npx "prettier" "--stdin-filepath" filepath "--parser=toml"))
 
   ;; Black uses config in ~/.config/black but not if a pyproject.toml is present (https://github.com/psf/black/issues/2863)
-  (setf (alist-get 'black apheleia-formatters) '("black" "--config" (substitute-in-file-name "$HOME/.config/black") "-"))
+  ;;  (setf (alist-get 'black apheleia-formatters) '("black" "--config" (substitute-in-file-name "$HOME/.config/black") "-"))
+  (setf (alist-get 'black apheleia-formatters) '("black" "-"))
 
   ;; isort messes up type:ignore on imports (eg: https://github.com/psf/black/issues/997)
   ;; isort also messes up jupytext paired files by moving imports around
   ;; pyflyby also messes it up!
   ;; (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
 
-  (setf (alist-get 'python-mode apheleia-mode-alist) '(usort black))
+  (setf (alist-get 'python-mode apheleia-mode-alist) '(ruff black))
+
   (setf (alist-get 'conf-toml-mode apheleia-mode-alist) '(prettier-toml))
+  (setf (alist-get 'jinja2-mode apheleia-mode-alist) nil)
   (apheleia-global-mode)
   )
 ;; apheleia:2 ends here
@@ -3341,9 +3612,19 @@ Results are reported in a compilation buffer."
 
 ;; [[file:config.org::*dirvish][dirvish:2]]
 (use-package! dirvish
+  :custom
+  (dirvish-side-width 40)
+  ;; allow switching to dirvish-side window
+  (dirvish-side-window-parameters '((no-delete-other-windows . t) (no-other-window . nil)))
+  (dirvish-attributes '(subtree-state vc-state collapse))
+  (dirvish-reuse-session nil)
   :config
   (dirvish-override-dired-mode)
+  (dirvish-side-follow-mode)
   (dirvish-peek-mode))
+
+(add-hook 'dirvish-find-entry-hook
+          (lambda (&rest _) (setq-local truncate-lines t)))
 ;; dirvish:2 ends here
 
 
@@ -3409,11 +3690,6 @@ Results are reported in a compilation buffer."
     "<backtab>" #'dired-subtree-cycle)
 )
 ;; subtree:1 ends here
-
-;; [[file:config.org::*sidebar][sidebar:2]]
-(after! dired-sidebar
-  (add-hook! 'dired-sidebar-mode-hook  #'hide-mode-line-mode))
-;; sidebar:2 ends here
 
 ;; xdg open
 
@@ -3662,6 +3938,19 @@ current buffer's, reload dir-locals."
   :mode ("\\.jsonnet\\'"
          "\\.libsonnet\\'"))
 ;; jsonnet:2 ends here
+
+;; json
+;; :PROPERTIES:
+;; :CREATED:  [2023-11-15 Wed 18:55]
+;; :END:
+
+
+
+;; [[file:config.org::*json][json:1]]
+(use-package! json-mode
+  :mode ("\\.json\\'"
+          "\\.jsonl\\'"))
+;; json:1 ends here
 
 ;; [[file:config.org::*Just][Just:2]]
 (setq-hook! '(just-mode-hook) comment-start "# ")

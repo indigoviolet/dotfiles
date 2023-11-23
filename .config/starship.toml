@@ -10,14 +10,12 @@ disabled = true
 format = '[${symbol}(${version} )(\($virtualenv\) )]($style)'
 
 [package]
-# symbol = " "
 disabled = true
 
 [docker_context]
 symbol = " "
 
 [hostname]
-# ssh_symbol = ""
 style = "bold inverted bright-green"
 format = '[$ssh_symbol$hostname]($style) '
 
@@ -37,3 +35,10 @@ ca-central-1 = 'ca1'
 
 [username]
 format = '[$user]($style)'
+
+[git_status]
+diverged = "\uebdb"
+conflicted = "\ue654"
+modified = "\uea73"
+staged = "\uf440"
+format = '([\[$conflicted$modified$staged$ahead_behind\]]($style) )'

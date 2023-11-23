@@ -128,20 +128,20 @@ jupyter-show-kernelspec:
     jupyter kernelspec list --json | dasel -p json '.kernelspecs.'"${basename}"
 
 
-# https://github.com/python-poetry/poetry/issues/3958
-# https://github.com/python-poetry/poetry/issues/2921#issuecomment-896812858
-# Update Poetry git dependency
-poetry-reinstall-git LIB:
-    #!/usr/bin/env bash
-    set_init
-    cd {{ invocation_directory() }}
-    if [[ ${POETRY_ACTIVE:-0} -ne 1 ]]; then
-        echo "Poetry is not active"
-        exit 1
-    fi
-    uri=$(dasel select -f pyproject.toml -s '.tool.poetry.dependencies.{{LIB}}.git')
-    rev=$(dasel select -f pyproject.toml -s '.tool.poetry.dependencies.{{LIB}}.rev')
-    poetry remove {{LIB}} && poetry lock && poetry add "git+$uri@$rev"
+# # https://github.com/python-poetry/poetry/issues/3958
+# # https://github.com/python-poetry/poetry/issues/2921#issuecomment-896812858
+# # Update Poetry git dependency
+# poetry-reinstall-git LIB:
+#     #!/usr/bin/env bash
+#     set_init
+#     cd {{ invocation_directory() }}
+#     if [[ ${POETRY_ACTIVE:-0} -ne 1 ]]; then
+#         echo "Poetry is not active"
+#         exit 1
+#     fi
+#     uri=$(dasel select -f pyproject.toml -s '.tool.poetry.dependencies.{{LIB}}.git')
+#     rev=$(dasel select -f pyproject.toml -s '.tool.poetry.dependencies.{{LIB}}.rev')
+#     poetry remove {{LIB}} && poetry lock && poetry add "git+$uri@$rev"
 
 
 # Fix ImageMagick resource exhausted errors (convert). Run with just sudo
@@ -240,38 +240,51 @@ dl *cmd:
 pregen *cmd:
     {{ just }} subjust "/home/venky/dev/gcloud/gcpvm --dotenv-filename=/home/venky/dev/gcloud/prod-pregenerate.env" "$@"
 
-conda-create-env:
-    #!/usr/bin/env bash
-    set_x
-    cd {{ invocation_directory() }}
-    if [[ -d .venv ]]; then
-       echo ".venv already exists"
-       exit 1
-    fi
-    conda create --prefix .venv --yes --quiet
-    echo 'layout_anaconda ./.venv' > .envrc
-    direnv allow && direnv reload
+# conda-create-env:
+#     #!/usr/bin/env bash
+#     set_x
+#     cd {{ invocation_directory() }}
+#     if [[ -d .venv ]]; then
+#        echo ".venv already exists"
+#        exit 1
+#     fi
+#     conda create --prefix .venv --yes --quiet
+#     echo 'layout_anaconda ./.venv' > .envrc
+#     direnv allow && direnv reload
 
-conda-update-env:
-    cd {{ invocation_directory() }} && \
-       test -f environment.yml && \
-       test -d ./.venv && \
-       mamba env update -p ./.venv --file environment.yml --prune
+# conda-update-env:
+#     cd {{ invocation_directory() }} && \
+#        test -f environment.yml && \
+#        test -d ./.venv && \
+#        mamba env update -p ./.venv --file environment.yml --prune
 
+[no-cd]
 dvc_data_status json='no':
     dvc data status --granular --unchanged --untracked-files=all {{ if json == 'yes' { "--json" } else { '' } }}
 
+[no-cd]
 dvc_du:
     {{ just }} dvc_data_status 'yes' | jq -r '.unchanged[]' | xargs -IARG du -h "ARG" | sort -h
 
 # Run command in abduco and capture log
 abduco +args:
     #!/usr/bin/env bash
+    set -x
     name=${ABDUCO_NAME:-$(echo "{{ args }}" | perl -lne 's/\s+/-/g; print substr($_, 0, 25)')}
+{% if yadm.os == "Darwin" %}
+    cd {{ invocation_directory() }} && abduco -nf ${name} script -F -q ${name}.log zsh -ic "{{ args }}" && tail -F ${name}.log
+{% endif %}
+{% if yadm.os == "Ubuntu" %}
     cd {{ invocation_directory() }} && abduco -nf ${name} script -O ${name}.log --return -c "{{ args }}" && tail -F ${name}.log
+{% endif %}
 
 abduco_connect:
+{% if yadm.os == "Ubuntu" %}
     abduco -a $(abduco | fzf | awk '{print $4}')
+{% endif %}
+{% if yadm.os == "Darwin" %}
+    abduco -a $(abduco | fzf | awk '{print $5}')
+{% endif %}
 
 # cleans up completed sessions (But not their logs)
 abduco_cleanup:
@@ -279,7 +292,27 @@ abduco_cleanup:
 
 # Flushes logs from `script`
 abduco_flush:
+{% if yadm.os == "Ubuntu" %}
     pkill --signal SIGUSR1 -x "script"
+{% endif %}
+{% if yadm.os == "Darwin" %}
+    pkill -SIGUSR1 -x "script"
+{% endif %}
+
+[no-cd]
+tmuxrun +args:
+    #!/usr/bin/env bash
+    set -x
+    name=${ABDUCO_NAME:-$(echo "{{ args }}" | perl -lne 's/\s+/-/g; print substr($_, 0, 25)')}
+    logfile="${name}.log"
+    tmux new-session -d -s $name
+    tmux send-keys -t $name "{{ args }} 2>&1 | tee $name.log" C-m
+    tmux send-keys -t $name "tmux kill-session -t $(tmux display-message -p '#S')" C-m
+    tail -F $name.log
+
+tmux_connect:
+    tmux attach -t $(tmux list-sessions -F "#{session_name}" | fzf )
+
 
 # shutdown GCP vm after some interval
 shutdown_after time:

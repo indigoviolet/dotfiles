@@ -27,13 +27,12 @@ alias py="python -c 'import IPython; IPython.terminal.ipapp.launch_new_instance(
 # alias t="tmux -2 -u -CC a || tmux -2 -u -CC"
 alias htopt="htop -p \"$(ps a -o 'pid' | tail -n +2 | perl -0777 -lne 'chop; s/\n/,/g; print')\""
 alias find=fd
-alias pgrep="pgrep -laf"
-alias pkill="pkill -fe"
 alias g="git"
 alias just="just --unstable"
-alias cat="bat --wrap=never"
+alias cat="bat"
 # alias less="bat --paging=always --wrap=never"
 # alias z=zi
 alias ls="lsd -h --date relative --group-dirs=first --blocks size,date,permission,user,name --depth 3 --classify"
 alias tree="ls --tree"
 alias ll="ls -ltrL"
+alias jq="jq -C"

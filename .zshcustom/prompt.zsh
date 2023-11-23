@@ -39,13 +39,17 @@ else
 
     function set_window_title() {
         # uname -n instead of %m, because %m is the hostname, which is sometimes changed
-        print -Pn "\e]2;$(uname -n):%2~\a"
+        print -Pn "\e]2;%~:$(uname -n)\a"
     }
 
     function set_cursor_norm() {
         tput cnorm
     }
-    precmd_functions+=(set_window_title set_cursor_norm)
+    #precmd_functions+=(set_window_title set_cursor_norm)
+
+    # see zpreztorc:plugin olets/zsh-window-title for a different way to set the window title so vterm can pick it up
+    # https://github.com/olets/zsh-window-title#cli
+    precmd_functions+=(set_cursor_norm)
 
     # colors xtrace prompts
     # https://unix.stackexchange.com/a/595628

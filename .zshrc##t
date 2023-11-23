@@ -35,13 +35,19 @@ fi
 
 # Customize to your needs...
 
+# If you put this in any of the actual files, it will reset completions?
+autoload -Uz compinit
+compinit -i
+
 export ZSH_CUSTOM_DIR=${HOME}/.zshcustom
 
 # env.zsh, scriptlib.zsh
 source ${ZSH_CUSTOM_DIR}/noninteractive.zsh
 source ${ZSH_CUSTOM_DIR}/brew.zsh
+source ${ZSH_CUSTOM_DIR}/bun.zsh
 source ${ZSH_CUSTOM_DIR}/input.zsh
 source ${ZSH_CUSTOM_DIR}/git.zsh
+source ${ZSH_CUSTOM_DIR}/gt.zsh
 source ${ZSH_CUSTOM_DIR}/ssh.zsh
 source ${ZSH_CUSTOM_DIR}/fzf.zsh
 source ${ZSH_CUSTOM_DIR}/misc.zsh
@@ -58,7 +64,10 @@ source ${ZSH_CUSTOM_DIR}/just.zsh
 # source ${ZSH_CUSTOM_DIR}/android.zsh
 source ${ZSH_CUSTOM_DIR}/docker.zsh
 source ${ZSH_CUSTOM_DIR}/rye.zsh
+
 {% endif %}
+
+
 
 {% if yadm.class == "remote" %}
 ## GCP includes
@@ -67,6 +76,8 @@ source ${ZSH_CUSTOM_DIR}/cuda.zsh
 source ${ZSH_CUSTOM_DIR}/docker.zsh
 {% endif %}
 
+
+
 ## Prompt/directory tracking;
 source ${ZSH_CUSTOM_DIR}/vterm.zsh
 source ${ZSH_CUSTOM_DIR}/prompt.zsh
@@ -74,10 +85,14 @@ source ${ZSH_CUSTOM_DIR}/prompt.zsh
 source ${ZSH_CUSTOM_DIR}/zoxide.zsh
 source ${ZSH_CUSTOM_DIR}/build.zsh
 
+
 source ${ZSH_CUSTOM_DIR}/aliases.zsh
 source ${ZSH_CUSTOM_DIR}/atuin.zsh
 source ${ZSH_CUSTOM_DIR}/secrets.zsh
+source ${ZSH_CUSTOM_DIR}/less.zsh
+source ${ZSH_CUSTOM_DIR}/fzf-tab.zsh
 # source ${ZSH_CUSTOM_DIR}/tilix.zsh
+
 
 # test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 

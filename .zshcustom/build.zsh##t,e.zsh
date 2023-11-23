@@ -28,7 +28,9 @@ export BREW_PKG_CONFIG=$BREW_PREFIX/lib/pkgconfig:$BREW_PREFIX/share/pkgconfig
 
 export MAKEFLAGS="-j $(nproc)"
 
-# PIPX_DEFAULT_PYTHON: see `pipx install -h`. By default this is a vendored Python, we use it from rtx
-export PIPX_DEFAULT_PYTHON=$(rtx where python@3.9.12)/bin/python
-
 {% endif %}
+
+# PIPX_DEFAULT_PYTHON: see `pipx install -h`. By default this is a vendored Python, we use it from rye
+#
+# this requires rye toolchain fetch 3.11.3
+export PIPX_DEFAULT_PYTHON=$(rye toolchain list --format json | jq -r '.[] | select(.name=="cpython@3.11.6") | .path')

@@ -14,7 +14,7 @@ PaperWM:bindHotkeys({
     -- swap_down  = {{"ctrl", "alt", "cmd", "shift"}, "down"},
 
     -- position and resize focused window
-    center_window = {{"cmd", "shift"}, "c"},
+    -- center_window = {{"cmd", "shift"}, "c"},
     full_width    = {{"cmd", "shift"}, "f"},
     cycle_width   = {{"cmd", "shift"}, "r"},
     split_screen = {{"cmd", "shift"}, "s"},
