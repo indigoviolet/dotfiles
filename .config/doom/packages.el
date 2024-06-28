@@ -72,13 +72,6 @@
 (package! benchmark-init)
 ;; profiling code:1 ends here
 
-;; debugging
-
-
-;; [[file:config.org::*debugging][debugging:1]]
-(package! bug-hunter)
-;; debugging:1 ends here
-
 ;; Disabled/unpinned packages
 
 ;; [[file:~/.emacs.d/lisp/packages.el][file:~/.emacs.d/lisp/packages.el]] see Pinned package versions
@@ -90,9 +83,15 @@
 (disable-packages! which-key)
 (disable-packages! dired-git-info)
 
+;; (package! transient :pin "55d5d41b48d7f7bc1ecf1f90c012d7821dff5724")
+
 
 ;; updates to a version that has org-store-link compatibility instead of 6633d82c6e3c921c486ec284cb6542f33278b605
 (unpin! helpful)
+
+;; https://github.com/doomemacs/doomemacs/issues/7244#issuecomment-1643370848
+(package! magit :pin "26be78e")
+(package! forge :pin "dc4e9ca")
 ;; Disabled/unpinned packages:1 ends here
 
 ;; persistent scratch
@@ -202,6 +201,14 @@
 (package! goggles :recipe (:host github :repo "minad/goggles"))
 ;; highlights:1 ends here
 
+;; diff-hl
+
+
+
+;; [[file:config.org::*diff-hl][diff-hl:1]]
+(package! diff-hl)
+;; diff-hl:1 ends here
+
 ;; wrap region
 
 
@@ -259,8 +266,15 @@
 (package! winner)
 ;; Restore:1 ends here
 
-;; bufler
+;; burly
 
+
+
+;; [[file:config.org::*burly][burly:1]]
+(package! burly)
+;; burly:1 ends here
+
+;; bufler
 
 
 ;; [[file:config.org::*bufler][bufler:1]]
@@ -306,14 +320,6 @@
 ;; (package! hungry-delete)
 ;; Kill/Yank/Mark regions:1 ends here
 
-;; visible mark
-
-
-
-;; [[file:config.org::*visible mark][visible mark:1]]
-(package! visible-mark)
-;; visible mark:1 ends here
-
 ;; expand region
 
 
@@ -352,19 +358,16 @@
 (package! move-text)
 ;; move-text:1 ends here
 
-;; vundo
+;; [[file:config.org::*vundo][vundo:2]]
+(package! vundo)
+;; vundo:2 ends here
 
-;; [[file:config.org::*vundo][vundo:1]]
-(package! vundo :recipe (:host github :repo "casouri/vundo"))
-;; vundo:1 ends here
-
-;; Last change
+;; Go to Last change
 
 
-
-;; [[file:config.org::*Last change][Last change:1]]
+;; [[file:config.org::*Go to Last change][Go to Last change:1]]
 (package! goto-chg :recipe (:host github :repo "emacs-evil/goto-chg"))
-;; Last change:1 ends here
+;; Go to Last change:1 ends here
 
 ;; point
 
@@ -401,14 +404,12 @@
 (package! separedit)
 ;; separedit:1 ends here
 
-;; Guides
-
-;; Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact badly with org-indent-modern
+;; indent bars
 
 
-;; [[file:config.org::*Guides][Guides:1]]
-(package! highlight-indent-guides)
-;; Guides:1 ends here
+;; [[file:config.org::*indent bars][indent bars:1]]
+(package! indent-bars :recipe (:host github :repo "jdtsmith/indent-bars"))
+;; indent bars:1 ends here
 
 ;; Movement
 
@@ -452,6 +453,17 @@
 (package! citre)
 ;; tags:1 ends here
 
+;; consult-projectile
+
+;; +This is not very useful in practice:+ doom has built in support for project
+;; switching that works better with workspaces; but we can use just the find-file
+;; function, which is better than +doom-project-find-file
+
+
+;; [[file:config.org::*consult-projectile][consult-projectile:1]]
+(package! consult-projectile :recipe (:host gitlab :repo "OlMon/consult-projectile"))
+;; consult-projectile:1 ends here
+
 ;; Narrowing
 
 
@@ -482,7 +494,7 @@
 ;; [[file:config.org::*Corfu/Cape][Corfu/Cape:1]]
 (package! corfu :recipe (:host github :repo "minad/corfu" :files (:defaults "extensions/*.el")))
 (package! cape)
-(package! popon :recipe (:type git :repo "https://codeberg.org/akib/emacs-popon.git"))
+(package! popon :recipe (:host codeberg :repo "akib/emacs-popon"))
 ;; (package! corfu-terminal :recipe (:type git :repo "https://codeberg.org/akib/emacs-corfu-terminal.git"))
 ;; Corfu/Cape:1 ends here
 
@@ -494,12 +506,16 @@
   :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))
 ;; original package:1 ends here
 
-;; chatgpt shell
+;; gptel
+;; :PROPERTIES:
+;; :CREATED:  [2024-01-22 Mon 12:01]
+;; :END:
 
 
-;; [[file:config.org::*chatgpt shell][chatgpt shell:1]]
-(package! chatgpt-shell)
-;; chatgpt shell:1 ends here
+
+;; [[file:config.org::*gptel][gptel:1]]
+(package! gptel)
+;; gptel:1 ends here
 
 ;; Iedit
 
@@ -614,14 +630,6 @@
 (package! ox-gfm)
 ;; Github flavored Markdown:1 ends here
 
-;; ein
-
-
-;; [[file:config.org::*ein][ein:1]]
-;; (package! ein :pin "6063cee")           ;dec 25 2021 - previous working version
-(package! ein :pin "87f4448")           ;apr 26 2023
-;; ein:1 ends here
-
 ;; vterm
 
 
@@ -646,6 +654,13 @@
 ;; [[file:config.org::*browse at remote][browse at remote:1]]
 (package! browse-at-remote :recipe (:host github :repo "rmuslimov/browse-at-remote"))
 ;; browse at remote:1 ends here
+
+;; git-link
+
+
+;; [[file:config.org::*git-link][git-link:1]]
+(package! git-link)
+;; git-link:1 ends here
 
 ;; Code Formatting
 
@@ -744,7 +759,7 @@
 (package! git-modes)
 (package! ssh-config-mode)
 (package! jsonnet-mode)
-(package! sparql-mode)
+;; (package! sparql-mode)
 (package! jinja2-mode)
 ;; Misc:1 ends here
 
@@ -782,14 +797,13 @@
 (package! org-latex-impatient)
 ;; latex:1 ends here
 
-;; atomic chrome
+;; Prodigy
 
 
 
-
-;; [[file:config.org::*atomic chrome][atomic chrome:1]]
-(package! atomic-chrome)
-;; atomic chrome:1 ends here
+;; [[file:config.org::*Prodigy][Prodigy:1]]
+(package! prodigy)
+;; Prodigy:1 ends here
 
 ;; gif screencast
 
@@ -832,14 +846,6 @@
                  :repo "dalanicolai/image-roll.el"))
 ;; pdf tools fork with smooth scrolling:1 ends here
 
-;; zotxt (zotero + emacs)
-
-
-
-;; [[file:config.org::*zotxt (zotero + emacs)][zotxt (zotero + emacs):1]]
-(package! zotxt)
-;; zotxt (zotero + emacs):1 ends here
-
 ;; org-noter
 
 
@@ -847,29 +853,6 @@
 ;; [[file:config.org::*org-noter][org-noter:1]]
 (package! org-noter)
 ;; org-noter:1 ends here
-
-;; Pomodoro
-
-
-
-;; [[file:config.org::*Pomodoro][Pomodoro:1]]
-(package! org-pomodoro)
-;; Pomodoro:1 ends here
-
-;; detached
-
-
-
-;; [[file:config.org::*detached][detached:1]]
-(package! detached)
-;; detached:1 ends here
-
-;; dev-docs
-
-
-;; [[file:config.org::*dev-docs][dev-docs:1]]
-(package! devdocs)
-;; dev-docs:1 ends here
 
 ;; Keyfreq
 

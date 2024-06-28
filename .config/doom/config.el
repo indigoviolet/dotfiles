@@ -20,12 +20,12 @@
 ;; font string. You generally only need these two:
 
 ;; On ubuntu this would be set in Tweaks, but on mac we have to set it here
-(setq doom-font (font-spec :family "Iosevka Nerd Font Mono"))
+(setq! doom-font (font-spec :family "Iosevka Nerd Font Mono"))
 ;;  doom-variable-pitch-font (font-spec :family "sans" :size 13))
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-(setq org-directory (file-truename "~/org/"))
+(setq! org-directory (file-truename "~/org/"))
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
@@ -151,7 +151,9 @@
       make-backup-files t)
 
 ;; Disable exit confirmation.
-(setq confirm-kill-emacs nil)
+;; (setq confirm-kill-emacs nil)
+
+(setq confirm-nonexistent-file-or-buffer 'after-completion)
 
 ;; indent anywhere, no completion on tab
 (setq tab-always-indent t)
@@ -185,7 +187,7 @@
 ;; https://www.masteringemacs.org/article/demystifying-emacs-window-manager
 (setq switch-to-buffer-obey-display-actions t)
 
-(global-git-gutter-mode t)
+;; (global-git-gutter-mode t)
 
 ;; (repeat-mode 1)
 
@@ -202,6 +204,11 @@
 
 (defvar vi/home-dir (expand-file-name "~/")
   "The home directory path.")
+
+;; https://github.com/emacs-lsp/lsp-mode#performance
+;; vterm as well
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
+(setq process-adaptive-read-buffering nil)
 ;; General:1 ends here
 
 ;; uniquify
@@ -340,6 +347,7 @@
 (map! "M-i" #'delete-indentation
       "M-t" #'beginning-of-buffer
       "M-z" #'end-of-buffer
+  "C-S-W" #'delete-region                 ;can use M-w C-w for kill-region
   "<escape>" #'keyboard-escape-quit
       "C-x k" #'kill-buffer-and-window
       "<f5>" (cmd! (revert-buffer t t)))
@@ -575,7 +583,10 @@
 
   :hook
   ((prog-mode . rainbow-identifiers-mode)
-  (yaml-mode . rainbow-identifiers-mode))
+  (yaml-mode . rainbow-identifiers-mode)
+    (yaml-ts-mode . rainbow-identifiers-mode)
+
+    )
   )
 ;; Rainbow:2 ends here
 
@@ -635,6 +646,7 @@
   :hook (
           ;;(consult-after-jump . pulsar-recenter-top)
           (consult-after-jump . pulsar-reveal-entry)
+
           )
   :bind (
           ("C-x l" . pulsar-highlight-dwim)
@@ -654,12 +666,18 @@
 ;; font lock:1 ends here
 
 ;; [[file:config.org::*highlights][highlights:2]]
-(volatile-highlights-mode -1)
+;; (volatile-highlights-mode -1)
 (use-package! goggles
   :hook ((prog-mode text-mode org-mode) . goggles-mode)
   :config
   (setq-default goggles-pulse t)) ;; set to nil to disable pulsing
 ;; highlights:2 ends here
+
+;; [[file:config.org::*diff-hl][diff-hl:2]]
+(global-diff-hl-mode)
+(add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
+(add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+;; diff-hl:2 ends here
 
 ;; with parens-mode
 
@@ -698,9 +716,17 @@
 (use-package! gcmh
     :custom
     (gcmh-verbose t)
-    (gcmh-idle-delay 30)                ;;'auto)
+    (gcmh-idle-delay 'auto)
     (gcmh-high-cons-threshold 10000000000)
   )
+
+(defun vi/maybe-gc ()
+  (interactive)
+  (unless (frame-focus-state) (garbage-collect)))
+
+(add-function :after
+  after-focus-change-function
+  (lambda () (run-with-timer 15 nil #'vi/maybe-gc)))
 ;; Garbage collection:1 ends here
 
 ;; Indentation
@@ -813,6 +839,7 @@ message listing the hooks."
   (setq mode-line-default-help-echo nil
     doom-modeline-checker-simple-format nil
     show-help-function nil
+    doom-modeline-vcs-max-length 24
     ;; doom-modeline-icon nil
     ;; doom-modeline-major-mode-color-icon nil
     doom-modeline-persp-name nil)
@@ -835,7 +862,7 @@ message listing the hooks."
           (propertize
             (concat
               " "
-              (doom-modeline-icon 'faicon "recycle" nil nil
+              (doom-modeline-icon 'faicon "nf-fa-recycle" nil nil
                 :face 'all-the-icons-dsilver
                 :height 0.9
                 :v-adjust 0.0)
@@ -848,16 +875,16 @@ message listing the hooks."
   ;; best to name this 'main, since main gets set as the default in
   ;; doom-modeline. other names don't seem to take effect as default..
   (doom-modeline-def-modeline 'main
-    '(bar buffer-info-simple selection-info remote-host checker recursion-depth)
-    '(debug repl process lsp minor-modes major-mode misc-info vcs))
+    '(bar buffer-info-simple selection-info remote-host recursion-depth check matches)
+    '(debug repl process lsp vcs minor-modes major-mode misc-info))
 
   (doom-modeline-def-modeline 'org-src
-    '(bar buffer-info-simple selection-info checker)
+   '(bar buffer-info-simple selection-info matches)
     '(debug lsp minor-modes major-mode))
 
   (doom-modeline-def-modeline 'vcs
     '(bar buffer-info-simple selection-info remote-host recursion-depth)
-    '( debug github process minor-modes major-mode misc-info vcs))
+    '( debug github process vcs minor-modes major-mode misc-info))
 
 
   ;; don't think we need this, since we modified 'main
@@ -1026,6 +1053,22 @@ message listing the hooks."
 
 (map! :g "C-x 1" #'vi/zygospore)
 ;; zygospore:1 ends here
+
+;; [[file:config.org::*burly][burly:2]]
+(defhydra hydra-burly (:color blue :hint nil)
+  "
+Burly Commands
+--------------
+_b_: Open bookmarks    _s_: Save layout
+_r_: Restore layout    _n_: New layout
+_q_: Quit
+"
+  ("b" burly-open-bookmark)
+  ("s" burly-bookmark-windows)
+  ("r" burly-open-bookmark)
+  ("n" burly-reset-window-layout)
+  ("q" nil :color blue))
+;; burly:2 ends here
 
 
 
@@ -1361,11 +1404,32 @@ message listing the hooks."
       (message "No project buffers found."))))
 
 ;; TODO: make package https://chat.openai.com/share/7dfa1e04-31f2-459d-bb47-a914a85e9889
+
+(defun vi/fix-window-size ()
+  "Change process window size."
+  (interactive)
+  (message "fixing window size")
+  (when (derived-mode-p 'comint-mode)
+    (let ((process (get-buffer-process (current-buffer))))
+      (unless (eq nil process)
+        (set-process-window-size process (window-height) (window-width))))))
+
+(defun vi/toggle-window-dedicated ()
+  "Toggle whether the current active window is dedicated or not"
+  (interactive)
+  (message
+   (if (let (window (get-buffer-window (current-buffer)))
+         (set-window-dedicated-p window
+           (not (window-dedicated-p window))))
+       "Window '%s' is dedicated"
+     "Window '%s' is normal")
+   (current-buffer)))
 ;; home grown:1 ends here
 
 ;; [[file:config.org::*Adjust for display size change][Adjust for display size change:2]]
 (defun vi/set-font-size (sz)
-  (setq doom-font (font-spec :size sz))
+  (font-put doom-font :size sz)
+  ;; (setq! doom-font (font-spec :size sz))
   (doom/reload-font)
   (message "Setting font size to: %s" sz)
   sz
@@ -1407,15 +1471,6 @@ message listing the hooks."
   (add-hook! 'dispwatch-display-change-hooks #'vi/adjust-font-size-for-display)
   )
 ;; Adjust for display size change:2 ends here
-
-;; [[file:config.org::*visible mark][visible mark:2]]
-(use-package! visible-mark
-  :custom
-  (visible-mark-max 1)
-  :config
-  (global-visible-mark-mode t)
-  )
-;; visible mark:2 ends here
 
 ;; [[file:config.org::*expand region][expand region:2]]
 ;; (use-package! hungry-delete
@@ -1472,10 +1527,8 @@ message listing the hooks."
        (?L list "\n")
        (?f string-to-char-forward "")
        (?F string-up-to-char-forward "")
-       (?f filename "\n")
        (?D defun-name " ")
-       (?b buffer-file-name)))
-
+       (?B buffer-file-name)))
   )
 ;; easy-kill base:1 ends here
 
@@ -1488,7 +1541,7 @@ message listing the hooks."
     (setq easy-kill-ace-jump-enable-p nil)
     :config
     (require 'extra-things)
-    (require 'easy-kill-mc)
+    ;; (require 'easy-kill-mc)
     ;; Integrate `expand-region' functionality with easy-kill
     :bind (:map easy-kill-base-map
             ("o" . easy-kill-er-expand)
@@ -1548,59 +1601,25 @@ message listing the hooks."
   )
 ;; move-text:2 ends here
 
-;; Undo
+;; doom undo-fu
 
-;; ein disables undo if C-/ is bound to anything but basic undo
-;; https://github.com/millejoh/emacs-ipython-notebook/issues/841#issuecomment-1129176534
+;; [[file:config.org::*doom undo-fu][doom undo-fu:1]]
+(setq! undo-limit 67108864) ; 64mb.
+(setq! undo-strong-limit 100663296) ; 96mb.
+(setq! undo-outer-limit 1006632960) ; 960mb.
 
-;; doom-emacs defines a global undo-fu-mode (minor-mode) which is activated on
-;; doom-first-buffer. This means that it is turned on in the ein notebook buffers,
-;; but it's not enough to turn it off via ein:notebook-mode-hook -- that's too
-;; late, ein has already disabled undo.
-
-;; so we define a non-global vi/undo-fu-mode and turn it on selectively.
-
-
-;; [[file:config.org::*Undo][Undo:1]]
-(map! "C--" #'undo "M--" #'redo "C-/" #'undo)
-(map! :map undo-fu-mode-map "C-/" nil)
-
-;; copied from doom's undo/config.el
-(use-package! undo-fu
-  :custom
-  (setq! undo-limit 80000000)
-  :unless (featurep! +tree)
-  :config
-  (define-minor-mode vi/undo-fu-mode
-    "Enables `undo-fu' for the current session."
-    :keymap (let ((map (make-sparse-keymap)))
-              ;; (define-key map [remap undo] #'undo-fu-only-undo)
-              ;; (define-key map [remap redo] #'undo-fu-only-redo)
-              ;; (define-key map (kbd "C-_")     #'undo-fu-only-undo)
-              ;; (define-key map (kbd "M-_")     #'undo-fu-only-redo)
-              ;; (define-key map (kbd "C-M-_")   #'undo-fu-only-redo-all)
-              (define-key map (kbd "C-x r u") #'undo-fu-session-save)
-              (define-key map (kbd "C-x r U") #'undo-fu-session-recover)
-
-              ;; Diff from undo-fu-mode
-              (define-key map (kbd "C--")     #'undo-fu-only-undo)
-              (define-key map (kbd "M--")     #'undo-fu-only-redo)
-              (define-key map (kbd "C-M--")   #'undo-fu-only-redo-all)
-
-              map)
-    :predicate t
-    :init-value nil
-    :global nil)                       ;;only difference from doom-emacs' undo-fu-mode is that this isn't global
+(after! undo-fu
+  (setq! undo-fu-allow-undo-in-region t)
+  (map! "C--" #'undo "M--" #'redo "C-/" #'undo)
+  (map! :map undo-fu-mode-map "C-/" nil)
+  (map! :map undo-fu-mode-map "C-x u" nil)
+  ;; (vhl/ext/undo-fu/on)
   )
+;; doom undo-fu:1 ends here
 
-;; We don't want this because it turns on in ein and ein disables undo if it is
-;; bound to anything but the simple emacs undo, it is global
-(remove-hook! 'doom-first-buffer-hook #'undo-fu-mode)
-(add-hook! (prog-mode org-mode text-mode) #'vi/undo-fu-mode)
-(add-hook! vi/undo-fu-mode #'global-undo-fu-session-mode)
-;; Undo:1 ends here
+;; vundo
 
-;; [[file:config.org::*vundo][vundo:2]]
+;; [[file:config.org::*vundo][vundo:1]]
 (use-package! vundo
   :custom
   (vundo-roll-back-on-quit nil)
@@ -1641,9 +1660,9 @@ message listing the hooks."
   (setq window-size-fixed t)
   ;; (buffer-face-set '(:family "DejaVu Sans Mono"))
   )
-;; vundo:2 ends here
+;; vundo:1 ends here
 
-;; [[file:config.org::*Last change][Last change:2]]
+;; [[file:config.org::*Go to Last change][Go to Last change:2]]
 (use-package! goto-chg
   :bind (
           ("C-." . goto-last-change)
@@ -1654,7 +1673,7 @@ message listing the hooks."
 ;;   ;; goto-last-change-reverse
 ;;   (map! :map org-mode-map "C-," nil)
 ;;   )
-;; Last change:2 ends here
+;; Go to Last change:2 ends here
 
 ;; [[file:config.org::*point][point:2]]
 (use-package! point-undo
@@ -1732,22 +1751,15 @@ message listing the hooks."
   (add-hook 'edit-indirect-before-commit-hook #'vbe:after-indirect-edit-restore-left-margin))
 ;; separedit:2 ends here
 
-;; [[file:config.org::*Guides][Guides:2]]
-(use-package! highlight-indent-guides
-  :after-call doom-first-buffer-hook
+;; [[file:config.org::*indent bars][indent bars:2]]
+(remove-hook! 'text-mode-hook #'highlight-indent-guides-mode)
+(remove-hook! 'prog-mode-hook #'highlight-indent-guides-mode)
+(use-package! indent-bars
   :custom
-  (highlight-indent-guides-auto-enabled nil)
-  (highlight-indent-guides-delay 1)
-  (highlight-indent-guides-method 'character)
-  :config
-  :hook (prog-mode . highlight-indent-guides-mode)
-  )
-
-(add-hook! highlight-indent-guides-mode
-  (custom-set-faces!
-    '(highlight-indent-guides-character-face :foreground "#2b3045") ;bg-inactive
-    ))
-;; Guides:2 ends here
+  ;; stipples not supported on mac os build
+  (indent-bars-prefer-character t)
+  :hook ((prog-mode text-mode) . indent-bars-mode))
+;; indent bars:2 ends here
 
 ;; Shift regions
 
@@ -1924,16 +1936,21 @@ message listing the hooks."
 
 ;; [[file:config.org::*consult customization][consult customization:1]]
 (after! consult
-  (add-hook! 'consult-after-jump-hook #'recenter-top-bottom)
+  ;; (add-hook! 'consult-after-jump-hook #'recenter-top-bottom)
+  (add-hook! 'consult-after-jump-hook #'recenter)
+  (add-hook! 'consult-after-jump-hook #'pulse-momentary-highlight-one-line)
+
   (setq! consult-fontify-max-size 1024)   ;https://github.com/minad/consult/issues/329
 
   (defalias 'consult-line-thing-at-point 'consult-line)
   (consult-customize consult-line-thing-at-point :initial (thing-at-point 'symbol))
 
-  (map! "C-s" #'consult-line "C-r" #'consult-line)               ;deliberately not setting initial
+  (map! "C-s" #'consult-line "C-r" #'vertico-repeat)               ;deliberately not setting initial
+
 
   (setq consult-line-start-from-top nil)
   (setq consult-line-point-placement 'match-beginning)
+
   )
 ;; consult customization:1 ends here
 
@@ -1966,6 +1983,22 @@ message listing the hooks."
    (setq consult-project-function (lambda (_) (projectile-project-root)))
    )
 ;; projectile:1 ends here
+
+;; [[file:config.org::*consult-projectile][consult-projectile:2]]
+(use-package! consult-projectile)
+
+(after! consult-projectile
+  (setq consult-buffer-sources
+    '(consult--source-modified-buffer
+       consult--source-project-buffer
+       consult--source-buffer
+       consult--source-recent-file
+       consult-projectile--source-projectile-buffer
+       consult-projectile--source-projectile-file
+       consult-projectile--source-projectile-project
+       consult--source-hidden-buffer
+       +vertico--consult-org-source)))
+;; consult-projectile:2 ends here
 
 ;; Orderless
 
@@ -2040,7 +2073,7 @@ message listing the hooks."
 (use-package! outline
   :custom
   (outline-minor-mode-cycle t)
-  (outline-minor-mode-use-buttons t)
+  (outline-minor-mode-use-buttons 'in-margins)
   :after-call doom-first-buffer-hook
   ;; :hook (
   ;;         (prog-mode . outline-minor-mode)
@@ -2060,6 +2093,53 @@ message listing the hooks."
      (vconcat (mapcar (lambda (c) (+ face-offset c)) " ➤"))))
   )
 ;; outline faces:2 ends here
+
+;; yaml
+
+
+;; [[file:config.org::*yaml][yaml:1]]
+;; https://gist.github.com/leoc/f8c0868051003c4ea6eff638bc614575
+
+(defun leoc/yaml-outline-level ()
+  (s-count-matches "\\([ ]\\{2\\}\\)" (match-string 0)))
+
+(defun leoc/yaml-outline-regexp ()
+  (rx
+    (seq
+      bol
+      (group (zero-or-more "  ")
+        (or (group
+              (seq (or (seq "\"" (*? (not (in "\"" "\n"))) "\"")
+                     (seq "'" (*? (not (in "'" "\n"))) "'")
+                     (*? (not (in ":" "\n"))))
+                ":"
+                (?? (seq
+                      (*? " ")
+                      (or (seq "&" (one-or-more nonl))
+                        (seq ">-")
+                        (seq "|"))
+                      eol))))
+          (group (seq
+                   "- "
+                   (+ (not (in ":" "\n")))
+                   ":"
+                   (+ nonl)
+                   eol)))))))
+
+
+
+(setq-hook! 'yaml-mode-hook outline-level 'leoc/yaml-outline-level)
+(setq-hook! 'yaml-mode-hook outline-regexp (leoc/yaml-outline-regexp))
+(map! :map yaml-mode-map
+  "|" nil
+  ":" nil
+  ">" nil
+  "-" nil
+  "." nil
+  [backspace] nil
+  )
+(add-hook! 'yaml-mode-hook #'outline-minor-mode #'outline-minor-faces-mode #'lsp)
+;; yaml:1 ends here
 
 ;; Python
 
@@ -2129,7 +2209,7 @@ message listing the hooks."
                         ;;      company-yankpad)))))
 
   ;; (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
-  (defalias 'vi/cape-interactive-yankpad (cape-interactive-capf #'vi/cape-yankpad))
+  (defalias 'vi/cape-interactive-yankpad (cape-capf-interactive #'vi/cape-yankpad))
 
   (setq-hook! '(conf-mode-hook text-mode-hook json-mode-hook org-mode-hook ein:notebook-mode-hook)
     completion-at-point-functions
@@ -2158,7 +2238,7 @@ message listing the hooks."
 
     ;; Optionally configure the cape-capf-buster.
     (setq-local completion-at-point-functions (list
-                                                (cape-super-capf
+                                                (cape-capf-super
                                                   (cape-capf-buster #'lsp-completion-at-point)
                                                   #'vi/cape-yankpad
                                                   ;; #'cape-dabbrev
@@ -2260,19 +2340,9 @@ cleared, make sure the overlay doesn't come back too soon."
 ;; (add-hook! prog-mode :append (progn (message "disabling company mode") (company-mode -1) (message "disabled")))
 ;; config:1 ends here
 
-;; [[file:config.org::*chatgpt shell][chatgpt shell:2]]
-(use-package chatgpt-shell
-  :custom
-  (chatgpt-shell-openai-key
-    (lambda ()
-      ;; ~/.authinfo.gpg
-      (auth-source-pick-first-password :host "api.openai.com")))
-  :bind (
-          :map shell-maker-map
-          (("C-<return>" . comint-send-input) ("<return>" . newline))
-          )
-  )
-;; chatgpt shell:2 ends here
+;; [[file:config.org::*gptel][gptel:2]]
+(use-package! gptel)
+;; gptel:2 ends here
 
 ;; [[file:config.org::*Iedit][Iedit:2]]
 (use-package! iedit
@@ -2313,60 +2383,61 @@ cleared, make sure the overlay doesn't come back too soon."
 ;; [[file:config.org::*Global hydra][Global hydra:1]]
 (pretty-hydra-define global-hydra (:exit t :quit-key ("q" "C-g"))
   ("Searching"
-   (;; ("f" +vertico/consult-fd "fd")
-    ("s" +vertico/project-search "rg in project")
-     ("t" consult-citre "tags search")
-    ("l" consult-line "Line isearch")
-     ("j" jump-hydra/body "Jump")
-     )
-   "Buffers"
-   (("b" consult-buffer "Buffers")
-     ("P" project-find-file "Project buffers")
-    ("M-P" projectile-save-project-buffers "Save Project Buffers")
-    ;; ("T" dired-sidebar-jump-to-sidebar "Goto Tree")
-    ;; ("t" dired-sidebar-toggle-with-current-directory "Toggle tree")
-     ("T" dirvish-side)
-     ("R" vi/revert-buffer "Revert")
-     ("M-k" vi/force-kill-buffer "Force kill")
-    )
-   "Intra-buffer"
-   (
-     ("o" consult-outline "outlIne")
-     ("i" consult-imenu "Imenu")
-     ;; ("." push-mark-command "Push Mark")
-     ;; ("m" consult-mark "consult-mark")
-     ;; ("M" consult-global-mark "global-mark")
-     ;;("f" fold-active-region "fold region")
-    )
-   "vterms"
+    (;; ("f" +vertico/consult-fd "fd")
+      ("s" +vertico/project-search "rg in project")
+      ("t" consult-citre "tags search")
+      ("l" consult-line "Line isearch")
+      ("j" jump-hydra/body "Jump")
+      )
+    "Buffers/files"
+    (("b" consult-buffer "Buffers")
+      ("P" consult-projectile-find-file "Project files")
+      ("M-P" projectile-save-project-buffers "Save Project Buffers")
+      ("T" dirvish-side)
+      ("R" vi/revert-buffer "Revert")
+      ("M-k" vi/force-kill-buffer "Force kill")
+      )
+    "Intra-buffer"
     (
-     ("v" vi/tile-vterm-buffers "vterm-toggle")
-     ("V" (vi/vterm-local t) "vterm")
-      ("D" detached-list-sessions "Detached list sessions")
+      ("o" consult-outline "outlIne")
+      ("i" consult-imenu "Imenu")
+      ;; ("." push-mark-command "Push Mark")
+      ;; ("m" consult-mark "consult-mark")
+      ;; ("M" consult-global-mark "global-mark")
+      ;;("f" fold-active-region "fold region")
+      )
+    "vterms"
+    (
+      ("v" vi/tile-vterm-buffers "vterm-toggle")
+      ("V" (vi/vterm-local t) "vterm")
+      ;; ("D" detached-list-sessions "Detached list sessions")
+      )
+    "Modes"
+    (;; ("a" hydra-annotate/body "Annotate")
+      ("SPC" vi/major-mode-hydra "Major")
+      ("c" flycheck-hydra/body "flycheck")
+      ("n" hydra-narrow/body "narrow")
+      ("L" lsp-mode-hydra/body "LSP")
+      ;; ("e" ein-global-hydra/body "EIN")
+      ;; ("p" org-pomodoro "Pomodoro")
+      ("M-m" minions-minor-modes-menu "Minor modes")
+      )
+    "Actions"
+    (
+      ("M-y" yankpad-insert "yankpad")
+      ("g" magit-status-here "magit")
+      ("M-\\" edit-indirect-region "edit indirect region")
+      ("d" dirvish-dwim "dired" )
+      ;; ("r" consult-notes-org-roam-find-node "find node")
+      ("r" consult-org-roam-file-find "find node")
+      ("M-l" org-store-link "store link")
+      ;; ("A" org-agenda-list "Agenda")
+      ("a" vi/align-comments "Align comments")
+      ("W" vi/dedup-windows "Dedupe windows")
+      ("w" hydra-burly/body "Windows")
+      ("P" prodigy "Prodigy")
+      )
     )
-   "Modes"
-   (;; ("a" hydra-annotate/body "Annotate")
-    ("SPC" vi/major-mode-hydra "Major")
-    ("c" flycheck-hydra/body "flycheck")
-    ("n" hydra-narrow/body "narrow")
-    ("L" lsp-mode-hydra/body "LSP")
-    ("e" ein-global-hydra/body "EIN")
-    ("p" org-pomodoro "Pomodoro")
-    ("M-m" minions-minor-modes-menu "Minor modes")
-    )
-   "Actions"
-   (
-    ("M-y" yankpad-insert "yankpad")
-    ("g" magit-status-here "magit")
-    ("M-\\" edit-indirect-region "edit indirect region")
-    ("d" dirvish-dwim "dired" )
-    ;; ("r" consult-notes-org-roam-find-node "find node")
-    ("r" consult-org-roam-file-find "find node")
-    ("M-l" org-store-link "store link")
-    ("A" org-agenda-list "Agenda")
-    ("W" vi/dedup-windows "Dedupe windows")
-    )
-   )
   )
 
 (key-chord-define-global "hh" #'global-hydra/body)
@@ -2378,9 +2449,9 @@ cleared, make sure the overlay doesn't come back too soon."
 ;; [[file:config.org::*org-mode config][org-mode config:1]]
 (after! org
   ;; Add created timestamps to all headings (https://stackoverflow.com/questions/12262220/add-created-date-property-to-todos-in-org-mode/13285957#13285957)
-  (require 'org-expiry)
-  (org-expiry-insinuate)
-  (setq org-expiry-inactive-timestamps t)
+  ;; (require 'org-expiry)
+  ;; (org-expiry-insinuate)
+  ;; (setq org-expiry-inactive-timestamps t)
 
   ;; hide org markup indicators
   (setq org-hide-emphasis-markers t
@@ -2678,8 +2749,7 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 ;; [[file:config.org::*Org Roam][Org Roam:1]]
 (use-package! org-roam
- :after consult-notes
- :custom
+  :custom
  ;; (org-roam-directory (getenv "HOME"))
  (org-roam-directory org-directory)
  (org-roam-db-node-include-function (lambda () (not (member "ATTACH" (org-get-tags)))))
@@ -2759,196 +2829,6 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   )
 ;; No htmlentities in quotes:1 ends here
 
-;; [[file:config.org::*ein][ein:2]]
-(use-package! ein
-  :commands (ein:notebooklist-open ein:notebooklist-login)
-  :init
-  (setq ein:polymode t)
-  (setq ein:notebooklist-render-order '(render-opened-notebooks render-directory render-header))
-  (setq ein:truncate-long-cell-output 1000)
-  (setq ein:cell-max-num-outputs 1000)
-  (setq ein:worksheet-enable-undo t)
-  (setq ein:markdown-header-scaling nil)    ;this leads to variable pitch faces for
-                                        ;markdown headers, which doesn't work so
-                                        ;well with fontlocking (and outline-minor-faces-mode)
-  (setq ein:output-area-inlined-images t)
-  (setq ein:url-or-port '("http://localhost:8888"))
-  (setq ein:jupyter-server-command "~/.local/bin/jupyter")
-  ;; https://stackoverflow.com/a/67804732/14044156
-  (setq ein:jupyter-server-use-subcommand "server")
-  (setq ein:jupyter-server-args '("--no-browser" "--port=8889"))
-  ;; https://github.com/millejoh/emacs-ipython-notebook/issues/423#issuecomment-458254069
-  (setq ein:query-timeout nil)
-  :config
-
-  (custom-set-faces!
-    '(ein:cell-output-area :background "MidnightBlue" :extend t)
-    '(ein:cell-output-area-error :background "OrangeRed4" :extend t)
-    '(ein:codecell-input-area-face :background "#23272e" :extend t)
-    '(ein:codecell-input-prompt-face :foreground "black" :background "cyan" :extend t)
-    ;; '(ein:markdowncell-input-prompt-face :foreground "LightPink" :background "black" :extend t)
-    '(ein:markdowncell-input-prompt-face :foreground nil :background nil :extend t)
-    '(ein:markdowncell-input-area-face :background nil :extend t)
-    '(ein:markdown-header-face-1 :inherit nil)
-    '(ein:markdown-header-face-2 :inherit nil)
-    '(ein:markdown-header-face-3 :inherit nil)
-    '(ein:markdown-header-face-4 :inherit nil)
-    '(ein:markdown-header-face-5 :inherit nil)
-    '(ein:markdown-header-face-6 :inherit nil)
-    ;; '(ein:markdown-header-face :foreground "snow" :weight bold)
-    ;; '(ein:markdown-header-face :foreground nil :weight normal)
-    )
-
-  (defun vi/ein-toggle-inlined-images ()
-    (interactive)
-    (setq ein:output-area-inlined-images (if ein:output-area-inlined-images nil t))
-    )
-
-  (defun vi/restart-and-execute-all-above ()
-    (interactive)
-    ;; This is required for lexical-let
-    (eval-when-compile (require 'cl))
-    (aif (ein:get-notebook)
-      (lexical-let ((ws (ein:worksheet--get-ws-or-error)))
-        (ein:kernel-delete-session
-          (lambda (kernel)
-            (ein:events-trigger (ein:$kernel-events kernel) 'status_restarting.Kernel)
-            (ein:kernel-retrieve-session kernel 0
-              (lambda (kernel)
-                (ein:events-trigger (ein:$kernel-events kernel) 'status_restarted.Kernel)
-                (ein:worksheet-execute-all-cells-above ws))))
-          :kernel (ein:$notebook-kernel it)))
-      (message "Not in notebook buffer!"))
-    )
-
-  (defun vi/ein:select-cell-text (cell)
-    (interactive (list (ein:worksheet-get-current-cell)))
-    (let* ((beg (ein:cell-input-pos-min cell))
-            (end (ein:cell-input-pos-max cell)))
-      (set-mark (goto-char beg))
-      (goto-char end))
-    )
-
-  (defun vi/revert-notebook ()
-    (interactive)
-    (aif (ein:get-notebook)
-      (let ((nurl (ein:$notebook-url-or-port it))
-             (npath (ein:$notebook-notebook-path it)))
-        ;; fix disabled undo
-        (setq! ein:worksheet-enable-undo t)
-        (ein:notebook-close it)
-        ;; Reopen, but put it in the same window we were in
-        (ein:notebook-open nurl npath nil
-          (lambda (nb _)
-            (switch-to-buffer (ein:notebook-buffer nb))))
-        )))
-  )
-;; ein:2 ends here
-
-;; [[file:config.org::*ein][ein:3]]
-;; ein-hydra
-(pretty-hydra-define ein-global-hydra (:exit t :quit-key ("q" "C-g"))
-  ("Connect"
-    (("b" ein:notebooklist-open "Notebook list")
-      ("l" ein:notebooklist-login "Login")
-      ("s" ein:jupyter-server-start "Start")
-      ("t" ein:jupyter-server-stop "Stop")
-      ("C" ein:byte-compile-ein "Byte-compile")
-      ))
-  )
-
-(major-mode-hydra-define (ein:notebook-mode ein:shared-output-mode) (:quit-key ("q" "C-g") :exit t :foreign-keys run)
-  (
-    "Reconnect"
-    (("r" ein:notebook-reconnect-session-command "Reconnect")
-      ("R" ein:notebook-restart-session-command "Restart")
-      ("z" ein:notebook-kernel-interrupt-command "interrupt")
-      ("v" vi/revert-notebook "Revert")
-      ("K" ein:notebook-switch-kernel "Switch Kernel"))
-    "Exec"
-    (
-      ("x" ein:worksheet-execute-all-cells-above "Execute all above")
-      ("X" vi/restart-and-execute-all-above "Restart & x")
-      )
-    "Nav"
-    (
-      ("p" ein:worksheet-goto-prev-input-km "Prev Cell" :exit nil)
-      ("n" ein:worksheet-goto-next-input-km "Next Cell" :exit nil)
-      ("SPC" vi/ein:select-cell-text "Select cell")
-      ("/" ein:notebook-scratchsheet-open-km "Scratch")
-      )
-    "Output"
-    (
-      ("o" ein:worksheet-toggle-output "Toggle output")
-      ("O" ein:shared-output-show-code-cell-at-point "Show in shared output")
-      ("M-o" (ein:worksheet-set-output-visibility-all (ein:worksheet--get-ws-or-error) t) "Hide all output")
-      ("M-O" ein:worksheet-set-output-visibility-all "Show all output")
-      )
-    "Fix"
-    (("i" vi/ein-toggle-inlined-images "Toggle inlined images")
-      ;; ("M-f" vi/ein-fix "Fix")
-      ("N" ein:notebook-rename-command "Rename")
-      )
-    "Python"
-    (
-      ("f" python-black-partial-dwim "Format")
-      )
-    ))
-;; ein:3 ends here
-
-;; [[file:config.org::*ein][ein:4]]
-;; (setq scroll-preserve-screen-position t
-;;       scroll-conservatively 0
-;;       maximum-scroll-margin 0.5
-;;       scroll-margin 99999)
-
-;; (defun vi/ein-fix ()
-;;   (interactive)
-;;   ;; (set-face-extend 'ein:cell-input-area t)
-;;   (setq ein:worksheet-enable-undo t)
-;;   (buffer-enable-undo)
-;;   ;; (turn-on-undo-tree-mode)
-;;   )
-
-
-
-(setq-hook! 'ein:notebook-mode-hook
-  outline-minor-mode-use-buttons t
-  outline-regexp "##+"
-  )           ;capture markdown headings, excluding level 1 for comments
-
-(add-hook! 'ein:notebook-mode-hook
-  #'rainbow-delimiters-mode-disable
-
-  ;; These fail on first load in this hook, but seem to work in poly-ein-mode-hook?
-
-  ;; (outline-minor-faces-mode t)
-  ;; (outline-minor-mode t)
-  )
-
-(add-hook! 'poly-ein-mode-hook
-  ;;(outline-minor-faces-mode t)
-  (outline-minor-mode t))               ;we disable outline-minor-mode in prog-mode, but turn it on in ein
-
-;; Unsets M-n in ein polymode (which is normally bound to polymode-map) so that
-;; we can use our smartscan-mode bindings
-(map! :mode poly-ein-mode
-  :map polymode-mode-map
-  "M-n" nil)
-
-(map! :map ein:notebook-mode-map
-  "C-n" #'ein:worksheet-goto-next-input-km
-  "C-p" #'ein:worksheet-goto-prev-input-km
-  )
-
-
-;; (advice-add 'json-parse-buffer :around
-;;             (lambda (orig &rest rest)
-;;               (while (re-search-forward "\\u0000" nil t)
-;;                 (replace-match ""))
-;;               (apply orig rest)))
-;; ein:4 ends here
-
 ;; [[file:config.org::*vterm][vterm:2]]
 (setq vterm-module-cmake-args "-DUSE_SYSTEM_LIBVTERM=no")
 (use-package! vterm
@@ -3017,13 +2897,16 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 
 ;; [[file:config.org::*Home grown][Home grown:1]]
+(setq! vterm-shell "tmux")
+
+
 (defsubst vi/vterm-dir ()
   ;; TODO: if this is TRAMP, don't return default-directory
   (or (projectile-project-root) default-directory))
 
 (defsubst vi/create-vterm-in-dir (dir)
   (let ((default-directory dir))
-    (setq vterm-buf (vterm))
+    (setq vterm-buf (vterm 't))
     (with-current-buffer vterm-buf
       (setq-local vi/vterm--created-with-dir default-directory))))
 
@@ -3053,6 +2936,11 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
         (let ((default-directory (getenv "HOME")))
           (vterm)))
     (vi/vterm-project-or-here force-create)))
+
+;; (defun vi/vterm-zsh (&optional force-create)
+;;   (interactive)
+;;   (let ((vterm-shell "zsh"))
+;;     (vi/vterm-local force-create)))
 ;; Home grown:1 ends here
 
 ;; Flycheck
@@ -3176,7 +3064,7 @@ Results are reported in a compilation buffer."
 
   ;; set to 'all, this seems to make commits slow?
   (setq magit-diff-refine-hunk t)
-  (setq magit-log-section-commit-count 30)
+  (setq magit-log-section-commit-count 50)
   (setq magit-status-sections-hook
 
     '(magit-insert-status-headers
@@ -3190,10 +3078,6 @@ Results are reported in a compilation buffer."
        magit-insert-untracked-files
        magit-insert-unstaged-changes
 
-       ;; Add ignored files section to magit status
-       ;; This makes yadm-status very slow: https://github.com/magit/magit/discussions/4750
-       magit-insert-ignored-files
-
        magit-insert-staged-changes
        magit-insert-stashes
        magit-insert-unpushed-to-pushremote
@@ -3201,6 +3085,17 @@ Results are reported in a compilation buffer."
        magit-insert-unpushed-to-upstream
        magit-insert-unpulled-from-upstream
        magit-insert-recent-commits
+
+       ;; forge
+       ;; See forge-status-buffer-default-topic-filters
+       forge-insert-pullreqs
+       forge-insert-issues
+
+       ;; Add ignored files section to magit status
+       ;; This makes yadm-status very slow: https://github.com/magit/magit/discussions/4750
+       magit-insert-ignored-files
+
+
        ))
 
   ;; https://magit.vc/manual/magit/Status-Header-Sections.html
@@ -3214,6 +3109,34 @@ Results are reported in a compilation buffer."
 
   (setq magit-wip-namespace "refs/magit-wip/")
 
+  ;### autoload
+  (defun vi/magit-gt-absorb ()
+    (interactive)
+    (magit-shell-command-topdir "gt absorb"))
+
+  ;### autoload
+  (defun vi/magit-gt-submit ()
+    (interactive)
+    (magit-shell-command-topdir "gt submit"))
+
+  (transient-define-prefix magit-run ()
+    "Run git or another command, or launch a graphical utility."
+    [["Run git subcommand"
+       ("!" "in repository root"   magit-git-command-topdir)
+       ("c" "in working directory" magit-git-command)]
+      ["Run shell command"
+        ("s" "in repository root"   magit-shell-command-topdir)
+        ("S" "in working directory" magit-shell-command)]
+      ["Launch"
+        ("a" "gt absorb" vi/magit-gt-absorb)
+        ("P" "gt submit" vi/magit-gt-submit)]])
+    ;; ("k" "gitk"                 magit-run-gitk)
+    ;; ("a" "gitk --all"           magit-run-gitk-all)
+    ;; ("b" "gitk --branches"      magit-run-gitk-branches)
+    ;; ("g" "git gui"              magit-run-git-gui)
+    ;; ("m" "git mergetool --gui"  magit-git-mergetool)]])
+
+
   ;; Protect against accidental pushes to upstream
   ;; https://github.com/magit/magit/wiki/Tips-and-Tricks#ask-for-confirmation-before-pushing-to-originmaster
   (define-advice magit-push-current-to-upstream (:before (args) query-yes-or-no)
@@ -3224,9 +3147,18 @@ Results are reported in a compilation buffer."
                              (or (magit-get-upstream-branch branch)
                                (magit-get "branch" branch "remote"))))
         (user-error "Push to upstream aborted by user"))))
-
   (add-hook 'magit-process-prompt-functions 'magit-process-git-credential-manager-core)
   )
+
+;; (transient-append-suffix 'magit-run '(0 0 0) ; 0 means add at the end
+;;   '("U" "gt submit" vi/magit-gt-submit)
+;;   )
+
+;; (with-eval-after-load 'magit
+;;   (defun vi/magit-gt-submit ()
+;;   (magit-shell-comand "gt submit"))))
+
+
 
 (map! :map magit-mode-map
   "s-<tab>" #'magit-section-cycle-diffs
@@ -3375,9 +3307,7 @@ Results are reported in a compilation buffer."
 
     ;; This will disable the flycheck checkers. (we use them directly to have better control)
   ;; (lsp-diagnostics-provider :flycheck)
-  (lsp-diagnostic-clean-after-change t)
-  ;; https://github.com/emacs-lsp/lsp-mode#performance
-  (read-process-output-max (* 1024 1024)) ;; 1mb
+  (lsp-diagnostic-clean-after-change nil)
   (lsp-file-watch-threshold 10000)
   (lsp-enable-completion-at-point t)
   (lsp-completion-provider :none)       ;disable company-mode
@@ -3472,6 +3402,8 @@ Results are reported in a compilation buffer."
 (use-package! python
   :custom
   (python-fill-docstring-style 'symmetric)
+  (lsp-pyright-diagnostic-mode "workspace")
+  (lsp-pyright-typechecking-mode "standard")
   )
 ;; Python:1 ends here
 
@@ -3499,21 +3431,6 @@ Results are reported in a compilation buffer."
   (setq-local flycheck-disabled-checkers '(python-pylint python-mypy))
   )
 ;; Python:2 ends here
-
-;; pylsp
-
-
-;; [[file:config.org::*pylsp][pylsp:1]]
-(setq! lsp-pylsp-plugins-yapf-enabled nil)
-(setq! lsp-pylsp-plugins-flake8-enabled nil)
-(setq! lsp-pylsp-plugins-autopep8-enabled nil)
-(setq! lsp-pylsp-plugins-pydocstyle-enabled nil)
-(setq! lsp-pylsp-plugins-pycodestyle-enabled nil)
-(setq! lsp-pylsp-plugins-mccabe-enabled nil)
-(setq! lsp-pylsp-plugins-pylint-enabled nil)
-(setq! lsp-pylsp-plugins-black-enabled t)
-(setq! lsp-pylsp-plugins-rope-completion-enabled t)
-;; pylsp:1 ends here
 
 ;; LSP setup
 ;; :PROPERTIES:
@@ -3547,14 +3464,15 @@ Results are reported in a compilation buffer."
 (major-mode-hydra-define (python-mode python-pytest-mode) (:exit t :quit-key ("q" "C-g"))
   (
    "Pytest"
-   (
-    ("d" python-pytest-dispatch "Dispatch")
-    ("r" python-pytest-repeat "Repeat")
+    (
+      ("d" python-pytest-dispatch "Dispatch")
+      ("R" python-pytest-repeat "Repeat")
     )
-   "Misc"
-   (("i" vi/pyflyby-tidy-imports "Imports"))
-   )
-  )
+    "Misc"
+    (("i" vi/pyflyby-tidy-imports "Imports"))
+    "Jump"
+    (("t" lsp-find-type-definition "Type def"))
+  ))
 ;; Hydra:1 ends here
 
 ;; Pyflyby
@@ -3566,49 +3484,100 @@ Results are reported in a compilation buffer."
 ;; [[file:config.org::*Pyflyby][Pyflyby:1]]
 (use-package! pyflyby
   :commands (pyflyby-transform-region-with-command)
-  :load-path "~/.local/pipx/venvs/pyflyby/share/emacs/site-lisp"
+  :load-path "~/dev/plus/python/.venv/share/emacs/site-lisp"
   )
 
 (defun vi/pyflyby-tidy-imports ()
   (interactive "*")
   ;; even with this, it will drop comments https://github.com/deshaw/pyflyby/issues/154
-  (pyflyby-transform-region-with-command "tidy-imports" "--black");;  "--align=0" "--from-spaces=1")
+  ;;  "--align=0" "--from-spaces=1")
+  (pyflyby-transform-region-with-command "tidy-imports" "--hanging-indent=never" "--align=0" "--no-align-future" "--no-separate-from-imports")
   )
 ;; Pyflyby:1 ends here
 
+;; ruff server
+
+
+
+;; [[file:config.org::*ruff server][ruff server:1]]
+(after! python-mode
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection '("ruff" "server" "--preview"))
+     :major-modes '(python-mode)
+     :priority 1
+     :add-on? t
+     :multi-root t
+     :server-id 'ruff-server)
+    )
+  )
+(setq! lsp-disabled-clients '(python-mode . (ruff-lsp)))
+;; ruff server:1 ends here
+
 ;; [[file:config.org::*apheleia][apheleia:2]]
-(use-package! apheleia
-  :after-call doom-first-buffer-hook
-  :config
-  (setf (alist-get 'isort apheleia-formatters) '("isort" "--profile=black" "--stdout" "-"))
-  (setf (alist-get 'usort apheleia-formatters) '("usort" "format" "-"))
+;;; Doom -style setting doesn't allow multiple formatters per mode
+;; pipx install ruff
+;; (set-formatter! 'ruff-check '("ruff" "check" "--fix" "--exit-zero" "-" "--stdin-filename" filepath) :modes '(python-mode))
+;; (set-formatter! 'ruff-format '("ruff" "format" "--target-version" "py311" "-" "--stdin-filename" filepath) :modes '(python-mode))
+;; ;; this may require `npm install -g prettier prettier-plugin-toml --save-dev --save-exact`
+;; (set-formatter! 'prettier-toml '(npx "prettier" "--stdin-filepath" filepath "--parser=toml") :modes '(conf-toml-mode))
+
+(after! apheleia
+  ;; (setf (alist-get 'isort apheleia-formatters) '("isort" "--profile=black" "--stdout" "-"))
+  ;; (setf (alist-get 'usort apheleia-formatters) '("usort" "format" "-"))
 
   ;; pipx install ruff
-  (setf (alist-get 'ruff apheleia-formatters) '("ruff" "check" "--fix" "--exit-zero" "-" "--stdin-filename" filepath))
+  (setf (alist-get 'ruff-check apheleia-formatters) '("ruff" "check" "--fix" "--exit-zero" "-" "--stdin-filename" filepath))
+  (setf (alist-get 'ruff-format apheleia-formatters) '("ruff" "format" "--target-version" "py311" "-" "--stdin-filename" filepath))
 
   ;; this may require `npm install -g prettier prettier-plugin-toml --save-dev --save-exact`
   (setf (alist-get 'prettier-toml apheleia-formatters) '(npx "prettier" "--stdin-filepath" filepath "--parser=toml"))
 
   ;; Black uses config in ~/.config/black but not if a pyproject.toml is present (https://github.com/psf/black/issues/2863)
   ;;  (setf (alist-get 'black apheleia-formatters) '("black" "--config" (substitute-in-file-name "$HOME/.config/black") "-"))
-  (setf (alist-get 'black apheleia-formatters) '("black" "-"))
+  ;; (setf (alist-get 'black apheleia-formatters) '("black" "-"))
 
   ;; isort messes up type:ignore on imports (eg: https://github.com/psf/black/issues/997)
   ;; isort also messes up jupytext paired files by moving imports around
   ;; pyflyby also messes it up!
   ;; (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
 
-  (setf (alist-get 'python-mode apheleia-mode-alist) '(ruff black))
-
+  (setf (alist-get 'python-mode apheleia-mode-alist) '(ruff-check ruff-format))
   (setf (alist-get 'conf-toml-mode apheleia-mode-alist) '(prettier-toml))
   (setf (alist-get 'jinja2-mode apheleia-mode-alist) nil)
   (apheleia-global-mode)
   )
 ;; apheleia:2 ends here
 
+;; align comments
+;; :PROPERTIES:
+;; :CREATED:  [2024-02-17 Sat 23:35]
+;; :END:
+
+
+
+;; [[file:config.org::*align comments][align comments:1]]
+(defun vi/align-comments (beginning end)
+  "Align comments within marked region."
+  (interactive "*r")
+  (align-regexp beginning end (concat "\\(\\s-*\\)"
+                                (regexp-quote comment-start))))
+;; align comments:1 ends here
+
 ;; [[file:config.org::*Javascript/Typescript][Javascript/Typescript:2]]
 (add-hook! '(typescript-mode-hook rjsx-mode-hook) #'add-node-modules-path)
 ;; Javascript/Typescript:2 ends here
+
+;; Treemacs
+
+
+;; [[file:config.org::*Treemacs][Treemacs:1]]
+(after! treemacs
+  (setq treemacs-show-hidden-files nil
+        treemacs-is-never-other-window nil)
+  (treemacs-project-follow-mode t)
+  (treemacs-follow-mode t)
+  )
+;; Treemacs:1 ends here
 
 ;; [[file:config.org::*dirvish][dirvish:2]]
 (use-package! dirvish
@@ -3700,7 +3669,8 @@ Results are reported in a compilation buffer."
   (interactive)
   (let* ((file (dired-get-filename nil t)))
     (message "Opening %s..." file)
-    (call-process "xdg-open" nil 0 nil file)
+    ;; (call-process "xdg-open" nil 0 nil file)
+    (call-process "open" nil 0 nil file)
     (message "Opening %s done" file)))
 
 (map! :map dired-mode-map "C-<return>" #'dired-open-file)
@@ -4026,21 +3996,37 @@ Version 2016-01-08"
     (kill-buffer)))
 ;; Force kill buffer:1 ends here
 
-;; [[file:config.org::*atomic chrome][atomic chrome:2]]
-(use-package! atomic-chrome
-  :after-call doom-first-file-hook
-  :custom
-  (atomic-chrome-default-major-mode 'python-mode)
-  (atomic-chrome-url-major-mode-alist
-   '(("\\.ipynb$" . python-mode))
-   )
-  ;; (atomic-chrome-extension-type-list '(atomic-chrome))
-  (atomic-chrome-buffer-open-style 'full)
+;; [[file:config.org::*Prodigy][Prodigy:2]]
+(prodigy-define-service
+  :name "ruff"
+  :command "just"
+  :args '("ruff-watch")
+  :cwd "~/dev/plus/python"
+  :stop-signal 'sigkill
+  :env '(("TERM" "xterm"))
+  :kill-process-buffer-on-stop t
+  :tags '(dev))
 
-  :config
-  (atomic-chrome-start-server)
-  )
-;; atomic chrome:2 ends here
+(prodigy-define-service
+  :name "pyright"
+  :command "just"
+  :args '("pyright-watch")
+  :cwd "~/dev/plus/python"
+  :env '(("TERM" "xterm"))
+  :stop-signal 'sigkill
+  :kill-process-buffer-on-stop t
+  :tags '(dev))
+
+(prodigy-define-service
+  :name "lint"
+  :command "just"
+  :args '("lint")
+  :cwd "~/dev/plus/"
+  :stop-signal 'sigkill
+  :env '(("TERM" "xterm"))
+  :kill-process-buffer-on-stop t
+  :tags '(dev))
+;; Prodigy:2 ends here
 
 
 
@@ -4080,13 +4066,6 @@ Version 2016-01-08"
 ;; (add-hook! keycast-mode-hook
 ;;   (add-to-list 'global-mode-string '("" keycast-mode-line)))
 ;; Keycast:2 ends here
-
-;; [[file:config.org::*zotxt (zotero + emacs)][zotxt (zotero + emacs):2]]
-(use-package! zotxt
-  :hook (org-mode . org-zotxt-mode)
-  :commands (org-zotxt-noter org-zotxt-mode)
-  )
-;; zotxt (zotero + emacs):2 ends here
 
 ;; [[file:config.org::*org-noter][org-noter:2]]
 (use-package! org-noter
@@ -4158,63 +4137,6 @@ rotate entire document."
 
   )
 ;; Rotation:1 ends here
-
-;; [[file:config.org::*detached][detached:2]]
-(use-package! detached
-  :after vterm
-  :init
-  (detached-init)
-  :bind (;; Replace `async-shell-command' with `detached-shell-command'
-          ([remap async-shell-command] . detached-shell-command)
-          ;; Replace `compile' with `detached-compile'
-          ([remap compile] . detached-compile)
-          ([remap recompile] . detached-compile-recompile)
-          ;; Replace built in completion of sessions with `consult'
-          ([remap detached-open-session] . detached-consult-session))
-  :custom ((detached-show-output-on-attach t)
-            (detached-session-directory "/tmp")
-            (detached-terminal-data-command system-type))
-
-  :config
-  (connection-local-set-profile-variables
-    'remote-detached
-    '((detached-session-directory . "/tmp")
-       (detached-dtach-program . "dtach")))
-  (connection-local-set-profiles
-    '(:application tramp :protocol "ssh") 'remote-detached)
-  :hook (vterm-mode . detached-vterm-mode)
-  )
-;; detached:2 ends here
-
-;; dash
-
-
-;; [[file:config.org::*dash][dash:1]]
-(after! dash-docs
-  ;; (dash-docs-install-docset "Python_3")
-  (set-docsets! 'python-mode "Python 3")
-  )
-;; dash:1 ends here
-
-;; hydra
-
-
-
-;; [[file:config.org::*hydra][hydra:1]]
-(pretty-hydra-define doc-hydra (:exit t)
-  ("Reference"
-   (("d" +lookup/in-docsets "Dash")
-    ("D" devdocs-lookup "Devdocs")
-    ("O" +lookup/online-select "Online"))
-   "Jump"
-    (("c" +lookup/documentation "Docstring")
-    ("f" +lookup/definition "Definition")
-    ("u" +lookup/references "Usages")
-    ("i" +lookup/implementations "Impls")
-    ("t" +lookup/type-definition "Type")
-    ("F" +lookup/file "file"))
-   ))
-;; hydra:1 ends here
 
 ;; [[file:config.org::*Keyfreq][Keyfreq:2]]
 (use-package! keyfreq
