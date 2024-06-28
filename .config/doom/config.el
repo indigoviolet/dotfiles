@@ -716,7 +716,7 @@
 (use-package! gcmh
     :custom
     (gcmh-verbose t)
-    (gcmh-idle-delay 'auto)
+    (gcmh-idle-delay '15)
     (gcmh-high-cons-threshold 10000000000)
   )
 
@@ -3259,19 +3259,21 @@ Results are reported in a compilation buffer."
 
 
 ;; [[file:config.org::*Using Tramp for magit/yadm][Using Tramp for magit/yadm:1]]
-(after! tramp
-    ;; https://github.com/magit/magit/discussions/4750
-  (setq enable-remote-dir-locals t)
+(use-package tramp
+  :config
+  (setq debug-ignored-errors
+      (cons 'remote-file-error debug-ignored-errors))
   (add-to-list 'tramp-methods
-    '("yadm"
-       (tramp-login-program "yadm")
-       (tramp-login-args (("enter")))
-       (tramp-remote-shell "/bin/bash")
-       (tramp-remote-shell-args ("-c"))))
-    (defun yadm-status ()
-      (interactive)
-      (require 'tramp)
-      (with-current-buffer (magit-status "/yadm::"))))
+               '("yadm"
+                 (tramp-login-program "yadm")
+                 (tramp-login-args (("enter")))
+                 (tramp-login-env (("SHELL") ("/bin/sh")))
+                 (tramp-remote-shell "/bin/sh")
+                 (tramp-remote-shell-args ("-c")))))
+
+(defun yadm-status ()
+  (interactive)
+  (magit-status "/yadm::"))
 ;; Using Tramp for magit/yadm:1 ends here
 
 ;; LSP
