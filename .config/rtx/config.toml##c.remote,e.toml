@@ -1,6 +1,0 @@
-[settings]
-experimental = true
-
-[tools]
-node = '20.2.0'
-python = '3.9.12'
