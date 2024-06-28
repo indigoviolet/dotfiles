@@ -2661,21 +2661,18 @@ Results are reported in a compilation buffer."
 (add-hook! 'ediff-cleanup-hook 'ediff-delete-temp-files)
 (add-hook! '(ediff-before-setup-hook ediff-before-setup-windows-hook) (setq ediff-window-setup-function #'vi/ediff-setup-windows-plain-merge))
 
-(use-package tramp
-  :config
-  (setq debug-ignored-errors
-      (cons 'remote-file-error debug-ignored-errors))
-  (add-to-list 'tramp-methods
-               '("yadm"
-                 (tramp-login-program "yadm")
-                 (tramp-login-args (("enter")))
-                 (tramp-login-env (("SHELL") ("/bin/sh")))
-                 (tramp-remote-shell "/bin/sh")
-                 (tramp-remote-shell-args ("-c")))))
-
 (defun yadm-status ()
+  "Magit on dotfiles repo for the duration of a recursive edit."
   (interactive)
-  (magit-status "/yadm::"))
+  (require 'magit)
+  (let ((magit-git-global-arguments
+          `(,(concat "--git-dir=" vi/home-dir "/.local/share/yadm/repo.git")
+            ,(concat "--work-tree=" vi/home-dir)
+          ;; `(,(substitute-env-vars "--git-dir=/home/venky/.local/share/yadm/repo.git")
+          ;;    ,(substitute-env-vars "--work-tree=/home/venky")
+             ,@magit-git-global-arguments)))
+    (magit-status "~")
+    (recursive-edit)))
 
 (use-package! lsp-mode
   :init

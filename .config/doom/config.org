@@ -6131,7 +6131,9 @@ GIT_WORK_TREE via $HOME/.envrc, but this is problematic because
 1. magit will unset them on startup: https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike
 2. a new git directory without .envrc will default to the yadm repo, which is scary (actually maybe not: git init in an existing repo is safe..)
 
-** Using Tramp for magit/yadm
+** COMMENT Using Tramp for magit/yadm
+
+doesn't work for commits??
 
 See https://www.reddit.com/r/emacs/comments/gjukb3/yadm_magit/gasc8n6/
 
@@ -6154,7 +6156,7 @@ See https://www.reddit.com/r/emacs/comments/gjukb3/yadm_magit/gasc8n6/
   (magit-status "/yadm::"))
 #+end_src
 
-** COMMENT Another method, setting git flags
+** Another method, setting git flags
 
 Quit recursive edit using C-]
 
