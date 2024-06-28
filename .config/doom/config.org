@@ -5853,7 +5853,7 @@ Results are reported in a compilation buffer."
 
        ;; Add ignored files section to magit status
        ;; This makes yadm-status very slow: https://github.com/magit/magit/discussions/4750
-       magit-insert-ignored-files
+       ;; magit-insert-ignored-files
 
 
        ))
@@ -6096,19 +6096,22 @@ GIT_WORK_TREE via $HOME/.envrc, but this is problematic because
 See https://www.reddit.com/r/emacs/comments/gjukb3/yadm_magit/gasc8n6/
 
 #+begin_src emacs-lisp
-(after! tramp
-    ;; https://github.com/magit/magit/discussions/4750
-  (setq enable-remote-dir-locals t)
+
+(use-package tramp
+  :config
+  (setq debug-ignored-errors
+      (cons 'remote-file-error debug-ignored-errors))
   (add-to-list 'tramp-methods
-    '("yadm"
-       (tramp-login-program "yadm")
-       (tramp-login-args (("enter")))
-       (tramp-remote-shell "/bin/bash")
-       (tramp-remote-shell-args ("-c"))))
-    (defun yadm-status ()
-      (interactive)
-      (require 'tramp)
-      (with-current-buffer (magit-status "/yadm::"))))
+               '("yadm"
+                 (tramp-login-program "yadm")
+                 (tramp-login-args (("enter")))
+                 (tramp-login-env (("SHELL") ("/bin/sh")))
+                 (tramp-remote-shell "/bin/sh")
+                 (tramp-remote-shell-args ("-c")))))
+
+(defun yadm-status ()
+  (interactive)
+  (magit-status "/yadm::"))
 #+end_src
 
 ** COMMENT Another method, setting git flags
