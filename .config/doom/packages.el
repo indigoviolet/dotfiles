@@ -482,19 +482,13 @@
 (package! outline-minor-faces :recipe (:host github :repo "tarsius/outline-minor-faces"))
 ;; outline faces:1 ends here
 
-;; Tabnine
-
-
-;; [[file:config.org::*Tabnine][Tabnine:1]]
-(package! company-tabnine)
-;; Tabnine:1 ends here
-
 ;; Corfu/Cape
 
 
 ;; [[file:config.org::*Corfu/Cape][Corfu/Cape:1]]
 (package! corfu :recipe (:host github :repo "minad/corfu" :files (:defaults "extensions/*.el")))
 (package! cape)
+(package! company)                      ; for company-yankpad
 (package! popon :recipe (:host codeberg :repo "akib/emacs-popon"))
 ;; (package! corfu-terminal :recipe (:type git :repo "https://codeberg.org/akib/emacs-corfu-terminal.git"))
 ;; Corfu/Cape:1 ends here

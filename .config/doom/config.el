@@ -2149,30 +2149,6 @@ _q_: Quit
 (setq-hook! 'python-mode-hook outline-regexp (python-rx (* space) (or defun decorator)))
 ;; Python:1 ends here
 
-;; [[file:config.org::*Tabnine][Tabnine:2]]
-(use-package! company-tabnine
-  :custom
-  (company-tabnine-no-continue t)
-  :commands (company-tabnine))
-  ;; :config
-  ;; ;; https://github.com/TommyX12/company-tabnine#known-issues
-  ;; ;; workaround for company-transformers
-  ;; (setq company-tabnine--disable-next-transform nil)
-  ;; (defun my-company--transform-candidates (func &rest args)
-  ;;   (if (not company-tabnine--disable-next-transform)
-  ;;       (apply func args)
-  ;;     (setq company-tabnine--disable-next-transform nil)
-  ;;     (car args)))
-
-  ;; (defun my-company-tabnine (func &rest args)
-  ;;   (when (eq (car args) 'candidates)
-  ;;     (setq company-tabnine--disable-next-transform t))
-  ;;   (apply func args))
-
-  ;; (advice-add #'company--transform-candidates :around #'my-company--transform-candidates)
-  ;; (advice-add #'company-tabnine :around #'my-company-tabnine))
-;; Tabnine:2 ends here
-
 ;; [[file:config.org::*Corfu/Cape][Corfu/Cape:2]]
 (use-package! corfu
   :after-call doom-first-buffer-hook

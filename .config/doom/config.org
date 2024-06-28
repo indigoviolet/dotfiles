@@ -513,6 +513,8 @@ here as-is for now, as it is quite well structured and clear.
   :completion
   ;; TODO: test doom corfu implementation instead of our custom one
   ;; company           ; the ultimate code completion backend
+  (corfu +orderless)  ; complete with cap(f), cape and a flying feather!
+
   ;;helm              ; the *other* search engine for love and life
   ;;ido               ; the other *other* search engine...
   ;;ivy               ; a search engine for love and life
@@ -4128,7 +4130,7 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
 
 * Completion
 
-** Tabnine
+** COMMENT Tabnine
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! company-tabnine)
@@ -4163,6 +4165,7 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
 #+begin_src emacs-lisp :tangle packages.el
 (package! corfu :recipe (:host github :repo "minad/corfu" :files (:defaults "extensions/*.el")))
 (package! cape)
+(package! company)                      ; for company-yankpad
 (package! popon :recipe (:host codeberg :repo "akib/emacs-popon"))
 ;; (package! corfu-terminal :recipe (:type git :repo "https://codeberg.org/akib/emacs-corfu-terminal.git"))
 #+end_src
