@@ -35,10 +35,6 @@ fi
 
 # Customize to your needs...
 
-# If you put this in any of the actual files, it will reset completions?
-autoload -Uz compinit
-compinit -i
-
 export ZSH_CUSTOM_DIR=${HOME}/.zshcustom
 
 # env.zsh, scriptlib.zsh
@@ -55,16 +51,17 @@ source ${ZSH_CUSTOM_DIR}/direnv.zsh
 source ${ZSH_CUSTOM_DIR}/conda.zsh
 source ${ZSH_CUSTOM_DIR}/abduco.zsh
 
+source ${ZSH_CUSTOM_DIR}/doom.zsh
+source ${ZSH_CUSTOM_DIR}/just.zsh
+
 {% if yadm.class == "personal" %}
 source ${ZSH_CUSTOM_DIR}/rtx.zsh
-source ${ZSH_CUSTOM_DIR}/doom.zsh
 source ${ZSH_CUSTOM_DIR}/gcloud.zsh
 source ${ZSH_CUSTOM_DIR}/gcloud-completion.zsh
-source ${ZSH_CUSTOM_DIR}/just.zsh
+
 # source ${ZSH_CUSTOM_DIR}/android.zsh
 source ${ZSH_CUSTOM_DIR}/docker.zsh
 source ${ZSH_CUSTOM_DIR}/rye.zsh
-
 {% endif %}
 
 
@@ -92,6 +89,13 @@ source ${ZSH_CUSTOM_DIR}/secrets.zsh
 source ${ZSH_CUSTOM_DIR}/less.zsh
 source ${ZSH_CUSTOM_DIR}/fzf-tab.zsh
 # source ${ZSH_CUSTOM_DIR}/tilix.zsh
+
+
+
+# If you put this in any of the actual files, it will reset completions?
+# It needs to be at the end!
+autoload -Uz compinit
+compinit -i
 
 
 # test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"

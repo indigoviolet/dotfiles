@@ -43,18 +43,20 @@ external_plugins=(
     # TODO: Use `rg` to rewrite_history
     # MichaelAquilina/zsh-history-filter
 
+    # Editing history
     marlonrichert/zsh-hist
     olets/zsh-window-title
 )
 for repo in $external_plugins; do
     if [[ ! -d $ZPREZTODIR/contrib/${repo:t} ]]; then
         git clone https://github.com/${repo} $ZPREZTODIR/contrib/${repo:t}/external
-        echo "source \${0:A:h}/external/${repo:t}.plugin.zsh" >$ZPREZTODIR/contrib/${repo:t}/init.zsh
+        echo "source \${0:A:h}/external/${repo:t}.plugin.zsh" > $ZPREZTODIR/contrib/${repo:t}/init.zsh
     fi
 done
 
 # Set the Prezto modules to load (browse modules).
 # The order matters.
+#
 zstyle ':prezto:load' pmodule \
     'syntax-highlighting' \
     'environment' \
@@ -64,9 +66,10 @@ zstyle ':prezto:load' pmodule \
     'spectrum' \
     'utility' \
     'history' \
+    'zsh-window-title' \
     'completion' \
-    'zsh-autosuggestions' \
     'fzf-tab' \
+    'zsh-autosuggestions' \
     'zsh-hist'
     # 'zsh-history-filter' \
 # 'ssh' \ # Managed in .zshcustom/ssh.zsh

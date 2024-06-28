@@ -45,6 +45,7 @@ else
     function set_cursor_norm() {
         tput cnorm
     }
+
     #precmd_functions+=(set_window_title set_cursor_norm)
 
     # see zpreztorc:plugin olets/zsh-window-title for a different way to set the window title so vterm can pick it up
@@ -53,7 +54,8 @@ else
 
     # colors xtrace prompts
     # https://unix.stackexchange.com/a/595628
-    export PS4='%F{blue}%B+%N:%i>%b%f '
+    # see set_x instead in .bashrc
+    # export PS4='%F{blue}%B+%N:%i>%b%f '
 
     # LS_COLORS, must come after PATH has been set to find vivid
     if command -v vivid >/dev/null 2>&1; then

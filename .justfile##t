@@ -3,31 +3,31 @@
 
 # set_init: see ~/.bashrc for definition (mainly set -x)
 
-!include dev.justfile
-
 ## commented because of !include
-# set shell := ["bash", "-uc"]
-# set positional-arguments := true
-# just := 'just --unstable --justfile "' + justfile() + '"'
-# default:
-#     {{ just }} --list --unsorted
+set shell := ["bash", "-uc"]
+set positional-arguments := true
+just := 'just --unstable --justfile "' + justfile() + '"'
+default:
+    {{ just }} --list --unsorted
+
+import "dev.justfile"
 
 {% if yadm.class == "personal" %}
-doom-clean:
-    # https://github.com/millejoh/emacs-ipython-notebook/issues/824
-    doom clean
-    fd -g '*.elc' {{ env_var('EMACSDIR') }} -uuu -x rm
-    doom sync
+# doom-clean:
+#     # https://github.com/millejoh/emacs-ipython-notebook/issues/824
+#     doom clean
+#     fd -g '*.elc' {{ env_var('EMACSDIR') }} -uuu -x rm
+#     doom sync
 
-# Handle stale elc files
-doom-rebuild: doom-clean
-    doom build -r
-    {{ just }} doom-rebuild-pdf-tools
-    {{ just }} doom-rebuild-vterm
+# # Handle stale elc files
+# doom-rebuild: doom-clean
+#     doom build -r
+#     {{ just }} doom-rebuild-pdf-tools
+#     {{ just }} doom-rebuild-vterm
 
-doom-rebuild-pdf-tools VERSION="29.0.60":
-    ## rebuild pdf tools, this fails within emacs because CC is set
-    CC= /home/venky/.emacs.d/.local/straight/build-{{ VERSION }}/pdf-tools/build/server/autobuild -i /home/venky/.emacs.d/.local/straight/build-{{ VERSION }}/pdf-tools/
+# doom-rebuild-pdf-tools VERSION="29.0.60":
+#     ## rebuild pdf tools, this fails within emacs because CC is set
+#     CC= /home/venky/.emacs.d/.local/straight/build-{{ VERSION }}/pdf-tools/build/server/autobuild -i /home/venky/.emacs.d/.local/straight/build-{{ VERSION }}/pdf-tools/
 
 # Rebuild vterm (experimental)
 doom-rebuild-vterm:
@@ -283,7 +283,7 @@ abduco_connect:
     abduco -a $(abduco | fzf | awk '{print $4}')
 {% endif %}
 {% if yadm.os == "Darwin" %}
-    abduco -a $(abduco | fzf | awk '{print $5}')
+    abduco -a $(abduco | fzf | awk '{print $4}')
 {% endif %}
 
 # cleans up completed sessions (But not their logs)

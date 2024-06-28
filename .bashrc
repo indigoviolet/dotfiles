@@ -25,6 +25,6 @@ set_x() {
     # cd ~/dev/shapeguard
     # direnv show_dump $DIRENV_DIFF
     # #+end_src
-    PS4=$'\e[94m+$BASH_SOURCE:${BASH_LINENO[0]}:${FUNCNAME[0]:-NOFUNC}()>\e[0m '
+    PS4=$'\e[94m+$BASH_SOURCE:${BASH_LINENO[0]}:${FUNCNAME[0]:-}()>\e[0m '
     set -x
 }

@@ -3,7 +3,7 @@
 alias sort="sort -S 75%"
 alias beep="echo -n '\a'"
 alias c="clear"
-alias cp="cp -pv"
+alias cp="cp -v"
 alias echo="echo -e"
 
 # alias grep="rg"  # breaks on mac os?
@@ -28,7 +28,6 @@ alias py="python -c 'import IPython; IPython.terminal.ipapp.launch_new_instance(
 alias htopt="htop -p \"$(ps a -o 'pid' | tail -n +2 | perl -0777 -lne 'chop; s/\n/,/g; print')\""
 alias find=fd
 alias g="git"
-alias just="just --unstable"
 alias cat="bat"
 # alias less="bat --paging=always --wrap=never"
 # alias z=zi
