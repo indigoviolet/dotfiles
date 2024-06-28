@@ -4485,7 +4485,7 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
 (pretty-hydra-define global-hydra (:exit t :quit-key ("q" "C-g"))
   ("Searching"
     (;; ("f" +vertico/consult-fd "fd")
-      ("s" +vertico/project-search "rg in project")
+      ("s" +default/search-project "rg in project")
       ("t" consult-citre "tags search")
       ("l" consult-line "Line isearch")
       ("j" jump-hydra/body "Jump")
