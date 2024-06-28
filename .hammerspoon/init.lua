@@ -47,6 +47,7 @@ PaperWM:bindHotkeys({
     -- move_window_9 = {{"ctrl", "alt", "cmd", "shift"}, "9"}
 })
 PaperWM:start()
+hs.window.animationDuration = 0
 -- http://www.hammerspoon.org/docs/hs.window.highlight.html
 hs.window.highlight.ui.overlay=true
 hs.window.highlight.start()
