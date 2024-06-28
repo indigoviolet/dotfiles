@@ -1583,7 +1583,8 @@ _q_: Quit
         "D" #'consult-dir)
   )
 
-(after! (consult consult-project-extra)
+(use-package! consult-project-extra
+  :config
   (setq consult-buffer-sources
     '(consult--source-modified-buffer
        consult-project-extra--source-buffer
@@ -1600,7 +1601,7 @@ _q_: Quit
        +vertico--consult-org-source))
 
   ;; consult-project-buffer calls consult-project-function(t) but doom-project-root, the default value of consult-project-function doesn't take t
-  (setq consult-project-function (lambda (_) (doom-project-root)))
+  (setq! consult-project-function (lambda (_) (doom-project-root)))
   )
 
 (after! orderless
