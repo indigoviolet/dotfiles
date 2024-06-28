@@ -18,3 +18,4 @@ node_modules/
 /.dir-locals.el
 .direnv/
 /.spacedrive
+nohup.out

@@ -116,7 +116,10 @@
 
 [merge]
   # tool = emerge
-  conflictstyle = diff3
+  # conflictstyle = diff3
+
+[mergetool]
+	hideResolved = true
 
 [rerere]
     enabled = true
@@ -195,6 +198,10 @@
 
 [diff]
     colorMoved = default
+
+[github]
+	user = indigoviolet
+
 
 # Local Variables:
 # mode: gitconfig
