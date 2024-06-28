@@ -882,7 +882,9 @@ _q_: Quit
         )
       (group
         ;; Subgroup collecting buffers in a projectile project.
-        (auto-projectile)
+        ;; (auto-projectile)
+
+        (auto-project)
         (group (filename-match "venv" (rx ".venv/")))
         (auto-mode)
         )
@@ -1567,7 +1569,7 @@ _q_: Quit
   )
 
 (after! consult-dir
-  (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
+  ;; (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
 
   ;; this is normally find-file, but it's perhaps more useful to find any file
   ;; (setq consult-dir-default-command #'+vertico/consult-fd)
@@ -1581,23 +1583,25 @@ _q_: Quit
         "D" #'consult-dir)
   )
 
-(after! (consult projectile)
-   (setq consult-project-function (lambda (_) (projectile-project-root)))
-   )
-
-(use-package! consult-projectile)
-
-(after! consult-projectile
+(after! (consult consult-project-extra)
   (setq consult-buffer-sources
     '(consult--source-modified-buffer
+       consult-project-extra--source-buffer
        consult--source-project-buffer
        consult--source-buffer
        consult--source-recent-file
-       consult-projectile--source-projectile-buffer
-       consult-projectile--source-projectile-file
-       consult-projectile--source-projectile-project
-       consult--source-hidden-buffer
-       +vertico--consult-org-source)))
+       ;; consult-projectile--source-projectile-buffer
+       ;; consult-projectile--source-projectile-file
+       ;; consult-projectile--source-projectile-project
+
+       consult-project-extra--source-file
+       consult-project-extra--source-project
+       ;; consult--source-hidden-buffer
+       +vertico--consult-org-source))
+
+  ;; consult-project-buffer calls consult-project-function(t) but doom-project-root, the default value of consult-project-function doesn't take t
+  (setq consult-project-function (lambda (_) (doom-project-root)))
+  )
 
 (after! orderless
   ;; https://github.com/minad/consult/issues/237
@@ -1924,8 +1928,8 @@ cleared, make sure the overlay doesn't come back too soon."
       )
     "Buffers/files"
     (("b" consult-buffer "Buffers")
-      ("P" consult-projectile-find-file "Project files")
-      ("M-P" projectile-save-project-buffers "Save Project Buffers")
+      ;; ("P" consult-projectile-find-file "Project files")
+      ;; ("M-P" projectile-save-project-buffers "Save Project Buffers")
       ("T" dirvish-side)
       ("R" vi/revert-buffer "Revert")
       ("M-k" vi/force-kill-buffer "Force kill")
@@ -2209,6 +2213,8 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
  (org-roam-db-autosync-mode)
  (require 'org-protocol)
  )
+
+(setq! org-roam-directory org-directory)
 
 (use-package! consult-org-roam
    :after org-roam
@@ -3057,52 +3063,6 @@ With optional prefix argument ARG, drag all the files at once."
                     (when arg '("-a"))
                     (dired-get-marked-files))
    :noquery t))
-
-(use-package! projectile
-  :after-call doom-first-buffer-hook
-  :custom
-  (projectile-project-search-path '("~/dev"))
-  (projectile-auto-discover t)
-  ;; copied from doom-projects.el to add -I to fd
-  (projectile-generic-command
-        (lambda (_)
-          ;; If fd exists, use it for git and generic projects. fd is a rust
-          ;; program that is significantly faster than git ls-files or find, and
-          ;; it respects .gitignore. This is recommended in the projectile docs.
-          (cond
-           ((when-let*
-                ((bin (if (ignore-errors (file-remote-p default-directory nil t))
-                          (cl-find-if (doom-rpartial #'executable-find t)
-                                      (list "fdfind" "fd"))
-                        doom-projectile-fd-binary))
-                 ;; REVIEW Temporary fix for #6618. Improve me later.
-                 (version (with-memoization doom-projects--fd-version
-                            (cadr (split-string (cdr (doom-call-process bin "--version"))
-                                                " " t))))
-                 ((ignore-errors (version-to-list version))))
-                (concat (format "%s . -0 -H -I --color=never --type file --type symlink --follow --exclude .git --exclude .venv --exclude .dvc %s"
-                                bin (if (version< version "8.3.0")
-                                        "" "--strip-cwd-prefix"))
-                        (if IS-WINDOWS " --path-separator=/"))))
-           ;; Otherwise, resort to ripgrep, which is also faster than find
-           ((executable-find "rg" t)
-            (concat "rg -0 --files --follow --color=never --hidden -g!.git"
-                    (if IS-WINDOWS " --path-separator=/")))
-           ("find . -type f -print0"))))
-  :config
-  (add-to-list 'projectile-project-root-files "pyproject.toml")
-  )
-
-(after! projectile
-  (defun vi/find-all-project-files ()
-    (interactive)
-    (let* (
-           (root (projectile-acquire-root))
-           (files (projectile-project-files root))
-           (filenames (--map (expand-file-name it root) files)))
-      (dolist-with-progress-reporter (f filenames) (format "Opening files in project [%s] " root) (find-file-noselect f))
-      ))
-  )
 
 (use-package! firestarter
   :after-call doom-first-file-hook

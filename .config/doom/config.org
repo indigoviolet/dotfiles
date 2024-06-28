@@ -2372,7 +2372,9 @@ Bufler groups:
         )
       (group
         ;; Subgroup collecting buffers in a projectile project.
-        (auto-projectile)
+        ;; (auto-projectile)
+
+        (auto-project)
         (group (filename-match "venv" (rx ".venv/")))
         (auto-mode)
         )
@@ -3803,7 +3805,7 @@ https://github.com/oantolin/embark/issues/231#issuecomment-854390476
 *** consult-dir
 #+begin_src emacs-lisp
 (after! consult-dir
-  (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
+  ;; (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
 
   ;; this is normally find-file, but it's perhaps more useful to find any file
   ;; (setq consult-dir-default-command #'+vertico/consult-fd)
@@ -3849,8 +3851,7 @@ We put this file directly in .config/doom/lisp (.doom.d) so that we can edit loc
 #+end_src
 
 
-*** projectile
-
+*** COMMENT projectile
 
 
 #+begin_src emacs-lisp
@@ -3860,7 +3861,7 @@ We put this file directly in .config/doom/lisp (.doom.d) so that we can edit loc
 #+end_src
 
 
-*** consult-projectile
+*** COMMENT consult-projectile
 
 +This is not very useful in practice:+ doom has built in support for project
 switching that works better with workspaces; but we can use just the find-file
@@ -3885,6 +3886,39 @@ function, which is better than +doom-project-find-file
        consult-projectile--source-projectile-project
        consult--source-hidden-buffer
        +vertico--consult-org-source)))
+
+#+end_src
+
+*** consult-project-extra
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! consult-project-extra)
+#+end_src
+
+
+*** consult-buffer
+
+#+begin_src emacs-lisp
+(after! (consult consult-project-extra)
+  (setq consult-buffer-sources
+    '(consult--source-modified-buffer
+       consult-project-extra--source-buffer
+       consult--source-project-buffer
+       consult--source-buffer
+       consult--source-recent-file
+       ;; consult-projectile--source-projectile-buffer
+       ;; consult-projectile--source-projectile-file
+       ;; consult-projectile--source-projectile-project
+
+       consult-project-extra--source-file
+       consult-project-extra--source-project
+       ;; consult--source-hidden-buffer
+       +vertico--consult-org-source))
+
+  ;; consult-project-buffer calls consult-project-function(t) but doom-project-root, the default value of consult-project-function doesn't take t
+  (setq consult-project-function (lambda (_) (doom-project-root)))
+  )
+
 
 #+end_src
 
@@ -4495,8 +4529,8 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
       )
     "Buffers/files"
     (("b" consult-buffer "Buffers")
-      ("P" consult-projectile-find-file "Project files")
-      ("M-P" projectile-save-project-buffers "Save Project Buffers")
+      ;; ("P" consult-projectile-find-file "Project files")
+      ;; ("M-P" projectile-save-project-buffers "Save Project Buffers")
       ("T" dirvish-side)
       ("R" vi/revert-buffer "Revert")
       ("M-k" vi/force-kill-buffer "Force kill")
@@ -5104,6 +5138,8 @@ disabled because it is noisy on startup, and used rarely (<2022-03-21 Mon>)
  (org-roam-db-autosync-mode)
  (require 'org-protocol)
  )
+
+(setq! org-roam-directory org-directory)
 #+end_src
 
 **** consult-org-roam
@@ -7201,7 +7237,7 @@ With optional prefix argument ARG, drag all the files at once."
                     (dired-get-marked-files))
    :noquery t))
 #+end_src
-** Projectile
+** COMMENT Projectile
 
 Note: doom has significant customizations in advices around projectile: for
 instance, it forces projectile to use the "generic" command and not the
@@ -7244,7 +7280,7 @@ vcs-specific command.
   )
 #+end_src
 
-*** open all project files
+*** COMMENT open all project files
 
 #+begin_src emacs-lisp
 (after! projectile

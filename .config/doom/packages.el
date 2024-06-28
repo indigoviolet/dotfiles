@@ -163,7 +163,7 @@
 
 (package! citre)
 
-(package! consult-projectile :recipe (:host gitlab :repo "OlMon/consult-projectile"))
+(package! consult-project-extra)
 
 (package! recursive-narrow)
 
