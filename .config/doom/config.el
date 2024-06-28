@@ -1752,13 +1752,13 @@ _q_: Quit
 ;; separedit:2 ends here
 
 ;; [[file:config.org::*indent bars][indent bars:2]]
-(remove-hook! 'text-mode-hook #'highlight-indent-guides-mode)
-(remove-hook! 'prog-mode-hook #'highlight-indent-guides-mode)
+;; (remove-hook! 'text-mode-hook #'highlight-indent-guides-mode)
+;; (remove-hook! 'prog-mode-hook #'highlight-indent-guides-mode)
 (use-package! indent-bars
   :custom
   ;; stipples not supported on mac os build
   (indent-bars-prefer-character t)
-  :hook ((prog-mode text-mode) . indent-bars-mode))
+  :hook ((prog-mode text-mode conf-mode) . indent-bars-mode))
 ;; indent bars:2 ends here
 
 ;; Shift regions
@@ -2384,7 +2384,7 @@ cleared, make sure the overlay doesn't come back too soon."
 (pretty-hydra-define global-hydra (:exit t :quit-key ("q" "C-g"))
   ("Searching"
     (;; ("f" +vertico/consult-fd "fd")
-      ("s" +vertico/project-search "rg in project")
+      ("s" +default/search-project "rg in project")
       ("t" consult-citre "tags search")
       ("l" consult-line "Line isearch")
       ("j" jump-hydra/body "Jump")
@@ -3093,7 +3093,7 @@ Results are reported in a compilation buffer."
 
        ;; Add ignored files section to magit status
        ;; This makes yadm-status very slow: https://github.com/magit/magit/discussions/4750
-       magit-insert-ignored-files
+       ;; magit-insert-ignored-files
 
 
        ))

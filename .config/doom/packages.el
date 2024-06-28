@@ -82,6 +82,7 @@
 (disable-packages! magit-todos)
 (disable-packages! which-key)
 (disable-packages! dired-git-info)
+(disable-packages! highlight-indent-guides)
 
 ;; (package! transient :pin "55d5d41b48d7f7bc1ecf1f90c012d7821dff5724")
 
