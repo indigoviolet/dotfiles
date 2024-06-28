@@ -2661,6 +2661,23 @@ Results are reported in a compilation buffer."
 (add-hook! 'ediff-cleanup-hook 'ediff-delete-temp-files)
 (add-hook! '(ediff-before-setup-hook ediff-before-setup-windows-hook) (setq ediff-window-setup-function #'vi/ediff-setup-windows-plain-merge))
 
+;; We leave this in so that /yadm:: still works
+(use-package! tramp
+  :config
+  (setq debug-ignored-errors
+      (cons 'remote-file-error debug-ignored-errors))
+  (add-to-list 'tramp-methods
+               '("yadm"
+                 (tramp-login-program "yadm")
+                 (tramp-login-args (("enter")))
+                 (tramp-login-env (("SHELL") ("/bin/sh")))
+                 (tramp-remote-shell "/bin/sh")
+                 (tramp-remote-shell-args ("-c")))))
+
+;; (defun yadm-status ()
+;;   (interactive)
+;;   (magit-status "/yadm::"))
+
 (defun yadm-status ()
   "Magit on dotfiles repo for the duration of a recursive edit."
   (interactive)
