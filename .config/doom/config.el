@@ -3253,25 +3253,26 @@ Results are reported in a compilation buffer."
 (add-hook! '(ediff-before-setup-hook ediff-before-setup-windows-hook) (setq ediff-window-setup-function #'vi/ediff-setup-windows-plain-merge))
 ;; ediff:1 ends here
 
-;; Another method, setting git flags
+;; Using Tramp for magit/yadm
 
-;; Quit recursive edit using C-]
+;; See https://www.reddit.com/r/emacs/comments/gjukb3/yadm_magit/gasc8n6/
 
 
-;; [[file:config.org::*Another method, setting git flags][Another method, setting git flags:1]]
-(defun yadm-status ()
-  "Magit on dotfiles repo for the duration of a recursive edit."
-  (interactive)
-  (require 'magit)
-  (let ((magit-git-global-arguments
-          `(,(concat "--git-dir=" vi/home-dir "/.local/share/yadm/repo.git")
-            ,(concat "--work-tree=" vi/home-dir)
-          ;; `(,(substitute-env-vars "--git-dir=/home/venky/.local/share/yadm/repo.git")
-          ;;    ,(substitute-env-vars "--work-tree=/home/venky")
-             ,@magit-git-global-arguments)))
-    (magit-status "~")
-    (recursive-edit)))
-;; Another method, setting git flags:1 ends here
+;; [[file:config.org::*Using Tramp for magit/yadm][Using Tramp for magit/yadm:1]]
+(after! tramp
+    ;; https://github.com/magit/magit/discussions/4750
+  (setq enable-remote-dir-locals t)
+  (add-to-list 'tramp-methods
+    '("yadm"
+       (tramp-login-program "yadm")
+       (tramp-login-args (("enter")))
+       (tramp-remote-shell "/bin/bash")
+       (tramp-remote-shell-args ("-c"))))
+    (defun yadm-status ()
+      (interactive)
+      (require 'tramp)
+      (with-current-buffer (magit-status "/yadm::"))))
+;; Using Tramp for magit/yadm:1 ends here
 
 ;; LSP
 
