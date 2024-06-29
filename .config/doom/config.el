@@ -920,7 +920,6 @@ _q_: Quit
   )
 
 (use-package! popper
-  :after-call doom-first-buffer-hook
   :init
   (setq popper-mode-line " POP ")
   (setq popper-reference-buffers
@@ -1465,16 +1464,16 @@ _q_: Quit
 
   ;; this sets up hooks with the :modes, so it won't work without revert-buffer
   ;; since we use :bind to load this package (see :after-call above)
-  (smart-jump-register :modes 'prog-mode
-                       :jump-fn #'+lookup/definition
-                       :pop-fn 'xref-pop-marker-stack
-                       :refs-fn #'+lookup/references
-                       :heuristic 'error
-                       :refs-heuristic 'error
-                       :should-jump t
-                       :before-jump-fn #'better-jumper-set-jump
-                       :order 2
-                       :async t)
+  ;; (smart-jump-register :modes 'prog-mode
+  ;;                      :jump-fn #'+lookup/definition
+  ;;                      :pop-fn 'xref-pop-marker-stack
+  ;;                      :refs-fn #'+lookup/references
+  ;;                      :heuristic 'error
+  ;;                      :refs-heuristic 'error
+  ;;                      :should-jump t
+  ;;                      :before-jump-fn #'better-jumper-set-jump
+  ;;                      :order 2
+  ;;                      :async t)
 
   (smart-jump-register :modes 'lsp-mode
                        :jump-fn 'lsp-find-definition
@@ -1492,7 +1491,8 @@ _q_: Quit
           ;; seems to work with smart-jump without calling better-jumper-set-jump?
           ;; also advicing smart-jump with better-jumper-set-jump seems to break
           ("M-," . better-jumper-jump-backward)
-          ("M-?" . smart-jump-references))
+          ("M-?" . smart-jump-references)
+          )
   :commands (smart-jump-go smart-jump-back smart-jump-references)
   )
 
@@ -1500,15 +1500,8 @@ _q_: Quit
   (setq xref-backend-functions (remq 'etags--xref-backend xref-backend-functions))
   (add-to-list 'xref-backend-functions #'dumb-jump-xref-activate t))
 
-(pretty-hydra-define jump-hydra (:exit t)
-  ("Jump"
-    (("c" +lookup/documentation "Docstring")
-    ("f" +lookup/definition "Definition")
-    ("u" +lookup/references "Usages")
-    ("i" +lookup/implementations "Impls")
-    ("t" +lookup/type-definition "Type")
-    ("F" +lookup/file "file"))
-   ))
+(setq xref-show-xrefs-function #'consult-xref)
+(setq xref-show-definitions-function #'consult-xref)
 
 ;; https://git.sr.ht/~northyear/dotemacs/tree/e9b75ccce4e840525c4ec664777694e21c69bc6e/item/site-lisp/consult-citre.el
 ;; stored in .config/doom/lisp
@@ -1927,7 +1920,6 @@ cleared, make sure the overlay doesn't come back too soon."
       ("s" +default/search-project "rg in project")
       ("t" consult-citre "tags search")
       ("l" consult-line "Line isearch")
-      ("j" jump-hydra/body "Jump")
       )
     "Buffers/files"
     (("b" consult-buffer "Buffers")
@@ -1957,7 +1949,6 @@ cleared, make sure the overlay doesn't come back too soon."
       ("SPC" vi/major-mode-hydra "Major")
       ("c" flycheck-hydra/body "flycheck")
       ("n" hydra-narrow/body "narrow")
-      ("L" lsp-mode-hydra/body "LSP")
       ;; ("e" ein-global-hydra/body "EIN")
       ;; ("p" org-pomodoro "Pomodoro")
       ("M-m" minions-minor-modes-menu "Minor modes")
@@ -2759,16 +2750,7 @@ Results are reported in a compilation buffer."
     (if (facep 'lsp-flycheck-info-unnecessary-face)
         (set-face-attribute 'lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil))
     )
-
-  :pretty-hydra
-  ((
-    "LSP"
-    (("?" lsp-find-references "Find references")
-     ("." lsp-find-definition "Find definition")
-     ("," lsp-find-type-definition "Find type"))
-     ;; ("e" lsp-treemacs-errors-list "Errors"))
-    )
-    )
+  
   )
 
 (setq-hook! 'lsp-ui-doc-mode-hook

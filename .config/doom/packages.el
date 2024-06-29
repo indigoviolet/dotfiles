@@ -115,8 +115,6 @@
 
 (package! popper :recipe (:host github :repo "karthink/popper" :branch "local-mode-line-format"))
 
-;; (package! popper )
-
 (package! buffer-expose)
 
 (package! dispwatch :recipe (:host github :repo "mnp/dispwatch"))
