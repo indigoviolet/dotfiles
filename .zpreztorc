@@ -37,14 +37,15 @@ zstyle ':prezto:*:*' color 'yes'
 external_plugins=(
     ## deliberately using the module externally instead of from prezto; so we
     ## can set ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE ourselves in env.zsh
-    zsh-users/zsh-autosuggestions
-    Aloxaf/fzf-tab
+    # zsh-users/zsh-autosuggestions
+    # Aloxaf/fzf-tab
     # TODO: Add regexp support to this plugin (with =~ and PCRE) https://github.com/indigoviolet/zsh-history-filter/blob/master/zsh-history-filter.plugin.zsh#L28
     # TODO: Use `rg` to rewrite_history
     # MichaelAquilina/zsh-history-filter
 
     # Editing history
     marlonrichert/zsh-hist
+    marlonrichert/zsh-autocomplete
     olets/zsh-window-title
 )
 for repo in $external_plugins; do
@@ -53,6 +54,10 @@ for repo in $external_plugins; do
         echo "source \${0:A:h}/external/${repo:t}.plugin.zsh" > $ZPREZTODIR/contrib/${repo:t}/init.zsh
     fi
 done
+
+# Set the key mapping style to 'emacs' or 'vi'.
+zstyle ':prezto:module:editor' key-bindings 'emacs'
+
 
 # Set the Prezto modules to load (browse modules).
 # The order matters.
@@ -68,9 +73,10 @@ zstyle ':prezto:load' pmodule \
     'history' \
     'zsh-window-title' \
     'completion' \
-    'fzf-tab' \
-    'zsh-autosuggestions' \
+    'zsh-autocomplete' \
     'zsh-hist'
+    # 'fzf-tab' \
+    # 'zsh-autosuggestions' \
     # 'zsh-history-filter' \
 # 'ssh' \ # Managed in .zshcustom/ssh.zsh
 # 'history-substring-search' # see input.zsh
@@ -102,9 +108,6 @@ zstyle ':completion:*:commands' rehash 1
 # Editor
 #
 
-# Set the key mapping style to 'emacs' or 'vi'.
-zstyle ':prezto:module:editor' key-bindings 'emacs'
-
 # Auto convert .... to ../..
 # zstyle ':prezto:module:editor' dot-expansion 'yes'
 
@@ -118,7 +121,6 @@ zstyle ':prezto:module:editor' key-bindings 'emacs'
 # Ignore submodules when they are 'dirty', 'untracked', 'all', or 'none'.
 # zstyle ':prezto:module:git:status:ignore' submodules 'all'
 
-#
 # GNU Utility
 #
 

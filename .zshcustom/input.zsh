@@ -81,3 +81,9 @@ bindkey '\ee' edit-command-line
 # zle_highlight=(region:standout special:standout suffix:bold isearch:bg=green )
 # bindkey '^i' complete-word      # required for _expand completer
 # bindkey '^I' complete-word      # complete
+
+# https://github.com/marlonrichert/zsh-autocomplete#make-tab-and-shifttab-change-the-selection-in-the-menu
+bindkey              '^I' menu-select
+bindkey -M menuselect              '^I'         menu-complete
+
+
