@@ -1472,6 +1472,7 @@ _q_: Quit
                        :heuristic 'error
                        :refs-heuristic 'error
                        :should-jump t
+                       :before-jump-fn #'better-jumper-set-jump
                        :order 2
                        :async t)
 
@@ -1481,6 +1482,7 @@ _q_: Quit
                        :refs-fn 'lsp-find-references
                        :heuristic 'point
                        :refs-heuristic 'point
+                       :before-jump-fn #'better-jumper-set-jump
                        :should-jump t
                        :order 1
                        :async t)
