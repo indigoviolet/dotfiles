@@ -249,7 +249,7 @@
 
 (package! org-latex-impatient)
 
-(package! prodigy)
+;; (package! prodigy)
 
 (package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
 
