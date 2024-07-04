@@ -18,7 +18,7 @@ export EDITOR="micro" # installed via brew
 # https://stackoverflow.com/a/76427393. It's important to set this up early,
 # especially if $TMPDIR is overridden in some directories (since mac uses
 # TMPDIR=/var/folders/.... by default)
-export EMACS_SOCKET_NAME="${TMPDIR}/emacs$(id -u)/server"
+export EMACS_SOCKET_NAME="/tmp/emacs$(id -u)/server"
 export EDITOR="${EDITOR} --socket-name ${EMACS_SOCKET_NAME}"
 {% endif %}
 
