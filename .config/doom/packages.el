@@ -138,6 +138,8 @@
 
 (package! point-undo :recipe (:host github :repo "emacsmirror/point-undo"))
 
+(package! undo-hl :recipe (:host github :repo "casouri/undo-hl"))
+
 (package! yankpad :recipe (:host github :repo "Kungsgeten/yankpad"))
 (package! yasnippet)
 
@@ -161,7 +163,11 @@
 
 (package! citre)
 
+(package! gxref)
+
 (package! consult-project-extra)
+
+(package! avy)
 
 (package! recursive-narrow)
 
@@ -174,7 +180,7 @@
 ;; (package! corfu-terminal :recipe (:type git :repo "https://codeberg.org/akib/emacs-corfu-terminal.git"))
 
 (package! copilot
-  :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))
+  :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
 
 (package! gptel)
 

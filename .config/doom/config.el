@@ -1343,6 +1343,10 @@ _q_: Quit
          ("s-," . point-redo)
          ))
 
+(use-package! undo-hl
+  :hook (prog-mode . undo-hl-mode)
+  )
+
 (after! yasnippet
   (setq yas-wrap-around-region t)
   (yas-global-mode 1))
@@ -1496,9 +1500,11 @@ _q_: Quit
   :commands (smart-jump-go smart-jump-back smart-jump-references)
   )
 
-(after! dumb-jump
-  (setq xref-backend-functions (remq 'etags--xref-backend xref-backend-functions))
-  (add-to-list 'xref-backend-functions #'dumb-jump-xref-activate t))
+;; (setq! xref-backend-functions (remq 'etags--xref-backend xref-backend-functions))
+(use-package! dumb-jump
+  :config
+  (add-hook! prog-mode
+    (add-hook! 'xref-backend-functions :local #'dumb-jump-xref-activate)))
 
 (setq xref-show-xrefs-function #'consult-xref)
 (setq xref-show-definitions-function #'consult-xref)
@@ -1506,6 +1512,16 @@ _q_: Quit
 ;; https://git.sr.ht/~northyear/dotemacs/tree/e9b75ccce4e840525c4ec664777694e21c69bc6e/item/site-lisp/consult-citre.el
 ;; stored in .config/doom/lisp
 (load! "lisp/consult-citre.el")
+
+(after! citre
+  (setq! citre-find-reference-backends '(global)
+    citre-find-definition-backends '(tags global)
+    citre-tags-in-buffer-backends '(global tags)
+    ))
+
+(use-package! gxref
+  :config
+  (add-hook! prog-mode (add-hook! 'xref-backend-functions :local #'gxref-xref-backend)))
 
 (after! embark
   ;; since we disabled which-key
@@ -1646,6 +1662,20 @@ _q_: Quit
       ;;"M-j" #'vertico-quick-jump)
 
   )
+
+;; https://karthinks.com/software/avy-can-do-anything/#avy-plus-embark-any-action-anywhere
+(after! avy
+   (defun avy-action-embark (pt)
+     (unwind-protect
+         (save-excursion
+           (goto-char pt)
+           (embark-act))
+       (select-window
+        (cdr (ring-ref avy-ring 0))))
+     t)
+
+   (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark)
+   (global-set-key (kbd "M-j") 'avy-goto-char-timer))
 
 (use-package! recursive-narrow
   :commands (hydra-narrow/body recursive-narrow-or-widen-dwim recursive-widen)
@@ -1920,6 +1950,10 @@ cleared, make sure the overlay doesn't come back too soon."
       ("s" +default/search-project "rg in project")
       ("t" consult-citre "tags search")
       ("l" consult-line "Line isearch")
+      ("M-." citre-peek "Citre peek")
+      ("M-?" citre-peek-reference "Citre peek-reference")
+      ("." xref-find-definitions "xref def")
+      ("?" xref-find-references "xref def")
       )
     "Buffers/files"
     (("b" consult-buffer "Buffers")
@@ -2687,53 +2721,54 @@ Results are reported in a compilation buffer."
 
 (use-package! lsp-mode
   :init
-  (setq lsp-keymap-prefix "C-c l")
+  (setq! lsp-keymap-prefix "C-c l")
 
-  :custom
-  ;; We prefer to use TabNine::sem
-
-  (lsp-enable-snippet nil)
+  :config
+  (setq!
+    lsp-enable-snippet nil
   ;; https://emacs-lsp.github.io/lsp-mode/page/settings/
-  (lsp-auto-configure t)
-  (lsp-enable-imenu t)
+  lsp-auto-configure t
+  lsp-enable-imenu t
 
   ;; controls doc buffers at bottom (this is not eldoc -- which in python-mode is truncated, so useless)
   ;; shows signature automatically inside arg params or <C-c l h s>
   ;; see lsp-ui-doc-mode for on cursor
-  (lsp-signature-auto-activate '(:on-trigger-char :on-server-request))
-  (lsp-signature-render-documentation nil)
-  (lsp-headerline-breadcrumb-enable t)
-  (lsp-headerline-breadcrumb-enable-diagnostics t)
-  (lsp-keep-workspace-alive nil)
-  (lsp-semantic-tokens-enable nil)      ;no semantic highlighting: rainbow-identifiers
-  (lsp-symbol-highlighting-skip-current t)
-  (lsp-enable-xref nil)
-  (lsp-lens-enable t)
-  (lsp-idle-delay 0.1)
-  ;; (lsp-disabled-clients '((python-mode . '(pyls mspyls))))
+  lsp-signature-auto-activate '(:on-trigger-char :on-server-request)
 
-    ;; This will disable the flycheck checkers. (we use them directly to have better control)
+  lsp-signature-render-documentation nil
+  lsp-headerline-breadcrumb-enable t
+  lsp-headerline-breadcrumb-enable-diagnostics t
+  lsp-keep-workspace-alive nil
+  lsp-semantic-tokens-enable nil      ;no semantic highlighting: rainbow-identifiers
+  lsp-symbol-highlighting-skip-current t
+  lsp-enable-xref t
+  lsp-lens-enable t
+  lsp-idle-delay 0.1
+
+  ;; (lsp-disabled-clients '((python-mode . '(pyls mspyls)))
+
+  ;; This will disable the flycheck checkers. (we use them directly to have better control)
   ;; (lsp-diagnostics-provider :flycheck)
-  (lsp-diagnostic-clean-after-change nil)
-  (lsp-file-watch-threshold 10000)
-  (lsp-enable-completion-at-point t)
-  (lsp-completion-provider :none)       ;disable company-mode
 
-  ;; sideline
-  (lsp-ui-sideline-enable t)
-  (lsp-ui-sideline-show-hover nil)
-  (lsp-ui-sideline-show-symbol nil)
-  (lsp-ui-sideline-show-diagnostics t)
-  (lsp-ui-sideline-show-code-actions t)
-  (lsp-ui-sideline-delay 0.1)
+  lsp-diagnostic-clean-after-change nil
+  lsp-file-watch-threshold 10000
+  lsp-enable-completion-at-point t
+  lsp-completion-provider :none       ;disable company-mode
+
+ ;; sideline
+  lsp-ui-sideline-enable t
+  lsp-ui-sideline-show-hover nil
+  lsp-ui-sideline-show-symbol nil
+  lsp-ui-sideline-show-diagnostics t
+  lsp-ui-sideline-show-code-actions t
+  lsp-ui-sideline-delay 0.1
   ;; peek
-  (lsp-ui-peek-enable t)
+  lsp-ui-peek-enable t
   ;; imenu
   ;; (lsp-ui-imenu-window-width 30)
   ;; (lsp-ui-imenu-auto-refresh t)
+  )
 
-
-  :config
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.venv\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.mypy_cache\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.ruff_cache\\'")
@@ -2750,7 +2785,17 @@ Results are reported in a compilation buffer."
     (if (facep 'lsp-flycheck-info-unnecessary-face)
         (set-face-attribute 'lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil))
     )
-  
+
+  ;; ruff server
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection '("ruff" "server" "--preview"))
+     :major-modes '(python-mode)
+     :priority 1
+     :add-on? t
+     :multi-root t
+     :server-id 'ruff-server)
+    )
+
   )
 
 (setq-hook! 'lsp-ui-doc-mode-hook
@@ -2805,7 +2850,7 @@ Results are reported in a compilation buffer."
   )
 
 (defun vi/python-mode-lsp ()
-
+  (lsp)
   ;;;; EDIT: this also filters out the visual rendering (https://discord.com/channels/789885435026604033/b789890622424219658/993942950331551814)
   ;;;; Filter out "lsp-info-flycheck-"
   ;;;; severity=4 ("hint"), tag=1 ("unnecessary") -- see vi/filter-tag-diagnostics for reference
@@ -2846,17 +2891,12 @@ Results are reported in a compilation buffer."
   (pyflyby-transform-region-with-command "tidy-imports" "--hanging-indent=never" "--align=0" "--no-align-future" "--no-separate-from-imports")
   )
 
-(after! python-mode
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection '("ruff" "server" "--preview"))
-     :major-modes '(python-mode)
-     :priority 1
-     :add-on? t
-     :multi-root t
-     :server-id 'ruff-server)
-    )
-  )
-(setq! lsp-disabled-clients '(python-mode . (ruff-lsp)))
+;; we're using ruff server
+;; (setq! lsp-disabled-clients '(python-mode . (ruff-lsp))) ;; (python-ts-mode . (ruff-lsp)))
+(setq! lsp-disabled-clients '(python-mode . (ruff-server))) ;; (python-ts-mode . (ruff-lsp)))
+
+;; (setq! lsp-ruff-lsp-server-command "ruff")
+;; (setq! lsp-ruff-lsp-ruff-args '["server" "--preview" "--output-format=concise"])
 
 ;;; Doom -style setting doesn't allow multiple formatters per mode
 ;; pipx install ruff
@@ -2886,6 +2926,7 @@ Results are reported in a compilation buffer."
   ;; (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
 
   (setf (alist-get 'python-mode apheleia-mode-alist) '(ruff-check ruff-format))
+  ;; (setf (alist-get 'python-ts-mode apheleia-mode-alist) '(ruff-check ruff-format))
   (setf (alist-get 'conf-toml-mode apheleia-mode-alist) '(prettier-toml))
   (setf (alist-get 'jinja2-mode apheleia-mode-alist) nil)
   (apheleia-global-mode)

@@ -121,7 +121,7 @@
   ;;terraform         ; infrastructure as code
   ;;tmux              ; an API for interacting with tmux
   ;;upload            ; map local to remote projects via ssh/ftp
-  tree-sitter       ; syntax and parsing, sitting in a tree...
+  ;; tree-sitter       ; syntax and parsing, sitting in a tree...
 
   :os
   (:if IS-MAC macos)  ; improve compatibility with macOS
@@ -141,7 +141,7 @@
   ;;dhall
   ;;elixir            ; erlang done right
   ;;elm               ; care for a cup of TEA?
-  (emacs-lisp +tree-sitter)        ; drown in parentheses
+  (emacs-lisp);; +tree-sitter)        ; drown in parentheses
   ;;erlang            ; an elegant language for a more civilized age
   ;;ess               ; emacs speaks statistics
   ;;factor
@@ -154,7 +154,7 @@
   ;;(haskell +lsp)    ; a language that's lazier than I am
   ;;hy                ; readability of scheme w/ speed of python
   ;;idris             ; a language you can depend on
-  (json +tree-sitter)              ; At least it ain't XML
+  (json);; +tree-sitter)              ; At least it ain't XML
   ;;(java +lsp)       ; the poster child for carpal tunnel syndrome
   (javascript +lsp)        ; all(hope(abandon(ye(who(enter(here))))))
   ;;julia             ; a better, faster MATLAB
@@ -175,7 +175,7 @@
   ;;purescript        ; javascript, but functional
 
   ;; +poetry is slow
-  (python +lsp +pyright +tree-sitter)            ; beautiful is better than ugly
+  (python +lsp +pyright);; +tree-sitter)            ; beautiful is better than ugly
 
   ;;qt                ; the 'cutest' gui framework ever
   ;;racket            ; a DSL for DSLs
@@ -192,7 +192,7 @@
   ;;swift             ; who asked for emoji variables?
   ;;terra             ; Earth and Moon in alignment for performance.
   ;;web               ; the tubes
-  (yaml +tree-sitter)              ; JSON, but readable
+  (yaml);; +tree-sitter)              ; JSON, but readable
   ;;zig               ; C, but simpler
 
   :email
