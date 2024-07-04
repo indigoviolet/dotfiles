@@ -3727,6 +3727,8 @@ Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact
 :END:
 
 
+*** citre
+
 #+begin_src emacs-lisp :tangle packages.el
 (package! citre)
 #+end_src
@@ -3736,6 +3738,79 @@ Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact
 ;; https://git.sr.ht/~northyear/dotemacs/tree/e9b75ccce4e840525c4ec664777694e21c69bc6e/item/site-lisp/consult-citre.el
 ;; stored in .config/doom/lisp
 (load! "lisp/consult-citre.el")
+
+(after! citre
+  (setq! citre-find-reference-backends '(global)
+    citre-find-definition-backends '(tags global)
+    citre-tags-in-buffer-backends '(global tags)
+    ))
+#+end_src
+
+citre TAGS recipe:
+
+
+#+begin_example
+# This block is the help message.
+#
+# The next block is the Universal Ctags option file. Put one
+# command line argument per line. Comments start with "#"
+#
+# The last block contains the files to scan, one file/dir per
+# line. You can use paths relative to /Users/venky/dev/plus/.
+#
+# Commands:
+#
+# - C-c l: Insert a language
+# - M-x citre-ctags-cmd-buf-add-dir-or-file: Insert a dir or file
+# - C-c C-c: Save, close and update the tags file
+# - C-c C-k: Cancel
+---------------8<---------------
+-o
+.tags
+-L
+.ctags.d/0.list
+# Programming languages to be scanned, or "all" for all supported languages
+--languages=Python
+--kinds-all=*
+--kinds-Python=cfm
+--fields=*
+--extras=*
+--exclude=python/.venv
+--recurse
+---------------8<---------------
+python
+infra
+
+
+#+end_example
+
+
+
+*** gtags (gnu global)
+
+**** citre
+
+
+#+begin_example
+export GTAGSOBJDIRPREFIX=$(realpath .gtags/)
+export GTAGSCONF=$(realpath .gtags.conf)
+export GTAGSLABEL=pygments
+
+#+end_example
+
+
+
+**** gxref
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! gxref)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! gxref
+  :config
+  (add-hook! prog-mode (add-hook! 'xref-backend-functions :local #'gxref-xref-backend)))
 #+end_src
 
 ** embark
@@ -4535,6 +4610,10 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
       ("s" +default/search-project "rg in project")
       ("t" consult-citre "tags search")
       ("l" consult-line "Line isearch")
+      ("M-." citre-peek "Citre peek")
+      ("M-?" citre-peek-reference "Citre peek-reference")
+      ("." xref-find-definitions "xref def")
+      ("?" xref-find-references "xref def")
       )
     "Buffers/files"
     (("b" consult-buffer "Buffers")
