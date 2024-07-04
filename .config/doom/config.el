@@ -1501,10 +1501,10 @@ _q_: Quit
   )
 
 ;; (setq! xref-backend-functions (remq 'etags--xref-backend xref-backend-functions))
-(use-package! dumb-jump
-  :config
-  (add-hook! prog-mode
-    (add-hook! 'xref-backend-functions :local #'dumb-jump-xref-activate)))
+;; (use-package! dumb-jump
+;;   :config
+;;   (add-hook! prog-mode
+;;     (add-hook! 'xref-backend-functions :local #'dumb-jump-xref-activate)))
 
 (setq xref-show-xrefs-function #'consult-xref)
 (setq xref-show-definitions-function #'consult-xref)
@@ -1926,6 +1926,12 @@ cleared, make sure the overlay doesn't come back too soon."
   (wgrep-auto-save-buffer t)
   )
 
+;; Allow C-h to trigger which-key before it is done automatically
+(after! which-key
+  (which-key-mode)
+  (setq which-key-show-early-on-C-h t)
+  )
+
 (after! major-mode-hydra
   (setq major-mode-hydra-invisible-quit-key "q")
 
@@ -2007,6 +2013,16 @@ cleared, make sure the overlay doesn't come back too soon."
 
 (key-chord-define-global "hh" #'global-hydra/body)
 (key-chord-define-global "jj" #'vi/major-mode-hydra)
+
+(use-package! hercules
+  :config
+(hercules-def
+  :show-funs #'citre-peek
+  :hide-funs #'doom/escape
+  :flatten t
+  :transient t
+ :keymap 'citre-peek-keymap)
+  )
 
 (after! org
   ;; Add created timestamps to all headings (https://stackoverflow.com/questions/12262220/add-created-date-property-to-todos-in-org-mode/13285957#13285957)

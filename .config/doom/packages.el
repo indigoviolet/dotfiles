@@ -57,7 +57,7 @@
 
 ;; magit-todos: was slow on the startup, unused
 (disable-packages! magit-todos)
-(disable-packages! which-key)
+;; (disable-packages! which-key)
 (disable-packages! dired-git-info)
 (disable-packages! highlight-indent-guides)
 
@@ -190,6 +190,8 @@
 
 (package! pretty-hydra)
 (package! major-mode-hydra)
+
+(package! hercules :recipe (:host github :repo "cyruseuros/hercules"))
 
 ;; Pinning for unfolding org-mode overlays while searching
 ;; https://github.com/doomemacs/doomemacs/issues/6478#issuecomment-1293505404

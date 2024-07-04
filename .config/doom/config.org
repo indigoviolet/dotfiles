@@ -955,7 +955,7 @@ doesn't work.. so it's at the beginning of config.el and commented out.
 
 ;; magit-todos: was slow on the startup, unused
 (disable-packages! magit-todos)
-(disable-packages! which-key)
+;; (disable-packages! which-key)
 (disable-packages! dired-git-info)
 (disable-packages! highlight-indent-guides)
 
@@ -4593,11 +4593,14 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
   )
 #+end_src
 
-* COMMENT Which-key
+* Which-key
+
+
 
 #+begin_src emacs-lisp
 ;; Allow C-h to trigger which-key before it is done automatically
 (after! which-key
+  (which-key-mode)
   (setq which-key-show-early-on-C-h t)
   )
 #+end_src
