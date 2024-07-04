@@ -4696,6 +4696,27 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
 (key-chord-define-global "jj" #'vi/major-mode-hydra)
 #+end_src
 
+
+
+** hercules
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! hercules :recipe (:host github :repo "cyruseuros/hercules"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! hercules
+  :config
+(hercules-def
+  :show-funs #'citre-peek
+  :hide-funs #'doom/escape
+  :flatten t
+  :transient t
+ :keymap 'citre-peek-keymap)
+  )
+#+end_src
 * Org
 
 ** org-mode package
