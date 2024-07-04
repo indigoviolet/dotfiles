@@ -6190,53 +6190,54 @@ Quit recursive edit using C-]
 #+begin_src emacs-lisp
 (use-package! lsp-mode
   :init
-  (setq lsp-keymap-prefix "C-c l")
+  (setq! lsp-keymap-prefix "C-c l")
 
-  :custom
-  ;; We prefer to use TabNine::sem
-
-  (lsp-enable-snippet nil)
+  :config
+  (setq!
+    lsp-enable-snippet nil
   ;; https://emacs-lsp.github.io/lsp-mode/page/settings/
-  (lsp-auto-configure t)
-  (lsp-enable-imenu t)
+  lsp-auto-configure t
+  lsp-enable-imenu t
 
   ;; controls doc buffers at bottom (this is not eldoc -- which in python-mode is truncated, so useless)
   ;; shows signature automatically inside arg params or <C-c l h s>
   ;; see lsp-ui-doc-mode for on cursor
-  (lsp-signature-auto-activate '(:on-trigger-char :on-server-request))
-  (lsp-signature-render-documentation nil)
-  (lsp-headerline-breadcrumb-enable t)
-  (lsp-headerline-breadcrumb-enable-diagnostics t)
-  (lsp-keep-workspace-alive nil)
-  (lsp-semantic-tokens-enable nil)      ;no semantic highlighting: rainbow-identifiers
-  (lsp-symbol-highlighting-skip-current t)
-  (lsp-enable-xref nil)
-  (lsp-lens-enable t)
-  (lsp-idle-delay 0.1)
-  ;; (lsp-disabled-clients '((python-mode . '(pyls mspyls))))
+  lsp-signature-auto-activate '(:on-trigger-char :on-server-request)
 
-    ;; This will disable the flycheck checkers. (we use them directly to have better control)
+  lsp-signature-render-documentation nil
+  lsp-headerline-breadcrumb-enable t
+  lsp-headerline-breadcrumb-enable-diagnostics t
+  lsp-keep-workspace-alive nil
+  lsp-semantic-tokens-enable nil      ;no semantic highlighting: rainbow-identifiers
+  lsp-symbol-highlighting-skip-current t
+  lsp-enable-xref t
+  lsp-lens-enable t
+  lsp-idle-delay 0.1
+
+  ;; (lsp-disabled-clients '((python-mode . '(pyls mspyls)))
+
+  ;; This will disable the flycheck checkers. (we use them directly to have better control)
   ;; (lsp-diagnostics-provider :flycheck)
-  (lsp-diagnostic-clean-after-change nil)
-  (lsp-file-watch-threshold 10000)
-  (lsp-enable-completion-at-point t)
-  (lsp-completion-provider :none)       ;disable company-mode
 
-  ;; sideline
-  (lsp-ui-sideline-enable t)
-  (lsp-ui-sideline-show-hover nil)
-  (lsp-ui-sideline-show-symbol nil)
-  (lsp-ui-sideline-show-diagnostics t)
-  (lsp-ui-sideline-show-code-actions t)
-  (lsp-ui-sideline-delay 0.1)
+  lsp-diagnostic-clean-after-change nil
+  lsp-file-watch-threshold 10000
+  lsp-enable-completion-at-point t
+  lsp-completion-provider :none       ;disable company-mode
+
+ ;; sideline
+  lsp-ui-sideline-enable t
+  lsp-ui-sideline-show-hover nil
+  lsp-ui-sideline-show-symbol nil
+  lsp-ui-sideline-show-diagnostics t
+  lsp-ui-sideline-show-code-actions t
+  lsp-ui-sideline-delay 0.1
   ;; peek
-  (lsp-ui-peek-enable t)
+  lsp-ui-peek-enable t
   ;; imenu
   ;; (lsp-ui-imenu-window-width 30)
   ;; (lsp-ui-imenu-auto-refresh t)
+  )
 
-
-  :config
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.venv\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.mypy_cache\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.ruff_cache\\'")
@@ -6253,7 +6254,17 @@ Quit recursive edit using C-]
     (if (facep 'lsp-flycheck-info-unnecessary-face)
         (set-face-attribute 'lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil))
     )
-  
+
+  ;; ruff server
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection '("ruff" "server" "--preview"))
+     :major-modes '(python-mode)
+     :priority 1
+     :add-on? t
+     :multi-root t
+     :server-id 'ruff-server)
+    )
+
   )
 
 (setq-hook! 'lsp-ui-doc-mode-hook
@@ -6533,7 +6544,7 @@ Note: workspace root must have the pyrightconfig.json?
 
 #+begin_src emacs-lisp
 (defun vi/python-mode-lsp ()
-
+  (lsp)
   ;;;; EDIT: this also filters out the visual rendering (https://discord.com/channels/789885435026604033/b789890622424219658/993942950331551814)
   ;;;; Filter out "lsp-info-flycheck-"
   ;;;; severity=4 ("hint"), tag=1 ("unnecessary") -- see vi/filter-tag-diagnostics for reference
@@ -6784,17 +6795,14 @@ seems to be old, not working with 3.11 <2023-08-13 Sun>
 
 
 #+begin_src emacs-lisp
-(after! python-mode
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection '("ruff" "server" "--preview"))
-     :major-modes '(python-mode)
-     :priority 1
-     :add-on? t
-     :multi-root t
-     :server-id 'ruff-server)
-    )
-  )
-(setq! lsp-disabled-clients '(python-mode . (ruff-lsp)))
+;; we're using ruff server
+;; (setq! lsp-disabled-clients '(python-mode . (ruff-lsp))) ;; (python-ts-mode . (ruff-lsp)))
+(setq! lsp-disabled-clients '(python-mode . (ruff-server))) ;; (python-ts-mode . (ruff-lsp)))
+
+;; (setq! lsp-ruff-lsp-server-command "ruff")
+;; (setq! lsp-ruff-lsp-ruff-args '["server" "--preview" "--output-format=concise"])
+
+
 #+end_src
 
 * Code Formatting
