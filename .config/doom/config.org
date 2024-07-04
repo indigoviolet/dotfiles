@@ -3385,7 +3385,7 @@ so we define a non-global vi/undo-fu-mode and turn it on selectively.
 #+end_src
 
 
-** COMMENT undo-hl
+** undo-hl
 seems to make things slow?
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -3395,7 +3395,6 @@ seems to make things slow?
 
 #+begin_src emacs-lisp
 (use-package! undo-hl
-  :after-call doom-first-buffer-hook
   :hook (prog-mode . undo-hl-mode)
   )
 #+end_src
