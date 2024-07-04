@@ -4371,7 +4371,7 @@ has unwieldy keybindings. unclear we need this over outline-minor-mode (in the c
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! copilot
-  :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))
+  :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
 #+end_src
 
 *** COMMENT updated fork
