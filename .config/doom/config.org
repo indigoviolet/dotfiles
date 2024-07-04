@@ -3713,10 +3713,10 @@ Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact
   )
 
 ;; (setq! xref-backend-functions (remq 'etags--xref-backend xref-backend-functions))
-(use-package! dumb-jump
-  :config
-  (add-hook! prog-mode
-    (add-hook! 'xref-backend-functions :local #'dumb-jump-xref-activate)))
+;; (use-package! dumb-jump
+;;   :config
+;;   (add-hook! prog-mode
+;;     (add-hook! 'xref-backend-functions :local #'dumb-jump-xref-activate)))
 
 (setq xref-show-xrefs-function #'consult-xref)
 (setq xref-show-definitions-function #'consult-xref)
