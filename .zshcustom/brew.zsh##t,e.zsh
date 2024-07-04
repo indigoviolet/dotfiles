@@ -14,6 +14,8 @@ PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
 {% endif %}
 
 if type brew &>/dev/null; then
+    # see https://github.com/oven-sh/bun/issues/1272
+    # for now we deleted _bun from site-functions
     fpath=($(brew --prefix)/share/zsh/site-functions $fpath)
     zstyle ':completion:*:*:git:*' script $(brew --prefix)/share/zsh/site-functions/git-completion.bash
 fi

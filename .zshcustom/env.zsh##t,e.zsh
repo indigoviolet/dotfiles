@@ -52,8 +52,9 @@ path[1,0]=$HOME/.cargo/bin/
 path[1,0]=$HOME/.local/share/rtx/shims/
 
 
+# zsh-autosuggestions
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#808080,underline"
-export ZSH_AUTOSUGGEST_STRATEGY=(completion history)
+export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 export PYFLYBY_PATH=~/.pyflyby:.../.pyflyby
 
