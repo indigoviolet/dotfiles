@@ -607,7 +607,7 @@ here as-is for now, as it is quite well structured and clear.
   ;;terraform         ; infrastructure as code
   ;;tmux              ; an API for interacting with tmux
   ;;upload            ; map local to remote projects via ssh/ftp
-  tree-sitter       ; syntax and parsing, sitting in a tree...
+  ;; tree-sitter       ; syntax and parsing, sitting in a tree...
 
   :os
   (:if IS-MAC macos)  ; improve compatibility with macOS
@@ -627,7 +627,7 @@ here as-is for now, as it is quite well structured and clear.
   ;;dhall
   ;;elixir            ; erlang done right
   ;;elm               ; care for a cup of TEA?
-  (emacs-lisp +tree-sitter)        ; drown in parentheses
+  (emacs-lisp);; +tree-sitter)        ; drown in parentheses
   ;;erlang            ; an elegant language for a more civilized age
   ;;ess               ; emacs speaks statistics
   ;;factor
@@ -640,7 +640,7 @@ here as-is for now, as it is quite well structured and clear.
   ;;(haskell +lsp)    ; a language that's lazier than I am
   ;;hy                ; readability of scheme w/ speed of python
   ;;idris             ; a language you can depend on
-  (json +tree-sitter)              ; At least it ain't XML
+  (json);; +tree-sitter)              ; At least it ain't XML
   ;;(java +lsp)       ; the poster child for carpal tunnel syndrome
   (javascript +lsp)        ; all(hope(abandon(ye(who(enter(here))))))
   ;;julia             ; a better, faster MATLAB
@@ -661,7 +661,7 @@ here as-is for now, as it is quite well structured and clear.
   ;;purescript        ; javascript, but functional
 
   ;; +poetry is slow
-  (python +lsp +pyright +tree-sitter)            ; beautiful is better than ugly
+  (python +lsp +pyright);; +tree-sitter)            ; beautiful is better than ugly
 
   ;;qt                ; the 'cutest' gui framework ever
   ;;racket            ; a DSL for DSLs
@@ -678,7 +678,7 @@ here as-is for now, as it is quite well structured and clear.
   ;;swift             ; who asked for emoji variables?
   ;;terra             ; Earth and Moon in alignment for performance.
   ;;web               ; the tubes
-  (yaml +tree-sitter)              ; JSON, but readable
+  (yaml);; +tree-sitter)              ; JSON, but readable
   ;;zig               ; C, but simpler
 
   :email
@@ -3050,6 +3050,22 @@ sr.ht is down
 (use-package! expand-region
   :commands (er/mark-inside-pairs er/mark-inside-quotes er/mark-outside-pairs er/mark-outside-quotes)
   )
+#+end_src
+
+** COMMENT expreg (tree-sitter)
+
+tree-sitter required
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! expreg)
+#+end_src
+
+#+begin_src emacs-lisp
+
+(use-package! expreg
+  :bind
+  ("M-h" . expreg-expand)
+  ("M-H" . expreg-contract))
 #+end_src
 
 ** easy-kill base
@@ -6274,21 +6290,41 @@ we prefer to use dired-sidebar
 #+end_src
 * COMMENT Tree sitter
 
-#+begin_src emacs-lisp :tangle packages.el
-(package! tree-sitter)
-(package! tree-sitter-langs)
-#+end_src
+# ;; This is actually quite annoying, many hooks don't fire automatically
+# ;; and the benefits of -ts-mode aren't huge
 
-
-tree-sitter is slow as crap (tree-sitter--after-change) -- atleast in ein python cells
 
 #+begin_src emacs-lisp
-(add-hook! '(python-mode-hook) #'tree-sitter-mode)
+(setq treesit-language-source-alist
+   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+     (cmake "https://github.com/uyha/tree-sitter-cmake")
+     (css "https://github.com/tree-sitter/tree-sitter-css")
+     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+     (go "https://github.com/tree-sitter/tree-sitter-go")
+     (html "https://github.com/tree-sitter/tree-sitter-html")
+     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+     (json "https://github.com/tree-sitter/tree-sitter-json")
+     (make "https://github.com/alemuller/tree-sitter-make")
+     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+     (python "https://github.com/tree-sitter/tree-sitter-python")
+     (toml "https://github.com/tree-sitter/tree-sitter-toml")
+     (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+     (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+     (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
 
-;;; global wants to use it in org-mode and keeps complaining
-;; (use-package! tree-sitter
-;;   :config (global-tree-sitter-mode))
+
+
+(setq major-mode-remap-alist
+ '((yaml-mode . yaml-ts-mode)
+   (bash-mode . bash-ts-mode)
+   (js2-mode . js-ts-mode)
+   (typescript-mode . typescript-ts-mode)
+   (json-mode . json-ts-mode)
+   (css-mode . css-ts-mode)
+   (python-mode . python-ts-mode)))
 #+end_src
+
+
 
 ** COMMENT combobulate
 
@@ -6469,7 +6505,7 @@ Note: workspace root must have the pyrightconfig.json?
       :new-connection (lsp-stdio-connection (lambda ()
                                               (cons (lsp-package-path 'pyright)
                                                 lsp-pyright-langserver-command-args)))
-      :major-modes '(python-mode python-ts-mode)
+      :major-modes '(python-mode)
       :server-id 'pyright
       :multi-root lsp-pyright-multi-root
       :priority 2
@@ -6813,6 +6849,7 @@ set-formatter! can silently break the chain (?)
   ;; (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
 
   (setf (alist-get 'python-mode apheleia-mode-alist) '(ruff-check ruff-format))
+  ;; (setf (alist-get 'python-ts-mode apheleia-mode-alist) '(ruff-check ruff-format))
   (setf (alist-get 'conf-toml-mode apheleia-mode-alist) '(prettier-toml))
   (setf (alist-get 'jinja2-mode apheleia-mode-alist) nil)
   (apheleia-global-mode)
