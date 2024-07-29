@@ -67,5 +67,3 @@ fi
 
 # Non-interactive sessions source ~/.zprofile
 source ${HOME}/.zshcustom/noninteractive.zsh
-
-eval "$(/opt/homebrew/bin/brew shellenv)"
