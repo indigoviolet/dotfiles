@@ -31,7 +31,7 @@ alias g="git"
 alias cat="bat"
 # alias less="bat --paging=always --wrap=never"
 # alias z=zi
-alias ls="lsd -h --date relative --group-dirs=first --blocks size,date,permission,user,name --depth 3 --classify"
+alias ls="lsd -h -t --date relative --group-dirs=first --blocks size,date,permission,user,name --depth 3 --classify"
 alias tree="ls --tree"
 alias ll="ls -ltrL"
 alias jq="jq -C"
