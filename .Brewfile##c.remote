@@ -4,14 +4,11 @@ tap "homebrew/core"
 tap "homebrew/services"
 tap "indigoviolet/tap"
 tap "jesseduffield/lazydocker"
-tap "mistertea/et"
 tap "mutagen-io/mutagen"
 tap "rs/tap"
-tap "saulpw/vd"
 # Provides session management: i.e. separate programs from terminals
 brew "abduco"
-# ChatGPT cli
-brew "aichat"
+
 # Improved shell history for zsh and bash
 brew "atuin"
 # Official Amazon AWS command-line interface
@@ -24,8 +21,6 @@ brew "dasel"
 brew "direnv"
 # Tool for exploring each layer in a docker image
 brew "dive"
-# HTTP load testing application written in Rust
-brew "drill"
 # Emulates the detach feature of screen
 brew "dtach"
 # More intuitive version of du in rust
@@ -52,42 +47,28 @@ brew "jless"
 brew "jq"
 # Handy way to save and run project-specific commands
 brew "just"
-# Kubernetes command-line interface
-brew "kubernetes-cli"
 # Pager program similar to more
 brew "less"
-# Header files of the Linux kernel
-brew "linux-headers@4.4"
 # Clone of ls with colorful output, file type icons, and more
 brew "lsd"
 # Modern and intuitive terminal-based text editor
 brew "micro"
-# Fast Cross-Platform Package Manager
-brew "micromamba"
 # Remote terminal application
 brew "mosh"
-# Process manager for Procfile-based applications and tmux
-brew "overmind"
 # CLI for Postgres with auto-completion and syntax highlighting
 brew "pgcli"
 # Execute binaries from Python packages in isolated environments
 brew "pipx"
 # Cloud native development platform
 brew "pulumi"
-# Polyglot runtime manager (asdf rust clone)
-brew "rtx"
 # Cross-shell prompt for astronauts
 brew "starship"
 # Display images in a terminal using block graphic characters
 brew "terminalimageviewer"
-# CLI csv pretty printer
-brew "tidy-viewer"
 # Configure transparent encryption of files in a Git repo
 brew "transcrypt"
 # Generator for LS_COLORS with support for multiple color themes
 brew "vivid"
-# JavaScript toolchain manager for reproducible environments
-brew "volta"
 # Fast CSV toolkit written in Rust
 brew "xsv"
 # Yet Another Dotfiles Manager
@@ -98,11 +79,7 @@ brew "yq"
 brew "zoxide"
 # Bash scripts that integrate bat with various command-line tools
 brew "eth-p/software/bat-extras"
-# NVIDIA NGC CLI
-brew "indigoviolet/tap/nvidia_ngc_cli"
 # A simple terminal UI for docker, written in Go
 brew "jesseduffield/lazydocker/lazydocker"
 # Fast file synchronization and network forwarding for remote development
 brew "mutagen-io/mutagen/mutagen-beta"
-# Terminal utility for exploring and arranging tabular data
-brew "saulpw/vd/visidata"
