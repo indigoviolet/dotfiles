@@ -4,6 +4,15 @@
 #+auto_tangle: nil
 :END:
 
+* Yadm Classes
+
+- personal
+- personal_ubuntu
+- personal_mac
+- remote
+
+
+
 * Yadm dotfiles
 ** Get started
 
@@ -73,7 +82,6 @@ brew has to be pinned to older version for now!
 recipes that break: fzf, direnv, micro, coreutils, abduco...
 ***
 
-*** Get yadm and just
 
 *** COMMENT Clone dotfiles
 
@@ -93,6 +101,9 @@ yadm clone "https://oauth2:$GITHUB_PAT@github.com/indigoviolet/dotfiles.git" --n
 read -p 'Set yadm local.class (<personal|remote>): ' yadmclass
 yadm config local.class $yadmclass && yadm alt && yadm bootstrap
 #+end_src
+
+yadm config --add local.class <additional-class>
+yadm config --get-all local.class
 
 *** Transcrypt
 
