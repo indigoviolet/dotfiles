@@ -32,7 +32,10 @@ sync_frequency = "5m"
 
 ## which style to use
 ## possible values: auto, full, compact
-#style = "auto"
+style = "compact"
+inline_height = 40
+filter_mode_shell_up_key_binding = "directory" # or global, host, directory, etc
+
 
 ## what to do when the escape key is pressed when searching
 ## possible values: return-original, return-query
