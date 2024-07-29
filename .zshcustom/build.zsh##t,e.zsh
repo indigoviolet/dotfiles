@@ -30,7 +30,7 @@ export MAKEFLAGS="-j $(nproc)"
 
 {% endif %}
 
-# PIPX_DEFAULT_PYTHON: see `pipx install -h`. By default this is a vendored Python, we use it from rye
-#
-# this requires rye toolchain fetch 3.11.3
-export PIPX_DEFAULT_PYTHON=$(rye toolchain list --format json | jq -r '.[] | select(.name=="cpython@3.11.6") | .path')
+# # PIPX_DEFAULT_PYTHON: see `pipx install -h`. By default this is a vendored Python, we use it from rye
+# #
+# # this requires rye toolchain fetch 3.11.3
+# export PIPX_DEFAULT_PYTHON=$(rye toolchain list --format json | jq -r '.[] | select(.name=="cpython@3.11.6") | .path')

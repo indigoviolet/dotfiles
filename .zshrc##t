@@ -49,6 +49,7 @@ source ${ZSH_CUSTOM_DIR}/gt.zsh
 source ${ZSH_CUSTOM_DIR}/ssh.zsh
 source ${ZSH_CUSTOM_DIR}/fzf.zsh
 source ${ZSH_CUSTOM_DIR}/misc.zsh
+source ${ZSH_CUSTOM_DIR}/pipx.zsh
 source ${ZSH_CUSTOM_DIR}/direnv.zsh
 source ${ZSH_CUSTOM_DIR}/conda.zsh
 source ${ZSH_CUSTOM_DIR}/abduco.zsh
