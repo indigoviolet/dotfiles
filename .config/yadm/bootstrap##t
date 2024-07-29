@@ -41,7 +41,7 @@ zsh_login_shell:
 {% if yadm.distro == "Ubuntu" %}
 git-credential-manager:
     cd /tmp && eget -a '.deb' GitCredentialManager/git-credential-manager && sudo dpkg -i /tmp/gcm*.deb && git credential-manager configure
-[% endif %}
+{% endif %}
 
 atuin_install:
     atuin register -u indigoviolet -e indigoviolet@gmail.com
