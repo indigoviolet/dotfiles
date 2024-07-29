@@ -115,10 +115,12 @@
     untracked = cyan
 
 [merge]
-  # tool = emerge
-  # conflictstyle = diff3
+    # https://stackoverflow.com/questions/15587595/can-ediff-merge-simultaneously-show-the-ancestor-a-b-and-merge-buffers
+    tool = emerge
+    conflictstyle = diff3
 
 [mergetool]
+    # https://www.eseth.org/2020/mergetools.html
 	hideResolved = true
 
 [rerere]
