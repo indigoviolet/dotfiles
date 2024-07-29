@@ -18,7 +18,7 @@
   ~./gcpvm --dotenv-filename deeplearning-1-vm ssh "bash -s" < get-start.sh~
 
 #+begin_src shell :tangle ~/.config/yadm/run-start.sh :shebang "#!/usr/bin/env bash"
-GITHUB_PAT='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'
+
 /bin/bash -c "$(curl -fsSL https://$GITHUB_PAT@raw.githubusercontent.com/indigoviolet/dotfiles/master/.config/yadm/start.sh)"
 #+end_src
 
@@ -62,7 +62,7 @@ lives in ~.local/share/yadm/repo.git~)
 # Note that this won't work on a single line: env var replacement happens before the command runs
 # You can do
 # $>    GITHUB_PAT=foo && (yadm clone ...)
-GITHUB_PAT='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'
+
 yadm clone "https://oauth2:$GITHUB_PAT@github.com/indigoviolet/dotfiles.git" --no-bootstrap
 
 read -p 'Set yadm local.class (<personal|remote>): ' yadmclass
@@ -279,7 +279,6 @@ https://kinesis-ergo.com/wp-content/uploads/kb500-qsg.pdf
 
 
 
-[[attachment:_20220425_140912screenshot.png]]
 
 
 
@@ -330,7 +329,6 @@ https://superuser.com/a/403765 & https://superuser.com/a/557689
 ~=n~ to turn on all multimedia keys
 
 
-[[attachment:_20220802_111046screenshot.png]]
 
 
 =F3 to toggle state of just F3
