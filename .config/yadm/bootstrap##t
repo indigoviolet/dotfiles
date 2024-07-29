@@ -32,16 +32,11 @@ brew_bundle:
     [ -f ~/.Brewfile ] && { brew bundle --global check || brew bundle --global install -v; }
 
 pipx:
-    # ignoring errors
-    -[ -f ~/.pipx.json ] && { cat ~/.pipx.json | jq -r '.venvs[].metadata.main_package.package_or_url' | xargs -n1 pipx install; }
+    pipx install-all ~/.pipx.json
 
 zsh_login_shell:
     sudo apt-get install --no-install-recommends -y zsh
     sudo chsh -s $(which zsh) $(whoami)
-
-gh_extensions:
-    ## Handy way to install things from github
-    { gh extension list | grep redraw/gh-install; } || gh extension install redraw/gh-install
 
 {% if yadm.distro == "Ubuntu" %}
 git-credential-manager:
@@ -65,10 +60,6 @@ misc_utils:
     command -v svn || sudo apt-get install --no-install-recommends -y subversion # brew installs too many deps
     command -v netstat || sudo apt-get install --no-install-recommends -y net-tools
 {% endif %}
-
-git_completion:
-    curl -o ${ZSH_CUSTOM_DIR}/git-completion.bash https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
-    curl -o ${ZSH_CUSTOM_DIR}/_git https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.zsh
 
 git_info:
     mkdir -p ~/.local/bin && curl -fsSL https://raw.githubusercontent.com/gitbits/git-info/master/git-info --output ~/.local/bin/git-info && chmod +x ~/.local/bin/git-info
