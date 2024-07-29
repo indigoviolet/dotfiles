@@ -3,7 +3,7 @@
 # Configures which files are encrypted
 
 
-# [[file:README.org::*.gitattributes][.gitattributes:1]]
+# [[file:dev/dotfiles/install.org::*.gitattributes][.gitattributes:1]]
 .ssh/id_rsa.pub\#\#c.personal filter=crypt diff=crypt merge=crypt
 .ssh/id_rsa\#\#c.personal filter=crypt diff=crypt merge=crypt
 .ssh/id_ed25519.pub\#\#c.personal filter=crypt diff=crypt merge=crypt
