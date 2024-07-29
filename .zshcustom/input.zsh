@@ -86,7 +86,5 @@ bindkey '\ee' edit-command-line
 # bindkey '^I' complete-word      # complete
 
 # https://github.com/marlonrichert/zsh-autocomplete#make-tab-and-shifttab-change-the-selection-in-the-menu
-bindkey              '^I' menu-select
-bindkey -M menuselect              '^I'         menu-complete
-
-
+# bindkey              '^I' menu-select
+# bindkey -M menuselect              '^I'         menu-complete

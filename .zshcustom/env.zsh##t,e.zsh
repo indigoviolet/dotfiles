@@ -7,6 +7,7 @@ typeset -Ug path
 export ALTERNATE_EDITOR=""
 
 {% if yadm.class == "personal" %}
+# not reusing frame because we can quit a new frame more easily
 export EDITOR="emacsclient -c -a ''"
 {% endif %}
 
@@ -54,7 +55,7 @@ path[1,0]=$HOME/.local/share/rtx/shims/
 
 # zsh-autosuggestions
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#808080,underline"
-export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+export ZSH_AUTOSUGGEST_STRATEGY=(completion history)
 
 export PYFLYBY_PATH=~/.pyflyby:.../.pyflyby
 
