@@ -1,4 +1,9 @@
 
+tmux_prompt() {
+    # eg https://github.com/tmux/tmux/issues/3734
+    printf "\e]133;A\e\\"
+}
+
 if [[ $TERM == "dumb" ]]; then
     unsetopt zle
     PS1='> '
@@ -35,7 +40,8 @@ else
     # # disabled = true
     #
     #
-    PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'
+
+    PROMPT=$PROMPT'%{$(vterm_prompt_end)%}%{$(tmux_prompt)%}'
 
     function set_window_title() {
         # uname -n instead of %m, because %m is the hostname, which is sometimes changed
