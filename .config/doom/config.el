@@ -155,7 +155,7 @@
 
 ;; (repeat-mode 1)
 
-;; (setq server-socket-dir "~/.emacs.d/server")
+(setq server-socket-dir (format "%s/emacs%d" "/tmp" (user-uid)))
 (require 'server)
 (unless (server-running-p)
   (server-start))
@@ -464,8 +464,8 @@
 
   :hook
   ((prog-mode . rainbow-identifiers-mode)
-  (yaml-mode . rainbow-identifiers-mode)
-    (yaml-ts-mode . rainbow-identifiers-mode)
+  ;; (yaml-mode . rainbow-identifiers-mode)
+    ;; (yaml-ts-mode . rainbow-identifiers-mode)
 
     )
   )
@@ -1157,6 +1157,13 @@ _q_: Quit
   (add-hook! 'dispwatch-display-change-hooks #'vi/adjust-font-size-for-display)
   )
 
+(use-package! visible-mark
+  :custom
+  (visible-mark-max 1)
+  :config
+  (global-visible-mark-mode t)
+  )
+
 ;; (use-package! hungry-delete
 ;;   :after-call doom-first-input-hook
 ;;   :config
@@ -1165,6 +1172,11 @@ _q_: Quit
 (use-package! expand-region
   :commands (er/mark-inside-pairs er/mark-inside-quotes er/mark-outside-pairs er/mark-outside-quotes)
   )
+
+(use-package! expreg
+  :bind
+  ("M-h" . expreg-expand)
+  ("M-H" . expreg-contract))
 
 (use-package! easy-kill
   :custom
@@ -1413,6 +1425,17 @@ _q_: Quit
   :custom
   ;; stipples not supported on mac os build
   (indent-bars-prefer-character t)
+  :config
+  ;; https://github.com/jdtsmith/indent-bars/blob/main/examples.md#minimal-colorpop
+  (setq
+    indent-bars-color '(highlight :face-bg t :blend 0.15)
+    indent-bars-pattern "."
+    indent-bars-width-frac 0.1
+    indent-bars-pad-frac 0.1
+    indent-bars-zigzag nil
+    indent-bars-color-by-depth '(:regexp "outline-\\([0-9]+\\)" :blend 1) ; blend=1: blend with BG only
+    indent-bars-highlight-current-depth '(:blend 0.5) ; pump up the BG blend on current
+    indent-bars-display-on-blank-lines t)
   :hook ((prog-mode text-mode conf-mode) . indent-bars-mode))
 
 ;; Shift the selected region right if distance is postive, left if
@@ -1520,14 +1543,19 @@ _q_: Quit
     ))
 
 (use-package! gxref
+  :custom
+  (gxref-update-db-on-save nil)
   :config
   (add-hook! prog-mode (add-hook! 'xref-backend-functions :local #'gxref-xref-backend)))
 
 (after! embark
-  ;; since we disabled which-key
-  (advice-remove 'embark-completing-read-prompter '+vertico--embark-which-key-prompt-a)
+  ;; since we disabled which-key (we reenabled it!)
+  ;; (advice-remove 'embark-completing-read-prompter '+vertico--embark-which-key-prompt-a)
   ;; try out embark-mixed-indicator which is more verbose than embark-which-key-indicator
-  (setq! embark-indicators '(embark--vertico-indicator embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
+  ;; (setq! embark-indicators '(embark--vertico-indicator embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
+  (map! "C-." #'embark-act)
+  (map! "M-." #'embark-dwim)
+  (add-to-list 'vertico-multiform-categories '(embark-keybinding grid))
   )
 
 (after! embark
@@ -1677,6 +1705,18 @@ _q_: Quit
    (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark)
    (global-set-key (kbd "M-j") 'avy-goto-char-timer))
 
+;;;###autoload
+(defun vi/vertico/project-search-from-root (&optional arg initial-query)
+  "Performs a live project search from the project root directory.
+If ARG (universal argument), include all files, even hidden or compressed ones."
+  (interactive "P")
+  (let* ((proj (project-current))
+         (root (if proj
+                   (project-root proj)
+                 default-directory)))
+    (let ((default-directory root))
+      (+vertico/project-search arg initial-query))))
+
 (use-package! recursive-narrow
   :commands (hydra-narrow/body recursive-narrow-or-widen-dwim recursive-widen)
   :config
@@ -1710,49 +1750,15 @@ _q_: Quit
      (vconcat (mapcar (lambda (c) (+ face-offset c)) " ➤"))))
   )
 
-;; https://gist.github.com/leoc/f8c0868051003c4ea6eff638bc614575
-
-(defun leoc/yaml-outline-level ()
-  (s-count-matches "\\([ ]\\{2\\}\\)" (match-string 0)))
-
-(defun leoc/yaml-outline-regexp ()
-  (rx
-    (seq
-      bol
-      (group (zero-or-more "  ")
-        (or (group
-              (seq (or (seq "\"" (*? (not (in "\"" "\n"))) "\"")
-                     (seq "'" (*? (not (in "'" "\n"))) "'")
-                     (*? (not (in ":" "\n"))))
-                ":"
-                (?? (seq
-                      (*? " ")
-                      (or (seq "&" (one-or-more nonl))
-                        (seq ">-")
-                        (seq "|"))
-                      eol))))
-          (group (seq
-                   "- "
-                   (+ (not (in ":" "\n")))
-                   ":"
-                   (+ nonl)
-                   eol)))))))
-
-
-
-(setq-hook! 'yaml-mode-hook outline-level 'leoc/yaml-outline-level)
-(setq-hook! 'yaml-mode-hook outline-regexp (leoc/yaml-outline-regexp))
-(map! :map yaml-mode-map
-  "|" nil
-  ":" nil
-  ">" nil
-  "-" nil
-  "." nil
-  [backspace] nil
-  )
-(add-hook! 'yaml-mode-hook #'outline-minor-mode #'outline-minor-faces-mode #'lsp)
-
 (setq-hook! 'python-mode-hook outline-regexp (python-rx (* space) (or defun decorator)))
+
+(use-package! treesit-fold
+  :config
+  (global-treesit-fold-mode)
+  :bind
+  (("C-<tab>" . treesit-fold-toggle)
+    ("S-<tab>" . treesit-fold-open))
+  )
 
 (use-package! corfu
   :after-call doom-first-buffer-hook
@@ -1831,6 +1837,7 @@ _q_: Quit
   :after corfu
   :custom
   (copilot-idle-delay 0.3)
+  (copilot-enable-predicates nil)
   :config
 
   ;; https://github.com/rksm/copilot-emacsd/blob/master/init.el
@@ -1911,6 +1918,9 @@ cleared, make sure the overlay doesn't come back too soon."
 (add-hook! 'copilot-mode-hook (map! :map copilot-mode-map "C-<return>" #'rk/copilot-complete-or-accept))
 (add-hook! 'copilot-mode-hook (map! :map prog-mode-map "<tab>" #'rk/copilot-tab))
 
+(custom-set-faces!
+  '(copilot-overlay-face :slant italic :foreground "#989898"))
+
 ;; try to turn off keybindings (up/down) that company-mode interferes with
 ;; (add-hook! prog-mode :append (progn (message "disabling company mode") (company-mode -1) (message "disabled")))
 
@@ -1953,7 +1963,7 @@ cleared, make sure the overlay doesn't come back too soon."
 (pretty-hydra-define global-hydra (:exit t :quit-key ("q" "C-g"))
   ("Searching"
     (;; ("f" +vertico/consult-fd "fd")
-      ("s" +default/search-project "rg in project")
+      ("s" vi/vertico/project-search-from-root "rg in project")
       ("t" consult-citre "tags search")
       ("l" consult-line "Line isearch")
       ("M-." citre-peek "Citre peek")
@@ -1965,7 +1975,7 @@ cleared, make sure the overlay doesn't come back too soon."
     (("b" consult-buffer "Buffers")
       ;; ("P" consult-projectile-find-file "Project files")
       ;; ("M-P" projectile-save-project-buffers "Save Project Buffers")
-      ("T" dirvish-side)
+      ("T" +treemacs/toggle)
       ("R" vi/revert-buffer "Revert")
       ("M-k" vi/force-kill-buffer "Force kill")
       )
@@ -1973,6 +1983,7 @@ cleared, make sure the overlay doesn't come back too soon."
     (
       ("o" consult-outline "outlIne")
       ("i" consult-imenu "Imenu")
+      ("m" tsm/hydra/body "TS movement")
       ;; ("." push-mark-command "Push Mark")
       ;; ("m" consult-mark "consult-mark")
       ;; ("M" consult-global-mark "global-mark")
@@ -2010,7 +2021,6 @@ cleared, make sure the overlay doesn't come back too soon."
       )
     )
   )
-
 (key-chord-define-global "hh" #'global-hydra/body)
 (key-chord-define-global "jj" #'vi/major-mode-hydra)
 
@@ -2358,9 +2368,10 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
     ;; (centered-cursor-mode -1)
     ))
 
-;; (defun vi/vterm-copy ()
-;; ;; shows in the misc-info segment
-;; (add-to-list 'global-mode-string '(:eval (vi/vterm-copy)))
+;; (defun vi/vterm-copy-mode ()
+;;   (interactive)
+;;   (vterm-send-string "[")
+;;   (vterm-copy-mode))
 
 (defun vi/vterm-reset ()
   (interactive)
@@ -2528,7 +2539,7 @@ Results are reported in a compilation buffer."
 
   ;; set to 'all, this seems to make commits slow?
   (setq magit-diff-refine-hunk t)
-  (setq magit-log-section-commit-count 50)
+  (setq magit-log-section-commit-count 25)
   (setq magit-status-sections-hook
 
     '(magit-insert-status-headers
@@ -2543,15 +2554,18 @@ Results are reported in a compilation buffer."
        magit-insert-unstaged-changes
 
        magit-insert-staged-changes
-       magit-insert-stashes
+
        magit-insert-unpushed-to-pushremote
        magit-insert-unpulled-from-pushremote
        magit-insert-unpushed-to-upstream
        magit-insert-unpulled-from-upstream
        magit-insert-recent-commits
+       magit-insert-stashes
 
        ;; forge
-       ;; See forge-status-buffer-default-topic-filters
+       ;; See forge-status-buffer-default-topic-filters if the below breaks on forge upgrade
+       forge-insert-authored-pullreqs
+       forge-insert-assigned-issues
        forge-insert-pullreqs
        forge-insert-issues
 
@@ -2583,6 +2597,12 @@ Results are reported in a compilation buffer."
     (interactive)
     (magit-shell-command-topdir "gt submit"))
 
+  ;### autoload
+  (defun vi/magit-gt-sync ()
+    (interactive)
+    (magit-shell-command-topdir "gt sync --restack --force"))
+
+
   (transient-define-prefix magit-run ()
     "Run git or another command, or launch a graphical utility."
     [["Run git subcommand"
@@ -2593,6 +2613,7 @@ Results are reported in a compilation buffer."
         ("S" "in working directory" magit-shell-command)]
       ["Launch"
         ("a" "gt absorb" vi/magit-gt-absorb)
+        ("u" "gt absorb" vi/magit-gt-sync)
         ("P" "gt submit" vi/magit-gt-submit)]])
     ;; ("k" "gitk"                 magit-run-gitk)
     ;; ("a" "gitk --all"           magit-run-gitk-all)
@@ -2742,48 +2763,48 @@ Results are reported in a compilation buffer."
   :config
   (setq!
     lsp-enable-snippet nil
-  ;; https://emacs-lsp.github.io/lsp-mode/page/settings/
-  lsp-auto-configure t
-  lsp-enable-imenu t
+    ;; https://emacs-lsp.github.io/lsp-mode/page/settings/
+    lsp-auto-configure t
+    lsp-enable-imenu t
 
-  ;; controls doc buffers at bottom (this is not eldoc -- which in python-mode is truncated, so useless)
-  ;; shows signature automatically inside arg params or <C-c l h s>
-  ;; see lsp-ui-doc-mode for on cursor
-  lsp-signature-auto-activate '(:on-trigger-char :on-server-request)
+    ;; controls doc buffers at bottom (this is not eldoc -- which in python-mode is truncated, so useless)
+    ;; shows signature automatically inside arg params or <C-c l h s>
+    ;; see lsp-ui-doc-mode for on cursor
+    lsp-signature-auto-activate '(:on-trigger-char :on-server-request)
 
-  lsp-signature-render-documentation nil
-  lsp-headerline-breadcrumb-enable t
-  lsp-headerline-breadcrumb-enable-diagnostics t
-  lsp-keep-workspace-alive nil
-  lsp-semantic-tokens-enable nil      ;no semantic highlighting: rainbow-identifiers
-  lsp-symbol-highlighting-skip-current t
-  lsp-enable-xref t
-  lsp-lens-enable t
-  lsp-idle-delay 0.1
+    lsp-signature-render-documentation nil
+    lsp-headerline-breadcrumb-enable t
+    lsp-headerline-breadcrumb-enable-diagnostics t
+    lsp-keep-workspace-alive nil
+    lsp-semantic-tokens-enable nil      ;no semantic highlighting: rainbow-identifiers
+    lsp-symbol-highlighting-skip-current t
+    lsp-enable-xref t
+    lsp-lens-enable t
+    lsp-idle-delay 0.1
 
-  ;; (lsp-disabled-clients '((python-mode . '(pyls mspyls)))
+    ;; (lsp-disabled-clients '((python-mode . '(pyls mspyls)))
 
-  ;; This will disable the flycheck checkers. (we use them directly to have better control)
-  ;; (lsp-diagnostics-provider :flycheck)
+    ;; This will disable the flycheck checkers. (we use them directly to have better control)
+    ;; (lsp-diagnostics-provider :flycheck)
 
-  lsp-diagnostic-clean-after-change nil
-  lsp-file-watch-threshold 10000
-  lsp-enable-completion-at-point t
-  lsp-completion-provider :none       ;disable company-mode
+    lsp-diagnostic-clean-after-change nil
+    lsp-file-watch-threshold 10000
+    lsp-enable-completion-at-point t
+    lsp-completion-provider :none       ;disable company-mode
 
- ;; sideline
-  lsp-ui-sideline-enable t
-  lsp-ui-sideline-show-hover nil
-  lsp-ui-sideline-show-symbol nil
-  lsp-ui-sideline-show-diagnostics t
-  lsp-ui-sideline-show-code-actions t
-  lsp-ui-sideline-delay 0.1
-  ;; peek
-  lsp-ui-peek-enable t
-  ;; imenu
-  ;; (lsp-ui-imenu-window-width 30)
-  ;; (lsp-ui-imenu-auto-refresh t)
-  )
+    ;; sideline
+    lsp-ui-sideline-enable t
+    lsp-ui-sideline-show-hover nil
+    lsp-ui-sideline-show-symbol nil
+    lsp-ui-sideline-show-diagnostics t
+    lsp-ui-sideline-show-code-actions t
+    lsp-ui-sideline-delay 0.1
+    ;; peek
+    lsp-ui-peek-enable t
+    ;; imenu
+    ;; (lsp-ui-imenu-window-width 30)
+    ;; (lsp-ui-imenu-auto-refresh t)
+    )
 
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.venv\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.mypy_cache\\'")
@@ -2795,35 +2816,74 @@ Results are reported in a compilation buffer."
   ;; Fix the hint diagnostic to display as faded out, not error  (https://github.com/emacs-lsp/lsp-mode/issues/3104)
   ;; Unrelated error: Invalid face reference: lsp-flycheck-info-unnecessary (https://github.(com/emacs-lsp/lsp-mode/issues/2255)
   (add-hook! 'lsp-diagnostics-updated-hook
-             ;; For some reason, this face is only defined after the
-             ;; lsp-diagnostics-updated-hook, so this will fail the first time
-             ;; through
+    ;; For some reason, this face is only defined after the
+    ;; lsp-diagnostics-updated-hook, so this will fail the first time
+    ;; through
     (if (facep 'lsp-flycheck-info-unnecessary-face)
-        (set-face-attribute 'lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil))
+      (set-face-attribute 'lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil))
     )
 
-  ;; ruff server
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection '("ruff" "server" "--preview"))
-     :major-modes '(python-mode)
-     :priority 1
-     :add-on? t
-     :multi-root t
-     :server-id 'ruff-server)
-    )
-
+  (setq-hook! 'lsp-ui-doc-mode-hook
+    ;; doc in childframe
+    lsp-ui-doc-enable t
+    lsp-ui-doc-include-signature t
+    lsp-ui-doc-show-with-cursor t
+    lsp-ui-doc-position 'bottom
+    lsp-ui-doc-header nil
+    lsp-ui-doc-max-height 50
+    lsp-ui-doc-max-width 75
+    lsp-ui-doc-delay 1)
   )
 
-(setq-hook! 'lsp-ui-doc-mode-hook
-    ;; doc in childframe
-  lsp-ui-doc-enable t
-  lsp-ui-doc-include-signature t
-  lsp-ui-doc-show-with-cursor t
-  lsp-ui-doc-position 'bottom
-  lsp-ui-doc-header nil
-  lsp-ui-doc-max-height 50
-  lsp-ui-doc-max-width 75
-  lsp-ui-doc-delay 1)
+(use-package! ts-movement
+  :config
+  (pretty-hydra-define tsm/hydra ()
+    (
+    "TS Movement"
+    (("d" #'tsm/delete-overlay-at-point "delete overlay")
+    ("D" #'tsm/clear-overlays-of-type "clear overlay")
+    ("C-b" #'tsm/backward-overlay "back overlay")
+    ("C-f" #'tsm/forward-overlay "forward overlay")
+    ("b" #'tsm/node-prev "prev")
+    ("f" #'tsm/node-next "next")
+    ("p" #'tsm/node-parent "parent")
+    ("n" #'tsm/node-child "child")
+    ("N" #'tsm/node-children "children")
+    ("s" #'tsm/node-children-of-type "children of type")
+    ("a" #'tsm/node-start "start")
+    ("e" #'tsm/node-end "end")
+    ("m" #'tsm/node-mark "mark")
+    ("c" #'tsm/mc/mark-all-overlays "mark all overlays"))))
+  ;;(define-key ts-movement-map (kbd "C-c .") #'tsm/hydra/body)
+  (push 'tsm/hydra/tsm/mc/mark-all-overlays mc--default-cmds-to-run-once)
+  :hook
+  (bash-ts-mode . ts-movement-mode)
+  (c++-ts-mode . ts-movement-mode)
+  (c-ts-mode . ts-movement-mode)
+  (cmake-ts-mode . ts-movement-mode)
+  (csharp-ts-mode . ts-movement-mode)
+  (css-ts-mode . ts-movement-mode)
+  (dockerfile-ts-mode . ts-movement-mode)
+  (go-mod-ts-mode . ts-movement-mode)
+  (go-ts-mode . ts-movement-mode)
+  (java-ts-mode . ts-movement-mode)
+  (js-ts-mode . ts-movement-mode)
+  (json-ts-mode . ts-movement-mode)
+  (python-ts-mode . ts-movement-mode)
+  (ruby-ts-mode . ts-movement-mode)
+  (rust-ts-mode . ts-movement-mode)
+  (toml-ts-mode . ts-movement-mode)
+  (tsx-ts-mode . ts-movement-mode)
+  (typescript-ts-mode . ts-movement-mode)
+  (yaml-ts-mode . ts-movement-mode))
+
+(use-package treesit-auto
+  :custom
+  (treesit-auto-install 'prompt)
+  (treesit-auto-langs '(python yaml))
+  :config
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode))
 
 ;; (disable-packages! ccls)
 
@@ -2881,8 +2941,9 @@ Results are reported in a compilation buffer."
   )
 
 (add-hook! 'python-mode-hook #'vi/python-mode-lsp)
+(setq python-ts-mode-hook python-mode-hook)
 
-(major-mode-hydra-define (python-mode python-pytest-mode) (:exit t :quit-key ("q" "C-g"))
+(major-mode-hydra-define (python-base-mode python-pytest-mode) (:exit t :quit-key ("q" "C-g"))
   (
    "Pytest"
     (
@@ -2897,7 +2958,8 @@ Results are reported in a compilation buffer."
 
 (use-package! pyflyby
   :commands (pyflyby-transform-region-with-command)
-  :load-path "~/dev/plus/python/.venv/share/emacs/site-lisp"
+  ;; forked to  allow python-ts
+  :load-path "~/dev/pyflyby/lib/emacs/"
   )
 
 (defun vi/pyflyby-tidy-imports ()
@@ -2906,13 +2968,6 @@ Results are reported in a compilation buffer."
   ;;  "--align=0" "--from-spaces=1")
   (pyflyby-transform-region-with-command "tidy-imports" "--hanging-indent=never" "--align=0" "--no-align-future" "--no-separate-from-imports")
   )
-
-;; we're using ruff server
-;; (setq! lsp-disabled-clients '(python-mode . (ruff-lsp))) ;; (python-ts-mode . (ruff-lsp)))
-(setq! lsp-disabled-clients '(python-mode . (ruff-server))) ;; (python-ts-mode . (ruff-lsp)))
-
-;; (setq! lsp-ruff-lsp-server-command "ruff")
-;; (setq! lsp-ruff-lsp-ruff-args '["server" "--preview" "--output-format=concise"])
 
 ;;; Doom -style setting doesn't allow multiple formatters per mode
 ;; pipx install ruff
@@ -2941,8 +2996,9 @@ Results are reported in a compilation buffer."
   ;; pyflyby also messes it up!
   ;; (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
 
+  ;; python-base-mode doesn't suffice
   (setf (alist-get 'python-mode apheleia-mode-alist) '(ruff-check ruff-format))
-  ;; (setf (alist-get 'python-ts-mode apheleia-mode-alist) '(ruff-check ruff-format))
+  (setf (alist-get 'python-ts-mode apheleia-mode-alist) '(ruff-check ruff-format))
   (setf (alist-get 'conf-toml-mode apheleia-mode-alist) '(prettier-toml))
   (setf (alist-get 'jinja2-mode apheleia-mode-alist) nil)
   (apheleia-global-mode)
@@ -3214,6 +3270,11 @@ Version 2016-01-08"
   (let (kill-buffer-hook kill-buffer-query-functions)
     (kill-buffer)))
 
+(use-package! prodigy
+  :custom
+  (prodigy-view-truncate-by-default t)
+  (prodigy-view-buffer-maximum-size 1024)
+  :config
 (prodigy-define-service
   :name "ruff"
   :command "just"
@@ -3221,6 +3282,7 @@ Version 2016-01-08"
   :cwd "~/dev/plus/python"
   :stop-signal 'sigkill
   :env '(("TERM" "xterm"))
+  :truncate-output t
   :kill-process-buffer-on-stop t
   :tags '(dev))
 
@@ -3231,6 +3293,18 @@ Version 2016-01-08"
   :cwd "~/dev/plus/python"
   :env '(("TERM" "xterm"))
   :stop-signal 'sigkill
+  :truncate-output t
+  :kill-process-buffer-on-stop t
+  :tags '(dev))
+
+(prodigy-define-service
+  :name "pyright2"
+  :command "pyright"
+  :args '("-p" "." "--venvpath" "." "-w")
+  :cwd "~/dev/plus/python"
+  :env '(("TERM" "xterm"))
+  :stop-signal 'sigkill
+  :truncate-output t
   :kill-process-buffer-on-stop t
   :tags '(dev))
 
@@ -3241,8 +3315,9 @@ Version 2016-01-08"
   :cwd "~/dev/plus/"
   :stop-signal 'sigkill
   :env '(("TERM" "xterm"))
+  :truncate-output t
   :kill-process-buffer-on-stop t
-  :tags '(dev))
+  :tags '(dev)))
 
 (use-package! gif-screencast
   :bind (:map gif-screencast-mode-map

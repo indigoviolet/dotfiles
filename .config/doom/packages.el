@@ -115,13 +115,15 @@
 
 (package! popper :recipe (:host github :repo "karthink/popper" :branch "local-mode-line-format"))
 
-(package! buffer-expose)
-
 (package! dispwatch :recipe (:host github :repo "mnp/dispwatch"))
 
 ;; (package! hungry-delete)
 
+(package! visible-mark)
+
 (package! expand-region)
+
+(package! expreg)
 
 (package! easy-kill :recipe (:host github :repo "leoliu/easy-kill"))
 
@@ -169,9 +171,11 @@
 
 (package! avy)
 
+(package! imenu-list)
+
 (package! recursive-narrow)
 
-(package! outline-minor-faces :recipe (:host github :repo "tarsius/outline-minor-faces"))
+(package! treesit-fold :recipe (:host github :repo "emacs-tree-sitter/treesit-fold"))
 
 (package! corfu :recipe (:host github :repo "minad/corfu" :files (:defaults "extensions/*.el")))
 (package! cape)
@@ -222,11 +226,13 @@
 
 (package! git-link)
 
+(package! ts-movement :recipe (:host github :repo "indigoviolet/ts-movement"))
+
+(package! treesit-auto)
+
 (package! py-isort :disable t)
 
 (package! apheleia)
-
-(package! python-black)
 
 (package! add-node-modules-path :recipe (:host github :repo "codesuki/add-node-modules-path"))
 
