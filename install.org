@@ -9,12 +9,23 @@
 - personal
 - personal_ubuntu
 - personal_mac
-- remote
+- remote_debian
+
+
+* problems
+
+- what about debian!
+  what about sudo
 
 
 
 * Yadm dotfiles
 ** Get started
+
+*** clone
+
+gh auth login
+gh repo clone indigoviolet/dotfiles
 
 *** linux startup
 
@@ -39,7 +50,7 @@ set -euo pipefail
 *** install homebrew
 
 #+begin_src shell :noweb-ref install-homebrew
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+command -v brew || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 #+end_src
 
 *** brew install deps
@@ -48,6 +59,12 @@ set -euo pipefail
 brew install yadm just transcrypt
 #+end_src
 
+*** yadm clone
+
+
+#+begin_example
+yadm clone $(realpath <DOTFILES DIR>) --no-bootstrap
+#+end_example
 
 
 *
