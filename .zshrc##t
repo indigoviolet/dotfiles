@@ -56,6 +56,7 @@ source ${ZSH_CUSTOM_DIR}/abduco.zsh
 
 source ${ZSH_CUSTOM_DIR}/doom.zsh
 source ${ZSH_CUSTOM_DIR}/just.zsh
+source ${ZSH_CUSTOM_DIR}/rye.zsh
 
 {% if yadm.class == "personal" %}
 source ${ZSH_CUSTOM_DIR}/rtx.zsh
@@ -64,17 +65,16 @@ source ${ZSH_CUSTOM_DIR}/gcloud-completion.zsh
 
 # source ${ZSH_CUSTOM_DIR}/android.zsh
 source ${ZSH_CUSTOM_DIR}/docker.zsh
-source ${ZSH_CUSTOM_DIR}/rye.zsh
 {% endif %}
 
 
 
-{% if yadm.class == "remote" %}
-## GCP includes
-# prepends to path, so keep it last
-source ${ZSH_CUSTOM_DIR}/cuda.zsh
-source ${ZSH_CUSTOM_DIR}/docker.zsh
-{% endif %}
+# {% if yadm.class == "remote" %}
+# ## GCP includes
+# # prepends to path, so keep it last
+# # source ${ZSH_CUSTOM_DIR}/cuda.zsh
+# # source ${ZSH_CUSTOM_DIR}/docker.zsh
+# {% endif %}
 
 
 
