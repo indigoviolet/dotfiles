@@ -7,22 +7,6 @@ set positional-arguments
 default:
     just --list -u -f {{ justfile() }}
 
-{% if yadm.distro == "Ubuntu" %}
-build_deps:
-    sudo apt-get update
-    sudo apt-get install build-essential procps curl file git
-    sudo apt-get install --no-install-recommends -y \
-       make clang \
-       libssl-dev zlib1g-dev libbz2-dev \
-       libreadline-dev libsqlite3-dev \
-       wget llvm \
-       libncurses5 libncurses5-dev libncursesw5 \
-       xz-utils tk-dev \
-       libxml2-dev libffi-dev \
-       libxmlsec1-dev liblzma-dev
-
-{% endif %}
-
 prezto:
     git clone --recursive https://github.com/sorin-ionescu/prezto.git "${HOME}/.zprezto"
     git clone --recurse-submodules https://github.com/belak/prezto-contrib "${HOME}/.zprezto/contrib"
@@ -38,7 +22,7 @@ zsh_login_shell:
     sudo apt-get install --no-install-recommends -y zsh
     sudo chsh -s $(which zsh) $(whoami)
 
-{% if yadm.distro == "Ubuntu" %}
+{% if yadm.class == "debian" %}
 git-credential-manager:
     cd /tmp && eget -a '.deb' GitCredentialManager/git-credential-manager && sudo dpkg -i /tmp/gcm*.deb && git credential-manager configure
 {% endif %}
@@ -52,14 +36,6 @@ atuin_login:
     atuin login -u indigoviolet --key $(cat ~/.local/share/atuin/key)
     atuin import auto
     atuin sync
-
-{% if yadm.distro == "Ubuntu" %}
-misc_utils:
-    command -v less || sudo apt-get install --no-install-recommends -y less
-    command -v notify-send || sudo apt-get install --no-install-recommends -y libnotify-bin
-    command -v svn || sudo apt-get install --no-install-recommends -y subversion # brew installs too many deps
-    command -v netstat || sudo apt-get install --no-install-recommends -y net-tools
-{% endif %}
 
 git_info:
     mkdir -p ~/.local/bin && curl -fsSL https://raw.githubusercontent.com/gitbits/git-info/master/git-info --output ~/.local/bin/git-info && chmod +x ~/.local/bin/git-info

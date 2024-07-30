@@ -4,6 +4,8 @@
 # Make PATH unique https://unix.stackexchange.com/a/62599
 typeset -Ug path
 
+export SHELL=$(which zsh)
+
 export ALTERNATE_EDITOR=""
 
 {% if yadm.class == "personal" %}
