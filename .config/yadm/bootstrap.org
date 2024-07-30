@@ -48,7 +48,7 @@ _ensure-sudo:
 
 #+end_src
 
-* build deps (assumes debian)
+* COMMENT build deps (assumes debian)
 
 From https://docs.brew.sh/Homebrew-on-Linux
 
@@ -164,7 +164,7 @@ gh_extensions:
 * git credential-manager (assumes debian)
 
 #+begin_src just
-{% if yadm.distro == "Ubuntu" %}
+{% if yadm.class == "debian" %}
 git-credential-manager:
     cd /tmp && eget -a '.deb' GitCredentialManager/git-credential-manager && sudo dpkg -i /tmp/gcm*.deb && git credential-manager configure
 {% endif %}
@@ -185,7 +185,7 @@ atuin_login:
     atuin sync
 #+end_src
 
-* misc_utils (assumes debian)
+* COMMENT misc_utils (assumes debian)
 
 #+begin_src just
 {% if yadm.distro == "Ubuntu" %}
@@ -214,21 +214,23 @@ git_info:
 #+end_src
 
 
-* chemacs
+
+* Personal
+** chemacs
 
 #+begin_src just
 chemacs:
     git clone https://github.com/plexus/chemacs.git "${HOME}/.local/chemacs" && $HOME/.local/chemacs/install.sh
 #+end_src
 
-* doom emacs
+** doom emacs
 
 #+begin_src just
 doom_emacs:
     git clone https://github.com/hlissner/doom-emacs "${HOME}/.emacs.d" && $HOME/.emacs.d/bin/doom install
 #+end_src
 
-* Tailscale
+** Tailscale
 
 #+begin_src just
 {% if yadm.distro == "Ubuntu" %}
@@ -245,14 +247,14 @@ tailscale:
 
 
 
-* Leechblock
+** Leechblock
 
 #+begin_src just
 leechblock:
     mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone indigoviolet/LeechBlockNG-chrome && cd LeechBlockNG-chrome && ./install-jquery.sh
 #+end_src
 
-* Paywall
+** Paywall
 
 #+begin_src just
 paywall:
