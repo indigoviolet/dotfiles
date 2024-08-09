@@ -115,6 +115,8 @@
 
 (package! popper :recipe (:host github :repo "karthink/popper" :branch "local-mode-line-format"))
 
+(package! revbufs :recipe (:host github :repo "joaotavora/revbufs"))
+
 (package! dispwatch :recipe (:host github :repo "mnp/dispwatch"))
 
 ;; (package! hungry-delete)

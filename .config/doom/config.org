@@ -1061,6 +1061,7 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
 ;; vterm as well
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
 (setq process-adaptive-read-buffering nil)
+
 #+end_src
 
 ** uniquify
@@ -1075,11 +1076,22 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
 
 #+end_src
 ** whitespace
-
+https://tech.tonyballantyne.com/2023/01/23/whitespace-mode/
 
 #+begin_src emacs-lisp
 ;; (global-whitespace-mode +1)
-(setq! whitespace-style '(face tabs tab-mark trailing))
+(use-package! whitespace
+  :config
+(setq!
+  whitespace-style '(face tabs tab-mark trailing)
+  ;; whitespace-style '(face tabs tab-mark spaces space-mark trailing lines-tail newline newline-mark)
+  whitespace-display-mappings '(
+    (space-mark   ?\     [?\u00B7]     [?.])
+    (space-mark   ?\xA0  [?\u00A4]     [?_])
+    (newline-mark ?\n    [?¬ ?\n])
+    (tab-mark     ?\t    [?\u00BB ?\t] [?\\ ?\t]))))
+
+
 (add-hook! (prog-mode org-mode text-mode) (whitespace-mode t))
 #+end_src
 
@@ -1954,10 +1966,10 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
     ;; doom-modeline-major-mode-color-icon nil
     doom-modeline-persp-name nil)
 
-  (doom-modeline-def-segment purpose
-    ;; Purpose-mode segment
-    (when (and (boundp 'purpose-mode) purpose-mode (doom-modeline--active) (not doom-modeline--limited-width-p))
-      (format (if (purpose-window-purpose-dedicated-p) "[%s]*" "[%s]") (purpose-window-purpose))))
+  ;; (doom-modeline-def-segment purpose
+  ;;   ;; Purpose-mode segment
+  ;;   (when (and (boundp 'purpose-mode) purpose-mode (doom-modeline--active) (not doom-modeline--limited-width-p))
+  ;;     (format (if (purpose-window-purpose-dedicated-p) "[%s]*" "[%s]") (purpose-window-purpose))))
 
 
   (doom-modeline-def-segment vi/window-info
@@ -1981,12 +1993,15 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
             'help-echo "Recursive-edit: C-] to quit")
             ))))
 
+  (doom-modeline-def-segment lsp-diagnostics
+      (concat (doom-modeline-spc) lsp-modeline--diagnostics-string lsp-modeline--code-actions-string))
+
 
   ;; best to name this 'main, since main gets set as the default in
   ;; doom-modeline. other names don't seem to take effect as default..
   (doom-modeline-def-modeline 'main
-    '(bar buffer-info-simple selection-info remote-host recursion-depth check matches)
-    '(debug repl process lsp vcs minor-modes major-mode misc-info))
+    '(bar buffer-info-simple selection-info remote-host recursion-depth matches check misc-info)
+    '(debug repl process lsp vcs minor-modes major-mode))
 
   (doom-modeline-def-modeline 'org-src
    '(bar buffer-info-simple selection-info matches)
@@ -2755,12 +2770,48 @@ Load recentf files on startup
   "Set Xth horizontal and Yth vertical window to BUFFER from top-left of FRAME."
   (set-window-buffer (get-window-in-frame x y frame) buffer))
 
+;; (defun vi/layout-buffers-in-grid (buffer-list)
+;;   "Layout buffers in a grid."
+;;   (let* ((total-buffers (length buffer-list))
+;;          (is-total-buffers-prime (is-prime total-buffers))
+;;          (w (frame-width))
+;;          (h (frame-height))
+;;          (factors (closest-factors-based-on-frame (if is-total-buffers-prime
+;;                                                       (1+ total-buffers)
+;;                                                     total-buffers) w h))
+;;          (rows (car factors))
+;;          (cols (cadr factors))
+;;          (counter 0))
+
+;;     (if is-total-buffers-prime
+;;         (setq buffer-list (append buffer-list (list (generate-new-buffer " *dummy*")))))
+
+;;     (message "%s %s %s %s" total-buffers rows cols factors)
+
+;;     ;; Use your function to split the window into a grid
+;;     (split-window-multiple-ways cols rows)
+
+;;     (balance-windows)
+
+;;     ;; Populate windows with buffers
+;;     (dotimes (y rows)
+;;       (dotimes (x cols)
+;;         (when (< counter total-buffers)
+;;           (set-window-buffer-in-frame x y (nth counter buffer-list))
+;;           (setq counter (1+ counter)))))
+
+;;     ;; Cleanup
+;;     (when is-total-buffers-prime
+;;       (kill-buffer " *dummy*"))))
+
+
 (defun vi/layout-buffers-in-grid (buffer-list)
-  "Layout buffers in a grid."
+  "Layout buffers in a grid, handling prime numbers of buffers correctly."
   (let* ((total-buffers (length buffer-list))
          (is-total-buffers-prime (is-prime total-buffers))
          (w (frame-width))
          (h (frame-height))
+         (dummy-buffer nil)
          (factors (closest-factors-based-on-frame (if is-total-buffers-prime
                                                       (1+ total-buffers)
                                                     total-buffers) w h))
@@ -2768,27 +2819,28 @@ Load recentf files on startup
          (cols (cadr factors))
          (counter 0))
 
-    (if is-total-buffers-prime
-        (setq buffer-list (append buffer-list (list (generate-new-buffer " *dummy*")))))
+    (when is-total-buffers-prime
+      (setq dummy-buffer (generate-new-buffer " *dummy*"))
+      (setq buffer-list (append buffer-list (list dummy-buffer))))
 
     (message "%s %s %s %s" total-buffers rows cols factors)
 
     ;; Use your function to split the window into a grid
     (split-window-multiple-ways cols rows)
-
     (balance-windows)
 
     ;; Populate windows with buffers
-    (dotimes (y rows)
-      (dotimes (x cols)
-        (when (< counter total-buffers)
-          (set-window-buffer-in-frame x y (nth counter buffer-list))
-          (setq counter (1+ counter)))))
+    (dolist (window (window-list))
+      (when (< counter (length buffer-list))
+        (set-window-buffer window (nth counter buffer-list))
+        (setq counter (1+ counter))))
 
     ;; Cleanup
-    (when is-total-buffers-prime
-      (kill-buffer " *dummy*"))))
-
+    (when dummy-buffer
+      (let ((dummy-window (get-buffer-window dummy-buffer)))
+        (when dummy-window
+          (delete-window dummy-window)))
+      (kill-buffer dummy-buffer))))
 
 (defun vi/tile-buffers-for-mode (mode)
   "Tile all buffers with the given major mode."
@@ -2848,6 +2900,19 @@ Load recentf files on startup
      "Window '%s' is normal")
    (current-buffer)))
 
+#+end_src
+** revert
+
+global-auto-revert-mode is dangerous and can lose data
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! revbufs :recipe (:host github :repo "joaotavora/revbufs"))
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! revbufs)
 #+end_src
 
 * Fonts
@@ -3751,7 +3816,7 @@ Doom emacs's version :ui indent-guides sets up hooks for org-mode which interact
   :bind (("M-." . smart-jump-go)
           ;; seems to work with smart-jump without calling better-jumper-set-jump?
           ;; also advicing smart-jump with better-jumper-set-jump seems to break
-          ("M-," . better-jumper-jump-backward)
+          ("M-," . smart-jump-back)
           ("M-?" . smart-jump-references)
           )
   :commands (smart-jump-go smart-jump-back smart-jump-references)
@@ -4680,7 +4745,20 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
 
 
 #+begin_src emacs-lisp
-(use-package! gptel)
+(use-package! gptel
+  :custom
+  (gptel-api-key (lambda () (getenv "OPENAI_API_KEY")))
+  (gptel-temperature 0.01)
+  :config
+  (setq!
+    gptel-model "claude-3-sonnet-20240229" ;  "claude-3-opus-20240229" also available
+    gptel-backend (gptel-make-anthropic "Claude"
+                    :stream t :key (lambda () (getenv "ANTHROPIC_API_KEY"))))
+
+  :bind
+  ("C-c RET" . gptel-send)
+  )
+
 
 #+end_src
 
@@ -4692,8 +4770,21 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
 
 #+begin_src emacs-lisp
 (use-package! iedit
+  :config
   :bind
   ("C-;" . iedit-mode))
+
+;; https://github.com/alphapapa/unpackaged.el#iedit-scoped
+;;;###autoload
+(defun unpackaged/iedit-scoped (orig-fn)
+  "Call `iedit-mode' with function-local scope, or global scope if called with a universal prefix."
+  (interactive)
+  (pcase-exhaustive current-prefix-arg
+    ('nil (funcall orig-fn '(0)))
+    ('(4) (funcall orig-fn))))
+
+(advice-add #'iedit-mode :around #'unpackaged/iedit-scoped)
+
 #+end_src
 
 * wgrep
@@ -4894,6 +4985,8 @@ achieve that easily (https://github.com/joshcho/ChatGPT.el/issues/4)
 
         ;; https://github.com/radian-software/ctrlf/issues/118
         org-fold-core-style 'overlays)
+
+  (map! "C-c ." #'org-time-stamp)
 
   (major-mode-hydra-define org-mode (:quit-key ("q" "C-g") :title "test")
     ("Subtree"
@@ -5813,6 +5906,7 @@ doesn't work
       (concat (doom-modeline-spc) "[Copy]")))
 
 
+
   (doom-modeline-def-modeline 'vi/vterm
     '(bar buffer-info-simple vterm-copy-mode selection-info remote-host)
     '(minor-modes major-mode))
@@ -5996,11 +6090,10 @@ breaks with tramp?
 
 #+begin_src emacs-lisp
 (use-package! flycheck
-  :after-call doom-first-file-hook
   :custom
-  (flycheck-check-syntax-automatically '(mode-enabled save idle-change idle-buffer-switch))
-  (flycheck-idle-change-delay 10)
-  (flycheck-idle-buffer-switch-delay 5)
+  (flycheck-check-syntax-automatically '(mode-enabled save idle-change idle-buffer-switch new-line))
+  (flycheck-idle-change-delay 3)
+  (flycheck-idle-buffer-switch-delay 3)
   (flycheck-highlighting-style '(conditional 10 level-face (delimiters "" "")))
   (flycheck-global-modes '(prog-mode))
   :config
@@ -6184,6 +6277,11 @@ Results are reported in a compilation buffer."
     (interactive)
     (magit-shell-command-topdir "gt sync --restack --force"))
 
+  ;### autoload
+  (defun vi/magit-gt-restack ()
+    (interactive)
+    (magit-shell-command-topdir "gt restack"))
+
 
   (transient-define-prefix magit-run ()
     "Run git or another command, or launch a graphical utility."
@@ -6195,7 +6293,8 @@ Results are reported in a compilation buffer."
         ("S" "in working directory" magit-shell-command)]
       ["Launch"
         ("a" "gt absorb" vi/magit-gt-absorb)
-        ("u" "gt absorb" vi/magit-gt-sync)
+        ("u" "gt sync" vi/magit-gt-sync)
+        ("r" "gt restack" vi/magit-gt-restack)
         ("P" "gt submit" vi/magit-gt-submit)]])
     ;; ("k" "gitk"                 magit-run-gitk)
     ;; ("a" "gitk --all"           magit-run-gitk-all)
@@ -6232,6 +6331,52 @@ Results are reported in a compilation buffer."
   "M-<tab>" nil
   )
 
+#+end_src
+
+** smerge
+
+
+https://github.com/alphapapa/unpackaged.el#smerge-mode
+
+#+begin_src emacs-lisp
+(use-package! smerge-mode
+  :config
+  (defhydra unpackaged/smerge-hydra
+    (:color pink :hint nil :post (smerge-auto-leave))
+    "
+^Move^       ^Keep^               ^Diff^                 ^Other^
+^^-----------^^-------------------^^---------------------^^-------
+_n_ext       _b_ase               _<_: upper/base        _C_ombine
+_p_rev       _u_pper              _=_: upper/lower       _r_esolve
+^^           _l_ower              _>_: base/lower        _k_ill current
+^^           _a_ll                _R_efine
+^^           _RET_: current       _E_diff
+"
+    ("n" smerge-next)
+    ("p" smerge-prev)
+    ("b" smerge-keep-base)
+    ("u" smerge-keep-upper)
+    ("l" smerge-keep-lower)
+    ("a" smerge-keep-all)
+    ("RET" smerge-keep-current)
+    ("\C-m" smerge-keep-current)
+    ("<" smerge-diff-base-upper)
+    ("=" smerge-diff-upper-lower)
+    (">" smerge-diff-base-lower)
+    ("R" smerge-refine)
+    ("E" smerge-ediff)
+    ("C" smerge-combine-with-next)
+    ("r" smerge-resolve)
+    ("k" smerge-kill-current)
+    ("ZZ" (lambda ()
+            (interactive)
+            (save-buffer)
+            (bury-buffer))
+     "Save and bury buffer" :color blue)
+    ("q" nil "cancel" :color blue))
+  :hook (magit-diff-visit-file . (lambda ()
+                                   (when smerge-mode
+                                     (unpackaged/smerge-hydra/body)))))
 #+end_src
 
 ** COMMENT magit-delta
@@ -6481,6 +6626,10 @@ Quit recursive edit using C-]
     lsp-enable-completion-at-point t
     lsp-completion-provider :none       ;disable company-mode
 
+
+    lsp-modeline-code-actions-enable t
+    lsp-modeline-diagnostics-enable t
+
     ;; sideline
     lsp-ui-sideline-enable t
     lsp-ui-sideline-show-hover nil
@@ -6511,7 +6660,7 @@ Quit recursive edit using C-]
     (if (facep 'lsp-flycheck-info-unnecessary-face)
       (set-face-attribute 'lsp-flycheck-info-unnecessary-face nil :foreground "gray30" :underline nil))
     )
-
+  (add-hook! 'lsp-after-open-hook #'vi/setup-python-flycheck)
   (setq-hook! 'lsp-ui-doc-mode-hook
     ;; doc in childframe
     lsp-ui-doc-enable t
@@ -6719,7 +6868,8 @@ Lens shows refs for each variable in an overlay which is annoying. Also duplicat
 (use-package! python
   :custom
   (python-fill-docstring-style 'symmetric)
-  (lsp-pyright-diagnostic-mode "workspace")
+  ;; https://www.reddit.com/r/neovim/comments/ymcu8v/pyright_takes_several_minutes_when_1st_python/
+  (lsp-pyright-diagnostic-mode "openFilesOnly")
   (lsp-pyright-typechecking-mode "standard")
   )
 #+end_src
@@ -6730,7 +6880,10 @@ Lens shows refs for each variable in an overlay which is annoying. Also duplicat
   ;; This needs to happen after lsp else:
   ;; Error (python-mode-hook): Error running hook "vi/setup-python-flycheck" because: (user-error lsp is not a syntax checker)
 
-  (flycheck-select-checker 'lsp)
+  (flycheck-select-checker 'python-ruff)
+  (flycheck-add-next-checker 'python-ruff '(t . lsp))
+  (flycheck-add-next-checker 'lsp '(t . python-pyright))
+
   ;; (flycheck-add-next-checker 'lsp '(t . python-ruff))
 
   ;; Not sure if we need flake8 - it pegs the CPU on some buffers
@@ -6741,11 +6894,10 @@ Lens shows refs for each variable in an overlay which is annoying. Also duplicat
   ;; (flycheck-add-next-checker 'lsp 'python-mypy-vi)
 
   ;; Check if the file is broken
-  ;; (flycheck-add-next-checker 'python-ruff '(t . python-pycompile))
-  (flycheck-add-next-checker 'lsp '(t . python-pycompile))
+  ;; (flycheck-add-next-checker 'python-pycompile '(t . python-ruff))
 
   ;; we could disable mypy as well, since pyright does most of it, but pyright doesn't support attrs yet?
-  (setq-local flycheck-disabled-checkers '(python-pylint python-mypy))
+  (setq-local flycheck-disabled-checkers '(python-pylint python-mypy python-pycompile))
   )
 #+end_src
 
@@ -6874,12 +7026,11 @@ Note: workspace root must have the pyrightconfig.json?
   ;; (setq-local lsp-diagnostic-filter (lambda (param work) (vi/filter-lsp-diagnostics param 4 1)))
 
 
-  ;; So that lsp is available as a checker
-  (add-hook! 'lsp-after-open-hook #'vi/setup-python-flycheck)
-
   ;; we prefer rainbow-delimiters-mode
   ;; (tree-sitter-hl-mode)
-  )
+
+)
+  ;; So that lsp is available as a checker
 
 (add-hook! 'python-mode-hook #'vi/python-mode-lsp)
 (setq python-ts-mode-hook python-mode-hook)
@@ -6890,7 +7041,7 @@ ruff-lsp support is built into emacs lsp (https://emacs-lsp.github.io/lsp-mode/p
 
 ** Flycheck checkers
 
-*** COMMENT ruff flycheck
+*** ruff flycheck
 :PROPERTIES:
 :CREATED:  [2023-08-09 Wed 14:15]
 :END:
@@ -6904,7 +7055,8 @@ To override the path to the ruff executable, set
 `flycheck-python-ruff-executable'.
 See URL `http://pypi.python.org/pypi/ruff'."
   :command ("ruff"
-            "--format=text"
+             "check"
+            "--output-format=concise"
             (eval (when buffer-file-name
                     (concat "--stdin-filename=" buffer-file-name)))
             "-")
@@ -6918,7 +7070,7 @@ See URL `http://pypi.python.org/pypi/ruff'."
             (id (one-or-more (any alpha)) (one-or-more digit)) " "
             (message (one-or-more not-newline))
             line-end))
-  :modes python-mode)
+  :modes (python-mode python-ts-mode))
 
 (add-to-list 'flycheck-checkers 'python-ruff)
 #+end_src
@@ -7900,6 +8052,7 @@ alternative: https://github.com/karthink/org-auctex
 (after! json-mode
   (define-key json-mode-map (kbd "C-c C-j") #'jq-interactively))
 #+end_src
+
 
 ** Force kill buffer
 
