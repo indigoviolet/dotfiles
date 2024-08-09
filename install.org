@@ -41,7 +41,8 @@ _yadm:
     yadm config --add local.class debian
     yadm alt
 
-bootstrap := $HOME/".config/yadm/bootstrap"
+HOME := env("HOME")
+bootstrap := HOME / ".config/yadm/bootstrap"
 
 install: _yadm
     {{ bootstrap }} prezto
