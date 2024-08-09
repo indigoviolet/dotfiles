@@ -6,8 +6,6 @@ tap "dbcli/tap"
 tap "eth-p/software"
 tap "gromgit/fuse"
 tap "homebrew/bundle"
-tap "homebrew/cask-fonts"
-tap "homebrew/cask-versions"
 tap "homebrew/core"
 tap "homebrew/services"
 tap "indigoviolet/tap", "git@github.com:indigoviolet/homebrew-tap.git"
@@ -84,12 +82,8 @@ brew "csvkit"
 brew "dasel"
 # Secure runtime for JavaScript and TypeScript
 brew "deno"
-# In-depth comparison of files, archives, and directories
-brew "diffoscope"
 # LCS based diff highlighting tool to ease code review from your terminal
 brew "diffr"
-# Diff that understands syntax
-brew "difftastic"
 # Load/unload environment variables based on $PWD
 brew "direnv"
 # Tool for exploring each layer in a docker image
@@ -104,6 +98,8 @@ brew "dtach"
 brew "duckdb"
 # More intuitive version of du in rust
 brew "dust"
+# Package for scientific computing with Python
+brew "numpy"
 # Git for data science projects
 brew "dvc"
 # Open-source formatting library for C++
@@ -122,10 +118,10 @@ brew "edencommon"
 brew "editorconfig"
 # Easily install prebuilt binaries from GitHub
 brew "eget"
+# Development kit for the Java programming language
+brew "openjdk"
 # Command-line tool (and API) for diffing Excel Workbooks
 brew "excel-compare"
-# Modern, maintained replacement for ls
-brew "eza"
 # Simple, fast and user-friendly alternative to find
 brew "fd"
 # GNU Transport Layer Security (TLS) Library
@@ -144,10 +140,6 @@ brew "gh"
 brew "ghostscript"
 # Distributed revision control system
 brew "git"
-# Automatic git commit --fixup
-brew "git-absorb"
-# High-velocity, monorepo-scale workflow for Git
-brew "git-branchless"
 # Syntax-highlighting pager for git and diff output
 brew "git-delta"
 # Assorted git-related scripts and tools
@@ -162,6 +154,8 @@ brew "gnupg"
 brew "go"
 # Library access to GnuPG
 brew "gpgme"
+# ISO/IEC 23008-12:2017 HEIF file format decoder and encoder
+brew "libheif"
 # Image processing tools collection
 brew "graphicsmagick"
 # Library to render SVG files using Cairo
@@ -298,12 +292,12 @@ brew "vivid"
 brew "watchexec"
 # Watch files and take action when they change
 brew "watchman"
+# Internet file retriever
+brew "wget"
 # Fast CSV toolkit written in Rust
 brew "xsv"
 # Yet Another Dotfiles Manager
 brew "yadm"
-# View colored diff with side by side and auto pager support
-brew "ydiff"
 # Feature-rich command-line audio/video downloader
 brew "yt-dlp"
 # Pluggable terminal workspace, with terminal multiplexer as the base feature
@@ -311,7 +305,7 @@ brew "zellij"
 # Shell extension to navigate your filesystem faster
 brew "zoxide"
 # GNU Emacs text editor
-brew "d12frosted/emacs-plus/emacs-plus@29", args: ["with-dragon-icon", "with-native-comp"]
+brew "d12frosted/emacs-plus/emacs-plus@29", args: ["with-modern-black-dragon-icon", "with-native-comp", "with-poll"]
 # GNU Emacs text editor
 brew "d12frosted/emacs-plus/emacs-plus@30", args: ["with-modern-black-dragon-icon", "with-native-comp", "with-poll"]
 # Rsync for cloud storage (with macOS FUSE mount support)
@@ -337,8 +331,6 @@ brew "saulpw/vd/visidata"
 # A Blazingly fast diff tool for comparing csv files
 brew "thecasualcoder/stable/csvdiff"
 # Allows you to manage your stacked changes and submit them for review on GitHub
-brew "withgraphite/tap/graphite", link: false
-# Allows you to manage your stacked changes and submit them for review on GitHub
 brew "withgraphite/tap/graphite-beta"
 # Password manager that keeps all passwords secure behind one password
 cask "1password"
@@ -348,8 +340,6 @@ cask "1password-cli"
 cask "alt-tab"
 # Compact TeX distribution as alternative to the full TeX Live / MacTeX
 cask "basictex"
-# Virtual Audio Driver
-cask "blackhole-64ch"
 # E-books management software
 cask "calibre"
 # Column-oriented database management system
@@ -363,6 +353,8 @@ cask "dropbox"
 # Status monitoring
 cask "eul"
 cask "font-iosevka-nerd-font"
+# Cross-platform Git credential storage for multiple hosting providers
+cask "git-credential-manager"
 # Cross-platform Git credential storage for multiple hosting providers
 cask "git-credential-manager"
 # Set of tools to manage resources and applications hosted on Google Cloud
@@ -397,12 +389,8 @@ cask "spotify"
 cask "the-unarchiver"
 # Code editor
 cask "visual-studio-code@insiders"
-# HTML to PDF renderer
-cask "wkhtmltopdf"
-mas "1Password 7", id: 1333542190
 mas "Bitwarden", id: 1352778147
-mas "GarageBand", id: 682658836
 mas "iMovie", id: 408981434
 mas "Keynote", id: 409183694
+mas "Microsoft Excel", id: 462058435
 mas "Numbers", id: 409203825
-mas "Pages", id: 409201541
