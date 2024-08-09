@@ -1,0 +1,62 @@
+{
+  "authToken": "mP49QZRTf50mwtrHitklnlqbU3lZvibhthUCoCYoWLBkixKH166eXk6oY9sw",
+  "branchPrefix": "venky/",
+  "branchDate": false,
+  "submitIncludeCommitMessages": true,
+  "gtiConfigs": [
+    {
+      "key": "graphite.branch_edit",
+      "value": "commit"
+    },
+    {
+      "key": "gti.hasShownGettingStarted",
+      "value": "true"
+    },
+    {
+      "key": "graphite.create_prs_as",
+      "value": "published"
+    },
+    {
+      "key": "gti.submit-with-web",
+      "value": "\"web\""
+    },
+    {
+      "key": "gti.changedFilesDisplayType",
+      "value": "\"tree\""
+    },
+    {
+      "key": "gti.is-onboarded",
+      "value": "true"
+    },
+    {
+      "key": "gti.submit-as-draft",
+      "value": "\"published\""
+    }
+  ],
+  "tips": true,
+  "systemTrayConfig": {
+    "sections": [
+      {
+        "sectionId": "mvx8rtr9K4Tdt63yyJ8N",
+        "display": false
+      },
+      {
+        "sectionId": "zMqQZ5SavxcmgeJx2ou5",
+        "display": false
+      },
+      {
+        "sectionId": "L9JmpNjYlmbffQ059VIV",
+        "display": false
+      },
+      {
+        "sectionId": "13RFowQzfJfWZxVcdOqn",
+        "display": false
+      },
+      {
+        "sectionId": "cE9LKdAQGadcwPgGAnMa",
+        "display": true
+      }
+    ]
+  },
+  "submitViaCli": true
+}
