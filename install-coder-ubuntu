@@ -3,9 +3,10 @@
 
 set shell := ["bash", "-uc"]
 set positional-arguments
+just := 'just --unstable --justfile "' + justfile() + '"'
 
 default:
-    just -f {{ justfile() }} install
+    {{ just }} -f {{ justfile() }} install
 
 WORKSPACE_DIR := "/workspaces/"
 DOTFILES_DIR := WORKSPACE_DIR / "dotfiles"
@@ -13,14 +14,16 @@ DOTFILES_DIR := WORKSPACE_DIR / "dotfiles"
 _yadm:
     yadm clone {{ DOTFILES_DIR }} --no-bootstrap
     yadm checkout $HOME
-    yadm config local.class remote
-    yadm config --add local.class debian
-    yadm alt
 
 HOME := env("HOME")
 bootstrap := HOME / ".config/yadm/bootstrap"
 
-install: _yadm
+install:
+    test -d $HOME/.local/share/yadm/repo.git || {{ just }} _yadm
+    yadm config local.class remote
+    yadm config --add local.class debian
+    yadm alt
+
     {{ bootstrap }} prezto
     {{ bootstrap }} brew_bundle
     # matches ~/.zshcustom/pipx.zsh
