@@ -19,3 +19,4 @@ node_modules/
 .direnv/
 /.spacedrive
 nohup.out
+/.aider*
