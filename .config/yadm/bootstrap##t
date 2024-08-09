@@ -33,9 +33,10 @@ atuin_install:
     atuin sync
 
 atuin_login:
+    # password from bitwarden
     atuin login -u indigoviolet --key $(cat ~/.local/share/atuin/key)
     atuin import auto
-    atuin sync
+    atuin sync -f
 
 git_info:
     mkdir -p ~/.local/bin && curl -fsSL https://raw.githubusercontent.com/gitbits/git-info/master/git-info --output ~/.local/bin/git-info && chmod +x ~/.local/bin/git-info
@@ -64,11 +65,14 @@ paywall:
     mkdir -p $HOME/dev && cd $HOME/dev && gh repo clone iamadamdev/bypass-paywalls-chrome
 
 {% if yadm.distro == "Ubuntu" %}
-gcloud:
+_gcloud:
     sudo apt-get install apt-transport-https ca-certificates gnupg
     echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
     sudo apt-get update && sudo apt-get install --no-install-recommends -y google-cloud-sdk
+
+gcloud:
+    command -v gcloud || {{ just }} _gcloud
 {% endif %}
 
 {% if yadm.distro == "Ubuntu" %}
