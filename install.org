@@ -44,17 +44,17 @@ bootstrap := HOME / ".config/yadm/bootstrap"
 
 install:
     test -d $HOME/.local/share/yadm/repo.git || {{ just }} _yadm
-    yadm config local.class remote
+    -yadm config local.class remote
     yadm config --add local.class debian
     yadm alt
 
-    {{ bootstrap }} prezto
-    {{ bootstrap }} brew_bundle
+    -{{ bootstrap }} prezto
+    -{{ bootstrap }} brew_bundle
     # matches ~/.zshcustom/pipx.zsh
-    PIPX_HOME=$HOME/.local/pipx  PIPX_BIN_DIR=$HOME/.local/bin {{ bootstrap }} pipx
-    {{ bootstrap }} zsh_login_shell
-    {{ bootstrap }} git-credential-manager
-    {{ bootstrap }} git_info
+    -PIPX_HOME=$HOME/.local/pipx  PIPX_BIN_DIR=$HOME/.local/bin {{ bootstrap }} pipx
+    -{{ bootstrap }} zsh_login_shell
+    -{{ bootstrap }} git-credential-manager
+    -{{ bootstrap }} git_info
     # requires password
     # {{ bootstrap }} atuin_login
 #+end_src
