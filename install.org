@@ -50,7 +50,7 @@ install:
     yadm alt
 
     -{{ bootstrap }} prezto
-    -{{ bootstrap }} brew_bundle
+    -HOMEBREW_NO_INSTALL_CLEANUP=1 {{ bootstrap }} brew_bundle
     # matches ~/.zshcustom/pipx.zsh
     -PIPX_HOME=$HOME/.local/pipx  PIPX_BIN_DIR=$HOME/.local/bin {{ bootstrap }} pipx
     -{{ bootstrap }} zsh_login_shell
