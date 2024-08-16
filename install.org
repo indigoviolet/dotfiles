@@ -36,6 +36,7 @@ WORKSPACE_DIR := "/workspaces/"
 DOTFILES_DIR := WORKSPACE_DIR / "dotfiles"
 
 yadm_clone:
+    command -v yadm || brew install yadm
     yadm clone {{ DOTFILES_DIR }} --no-bootstrap
     yadm checkout $HOME
 
