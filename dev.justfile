@@ -180,3 +180,24 @@ ijq *args:
           --preview-window='up:90%' \
           --print-query \
           --preview "jq --color-output -r {q} $input"
+
+
+epipe:
+  #!/usr/bin/env python
+  import os
+  import re
+  import sys
+
+  args = sys.argv[1:]
+  if not args:
+          data = sys.stdin.read()
+          data = data.replace('\\', '\\\\').replace('"', '\\"')
+          data = ('(let ((buf (generate-new-buffer "*stdin*")))'
+                  '(switch-to-buffer buf)'
+                  '(insert "' + data + '")'
+                  '(goto-char (point-min))'
+                  '(x-focus-frame nil)'
+                  '(buffer-name buf))')
+          args = ('-e', data)
+
+  os.execlp('emacsclient', 'emacsclient', *args)
