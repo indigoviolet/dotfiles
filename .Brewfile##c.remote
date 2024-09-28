@@ -6,25 +6,16 @@ tap "indigoviolet/tap"
 tap "jesseduffield/lazydocker"
 tap "mutagen-io/mutagen"
 tap "rs/tap"
-# Provides session management: i.e. separate programs from terminals
-brew "abduco"
+
+# # Provides session management: i.e. separate programs from terminals
+# brew "abduco"
 
 # Improved shell history for zsh and bash
 brew "atuin"
-# Official Amazon AWS command-line interface
-brew "awscli"
-# Human-friendly and fast alternative to cut and (sometimes) awk
-brew "choose-rust"
-# JSON, YAML, TOML, XML, and CSV query and modification tool
-brew "dasel"
 # Load/unload environment variables based on $PWD
 brew "direnv"
-# Tool for exploring each layer in a docker image
-brew "dive"
 # Emulates the detach feature of screen
 brew "dtach"
-# More intuitive version of du in rust
-brew "dust"
 # Easily install prebuilt binaries from GitHub
 brew "eget"
 # Simple, fast and user-friendly alternative to find
@@ -33,8 +24,6 @@ brew "fd"
 brew "fzf"
 # GitHub command-line tool
 brew "gh"
-# Git extension for versioning large files
-brew "git-lfs"
 # Improved top (interactive process viewer)
 brew "htop"
 # Image loading and rendering library
@@ -51,18 +40,12 @@ brew "less"
 brew "lsd"
 # Modern and intuitive terminal-based text editor
 brew "micro"
-# Remote terminal application
-brew "mosh"
 # CLI for Postgres with auto-completion and syntax highlighting
 brew "pgcli"
 # Execute binaries from Python packages in isolated environments
 brew "pipx"
-# Cloud native development platform
-brew "pulumi"
 # Cross-shell prompt for astronauts
 brew "starship"
-# Display images in a terminal using block graphic characters
-brew "terminalimageviewer"
 # Configure transparent encryption of files in a Git repo
 brew "transcrypt"
 # Generator for LS_COLORS with support for multiple color themes
@@ -79,8 +62,8 @@ brew "zoxide"
 brew "eth-p/software/bat-extras"
 # A simple terminal UI for docker, written in Go
 brew "jesseduffield/lazydocker/lazydocker"
-# Fast file synchronization and network forwarding for remote development
-brew "mutagen-io/mutagen/mutagen-beta"
+# # Fast file synchronization and network forwarding for remote development
+# brew "mutagen-io/mutagen/mutagen-beta"
 brew "ripgrep"
 brew "ripgrep-all"
 brew "rye"
