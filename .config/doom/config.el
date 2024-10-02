@@ -120,6 +120,7 @@
 (setq confirm-nonexistent-file-or-buffer 'after-completion)
 
 ;; indent anywhere, no completion on tab
+;; this is getting overridden somewhere downstream
 (setq tab-always-indent t)
 
 (setq scroll-preserve-screen-position 'always)
@@ -677,7 +678,7 @@ message listing the hooks."
   ;; best to name this 'main, since main gets set as the default in
   ;; doom-modeline. other names don't seem to take effect as default..
   (doom-modeline-def-modeline 'main
-    '(bar buffer-info-simple selection-info remote-host recursion-depth matches check misc-info)
+    '(bar buffer-info-simple selection-info buffer-position remote-host recursion-depth matches check misc-info)
     '(debug repl process lsp vcs minor-modes major-mode))
 
   (doom-modeline-def-modeline 'org-src
@@ -731,23 +732,24 @@ message listing the hooks."
 (defun vi/split-window-horizontally ()
   (interactive)
   (split-window-horizontally)
-  (balance-windows))
+  (balance-windows-area))
 (defun vi/split-window-vertically ()
   (interactive)
   (split-window-vertically)
-  (balance-windows))
+  (balance-windows-area))
 (defun vi/delete-window ()
   (interactive)
   (delete-window)
-  (balance-windows))
+  (balance-windows-area))
 
-(defadvice delete-window (after restore-balance activate)
-  (balance-windows))
+;; (defadvice delete-window (after restore-balance activate)
+;;   (balance-windows))
 
 (map! :g
       "C-x |" #'vi/split-window-horizontally
       "C-x _" #'vi/split-window-vertically
-  "C-x -" #'balance-windows
+      "C-x -" #'balance-windows-area
+      "C-x +" #'balance-windows
       "C-x /" #'vi/delete-window)
 
 ;; https://emacs.stackexchange.com/a/40517
@@ -756,13 +758,13 @@ message listing the hooks."
 (setq split-width-threshold 30)
 
 ;; (defadvice split-window-below (after restore-balance-below activate)
-;;   (balance-windows))
+;;   (balance-windows-area))
 
 ;; (defadvice split-window-right (after restore-balance-right activate)
-;;   (balance-windows))
+;;   (balance-windows-area))
 
 ;; (defadvice delete-window (after restore-balance activate)
-;;   (balance-windows))
+;;  (balance-windows-area))
 
 (defmacro minibuffer-quit-and-run (&rest body)
   "Quit the minibuffer and run BODY afterwards."
@@ -775,7 +777,6 @@ message listing the hooks."
      (minibuffer-keyboard-quit)))
 
 
-(map! "M-k" #'consult-buffer)
 ;; (map! :g
 ;;   "M-<right>" #'next-buffer
 ;;   "M-<left>" #'previous-buffer
@@ -1393,9 +1394,8 @@ _q_: Quit
 
 (use-package! goto-chg
   :bind (
-          ("C-." . goto-last-change)
-          ("C-," . goto-last-change-reverse)
-          :map org-mode-map ("C-," . nil)
+          ("C-\\" . goto-last-change)
+          ("M-\\" . goto-last-change-reverse)
   ))
 ;; (after! org
 ;;   ;; goto-last-change-reverse
@@ -1518,6 +1518,18 @@ _q_: Quit
   :bind
   ("C-a" . mwim-beginning)
   ("C-e" . mwim-end)
+  )
+
+(use-package! gumshoe
+  :config
+  ;; Enabing global-gumshoe-mode will initiate tracking
+  (global-gumshoe-mode +1)
+  ;; customize peruse slot display if you like
+  (setf gumshoe-slot-schema '(time buffer position line))
+  ;; personally, I use perspectives
+  ;; (setf gumshoe-slot-schema '(perspective time buffer position line))
+  ;; disable auto-cancel of backtracking
+  (setf gumshoe-auto-cancel-backtracking-p nil)
   )
 
 (after! isearch
@@ -1677,10 +1689,10 @@ _q_: Quit
 
 (use-package! consult-project-extra
   :config
-  (setq consult-buffer-sources
+  (setq! consult-buffer-sources
     '(consult--source-modified-buffer
        consult-project-extra--source-buffer
-       consult--source-project-buffer
+       ;; consult--source-project-buffer
        consult--source-buffer
        consult--source-recent-file
        ;; consult-projectile--source-projectile-buffer
@@ -1690,11 +1702,14 @@ _q_: Quit
        consult-project-extra--source-file
        consult-project-extra--source-project
        ;; consult--source-hidden-buffer
-       +vertico--consult-org-source))
+       +vertico--consult-org-source
+       ))
 
   ;; consult-project-buffer calls consult-project-function(t) but doom-project-root, the default value of consult-project-function doesn't take t
   (setq! consult-project-function (lambda (_) (doom-project-root)))
   )
+
+(map! "M-k" #'consult-buffer)
 
 (after! orderless
   ;; https://github.com/minad/consult/issues/237
@@ -1814,7 +1829,6 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
   )
 
 (use-package! corfu
-  :after-call doom-first-buffer-hook
   :custom
   (corfu-auto t)
   (corfu-auto-delay 0.2)
@@ -1830,6 +1844,10 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
           (conf-mode . corfu-mode)
           (text-mode . corfu-mode)
           )
+  :bind
+          (:map corfu-map ("TAB" . nil)
+            ("<tab>" . nil)
+            )
   )
 
 ;; (after! corfu
@@ -1901,48 +1919,49 @@ is available. Useful if you tend to hammer your keys like I do."
     (if (copilot--overlay-visible)
       (progn
         (copilot-accept-completion)
-        (open-line 1)
-        (next-line))
-      (copilot-complete)))
+        ;; (open-line 1)
+        ;; (next-line))
+        (copilot-complete))))
 
-  (defun rk/copilot-tab ()
-    "Tab command that will complet with copilot if a completion is
-available. Otherwise will try tab-indent."
-    (interactive)
-    ;; indent-for-tab-command compares last-command to this-command in python-indent-line-function to decide whether to dedent.
-    ;; without this, it stops dedenting
-    (set 'this-command 'indent-for-tab-command)
-    (or (copilot-accept-completion)
-      ;; (company-yasnippet-or-completion)
-      (indent-for-tab-command)))
+  ;;   (defun rk/copilot-tab ()
+  ;;     "Tab command that will complet with copilot if a completion is
+  ;; available. Otherwise will try tab-indent."
+  ;;     (interactive)
+  ;;     ;; indent-for-tab-command compares last-command to this-command in python-indent-line-function to decide whether to dedent.
+  ;;     ;; without this, it stops dedenting
+  ;;     (set 'this-command 'indent-for-tab-command)
+  ;;     (or (copilot-accept-completion)
+  ;;       ;; (company-yasnippet-or-completion)
+  ;;       (indent-for-tab-command)))
 
-
-  (defun rk/copilot-complete-if-active (next-func n)
-    (let ((completed (when copilot-mode (copilot-accept-completion))))
-      (unless completed (funcall next-func n))))
-
+  ;; (defun rk/copilot-complete-if-active (next-func n)
+  ;;   (let ((completed (when copilot-mode (copilot-accept-completion))))
+  ;;     (unless completed (funcall next-func n))))
 
   (defun rk/copilot-quit ()
     "Run `copilot-clear-overlay' or `keyboard-quit'. If copilot is
-cleared, make sure the overlay doesn't come back too soon."
+  cleared, make sure the overlay doesn't come back too soon."
     (interactive)
     (condition-case err
       (when (copilot--overlay-visible)
-        (lexical-let ((pre-copilot-disable-predicates copilot-disable-predicates))
+        (let ((pre-copilot-disable-predicates copilot-disable-predicates))
           (setq copilot-disable-predicates (list (lambda () t)))
           (copilot-clear-overlay)
           (run-with-idle-timer
-            0.3
+            1
             nil
             (lambda ()
               (setq copilot-disable-predicates pre-copilot-disable-predicates)))))
-      (error handler)))
+      (error (message "Error in rk/copilot-quit: %s" err))))
 
   ;; (advice-add 'keyboard-quit :before #'rk/copilot-quit)
   (add-hook! 'doom-escape-hook
     (defun vi/rk/copilot-quit()
       ;; return nil so other hooks can run
       (progn (rk/copilot-quit) nil)))
+
+  (setq tab-always-indent t)
+
 
   ;; complete by pressing right or tab but only when copilot completions are
   ;; shown. This means we leave the normal functionality intact.
@@ -1951,14 +1970,15 @@ cleared, make sure the overlay doesn't come back too soon."
 
   :hook ((prog-mode . copilot-mode) (conf-mode . copilot-mode) (yaml-mode . copilot-mode))
   :bind (
-         :map copilot-completion-map
+          :map copilot-completion-map
           ;; ("C-g" . 'copilot-clear-overlay)
-         ;;("<tab>" . 'copilot-accept-completion)
+          ;;("<tab>" . 'copilot-accept-completion)
           ("<right>" . 'copilot-accept-completion)
-         ("C-<up>" . 'copilot-previous-completion)
-         ("C-<down>" . 'copilot-next-completion)
-         ("C-<right>" . 'copilot-accept-completion-by-word)
-         ("C-M-<right>" . 'copilot-accept-completion-by-line))
+          ("C-<up>" . 'copilot-previous-completion)
+          ("C-<down>" . 'copilot-next-completion)
+          ("C-<right>" . 'copilot-accept-completion-by-word)
+          ("C-M-<right>" . 'copilot-accept-completion-by-line))
+
   ;; :bind (;; ("C-TAB" . 'copilot-accept-completion-by-word)
   ;;         ;; ("C-<tab>" . 'copilot-accept-completion-by-word)
   ;;         :map copilot-mode-map
@@ -1969,13 +1989,14 @@ cleared, make sure the overlay doesn't come back too soon."
   )
 
 (add-hook! 'copilot-mode-hook (map! :map copilot-mode-map "C-<return>" #'rk/copilot-complete-or-accept))
-(add-hook! 'copilot-mode-hook (map! :map prog-mode-map "<tab>" #'rk/copilot-tab))
+;; (add-hook! 'copilot-mode-hook (map! :map prog-mode-map "<tab>" #'rk/copilot-tab))
+
 
 (custom-set-faces!
   '(copilot-overlay-face :slant italic :foreground "#989898"))
 
 ;; try to turn off keybindings (up/down) that company-mode interferes with
-;; (add-hook! prog-mode :append (progn (message "disabling company mode") (company-mode -1) (message "disabled")))
+;;(add-hook! prog-mode :append (progn (message "disabling company mode") (company-mode -1) (message "disabled")))
 
 (use-package! gptel
   :custom
@@ -1996,16 +2017,16 @@ cleared, make sure the overlay doesn't come back too soon."
   :bind
   ("C-;" . iedit-mode))
 
-;; https://github.com/alphapapa/unpackaged.el#iedit-scoped
+;; based on https://github.com/alphapapa/unpackaged.el#iedit-scoped, but reversed: global scope is the default
 ;;;###autoload
-(defun unpackaged/iedit-scoped (orig-fn)
-  "Call `iedit-mode' with function-local scope, or global scope if called with a universal prefix."
+(defun vi/iedit-scoped (orig-fn)
+  "Call `iedit-mode' with global scope by default, or function-local scope if called with a universal prefix."
   (interactive)
   (pcase-exhaustive current-prefix-arg
-    ('nil (funcall orig-fn '(0)))
-    ('(4) (funcall orig-fn))))
+    ('nil (funcall orig-fn))
+    ('(4) (funcall orig-fn '(0)))))
 
-(advice-add #'iedit-mode :around #'unpackaged/iedit-scoped)
+(advice-add #'iedit-mode :around #'vi/iedit-scoped)
 
 (use-package! wgrep
   :commands (wgrep-change-to-wgrep-mode)
@@ -2534,23 +2555,23 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   ;; …every time Flycheck is activated in a new buffer
   (add-hook! 'flycheck-mode-hook #'my/set-flycheck-margins)
   (global-flycheck-mode -1)
-  :hook ((prog-mode . flycheck-mode))
+  :hook ((prog-mode . flycheck-mode) (yaml-mode . flycheck-mode))
   :pretty-hydra
   (
-   (:exit t)
-   (
-    "Flycheck"
+    (:exit t)
     (
-    ("c" flycheck-buffer "check buffer")
-    ("l" (consult-lsp-diagnostics t) "file errors")
-    ;; ("p" flycheck-projectile-list-errors "project errors")
-    ("L" consult-flycheck "consult")
-    ("d" (flycheck-mode -1) "Disable Flycheck")
-    ("e" (flycheck-mode) "Enable Flycheck")
-    ("q" nil "quit")
-     )
+      "Flycheck"
+      (
+        ("c" flycheck-buffer "check buffer")
+        ("l" (consult-lsp-diagnostics t) "file errors")
+        ;; ("p" flycheck-projectile-list-errors "project errors")
+        ("L" consult-flycheck "consult")
+        ("d" (flycheck-mode -1) "Disable Flycheck")
+        ("e" (flycheck-mode) "Enable Flycheck")
+        ("q" nil "quit")
+        )
+      )
     )
-   )
   )
 
 (defun endless/flycheck-dir (dir)
@@ -2616,9 +2637,44 @@ Results are reported in a compilation buffer."
   ;; Set magit log date formats
   (setq magit-log-margin '(t "%Y-%m-%d %H:%M " magit-log-margin-width t 18))
 
+  (setq git-commit-summary-max-length 100)
+
   ;; set to 'all, this seems to make commits slow?
   (setq magit-diff-refine-hunk t)
   (setq magit-log-section-commit-count 25)
+
+  ;; https://github.com/magit/forge/issues/676#issuecomment-2252842813
+  ;; see forge-insert-topics & forge--topics-spec
+  (defun vi/forge-insert-assigned-issues ()
+    "Insert a list of issues that are assigned to you.
+  Mostly honor the buffer's filtering spec, overriding only the `type' and
+  `assignee' slots."
+    ;; Move any work you are tempted to do here ...
+    (forge-insert-topics 'assigned-issues "Assigned issues"
+      (lambda (repo)
+        ;;; ... to here instead.  For example ----,
+        (and-let* ((me (ghub--username repo))) ;<-'
+          (forge--topics-spec :type 'issue :active nil :state 'open :assignee me)))))
+
+  (defun vi/forge-insert-authored-pullreqs ()
+    "Insert a list of issues that are assigned to you.
+Mostly honor the buffer's filtering spec, overriding only the `type' and
+`assignee' slots."
+    ;; Move any work you are tempted to do here ...
+    (forge-insert-topics 'authored-pullreqs "Authored PRs"
+      (lambda (repo)
+      ;;; ... to here instead.  For example ----,
+        (and-let* ((me (ghub--username repo))) ;<-'
+          (forge--topics-spec :type 'pullreq :active nil :state 'open :author me)))))
+
+  (setq magit-blame-styles
+    '((margin
+        (margin-width . 32)
+        (margin-format . ("%C %c %f"))
+        (margin-face . magit-blame-margin)
+        (margin-body-face . magit-blame-dimmed)
+        (show-message . t))))
+
   (setq magit-status-sections-hook
 
     '(magit-insert-status-headers
@@ -2642,9 +2698,8 @@ Results are reported in a compilation buffer."
        magit-insert-stashes
 
        ;; forge
-       ;; See forge-status-buffer-default-topic-filters if the below breaks on forge upgrade
-       forge-insert-authored-pullreqs
-       forge-insert-assigned-issues
+       vi/forge-insert-authored-pullreqs
+       vi/forge-insert-assigned-issues
        forge-insert-pullreqs
        forge-insert-issues
 
@@ -2666,22 +2721,22 @@ Results are reported in a compilation buffer."
 
   (setq magit-wip-namespace "refs/magit-wip/")
 
-  ;### autoload
+                                        ;### autoload
   (defun vi/magit-gt-absorb ()
     (interactive)
     (magit-shell-command-topdir "gt absorb"))
 
-  ;### autoload
+                                        ;### autoload
   (defun vi/magit-gt-submit ()
     (interactive)
     (magit-shell-command-topdir "gt submit"))
 
-  ;### autoload
+                                        ;### autoload
   (defun vi/magit-gt-sync ()
     (interactive)
     (magit-shell-command-topdir "gt sync --restack --force"))
 
-  ;### autoload
+                                        ;### autoload
   (defun vi/magit-gt-restack ()
     (interactive)
     (magit-shell-command-topdir "gt restack"))
@@ -2700,11 +2755,11 @@ Results are reported in a compilation buffer."
         ("u" "gt sync" vi/magit-gt-sync)
         ("r" "gt restack" vi/magit-gt-restack)
         ("P" "gt submit" vi/magit-gt-submit)]])
-    ;; ("k" "gitk"                 magit-run-gitk)
-    ;; ("a" "gitk --all"           magit-run-gitk-all)
-    ;; ("b" "gitk --branches"      magit-run-gitk-branches)
-    ;; ("g" "git gui"              magit-run-git-gui)
-    ;; ("m" "git mergetool --gui"  magit-git-mergetool)]])
+  ;; ("k" "gitk"                 magit-run-gitk)
+  ;; ("a" "gitk --all"           magit-run-gitk-all)
+  ;; ("b" "gitk --branches"      magit-run-gitk-branches)
+  ;; ("g" "git gui"              magit-run-git-gui)
+  ;; ("m" "git mergetool --gui"  magit-git-mergetool)]])
 
 
   ;; Protect against accidental pushes to upstream
@@ -2850,6 +2905,10 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (add-hook! 'ediff-cleanup-hook 'ediff-delete-temp-files)
 (add-hook! '(ediff-before-setup-hook ediff-before-setup-windows-hook) (setq ediff-window-setup-function #'vi/ediff-setup-windows-plain-merge))
 
+(use-package! git-link
+  :custom
+  (git-link-default-branch "main"))
+
 ;; We leave this in so that /yadm:: still works
 (use-package! tramp
   :config
@@ -2963,6 +3022,33 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
     lsp-ui-doc-delay 1)
   )
 
+(use-package! dap-mode
+  :commands dap-debug
+  :hook ((python-mode . dap-ui-mode) (python-mode . dap-mode))
+  :config
+  (require 'dap-python)
+  (setq dap-python-debugger 'debugpy)
+  (defun dap-python--pyenv-executable-find (command)
+    (with-venv (executable-find "python")))
+
+  (add-hook 'dap-stopped-hook (lambda (arg) (call-interactively #'dap-hydra)))
+
+  ;; https://github.com/emacs-lsp/dap-mode/issues/372#issuecomment-939248097
+  (defun disable-lsp-ui-doc (orig-fun &rest args)
+     (lsp-ui-doc-mode -1))
+
+  (defun enable-lsp-ui-doc (orig-fun &rest args)
+     (lsp-ui-doc-mode))
+
+  (advice-add 'dap-debug :after #'disable-lsp-ui-doc)
+  (advice-add 'dap-disconnect :after #'enable-lsp-ui-doc)
+  )
+
+;; https://github.com/emacs-lsp/dap-mode/issues/416
+(defun vi/dap-yank-value-at-point (node)
+  (interactive (list (treemacs-node-at-point)))
+  (kill-new (message (plist-get (button-get node :item) :value))))
+
 (use-package! ts-movement
   :config
   (pretty-hydra-define tsm/hydra ()
@@ -3005,6 +3091,10 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (typescript-ts-mode . ts-movement-mode)
   (yaml-ts-mode . ts-movement-mode))
 
+;; TODO: tie this somehow directly to a treesitter mode?
+(map! :mode python-ts-mode "C-b"  #'treesit-beginning-of-defun)
+(map! :mode python-ts-mode "C-f"  #'treesit-end-of-defun)
+
 (use-package treesit-auto
   :custom
   (treesit-auto-install 'prompt)
@@ -3029,6 +3119,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   ;; https://www.reddit.com/r/neovim/comments/ymcu8v/pyright_takes_several_minutes_when_1st_python/
   (lsp-pyright-diagnostic-mode "openFilesOnly")
   (lsp-pyright-typechecking-mode "standard")
+
   )
 
 (defun vi/setup-python-flycheck ()
@@ -3038,16 +3129,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
   (flycheck-select-checker 'python-ruff)
   (flycheck-add-next-checker 'python-ruff '(t . lsp))
-  (flycheck-add-next-checker 'lsp '(t . python-pyright))
 
+  ;; (flycheck-add-next-checker 'lsp '(t . python-pyright))
   ;; (flycheck-add-next-checker 'lsp '(t . python-ruff))
-
-  ;; Not sure if we need flake8 - it pegs the CPU on some buffers
-  ;; (flycheck-add-next-checker 'lsp 'python-flake8-vi)
-
-  ;; Why do we still have mypy? The theory is that it gives some better messages complementary to pyright
-  ;;(setq-local flycheck-python-mypy-executable (concat (projectile-project-root) "/.venv/bin/mypy"))
-  ;; (flycheck-add-next-checker 'lsp 'python-mypy-vi)
 
   ;; Check if the file is broken
   ;; (flycheck-add-next-checker 'python-pycompile '(t . python-ruff))
@@ -3055,6 +3139,20 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   ;; we could disable mypy as well, since pyright does most of it, but pyright doesn't support attrs yet?
   (setq-local flycheck-disabled-checkers '(python-pylint python-mypy python-pycompile))
   )
+
+(use-package! python-pytest
+  :custom
+  (python-pytest-preferred-project-manager 'project) ;not projectile or auto
+  )
+
+(defun vi/python-project-compilation-dir ()
+  (if-let ((file-name buffer-file-name))
+    (locate-dominating-file buffer-file-name "pyproject.toml")
+    nil))
+
+(add-hook! 'python-mode-hook (setq!
+                               project-compilation-dir (vi/python-project-compilation-dir)
+                               python-pytest-executable "rye run pytest"))
 
 (defun vi/python-mode-lsp ()
   (lsp)
@@ -3103,8 +3201,12 @@ See URL `http://pypi.python.org/pypi/ruff'."
   (
    "Pytest"
     (
-      ("d" python-pytest-dispatch "Dispatch")
+      ("T" python-pytest-dispatch "Dispatch")
       ("R" python-pytest-repeat "Repeat")
+    )
+    "debug"
+    (
+      ("d" dap-hydra "Debugger")
     )
     "Misc"
     (("i" vi/pyflyby-tidy-imports "Imports"))
@@ -3474,6 +3576,20 @@ Version 2016-01-08"
   :truncate-output t
   :kill-process-buffer-on-stop t
   :tags '(dev)))
+
+(use-package! atomic-chrome
+
+  :custom
+  (atomic-chrome-default-major-mode 'markdown-mode)
+  (atomic-chrome-url-major-mode-alist
+   '(("\\.ipynb$" . python-mode))
+   )
+  ;; (atomic-chrome-extension-type-list '(atomic-chrome))
+   (atomic-chrome-buffer-open-style 'frame)
+  (atomic-chrome-auto-remove-file t)
+  :config
+  (atomic-chrome-start-server)
+  )
 
 (use-package! gif-screencast
   :bind (:map gif-screencast-mode-map

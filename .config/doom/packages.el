@@ -67,9 +67,15 @@
 ;; updates to a version that has org-store-link compatibility instead of 6633d82c6e3c921c486ec284cb6542f33278b605
 (unpin! helpful)
 
+;; newer version has support for project-compilation-dir <2024-09-06 Fri>
+(unpin! python-pytest)
+
 ;; https://github.com/doomemacs/doomemacs/issues/7244#issuecomment-1643370848
-(package! magit :pin "26be78e")
-(package! forge :pin "dc4e9ca")
+
+;; https://github.com/doomemacs/doomemacs/issues/7363#issuecomment-1696530746
+(unpin! git-commit)
+(package! magit :pin "0aa2686" :recipe (:host github :repo "magit/magit"))
+(package! forge :pin "35cc600" :recipe (:host github :repo "magit/forge"))
 
 (package! persistent-scratch)
 
@@ -157,6 +163,8 @@
 
 (package! mwim)
 
+(package! gumshoe :recipe (:host github :repo "Overdr0ne/gumshoe"))
+
 (package! smartscan)
 
 (package! visual-regexp)
@@ -228,6 +236,10 @@
 
 (package! git-link)
 
+(package! with-venv :recipe (:host github :repo "10sr/with-venv-el"))
+
+(package! dap-mode :recipe (:host github :repo "emacs-lsp/dap-mode"))
+
 (package! ts-movement :recipe (:host github :repo "indigoviolet/ts-movement"))
 
 (package! treesit-auto)
@@ -266,6 +278,8 @@
 (package! org-latex-impatient)
 
 ;; (package! prodigy)
+
+(package! atomic-chrome :recipe (:host github :repo "KarimAziev/atomic-chrome"))
 
 (package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
 
