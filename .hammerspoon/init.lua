@@ -20,6 +20,8 @@ PaperWM:bindHotkeys({
     split_screen = {{"cmd", "shift"}, "s"},
     -- cycle_height  = {{"ctrl", "alt", "cmd", "shift"}, "r"},
 
+    toggle_floating = {{"cmd"}, "escape" },
+
     -- move focused window into / out of a column
     -- slurp_in = {{"ctrl", "alt", "cmd"}, "i"},
     -- barf_out = {{"ctrl", "alt", "cmd"}, "o"},
