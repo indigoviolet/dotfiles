@@ -3141,8 +3141,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   )
 
 (use-package! python-pytest
-  :custom
-  (python-pytest-preferred-project-manager 'project) ;not projectile or auto
+  :config
+  (setq python-pytest-preferred-project-manager 'project) ;not projectile or auto
   )
 
 (defun vi/python-project-compilation-dir ()
@@ -3527,6 +3527,23 @@ Version 2016-01-08"
   (interactive)
   (let (kill-buffer-hook kill-buffer-query-functions)
     (kill-buffer)))
+
+(defun vi/open-in-vscode ()
+  "Open the current file in Visual Studio Code at the current line."
+  (interactive)
+  (let* ((file-name (buffer-file-name))
+         (line-number (line-number-at-pos))
+         (column-number (current-column))
+         (project-root (project-root (project-current t)))
+         (default-directory (or project-root default-directory)))
+    (if file-name
+        (start-process "vscode" nil "code" "--goto"
+                       (format "%s:%d:%d"
+                               (file-relative-name file-name project-root)
+                               line-number
+                               (1+ column-number))
+                       "--reuse-window")
+      (message "Buffer is not visiting a file!"))))
 
 (use-package! prodigy
   :custom
