@@ -2422,6 +2422,11 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 
 (use-package! org-colored-text :after org) ;; :load-path "/home/venky/dev/org-colored-text/")
 
+(defun display-ansi-colors ()
+  (interactive)
+  (let ((inhibit-read-only t))
+    (ansi-color-apply-on-region (point-min) (point-max))) t)
+
 (after! org
   (setq org-export-with-smart-quotes nil)
   )
@@ -2729,7 +2734,7 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
                                         ;### autoload
   (defun vi/magit-gt-submit ()
     (interactive)
-    (magit-shell-command-topdir "gt submit"))
+    (magit-shell-command-topdir "gt submit --no-interactive"))
 
                                         ;### autoload
   (defun vi/magit-gt-sync ()
@@ -2789,45 +2794,6 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
   "s-<tab>" #'magit-section-cycle-diffs
   "M-<tab>" nil
   )
-
-(use-package! smerge-mode
-  :config
-  (defhydra unpackaged/smerge-hydra
-    (:color pink :hint nil :post (smerge-auto-leave))
-    "
-^Move^       ^Keep^               ^Diff^                 ^Other^
-^^-----------^^-------------------^^---------------------^^-------
-_n_ext       _b_ase               _<_: upper/base        _C_ombine
-_p_rev       _u_pper              _=_: upper/lower       _r_esolve
-^^           _l_ower              _>_: base/lower        _k_ill current
-^^           _a_ll                _R_efine
-^^           _RET_: current       _E_diff
-"
-    ("n" smerge-next)
-    ("p" smerge-prev)
-    ("b" smerge-keep-base)
-    ("u" smerge-keep-upper)
-    ("l" smerge-keep-lower)
-    ("a" smerge-keep-all)
-    ("RET" smerge-keep-current)
-    ("\C-m" smerge-keep-current)
-    ("<" smerge-diff-base-upper)
-    ("=" smerge-diff-upper-lower)
-    (">" smerge-diff-base-lower)
-    ("R" smerge-refine)
-    ("E" smerge-ediff)
-    ("C" smerge-combine-with-next)
-    ("r" smerge-resolve)
-    ("k" smerge-kill-current)
-    ("ZZ" (lambda ()
-            (interactive)
-            (save-buffer)
-            (bury-buffer))
-     "Save and bury buffer" :color blue)
-    ("q" nil "cancel" :color blue))
-  :hook (magit-diff-visit-file . (lambda ()
-                                   (when smerge-mode
-                                     (unpackaged/smerge-hydra/body)))))
 
 (add-hook! 'doom-first-file-hook #'magit-wip-mode)
 
@@ -3117,9 +3083,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   :custom
   (python-fill-docstring-style 'symmetric)
   ;; https://www.reddit.com/r/neovim/comments/ymcu8v/pyright_takes_several_minutes_when_1st_python/
+  ;; (lsp-pyright-diagnostic-mode "workspace")
   (lsp-pyright-diagnostic-mode "openFilesOnly")
   (lsp-pyright-typechecking-mode "standard")
-
   )
 
 (defun vi/setup-python-flycheck ()

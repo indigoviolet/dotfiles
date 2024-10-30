@@ -65,7 +65,7 @@ clickhouse_csv csv_file *args:
 @_pyflyby_imports DIR:
     # get all existing imports, but filter out those from the local module,
     # since we will add them back from _pyflyby_exports
-    rye run collect-imports --width=1000 --hanging-indent=never -n . | \
+    rye run collect-imports --width=1000 --hanging-indent=never -n {{ DIR }} | \
         rg -v -f <({{ just }} _pyflyby_modules {{ DIR }})
 
 [no-cd]
@@ -77,7 +77,7 @@ clickhouse_csv csv_file *args:
 [no-cd]
 gen_pyflyby:
     # do we need ruff --fix .?
-    {{ just }} _pyflyby  | black -
+    {{ just }} _pyflyby  | ruff format -
 
 [no-cd]
 j2:

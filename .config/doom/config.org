@@ -5659,6 +5659,16 @@ checkboxes are tiny, and they can be fixed by adjusting faces but this just does
 
 [[color:green][this text is green]]
 
+*** ansi
+
+https://stackoverflow.com/questions/23378271/how-do-i-display-ansi-color-codes-in-emacs-for-any-mode
+#+begin_src emacs-lisp
+
+(defun display-ansi-colors ()
+  (interactive)
+  (let ((inhibit-read-only t))
+    (ansi-color-apply-on-region (point-min) (point-max))) t)
+#+end_src
 *** Export
 
 **** No htmlentities in quotes
@@ -6344,7 +6354,7 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
                                         ;### autoload
   (defun vi/magit-gt-submit ()
     (interactive)
-    (magit-shell-command-topdir "gt submit"))
+    (magit-shell-command-topdir "gt submit --no-interactive"))
 
                                         ;### autoload
   (defun vi/magit-gt-sync ()
@@ -6407,7 +6417,7 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
 
 #+end_src
 
-** smerge
+** COMMENT smerge
 
 
 https://github.com/alphapapa/unpackaged.el#smerge-mode
@@ -6999,9 +7009,9 @@ Lens shows refs for each variable in an overlay which is annoying. Also duplicat
   :custom
   (python-fill-docstring-style 'symmetric)
   ;; https://www.reddit.com/r/neovim/comments/ymcu8v/pyright_takes_several_minutes_when_1st_python/
+  ;; (lsp-pyright-diagnostic-mode "workspace")
   (lsp-pyright-diagnostic-mode "openFilesOnly")
   (lsp-pyright-typechecking-mode "standard")
-
   )
 #+end_src
 

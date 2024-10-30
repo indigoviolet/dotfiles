@@ -247,7 +247,7 @@ default:
 ignore_missing_imports = true
 #+end_src
 
-* Default :global:
+* COMMENT Default :global:
 
 ** COMMENT yadm-if :src:
 
