@@ -953,7 +953,7 @@ doesn't work.. so it's at the beginning of config.el and commented out.
 #+begin_src emacs-lisp :tangle packages.el
 
 ;; magit-todos: was slow on the startup, unused
-(disable-packages! magit-todos)
+;; (disable-packages! magit-todos)
 ;; (disable-packages! which-key)
 (disable-packages! dired-git-info)
 (disable-packages! highlight-indent-guides)
@@ -973,6 +973,8 @@ doesn't work.. so it's at the beginning of config.el and commented out.
 (unpin! git-commit)
 (package! magit :pin "0aa2686" :recipe (:host github :repo "magit/magit"))
 (package! forge :pin "35cc600" :recipe (:host github :repo "magit/forge"))
+
+
 
 #+end_src
 
@@ -3099,6 +3101,8 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
       (vi/set-font-size 13.0))
     ((equal disp '(1710 . 1107))         ;macbook air 15"
       (vi/set-font-size 15.0))
+    ((equal disp '(1728 . 1117))         ;macbook pro 16"
+      (vi/set-font-size 14.5))
     ((equal disp '(1920 . 1080))    ; asus monitor
       (vi/set-font-size 12.0))
     (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
@@ -4434,6 +4438,14 @@ https://old.reddit.com/r/emacs/comments/e2u5n9/code_folding_with_outlineminormod
 (use-package! treesit-fold
   :config
   (global-treesit-fold-mode)
+  (global-treesit-fold-indicators-mode)
+
+  (push '(for_statement . treesit-fold-range-seq) (alist-get 'python-ts-mode treesit-fold-range-alist))
+  (push '(if_statement . treesit-fold-range-seq) (alist-get 'python-ts-mode treesit-fold-range-alist))
+  (push '(expression_statement . treesit-fold-range-seq) (alist-get 'python-ts-mode treesit-fold-range-alist))
+  (push '(try_statement . treesit-fold-range-seq) (alist-get 'python-ts-mode treesit-fold-range-alist))
+  (push '(return_statement . treesit-fold-range-seq) (alist-get 'python-ts-mode treesit-fold-range-alist))
+  (push '(with_statement . treesit-fold-range-seq) (alist-get 'python-ts-mode treesit-fold-range-alist))
   :bind
   (("C-<tab>" . treesit-fold-toggle)
     ("S-<tab>" . treesit-fold-open))
@@ -6597,6 +6609,23 @@ also does not track untracked files
 
 #+end_src
 
+** magit-todos
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! magit-todos)
+#+end_src
+
+
+#+begin_src emacs-lisp
+(use-package! magit-todos
+  :custom
+  ;; Allow `TODO (venky):` space after TODO
+  ;; also allow TODO without colon
+  (setq! magit-todos-keyword-suffix "[ ]?\\(?:[([][^])]+[])]\\)?:?")
+  :config (magit-todos-mode 1))
+#+end_src
+
+
 * Yadm
 ** COMMENT Handle bare repos (yadm/$HOME)
 
@@ -6677,6 +6706,11 @@ Quit recursive edit using C-]
 #+end_src
 
 * LSP
+
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! lsp-mode :pin "561788352cd566558d303f72821c160295089839") ;ruff server
+#+end_src
 
 
 #+begin_src emacs-lisp
@@ -7021,9 +7055,10 @@ Lens shows refs for each variable in an overlay which is annoying. Also duplicat
   ;; This needs to happen after lsp else:
   ;; Error (python-mode-hook): Error running hook "vi/setup-python-flycheck" because: (user-error lsp is not a syntax checker)
 
-  (flycheck-select-checker 'python-ruff)
-  (flycheck-add-next-checker 'python-ruff '(t . lsp))
+  ;; (flycheck-select-checker 'python-ruff)
+  ;; (flycheck-add-next-checker 'python-ruff '(t . lsp))
 
+  (flycheck-select-checker 'lsp)
   ;; (flycheck-add-next-checker 'lsp '(t . python-pyright))
   ;; (flycheck-add-next-checker 'lsp '(t . python-ruff))
 
@@ -7196,7 +7231,7 @@ ruff-lsp support is built into emacs lsp (https://emacs-lsp.github.io/lsp-mode/p
 
 ** Flycheck checkers
 
-*** ruff flycheck
+*** COMMENT ruff flycheck
 :PROPERTIES:
 :CREATED:  [2023-08-09 Wed 14:15]
 :END:
@@ -7437,7 +7472,7 @@ Doesn't appear to update correctly as you type -- leads to spurious SyntaxErrors
 ;; (setq! lsp-disabled-clients '(python-mode . (ruff-server))) ;; (python-ts-mode . (ruff-lsp)))
 
 ;; use through ruff-lsp
-(setq! lsp-ruff-lsp-server-command '("/opt/homebrew/bin/ruff" "server" "--preview"))
+ (setq! lsp-ruff-lsp-server-command '("/opt/homebrew/bin/ruff" "server" "--preview"))
 
   ;; (lsp-register-client
   ;;  (make-lsp-client :new-connection (lsp-stdio-connection '("ruff" "server" "--preview"))
@@ -8237,7 +8272,7 @@ alternative: https://github.com/karthink/org-auctex
          (project-root (project-root (project-current t)))
          (default-directory (or project-root default-directory)))
     (if file-name
-        (start-process "vscode" nil "code" "--goto"
+        (start-process "vscode" nil "cursor" "--goto"
                        (format "%s:%d:%d"
                                (file-relative-name file-name project-root)
                                line-number

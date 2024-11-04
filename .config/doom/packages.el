@@ -56,7 +56,7 @@
 (package! benchmark-init)
 
 ;; magit-todos: was slow on the startup, unused
-(disable-packages! magit-todos)
+;; (disable-packages! magit-todos)
 ;; (disable-packages! which-key)
 (disable-packages! dired-git-info)
 (disable-packages! highlight-indent-guides)
@@ -235,6 +235,10 @@
 (package! browse-at-remote :recipe (:host github :repo "rmuslimov/browse-at-remote"))
 
 (package! git-link)
+
+(package! magit-todos)
+
+(package! lsp-mode :pin "561788352cd566558d303f72821c160295089839") ;ruff server
 
 (package! with-venv :recipe (:host github :repo "10sr/with-venv-el"))
 

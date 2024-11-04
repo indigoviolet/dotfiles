@@ -1192,6 +1192,8 @@ _q_: Quit
       (vi/set-font-size 13.0))
     ((equal disp '(1710 . 1107))         ;macbook air 15"
       (vi/set-font-size 15.0))
+    ((equal disp '(1728 . 1117))         ;macbook pro 16"
+      (vi/set-font-size 14.5))
     ((equal disp '(1920 . 1080))    ; asus monitor
       (vi/set-font-size 12.0))
     (t (message "Unknown display size %sx%s" (car disp) (cdr disp)))))
@@ -1823,6 +1825,14 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
 (use-package! treesit-fold
   :config
   (global-treesit-fold-mode)
+  (global-treesit-fold-indicators-mode)
+
+  (push '(for_statement . treesit-fold-range-seq) (alist-get 'python-ts-mode treesit-fold-range-alist))
+  (push '(if_statement . treesit-fold-range-seq) (alist-get 'python-ts-mode treesit-fold-range-alist))
+  (push '(expression_statement . treesit-fold-range-seq) (alist-get 'python-ts-mode treesit-fold-range-alist))
+  (push '(try_statement . treesit-fold-range-seq) (alist-get 'python-ts-mode treesit-fold-range-alist))
+  (push '(return_statement . treesit-fold-range-seq) (alist-get 'python-ts-mode treesit-fold-range-alist))
+  (push '(with_statement . treesit-fold-range-seq) (alist-get 'python-ts-mode treesit-fold-range-alist))
   :bind
   (("C-<tab>" . treesit-fold-toggle)
     ("S-<tab>" . treesit-fold-open))
@@ -2875,6 +2885,13 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
   :custom
   (git-link-default-branch "main"))
 
+(use-package! magit-todos
+  :custom
+  ;; Allow `TODO (venky):` space after TODO
+  ;; also allow TODO without colon
+  (setq! magit-todos-keyword-suffix "[ ]?\\(?:[([][^])]+[])]\\)?:?")
+  :config (magit-todos-mode 1))
+
 ;; We leave this in so that /yadm:: still works
 (use-package! tramp
   :config
@@ -3093,9 +3110,10 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
   ;; This needs to happen after lsp else:
   ;; Error (python-mode-hook): Error running hook "vi/setup-python-flycheck" because: (user-error lsp is not a syntax checker)
 
-  (flycheck-select-checker 'python-ruff)
-  (flycheck-add-next-checker 'python-ruff '(t . lsp))
+  ;; (flycheck-select-checker 'python-ruff)
+  ;; (flycheck-add-next-checker 'python-ruff '(t . lsp))
 
+  (flycheck-select-checker 'lsp)
   ;; (flycheck-add-next-checker 'lsp '(t . python-pyright))
   ;; (flycheck-add-next-checker 'lsp '(t . python-ruff))
 
@@ -3136,32 +3154,6 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
 
 (add-hook! 'python-mode-hook #'vi/python-mode-lsp)
 (setq python-ts-mode-hook python-mode-hook)
-
-;; From https://github.com/flycheck/flycheck/issues/1974#issuecomment-1343495202
-(flycheck-define-checker python-ruff
-  "A Python syntax and style checker using the ruff utility.
-To override the path to the ruff executable, set
-`flycheck-python-ruff-executable'.
-See URL `http://pypi.python.org/pypi/ruff'."
-  :command ("ruff"
-             "check"
-            "--output-format=concise"
-            (eval (when buffer-file-name
-                    (concat "--stdin-filename=" buffer-file-name)))
-            "-")
-  :standard-input t
-  :error-filter (lambda (errors)
-                  (let ((errors (flycheck-sanitize-errors errors)))
-                    (seq-map #'flycheck-flake8-fix-error-level errors)))
-  :error-patterns
-  ((warning line-start
-            (file-name) ":" line ":" (optional column ":") " "
-            (id (one-or-more (any alpha)) (one-or-more digit)) " "
-            (message (one-or-more not-newline))
-            line-end))
-  :modes (python-mode python-ts-mode))
-
-(add-to-list 'flycheck-checkers 'python-ruff)
 
 (major-mode-hydra-define (python-base-mode python-pytest-mode) (:exit t :quit-key ("q" "C-g"))
   (
@@ -3503,7 +3495,7 @@ Version 2016-01-08"
          (project-root (project-root (project-current t)))
          (default-directory (or project-root default-directory)))
     (if file-name
-        (start-process "vscode" nil "code" "--goto"
+        (start-process "vscode" nil "cursor" "--goto"
                        (format "%s:%d:%d"
                                (file-relative-name file-name project-root)
                                line-number
