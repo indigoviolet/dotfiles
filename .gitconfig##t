@@ -118,6 +118,15 @@
     # https://stackoverflow.com/questions/15587595/can-ediff-merge-simultaneously-show-the-ancestor-a-b-and-merge-buffers
     tool = emerge
     conflictstyle = diff3
+#     # tool = difft
+
+# https://mergiraf.org/usage.html
+[merge "mergiraf"]
+    name = mergiraf
+    driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P
+
+[core]
+    attributesfile = ~/.gitattributes
 
 [mergetool]
     # https://www.eseth.org/2020/mergetools.html
@@ -171,8 +180,8 @@
 [pull]
     rebase = true
 
-[interactive]
-    diffFilter = delta --color-only --features=interactive
+# [interactive]
+#     diffFilter = delta --color-only --features=interactive
 
 [delta]
     features = decorations
@@ -200,6 +209,7 @@
 
 [diff]
     colorMoved = default
+    external = difft
 
 [github]
 	user = indigoviolet
