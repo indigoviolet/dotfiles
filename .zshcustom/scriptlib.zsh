@@ -51,3 +51,15 @@ function sudo_with_env () {
     set -x
     sudo -E env PATH=$PATH SUDO_EDITOR=$SUDO_EDITOR "$@"
 }
+
+function prepend_path_if_missing() {
+  local dir=$1
+  [[ -z "$dir" ]] && {
+    print "Usage: prepend_path_if_missing <directory>"
+    return 1
+  }
+  # Check if directory is already in the $path array:
+  if (( ${+path[(r)$dir]} == 0 )); then
+    path=($dir $path)
+  fi
+}

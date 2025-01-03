@@ -1,1 +1,1 @@
-path[1,0]=$HOME/.bun/bin
+prepend_path_if_missing $HOME/.bun/bin

@@ -20,42 +20,44 @@ git-modified() {
     _gitmodified | sort | uniq
 }
 
-
 gitinfo() {
-  pushd . >/dev/null
+    pushd . >/dev/null
 
-  # Find base of git directory
-  while [ ! -d .git ] && [ ! `pwd` = "/" ]; do cd ..; done
+    # Find base of git directory
+    while [ ! -d .git ] && [ ! $(pwd) = "/" ]; do cd ..; done
 
-  # Show various information about this git directory
-  if [ -d .git ]; then
-    echo "== Remote URL: `git remote -v`"
+    # Show various information about this git directory
+    if [ -d .git ]; then
+        echo "== Remote URL: $(git remote -v)"
 
-    echo "== Remote Branches: "
-    git branch -r
-    echo
+        echo "== Remote Branches: "
+        git branch -r
+        echo
 
-    echo "== Local Branches:"
-    git branch
-    echo
+        echo "== Local Branches:"
+        git branch
+        echo
 
-    echo "== Configuration (.git/config)"
-    cat .git/config
-    echo
+        echo "== Configuration (.git/config)"
+        cat .git/config
+        echo
 
-    echo "== Most Recent Commit"
-    git --no-pager log --max-count=1
-    echo
+        echo "== Most Recent Commit"
+        git --no-pager log --max-count=1
+        echo
 
-    echo "Type 'git log' for more commits, or 'git show' for full commit details."
-  else
-    echo "Not a git repository."
-  fi
+        echo "Type 'git log' for more commits, or 'git show' for full commit details."
+    else
+        echo "Not a git repository."
+    fi
 
-  popd >/dev/null
+    popd >/dev/null
 }
 
 # https://stackoverflow.com/a/62401418
 export GIT_MERGE_AUTOEDIT=no
 
 export GT_RENAME=1
+
+# difftastic
+export DFT_DISPLAY="side-by-side-show-both"

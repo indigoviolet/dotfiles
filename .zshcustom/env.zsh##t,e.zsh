@@ -48,11 +48,11 @@ setopt HIST_IGNORE_SPACE
 # TODO: see https://github.com/indigoviolet/zsh-history-filter/blob/master/zsh-history-filter.plugin.zsh#L28 -- we should change this to be a regexp, and turn on zsh's PCRE support
 # export HISTORY_FILTER_EXCLUDE=("fc", "history")
 
-path[1,0]=$HOME/.local/bin/
-path[1,0]=$HOME/.cargo/bin/
+prepend_path_if_missing $HOME/.local/bin/
+prepend_path_if_missing $HOME/.cargo/bin/
 
 # https://github.com/jdxcode/rtx#ide-integration (vscode doesn't load the function from .zshcustom/asdf.zsh)
-path[1,0]=$HOME/.local/share/rtx/shims/
+prepend_path_if_missing $HOME/.local/share/rtx/shims/
 
 
 # zsh-autosuggestions

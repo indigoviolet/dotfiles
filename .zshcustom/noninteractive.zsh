@@ -18,5 +18,5 @@
 # [[ $NONINTERACTIVE_ZSH_SOURCED -eq 1 ]] && return || NONINTERACTIVE_ZSH_SOURCED=1
 
 ZSH_CUSTOM_DIR=${HOME}/.zshcustom
-source ${ZSH_CUSTOM_DIR}/env.zsh
 source ${ZSH_CUSTOM_DIR}/scriptlib.zsh
+source ${ZSH_CUSTOM_DIR}/env.zsh
