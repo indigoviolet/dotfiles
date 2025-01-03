@@ -48,6 +48,11 @@ setopt HIST_IGNORE_SPACE
 # TODO: see https://github.com/indigoviolet/zsh-history-filter/blob/master/zsh-history-filter.plugin.zsh#L28 -- we should change this to be a regexp, and turn on zsh's PCRE support
 # export HISTORY_FILTER_EXCLUDE=("fc", "history")
 
+
+# NOTE: we follow the tip of setting PATH='' in /etc/zprofile before using mac os path_helper here: https://www.softec.lu/site/DevelopersCorner/MasteringThePathHelper
+#
+# We want to have shell initialization be idempotent wrt PATH so that we can invoke tmux etc. and not have PATH change
+
 prepend_path_if_missing $HOME/.local/bin/
 prepend_path_if_missing $HOME/.cargo/bin/
 

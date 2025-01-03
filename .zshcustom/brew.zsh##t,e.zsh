@@ -13,7 +13,7 @@ fi
 
 {% if yadm.os == "Darwin" %}
 # coreutils, but use non-g-prefixed names
-PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+prepend_path_if_missing /opt/homebrew/opt/coreutils/libexec/gnubin
 {% endif %}
 
 if type brew &>/dev/null; then
