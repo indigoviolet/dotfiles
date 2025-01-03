@@ -163,7 +163,7 @@
 
 (package! mwim)
 
-(package! gumshoe :recipe (:host github :repo "Overdr0ne/gumshoe"))
+(package! back-button)
 
 (package! smartscan)
 
@@ -243,8 +243,6 @@
 (package! with-venv :recipe (:host github :repo "10sr/with-venv-el"))
 
 (package! dap-mode :recipe (:host github :repo "emacs-lsp/dap-mode"))
-
-(package! ts-movement :recipe (:host github :repo "indigoviolet/ts-movement"))
 
 (package! treesit-auto)
 

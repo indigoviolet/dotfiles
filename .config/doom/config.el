@@ -803,9 +803,22 @@ message listing the hooks."
   ("M-0" . winner-redo)
   )
 
+(defun count-non-dedicated-windows ()
+  "Count the number of non-dedicated windows in all frames."
+  ;;(interactive)
+  (let ((count 0))
+    (walk-windows
+     (lambda (window)
+       (unless (window-dedicated-p window)
+         (setq count (1+ count))))
+     'nomini t)
+    ;; (message "Number of non-dedicated windows: %d" count)
+    count))
+
+
 (defun vi/zygospore ()
   (interactive)
-  (if (= (count-windows) 1) (winner-undo) (delete-other-windows)))
+  (if (= (count-non-dedicated-windows) 1) (winner-undo) (delete-other-windows)))
 
 (map! :g "C-x 1" #'vi/zygospore)
 
@@ -1160,7 +1173,11 @@ _q_: Quit
   (message
    (if (let (window (get-buffer-window (current-buffer)))
          (set-window-dedicated-p window
-           (not (window-dedicated-p window))))
+           (not (window-dedicated-p window)))
+         ;; (set-window-parameter window 'no-delete-other-windows
+         ;;   (not (window-parameter window 'no-delete-other-windows)))
+         ;; )
+         )
        "Window '%s' is dedicated"
      "Window '%s' is normal")
    (current-buffer)))
@@ -1216,9 +1233,9 @@ _q_: Quit
 (use-package! visible-mark
   :custom
   (visible-mark-max 1)
+  (visible-mark-faces '(visible-mark-active))
   :config
-  (global-visible-mark-mode t)
-  )
+  (global-visible-mark-mode t))
 
 ;; (use-package! hungry-delete
 ;;   :after-call doom-first-input-hook
@@ -1522,17 +1539,19 @@ _q_: Quit
   ("C-e" . mwim-end)
   )
 
-(use-package! gumshoe
+(use-package! back-button
   :config
-  ;; Enabing global-gumshoe-mode will initiate tracking
-  (global-gumshoe-mode +1)
-  ;; customize peruse slot display if you like
-  (setf gumshoe-slot-schema '(time buffer position line))
-  ;; personally, I use perspectives
-  ;; (setf gumshoe-slot-schema '(perspective time buffer position line))
-  ;; disable auto-cancel of backtracking
-  (setf gumshoe-auto-cancel-backtracking-p nil)
-  )
+  (back-button-mode +1))
+
+;; https://www.masteringemacs.org/article/fixing-mark-commands-transient-mark-mode
+(defun push-mark-no-activate ()
+  "Pushes `point' to `mark-ring' and does not activate the region
+   Equivalent to \\[set-mark-command] when \\[transient-mark-mode] is disabled"
+  (interactive)
+  (push-mark (point) t nil)
+  (message "Pushed mark to ring"))
+
+(global-set-key (kbd "C-`") 'back-button-push-mark-local-and-global) ;; push-mark-no-activate)
 
 (after! isearch
   ;; Show match/total in isearch prompt
@@ -2084,14 +2103,16 @@ is available. Useful if you tend to hammer your keys like I do."
       ;; ("P" consult-projectile-find-file "Project files")
       ;; ("M-P" projectile-save-project-buffers "Save Project Buffers")
       ("T" +treemacs/toggle)
-      ("R" vi/revert-buffer "Revert")
+      ("r" vi/revert-buffer "Revert")
       ("M-k" vi/force-kill-buffer "Force kill")
       )
     "Intra-buffer"
     (
       ("o" consult-outline "outlIne")
       ("i" consult-imenu "Imenu")
-      ("m" tsm/hydra/body "TS movement")
+      ;; ("m" tsm/hydra/body "TS movement")
+      ("m" consult-mark "Mark")
+      ("M" consult-global-mark "Global Mark")
       ;; ("." push-mark-command "Push Mark")
       ;; ("m" consult-mark "consult-mark")
       ;; ("M" consult-global-mark "global-mark")
@@ -2119,7 +2140,7 @@ is available. Useful if you tend to hammer your keys like I do."
       ("M-\\" edit-indirect-region "edit indirect region")
       ("d" dirvish-dwim "dired" )
       ;; ("r" consult-notes-org-roam-find-node "find node")
-      ("r" consult-org-roam-file-find "find node")
+      ("R" consult-org-roam-file-find "find node")
       ("M-l" org-store-link "store link")
       ;; ("A" org-agenda-list "Agenda")
       ("a" vi/align-comments "Align comments")
@@ -2580,7 +2601,8 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
         ("c" flycheck-buffer "check buffer")
         ("l" (consult-lsp-diagnostics t) "file errors")
         ;; ("p" flycheck-projectile-list-errors "project errors")
-        ("L" consult-flycheck "consult")
+        ("M-L" consult-flycheck "consult")
+        ("L" lsp-treemacs-errors-list "treemacs errors")
         ("d" (flycheck-mode -1) "Disable Flycheck")
         ("e" (flycheck-mode) "Enable Flycheck")
         ("q" nil "quit")
@@ -2655,7 +2677,7 @@ Results are reported in a compilation buffer."
   (setq git-commit-summary-max-length 100)
 
   ;; set to 'all, this seems to make commits slow?
-  (setq magit-diff-refine-hunk t)
+  (setq magit-diff-refine-hunk nil)
   (setq magit-log-section-commit-count 25)
 
   ;; https://github.com/magit/forge/issues/676#issuecomment-2252842813
@@ -2789,6 +2811,9 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
         (user-error "Push to upstream aborted by user"))))
   (add-hook 'magit-process-prompt-functions 'magit-process-git-credential-manager-core)
   )
+
+(remove-hook 'server-switch-hook 'magit-commit-diff)
+(remove-hook 'with-editor-filter-visit-hook 'magit-commit-diff)
 
 ;; (transient-append-suffix 'magit-run '(0 0 0) ; 0 means add at the end
 ;;   '("U" "gt submit" vi/magit-gt-submit)
@@ -3032,48 +3057,6 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
   (interactive (list (treemacs-node-at-point)))
   (kill-new (message (plist-get (button-get node :item) :value))))
 
-(use-package! ts-movement
-  :config
-  (pretty-hydra-define tsm/hydra ()
-    (
-    "TS Movement"
-    (("d" #'tsm/delete-overlay-at-point "delete overlay")
-    ("D" #'tsm/clear-overlays-of-type "clear overlay")
-    ("C-b" #'tsm/backward-overlay "back overlay")
-    ("C-f" #'tsm/forward-overlay "forward overlay")
-    ("b" #'tsm/node-prev "prev")
-    ("f" #'tsm/node-next "next")
-    ("p" #'tsm/node-parent "parent")
-    ("n" #'tsm/node-child "child")
-    ("N" #'tsm/node-children "children")
-    ("s" #'tsm/node-children-of-type "children of type")
-    ("a" #'tsm/node-start "start")
-    ("e" #'tsm/node-end "end")
-    ("m" #'tsm/node-mark "mark")
-    ("c" #'tsm/mc/mark-all-overlays "mark all overlays"))))
-  ;;(define-key ts-movement-map (kbd "C-c .") #'tsm/hydra/body)
-  (push 'tsm/hydra/tsm/mc/mark-all-overlays mc--default-cmds-to-run-once)
-  :hook
-  (bash-ts-mode . ts-movement-mode)
-  (c++-ts-mode . ts-movement-mode)
-  (c-ts-mode . ts-movement-mode)
-  (cmake-ts-mode . ts-movement-mode)
-  (csharp-ts-mode . ts-movement-mode)
-  (css-ts-mode . ts-movement-mode)
-  (dockerfile-ts-mode . ts-movement-mode)
-  (go-mod-ts-mode . ts-movement-mode)
-  (go-ts-mode . ts-movement-mode)
-  (java-ts-mode . ts-movement-mode)
-  (js-ts-mode . ts-movement-mode)
-  (json-ts-mode . ts-movement-mode)
-  (python-ts-mode . ts-movement-mode)
-  (ruby-ts-mode . ts-movement-mode)
-  (rust-ts-mode . ts-movement-mode)
-  (toml-ts-mode . ts-movement-mode)
-  (tsx-ts-mode . ts-movement-mode)
-  (typescript-ts-mode . ts-movement-mode)
-  (yaml-ts-mode . ts-movement-mode))
-
 ;; TODO: tie this somehow directly to a treesitter mode?
 (map! :mode python-ts-mode "C-b"  #'treesit-beginning-of-defun)
 (map! :mode python-ts-mode "C-f"  #'treesit-end-of-defun)
@@ -3182,7 +3165,7 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
   (interactive "*")
   ;; even with this, it will drop comments https://github.com/deshaw/pyflyby/issues/154
   ;;  "--align=0" "--from-spaces=1")
-  (pyflyby-transform-region-with-command "tidy-imports" "--hanging-indent=never" "--align=0" "--no-align-future" "--no-separate-from-imports")
+  (pyflyby-transform-region-with-command "tidy-imports" "--hanging-indent=never" "--align=0" "--no-align-future" "--no-separate-from-imports") ;; "--no-remove-unused")
   )
 
 ;;; Doom -style setting doesn't allow multiple formatters per mode
