@@ -200,28 +200,28 @@ sudo *CMD:
 #     watchexec -w "$nbfile" -w "$pyfile" ${meta_opt} --watch-when-idle --postpone --on-busy-update=do-nothing --print-events ${poll_opt} 'parallel --verbose --delimiter : "jupytext --update --quiet --sync --use-source-timestamp $WATCHEXEC_COMMON_PATH/{}" ::: $WATCHEXEC_WRITTEN_PATH '${add_vars_to_watch}
 #     # watchexec -w $nbfile -w $pyfile --no-meta -p "jupytext --sync $nbfile"
 
-jupytext-sync nb_or_script:
-    cd {{ invocation_directory() }} && jupytext --sync --use-source-timestamp {{ nb_or_script }}
+# jupytext-sync nb_or_script:
+#     cd {{ invocation_directory() }} && jupytext --sync --use-source-timestamp {{ nb_or_script }}
 
-jupytext-unpair nb_or_script:
-    cd {{ invocation_directory() }} && jupytext --set-formats {{ extension(nb_or_script) }} {{ nb_or_script }}
+# jupytext-unpair nb_or_script:
+#     cd {{ invocation_directory() }} && jupytext --set-formats {{ extension(nb_or_script) }} {{ nb_or_script }}
 
-# jupytext -p doesn't work if we put formats: [ipynb, py:percent] in jupytext.toml
-# https://github.com/mwouts/jupytext/issues/928
-jupytext-is-managed nb:
-    cd {{ invocation_directory() }} && jq -e '(.metadata.jupytext | length) > 0' {{ nb }}
+# # jupytext -p doesn't work if we put formats: [ipynb, py:percent] in jupytext.toml
+# # https://github.com/mwouts/jupytext/issues/928
+# jupytext-is-managed nb:
+#     cd {{ invocation_directory() }} && jq -e '(.metadata.jupytext | length) > 0' {{ nb }}
 
-# If it is managed, and there is a formats key, then it is not the default [ipynb,py:percent]
-jupytext-is-not-default-paired nb:
-    {{ just }} jupytext-is-managed {{ nb }} && jq -e '.metadata.jupytext.formats == null' {{ nb }}
+# # If it is managed, and there is a formats key, then it is not the default [ipynb,py:percent]
+# jupytext-is-not-default-paired nb:
+#     {{ just }} jupytext-is-managed {{ nb }} && jq -e '.metadata.jupytext.formats == null' {{ nb }}
 
-# Rename a pair of py/ipynb files
-jupytext-rename-pair nb_or_script newname_without_ext:
-    #!/usr/bin/env bash
-    set_x
-    cd {{ invocation_directory() }}
-    mv {{ nb_or_script }} {{ join(parent_directory(nb_or_script), newname_without_ext + "." + extension(nb_or_script)) }}
-    complement_ext={{ if extension(nb_or_script) == 'ipynb' { '.py' } else { '.ipynb' } }}; mv {{ without_extension(nb_or_script) }}$complement_ext {{ join(parent_directory(nb_or_script), newname_without_ext) }}$complement_ext
+# # Rename a pair of py/ipynb files
+# jupytext-rename-pair nb_or_script newname_without_ext:
+#     #!/usr/bin/env bash
+#     set_x
+#     cd {{ invocation_directory() }}
+#     mv {{ nb_or_script }} {{ join(parent_directory(nb_or_script), newname_without_ext + "." + extension(nb_or_script)) }}
+#     complement_ext={{ if extension(nb_or_script) == 'ipynb' { '.py' } else { '.ipynb' } }}; mv {{ without_extension(nb_or_script) }}$complement_ext {{ join(parent_directory(nb_or_script), newname_without_ext) }}$complement_ext
 
 ensure-sudo:
     #!/usr/bin/env bash
@@ -230,15 +230,15 @@ ensure-sudo:
         exit 1
     fi
 
-glances plugins=env_var_or_default("plugins", "") *args='':
-    glances --sparkline --disable-plugin all --enable-plugins=quicklook,cpu,gpu,mem,load,processcount,processlist,docker,{{plugins}} {{ args }}
+# glances plugins=env_var_or_default("plugins", "") *args='':
+#     glances --sparkline --disable-plugin all --enable-plugins=quicklook,cpu,gpu,mem,load,processcount,processlist,docker,{{plugins}} {{ args }}
 
 
-dl *cmd:
-    {{ just }} subjust "/home/venky/dev/gcloud/gcpvm --dotenv-filename=/home/venky/dev/gcloud/deeplearning-1-vm.env" "$@"
+# dl *cmd:
+#     {{ just }} subjust "/home/venky/dev/gcloud/gcpvm --dotenv-filename=/home/venky/dev/gcloud/deeplearning-1-vm.env" "$@"
 
-pregen *cmd:
-    {{ just }} subjust "/home/venky/dev/gcloud/gcpvm --dotenv-filename=/home/venky/dev/gcloud/prod-pregenerate.env" "$@"
+# pregen *cmd:
+#     {{ just }} subjust "/home/venky/dev/gcloud/gcpvm --dotenv-filename=/home/venky/dev/gcloud/prod-pregenerate.env" "$@"
 
 # conda-create-env:
 #     #!/usr/bin/env bash
@@ -258,13 +258,13 @@ pregen *cmd:
 #        test -d ./.venv && \
 #        mamba env update -p ./.venv --file environment.yml --prune
 
-[no-cd]
-dvc_data_status json='no':
-    dvc data status --granular --unchanged --untracked-files=all {{ if json == 'yes' { "--json" } else { '' } }}
+# [no-cd]
+# dvc_data_status json='no':
+#     dvc data status --granular --unchanged --untracked-files=all {{ if json == 'yes' { "--json" } else { '' } }}
 
-[no-cd]
-dvc_du:
-    {{ just }} dvc_data_status 'yes' | jq -r '.unchanged[]' | xargs -IARG du -h "ARG" | sort -h
+# [no-cd]
+# dvc_du:
+#     {{ just }} dvc_data_status 'yes' | jq -r '.unchanged[]' | xargs -IARG du -h "ARG" | sort -h
 
 # Run command in abduco and capture log
 abduco +args:
@@ -279,12 +279,7 @@ abduco +args:
 {% endif %}
 
 abduco_connect:
-{% if yadm.os == "Ubuntu" %}
     abduco -a $(abduco | fzf | awk '{print $4}')
-{% endif %}
-{% if yadm.os == "Darwin" %}
-    abduco -a $(abduco | fzf | awk '{print $4}')
-{% endif %}
 
 # cleans up completed sessions (But not their logs)
 abduco_cleanup:
@@ -374,19 +369,19 @@ yadm_ls_files_for_mutagen:
 yadm_sync_restart: yadm_ls_files_for_mutagen
     yadm alt && cd ~/.config/yadm && {{ just }} mutagen-project-restart
 
-[no-cd]
-tmux_split name *CMD:
-    #!/usr/bin/env bash
-    if ! tmux has-session -t {{ name }} &> /dev/null; then
-      tmux new-session -d -s {{ name }} "${@:2}"
-    else
-      tmux split-window -t {{ name }}:0 -v "${@:2}" \; select-layout "tiled"
-    fi
+# [no-cd]
+# tmux_split name *CMD:
+#     #!/usr/bin/env bash
+#     if ! tmux has-session -t {{ name }} &> /dev/null; then
+#       tmux new-session -d -s {{ name }} "${@:2}"
+#     else
+#       tmux split-window -t {{ name }}:0 -v "${@:2}" \; select-layout "tiled"
+#     fi
 
-[no-cd]
-multitail +files:
-    echo {{ files }} | xargs -t -n1 {{ just }} tmux_split multitail tail -F
-    tmux attach -t multitail
+# [no-cd]
+# multitail +files:
+#     echo {{ files }} | xargs -t -n1 {{ just }} tmux_split multitail tail -F
+#     tmux attach -t multitail
 
 
 [no-cd]
@@ -414,11 +409,11 @@ find_up +patterns:
     done
 
 
-[no-cd]
-fzf_choose:
-    # this won't work for recipes with args; for that we need to define a zle widget
-    just --unstable $({{ just }} find_up .justfile justfile | \
-        xargs -n1 just --unstable  --list --list-heading= --list-prefix= -f | fzf | choose 0)
+# [no-cd]
+# fzf_choose:
+#     # this won't work for recipes with args; for that we need to define a zle widget
+#     just --unstable $({{ just }} find_up .justfile justfile | \
+#         xargs -n1 just --unstable  --list --list-heading= --list-prefix= -f | fzf | choose 0)
 
 
 
