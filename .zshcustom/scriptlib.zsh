@@ -52,14 +52,31 @@ function sudo_with_env () {
     sudo -E env PATH=$PATH SUDO_EDITOR=$SUDO_EDITOR "$@"
 }
 
+
+# Checks if a directory is already in $PATH
+function is_dir_in_path() {
+  local dir=$1
+  [[ -z "$dir" ]] && {
+    print "Usage: is_dir_in_path <directory>"
+    return 2
+  }
+
+  if (( ${+path[(r)$dir]} )); then
+    return 0  # Found
+  else
+    return 1  # Not found
+  fi
+}
+
+# Prepends a directory to $PATH if not present
 function prepend_path_if_missing() {
   local dir=$1
   [[ -z "$dir" ]] && {
     print "Usage: prepend_path_if_missing <directory>"
     return 1
   }
-  # Check if directory is already in the $path array:
-  if (( ${+path[(r)$dir]} == 0 )); then
-    path=($dir $path)
+
+  if ! is_dir_in_path "$dir"; then
+    path=("$dir" $path)
   fi
 }
