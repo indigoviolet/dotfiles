@@ -34,7 +34,7 @@ atuin_install:
 
 atuin_login:
     # password from bitwarden
-    atuin login -u indigoviolet --key $(cat ~/.local/share/atuin/key)
+    atuin login -u indigoviolet --key $(cat ~/.local/share/atuin/key) -p fondness-agent-provable
     atuin import auto
     atuin sync -f
 

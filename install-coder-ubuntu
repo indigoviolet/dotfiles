@@ -33,5 +33,4 @@ install:
     -{{ bootstrap }} zsh_login_shell
     -{{ bootstrap }} git-credential-manager
     -{{ bootstrap }} git_info
-    # requires password
-    # {{ bootstrap }} atuin_login
+    {{ bootstrap }} atuin_login
