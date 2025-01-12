@@ -26,7 +26,7 @@ brew "dtach"
 # More intuitive version of du in rust
 brew "dust"
 # Easily install prebuilt binaries from GitHub
-# brew "eget"
+brew "eget"
 # Simple, fast and user-friendly alternative to find
 brew "fd"
 # Command-line fuzzy finder written in Go
