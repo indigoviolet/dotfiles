@@ -36,7 +36,7 @@ WORKSPACE_DIR := "/workspaces/"
 DOTFILES_DIR := WORKSPACE_DIR / "dotfiles"
 
 yadm_clone:
-    yadm clone {{ DOTFILES_DIR }} --no-bootstrap
+    yadm clone {{ DOTFILES_DIR }} --no-bootstrap -f
     yadm checkout $HOME
 
 HOME := env("HOME")
@@ -44,7 +44,9 @@ bootstrap := HOME / ".config/yadm/bootstrap"
 
 install:
     test -d $HOME/.local/share/yadm/repo.git || {{ just }} yadm_clone
-    -yadm config local.class remote
+
+    yadm config yadm.auto-alt false
+    -yadm config --add local.class remote
     yadm config --add local.class debian
     yadm alt
 
