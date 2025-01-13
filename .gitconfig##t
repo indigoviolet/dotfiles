@@ -141,7 +141,7 @@
 [core]
     excludesfile = ~/.gitignore
     pager = delta
-	abbrev = 7                  #length of shas
+    abbrev = 7                  #length of shas
 
 [push]
     default = simple
@@ -209,7 +209,7 @@
 
 [diff]
     colorMoved = default
-    external = difft
+    tool = difft
 
 [github]
 	user = indigoviolet
