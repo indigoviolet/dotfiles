@@ -1230,13 +1230,6 @@ _q_: Quit
   (add-hook! 'dispwatch-display-change-hooks #'vi/adjust-font-size-for-display)
   )
 
-(use-package! visible-mark
-  :custom
-  (visible-mark-max 1)
-  (visible-mark-faces '(visible-mark-active))
-  :config
-  (global-visible-mark-mode t))
-
 ;; (use-package! hungry-delete
 ;;   :after-call doom-first-input-hook
 ;;   :config

@@ -73,7 +73,7 @@
 ;; https://github.com/doomemacs/doomemacs/issues/7244#issuecomment-1643370848
 
 ;; https://github.com/doomemacs/doomemacs/issues/7363#issuecomment-1696530746
-(unpin! git-commit)
+;; (unpin! git-commit)
 (package! magit :pin "0aa2686" :recipe (:host github :repo "magit/magit"))
 (package! forge :pin "35cc600" :recipe (:host github :repo "magit/forge"))
 
@@ -126,8 +126,6 @@
 (package! dispwatch :recipe (:host github :repo "mnp/dispwatch"))
 
 ;; (package! hungry-delete)
-
-(package! visible-mark)
 
 (package! expand-region)
 

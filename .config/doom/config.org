@@ -970,7 +970,7 @@ doesn't work.. so it's at the beginning of config.el and commented out.
 ;; https://github.com/doomemacs/doomemacs/issues/7244#issuecomment-1643370848
 
 ;; https://github.com/doomemacs/doomemacs/issues/7363#issuecomment-1696530746
-(unpin! git-commit)
+;; (unpin! git-commit)
 (package! magit :pin "0aa2686" :recipe (:host github :repo "magit/magit"))
 (package! forge :pin "35cc600" :recipe (:host github :repo "magit/forge"))
 
@@ -3153,7 +3153,7 @@ is the unicode block info in ~unicode-fonts-blocks~. We are not calling
 ;; (package! hungry-delete)
 #+end_src
 
-** visible mark
+** COMMENT visible mark
 sr.ht is down
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -6869,7 +6869,7 @@ we prefer to use dired-sidebar
   (lsp-treemacs-sync-mode 1)
   )
 #+end_src
-* DAP
+* dap
 
 
 #+begin_src emacs-lisp :tangle packages.el
