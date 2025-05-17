@@ -4,7 +4,7 @@ tap "homebrew/core"
 tap "homebrew/services"
 tap "indigoviolet/tap"
 tap "jesseduffield/lazydocker"
-tap "mutagen-io/mutagen"
+# tap "mutagen-io/mutagen"
 tap "rs/tap"
 # Provides session management: i.e. separate programs from terminals
 brew "abduco"
@@ -14,15 +14,15 @@ brew "atuin"
 # Official Amazon AWS command-line interface
 brew "awscli"
 # Human-friendly and fast alternative to cut and (sometimes) awk
-brew "choose-rust"
+# brew "choose-rust"
 # JSON, YAML, TOML, XML, and CSV query and modification tool
-brew "dasel"
+# brew "dasel"
 # Load/unload environment variables based on $PWD
 brew "direnv"
 # Tool for exploring each layer in a docker image
-brew "dive"
+# brew "dive"
 # Emulates the detach feature of screen
-brew "dtach"
+# brew "dtach"
 # More intuitive version of du in rust
 brew "dust"
 # Easily install prebuilt binaries from GitHub
@@ -58,7 +58,7 @@ brew "pgcli"
 # Execute binaries from Python packages in isolated environments
 brew "pipx"
 # Cloud native development platform
-brew "pulumi"
+# brew "pulumi"
 # Cross-shell prompt for astronauts
 brew "starship"
 # Display images in a terminal using block graphic characters
@@ -76,9 +76,9 @@ brew "yq"
 # Shell extension to navigate your filesystem faster
 brew "zoxide"
 # A simple terminal UI for docker, written in Go
-brew "jesseduffield/lazydocker/lazydocker"
+# brew "jesseduffield/lazydocker/lazydocker"
 # Fast file synchronization and network forwarding for remote development
-brew "mutagen-io/mutagen/mutagen-beta"
+# brew "mutagen-io/mutagen/mutagen-beta"
 brew "ripgrep"
 brew "ripgrep-all"
 brew "rye"
@@ -88,4 +88,4 @@ brew "gum"
 brew "lesspipe"
 brew "bat"
 brew "bat-extras"
-brew "helix"
+# brew "helix"
