@@ -90,7 +90,7 @@ source ${ZSH_CUSTOM_DIR}/aliases.zsh
 source ${ZSH_CUSTOM_DIR}/atuin.zsh
 source ${ZSH_CUSTOM_DIR}/secrets.zsh
 source ${ZSH_CUSTOM_DIR}/less.zsh
-source ${ZSH_CUSTOM_DIR}/broot.zsh
+# source ${ZSH_CUSTOM_DIR}/broot.zsh
 # source ${ZSH_CUSTOM_DIR}/tilix.zsh
 
 
