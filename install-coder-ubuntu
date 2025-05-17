@@ -13,7 +13,7 @@ DOTFILES_DIR := WORKSPACE_DIR / "dotfiles"
 
 yadm_clone:
     yadm clone {{ DOTFILES_DIR }} --no-bootstrap -f
-    yadm checkout $HOME
+    yadm checkout $HOME -f
 
 HOME := env("HOME")
 bootstrap := HOME / ".config/yadm/bootstrap"
