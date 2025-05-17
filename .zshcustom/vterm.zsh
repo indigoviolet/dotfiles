@@ -1,15 +1,39 @@
 # https://github.com/akermu/emacs-libvterm#shell-side-configuration
+# function vterm_printf() {
+#     if [ -n "$TMUX" ] && ([ "${TERM%%-*}" = "tmux" ] || [ "${TERM%%-*}" = "screen" ]); then
+#         # Tell tmux to pass the escape sequences through
+#         printf "\ePtmux;\e\e]%s\007\e\\" "$1"
+#     elif [ "${TERM%%-*}" = "screen" ]; then
+#         # GNU screen (screen, screen-256color, screen-256color-bce)
+#         printf "FOO \eP\e]%s\007\e\\" "$1"
+#     else
+#         printf "\e]%s\e\\" "$1"
+#         #print -R -e -n "\e]$1\e\\"
+#     fi
+# }
+
 function vterm_printf() {
-    if [ -n "$TMUX" ] && ([ "${TERM%%-*}" = "tmux" ] || [ "${TERM%%-*}" = "screen" ]); then
-        # Tell tmux to pass the escape sequences through
+    # Chop at the first . or -, to handle "screen-256color", "screen.xterm-256color", etc.
+    base="${TERM%%[.-]*}"
+    if [ -n "$TMUX" ] && { [ "$base" = "tmux" ] || [ "$base" = "screen" ]; }; then
         printf "\ePtmux;\e\e]%s\007\e\\" "$1"
-    elif [ "${TERM%%-*}" = "screen" ]; then
-        # GNU screen (screen, screen-256color, screen-256color-bce)
+    elif [ "$base" = "screen" ]; then
         printf "\eP\e]%s\007\e\\" "$1"
     else
         printf "\e]%s\e\\" "$1"
-        #print -R -e -n "\e]$1\e\\"
     fi
+
+    # if [ -n "$TMUX" ] &&
+    #     { [ "${TERM%%-*}" = "tmux" ] ||
+    #         [ "${TERM%%-*}" = "screen" ]; }; then
+    #     # Tell tmux to pass the escape sequences through
+    #     printf "\ePtmux;\e\e]%s\007\e\\" "$1"
+    # elif [ "${TERM%%-*}" = "screen" ]; then
+    #     # GNU screen (screen, screen-256color, screen-256color-bce)
+    #     printf "\eP\e]%s\007\e\\" "$1"
+    # else
+    #     printf "\e]%s\e\\" "$1"
+    # fi
 }
 
 if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
@@ -31,6 +55,7 @@ fi
 # vterm_printf "51;A$(whoami)@$(hostname):$(pwd)"
 
 vterm_prompt_end() {
+    # vterm_printf "51;A$(whoami)@$(hostname):$(pwd)"
     vterm_printf "51;A$(pwd)"
 }
 

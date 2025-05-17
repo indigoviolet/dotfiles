@@ -11,26 +11,3 @@
 .config/TabNine/registration_key filter=crypt diff=crypt merge=crypt
 .config/rclone/rclone.conf filter=crypt diff=crypt merge=crypt
 # .gitattributes:1 ends here
-# *.rs merge=mergiraf
-# *.go merge=mergiraf
-# *.js merge=mergiraf
-# *.jsx merge=mergiraf
-# *.json merge=mergiraf
-# *.yml merge=mergiraf
-# *.yaml merge=mergiraf
-# *.toml merge=mergiraf
-# *.html merge=mergiraf
-# *.htm merge=mergiraf
-# *.xhtml merge=mergiraf
-# *.xml merge=mergiraf
-# *.c merge=mergiraf
-# *.h merge=mergiraf
-# *.cc merge=mergiraf
-# *.cpp merge=mergiraf
-# *.hpp merge=mergiraf
-# *.cs merge=mergiraf
-# *.dart merge=mergiraf
-# *.scala merge=mergiraf
-# *.sbt merge=mergiraf
-# *.ts merge=mergiraf
-# *.py merge=mergiraf

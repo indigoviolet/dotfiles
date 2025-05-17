@@ -1,7 +1,7 @@
 # Install git with brew! so that completions are set up consistently
 # See completions config in brew.zsh
 
-# function _git_won() { _git_branch }
+function _git_won() { _git_branch }
 # function _git_stack() { _git_branch }
 # function _git_m() { _git_branch }
 # function _git_archive_branch() { _git_branch }

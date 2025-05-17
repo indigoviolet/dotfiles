@@ -171,8 +171,8 @@
   "The home directory path.")
 
 ;; https://github.com/emacs-lsp/lsp-mode#performance
-;; vterm as well
-(setq read-process-output-max (* 1024 1024)) ;; 1mb
+;; vterm and eat as well
+(setq read-process-output-max (* 20 1024 1024)) ;; 4mb
 (setq process-adaptive-read-buffering nil)
 
 (setq! uniquify-buffer-name-style 'post-forward
@@ -649,6 +649,17 @@ message listing the hooks."
   ;;   (when (and (boundp 'purpose-mode) purpose-mode (doom-modeline--active) (not doom-modeline--limited-width-p))
   ;;     (format (if (purpose-window-purpose-dedicated-p) "[%s]*" "[%s]") (purpose-window-purpose))))
 
+  (doom-modeline-def-segment vterm-copy-mode
+    "Returns 'Copy' when vterm-copy-mode is active"
+    (when
+      (and (eq major-mode 'vterm-mode) vterm-copy-mode)
+      (concat (doom-modeline-spc) "[Copy]")))
+
+  (doom-modeline-def-modeline 'vi/vterm
+    '(bar buffer-info-simple vterm-copy-mode selection-info remote-host)
+    '(minor-modes major-mode))
+
+  (remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
 
   (doom-modeline-def-segment vi/window-info
     ;; Useful for debugging: show window name in the modeline
@@ -1133,6 +1144,10 @@ _q_: Quit
   "Tile all vterm buffers."
   (interactive)
   (vi/tile-buffers-for-mode 'vterm-mode))
+(defun vi/tile-eat-buffers ()
+  "Tile all eat buffers."
+  (interactive)
+  (vi/tile-buffers-for-mode 'eat-mode))
 
 
 (defun vi/get-project-buffers ()
@@ -1424,18 +1439,6 @@ _q_: Quit
   :hook (prog-mode . undo-hl-mode)
   )
 
-(after! yasnippet
-  (setq yas-wrap-around-region t)
-  (yas-global-mode 1))
-
-(use-package! yankpad
-  :commands (yankpad-insert);;  company-yankpad)
-  :custom
-  (yankpad-file "~/.config/doom/yankpad.org")
-  :config
-  (add-to-list 'hippie-expand-try-functions-list #'yankpad-expand)
-  )
-
 (use-package! unfill
   :bind ("M-a" . unfill-paragraph))
 
@@ -1619,6 +1622,7 @@ _q_: Quit
   (setq! citre-find-reference-backends '(global)
     citre-find-definition-backends '(tags global)
     citre-tags-in-buffer-backends '(global tags)
+    citre-ctags-program (concat (getenv "HOMEBREW_PREFIX") "/bin/ctags")
     ))
 
 (use-package! gxref
@@ -1787,17 +1791,25 @@ _q_: Quit
    (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark)
    (global-set-key (kbd "M-j") 'avy-goto-char-timer))
 
-;;;###autoload
-(defun vi/vertico/project-search-from-root (&optional arg initial-query)
-  "Performs a live project search from the project root directory.
-If ARG (universal argument), include all files, even hidden or compressed ones."
+;; ;;;###autoload
+;; (defun vi/vertico/project-search-from-root (&optional arg initial-query)
+;;   "Performs a live project search from the project root directory.
+;; If ARG (universal argument), include all files, even hidden or compressed ones."
+;;   (interactive "P")
+;;   (message "project-search")
+;;   (let* ((proj (project-current))
+;;          (root (if proj (project-root proj) default-directory)))
+;;     (message "dir %s" root)
+;;     (let* ((default-directory root))
+;;       (message "dir now %s" default-directory)
+;;       (+vertico/project-search arg initial-query root)))
+;;   )
+
+;; FIXME: https://github.com/minad/consult/issues/705
+(defun +vertico/project-search-fixed (&optional arg initial-query directory)
   (interactive "P")
-  (let* ((proj (project-current))
-         (root (if proj
-                   (project-root proj)
-                 default-directory)))
-    (let ((default-directory root))
-      (+vertico/project-search arg initial-query))))
+  (consult-ripgrep directory initial-query))
+(advice-add '+vertico/project-search  :override #'+vertico/project-search-fixed )
 
 (use-package! recursive-narrow
   :commands (hydra-narrow/body recursive-narrow-or-widen-dwim recursive-widen)
@@ -1836,8 +1848,9 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
 
 (use-package! treesit-fold
   :config
-  (global-treesit-fold-mode)
-  (global-treesit-fold-indicators-mode)
+  ;; slow on large yaml files
+  ;; (global-treesit-fold-mode)
+  ;; (global-treesit-fold-indicators-mode)
 
   (push '(for_statement . treesit-fold-range-seq) (alist-get 'python-ts-mode treesit-fold-range-alist))
   (push '(if_statement . treesit-fold-range-seq) (alist-get 'python-ts-mode treesit-fold-range-alist))
@@ -1848,6 +1861,8 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
   :bind
   (("C-<tab>" . treesit-fold-toggle)
     ("S-<tab>" . treesit-fold-open))
+  :hook
+  (python-ts-mode . treesit-fold-indicators-mode) ;turns on treesit-fold-mode as well
   )
 
 (use-package! corfu
@@ -1866,10 +1881,9 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
           (conf-mode . corfu-mode)
           (text-mode . corfu-mode)
           )
-  :bind
-          (:map corfu-map ("TAB" . nil)
-            ("<tab>" . nil)
-            )
+  :bind (:map corfu-map ("TAB" . nil)
+          ("<tab>" . nil)
+          )
   )
 
 ;; (after! corfu
@@ -1881,18 +1895,18 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
   :after corfu
   :config
   (require 'company)
-  (defalias 'vi/cape-yankpad (cape-capf-buster (cape-company-to-capf #'company-yankpad)))
+  ;; (defalias 'vi/cape-yankpad (cape-capf-buster (cape-company-to-capf #'company-yankpad)))
 
-                        ;; (apply-partially #'company--multi-backend-adapter
-                        ;;   '( ;;company-tabnine
-                        ;;      company-yankpad)))))
+  ;;                       ;; (apply-partially #'company--multi-backend-adapter
+  ;;                       ;;   '( ;;company-tabnine
+  ;;                       ;;      company-yankpad)))))
 
-  ;; (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
-  (defalias 'vi/cape-interactive-yankpad (cape-capf-interactive #'vi/cape-yankpad))
+  ;; ;; (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
+  ;; (defalias 'vi/cape-interactive-yankpad (cape-capf-interactive #'vi/cape-yankpad))
 
-  (setq-hook! '(conf-mode-hook text-mode-hook json-mode-hook org-mode-hook ein:notebook-mode-hook)
-    completion-at-point-functions
-    (list #'vi/cape-yankpad)) ;; #'cape-dabbrev))
+  ;; (setq-hook! '(conf-mode-hook text-mode-hook json-mode-hook org-mode-hook ein:notebook-mode-hook)
+  ;;   completion-at-point-functions
+  ;;   (list #'vi/cape-yankpad)) ;; #'cape-dabbrev))
 
   (defun vi/corfu-lsp-setup ()
     ;; Combine LSP via corfu so we can use it in combination with
@@ -1916,13 +1930,8 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
     ;; (add-hook 'orderless-style-dispatchers #'my/orderless-dispatch-flex-first nil 'local)
 
     ;; Optionally configure the cape-capf-buster.
-    (setq-local completion-at-point-functions (list
-                                                (cape-capf-super
-                                                  (cape-capf-buster #'lsp-completion-at-point)
-                                                  #'vi/cape-yankpad
-                                                  ;; #'cape-dabbrev
-                                                  )
-                                                )))
+    ;; (setq-local completion-at-point-functions (list #'lsp-completion-at-point))
+    )
   (add-hook! 'lsp-completion-mode-hook #'vi/corfu-lsp-setup)
   )
 
@@ -1933,17 +1942,35 @@ If ARG (universal argument), include all files, even hidden or compressed ones."
   (copilot-enable-predicates nil)
   :config
 
-  ;; https://github.com/rksm/copilot-emacsd/blob/master/init.el
-  (defun rk/copilot-complete-or-accept ()
+  ;; Based on function from https://robert.kra.hn/posts/2023-02-22-copilot-emacs-setup/
+  (defun copilot-complete-or-accept ()
     "Command that either triggers a completion or accepts one if one
-is available. Useful if you tend to hammer your keys like I do."
+is available."
     (interactive)
     (if (copilot--overlay-visible)
       (progn
-        (copilot-accept-completion)
-        ;; (open-line 1)
-        ;; (next-line))
-        (copilot-complete))))
+        (copilot-accept-completion))
+      (copilot-complete)))
+
+  ;; (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+  ;; (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+  ;; (define-key copilot-mode-map [C-down] #'copilot-next-completion)
+  ;; (define-key copilot-mode-map [C-up] #'copilot-previous-completion)
+  ;; (define-key copilot-mode-map [C-right] #'copilot-accept-completion-by-word)
+  ;; (define-key copilot-mode-map [C-M-right] #'copilot-accept-completion-by-line)
+  ;; (define-key global-map (kbd "C-<return>") #'copilot-complete-or-accept)
+
+;;   ;; https://github.com/rksm/copilot-emacsd/blob/master/init.el
+;;   (defun rk/copilot-complete-or-accept ()
+;;     "Command that either triggers a completion or accepts one if one
+;; is available. Useful if you tend to hammer your keys like I do."
+;;     (interactive)
+;;     (if (copilot--overlay-visible)
+;;       (progn
+;;         (copilot-accept-completion)
+;;         ;; (open-line 1)
+;;         ;; (next-line))
+;;         (copilot-complete))))
 
   ;;   (defun rk/copilot-tab ()
   ;;     "Tab command that will complet with copilot if a completion is
@@ -1960,29 +1987,29 @@ is available. Useful if you tend to hammer your keys like I do."
   ;;   (let ((completed (when copilot-mode (copilot-accept-completion))))
   ;;     (unless completed (funcall next-func n))))
 
-  (defun rk/copilot-quit ()
-    "Run `copilot-clear-overlay' or `keyboard-quit'. If copilot is
-  cleared, make sure the overlay doesn't come back too soon."
-    (interactive)
-    (condition-case err
-      (when (copilot--overlay-visible)
-        (let ((pre-copilot-disable-predicates copilot-disable-predicates))
-          (setq copilot-disable-predicates (list (lambda () t)))
-          (copilot-clear-overlay)
-          (run-with-idle-timer
-            1
-            nil
-            (lambda ()
-              (setq copilot-disable-predicates pre-copilot-disable-predicates)))))
-      (error (message "Error in rk/copilot-quit: %s" err))))
+  ;; (defun rk/copilot-quit ()
+  ;;   "Run `copilot-clear-overlay' or `keyboard-quit'. If copilot is
+  ;; cleared, make sure the overlay doesn't come back too soon."
+  ;;   (interactive)
+  ;;   (condition-case err
+  ;;     (when (copilot--overlay-visible)
+  ;;       (let ((pre-copilot-disable-predicates copilot-disable-predicates))
+  ;;         (setq copilot-disable-predicates (list (lambda () t)))
+  ;;         (copilot-clear-overlay)
+  ;;         (run-with-idle-timer
+  ;;           1
+  ;;           nil
+  ;;           (lambda ()
+  ;;             (setq copilot-disable-predicates pre-copilot-disable-predicates)))))
+  ;;     (error (message "Error in rk/copilot-quit: %s" err))))
 
-  ;; (advice-add 'keyboard-quit :before #'rk/copilot-quit)
-  (add-hook! 'doom-escape-hook
-    (defun vi/rk/copilot-quit()
-      ;; return nil so other hooks can run
-      (progn (rk/copilot-quit) nil)))
+  ;; ;; (advice-add 'keyboard-quit :before #'rk/copilot-quit)
+  ;; (add-hook! 'doom-escape-hook
+  ;;   (defun vi/rk/copilot-quit()
+  ;;     ;; return nil so other hooks can run
+  ;;     (progn (rk/copilot-quit) nil)))
 
-  (setq tab-always-indent t)
+  ;; (setq tab-always-indent t)
 
 
   ;; complete by pressing right or tab but only when copilot completions are
@@ -1990,16 +2017,27 @@ is available. Useful if you tend to hammer your keys like I do."
   ;;(advice-add 'right-char :around #'rk/copilot-complete-if-active)
   ;; (advice-add 'indent-for-tab-command :around #'rk/copilot-complete-if-active)
 
-  :hook ((prog-mode . copilot-mode) (conf-mode . copilot-mode) (yaml-mode . copilot-mode))
+  :hook (
+          (prog-mode . copilot-mode)
+          (conf-mode . copilot-mode)
+          (yaml-mode . copilot-mode)
+             )
   :bind (
+          ("C-<return>" . 'copilot-complete-or-accept)
           :map copilot-completion-map
           ;; ("C-g" . 'copilot-clear-overlay)
-          ;;("<tab>" . 'copilot-accept-completion)
-          ("<right>" . 'copilot-accept-completion)
-          ("C-<up>" . 'copilot-previous-completion)
-          ("C-<down>" . 'copilot-next-completion)
-          ("C-<right>" . 'copilot-accept-completion-by-word)
-          ("C-M-<right>" . 'copilot-accept-completion-by-line))
+          (
+            ;; ("<tab>" . 'copilot-accept-completion)
+            ;; ("TAB" . 'copilot-accept-completion)
+            ("<right>" . 'copilot-accept-completion)
+            )
+
+          ;; :map copilot-mode-map
+          ;; (("C-<up>" . 'copilot-previous-completion)
+          ;; ("C-<down>" . 'copilot-next-completion)
+          ;; ("C-<right>" . 'copilot-accept-completion-by-word)
+          ;; ("C-M-<right>" . 'copilot-accept-completion-by-line))
+          )
 
   ;; :bind (;; ("C-TAB" . 'copilot-accept-completion-by-word)
   ;;         ;; ("C-<tab>" . 'copilot-accept-completion-by-word)
@@ -2008,8 +2046,7 @@ is available. Useful if you tend to hammer your keys like I do."
   ;;         ;; :map copilot-completion-map
   ;;         ;; ("C-<tab>" . 'copilot-accept-completion)
   ;;         )
-  )
-
+ )
 (add-hook! 'copilot-mode-hook (map! :map copilot-mode-map "C-<return>" #'rk/copilot-complete-or-accept))
 ;; (add-hook! 'copilot-mode-hook (map! :map prog-mode-map "<tab>" #'rk/copilot-tab))
 
@@ -2033,6 +2070,12 @@ is available. Useful if you tend to hammer your keys like I do."
   :bind
   ("C-c RET" . gptel-send)
   )
+
+(use-package! aidermacs
+  :custom
+  (aidermacs-backend 'vterm)
+  :config
+  (global-set-key (kbd "C-c a") 'aidermacs-transient-menu))
 
 (use-package! iedit
   :config
@@ -2059,6 +2102,7 @@ is available. Useful if you tend to hammer your keys like I do."
 ;; Allow C-h to trigger which-key before it is done automatically
 (after! which-key
   (which-key-mode)
+  (setq which-key-idle-delay 3)
   (setq which-key-show-early-on-C-h t)
   )
 
@@ -2083,7 +2127,8 @@ is available. Useful if you tend to hammer your keys like I do."
 (pretty-hydra-define global-hydra (:exit t :quit-key ("q" "C-g"))
   ("Searching"
     (;; ("f" +vertico/consult-fd "fd")
-      ("s" vi/vertico/project-search-from-root "rg in project")
+      ;;("s" vi/vertico/project-search-from-root "rg in project")
+      ("s" +vertico/project-search "rg in project")
       ("t" consult-citre "tags search")
       ("l" consult-line "Line isearch")
       ("M-." citre-peek "Citre peek")
@@ -2114,7 +2159,9 @@ is available. Useful if you tend to hammer your keys like I do."
     "vterms"
     (
       ("v" vi/tile-vterm-buffers "vterm-toggle")
+      ;; ("v" vi/tile-eat-buffers "term-toggle")
       ("V" (vi/vterm-local t) "vterm")
+      ;; ("V" (eat nil t) "term")
       ;; ("D" detached-list-sessions "Detached list sessions")
       )
     "Modes"
@@ -2128,7 +2175,7 @@ is available. Useful if you tend to hammer your keys like I do."
       )
     "Actions"
     (
-      ("M-y" yankpad-insert "yankpad")
+      ;; ("M-y" yankpad-insert "yankpad")
       ("g" magit-status-here "magit")
       ("M-\\" edit-indirect-region "edit indirect region")
       ("d" dirvish-dwim "dired" )
@@ -2479,18 +2526,6 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
     )
   :config
 
-  (doom-modeline-def-segment vterm-copy-mode
-    "Returns 'Copy' when vterm-copy-mode is active"
-    (when
-      (and (eq major-mode 'vterm-mode) vterm-copy-mode)
-      (concat (doom-modeline-spc) "[Copy]")))
-
-
-
-  (doom-modeline-def-modeline 'vi/vterm
-    '(bar buffer-info-simple vterm-copy-mode selection-info remote-host)
-    '(minor-modes major-mode))
-
   (remove-hook 'vterm-mode-hook #'hide-mode-line-mode)
 
   ;; This actually doesn't work with popper because it restores it to the old format
@@ -2519,7 +2554,10 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
   )
 (add-hook! 'vterm-mode-hook #'vi/vterm-hooks)
 
+;; https://github.com/akermu/emacs-libvterm/issues/179#issuecomment-1045331359
+;; (setq! vterm-shell "screen")
 (setq! vterm-shell "tmux")
+;; (setq! vterm-shell "zsh")
 
 
 (defsubst vi/vterm-dir ()
@@ -2563,6 +2601,54 @@ https://code.orgmode.org/bzg/org-mode/commit/13424336a6f30c50952d291e7a82906c121
 ;;   (interactive)
 ;;   (let ((vterm-shell "zsh"))
 ;;     (vi/vterm-local force-create)))
+
+;; https://github.com/mina86/auto-dim-other-buffers.el/issues/35#issuecomment-2351538590
+(defun old-version-of-vterm--get-color (index &rest args)
+   "This is the old version before it was broken by commit
+https://github.com/akermu/emacs-libvterm/commit/e96c53f5035c841b20937b65142498bd8e161a40.
+Re-introducing the old version fixes auto-dim-other-buffers for vterm buffers."
+   (cond
+    ((and (>= index 0) (< index 16))
+     (face-foreground
+      (elt vterm-color-palette index)
+      nil 'default))
+    ((= index -11)
+     (face-foreground 'vterm-color-underline nil 'default))
+    ((= index -12)
+     (face-background 'vterm-color-inverse-video nil 'default))
+    (t
+     nil)))
+ (advice-add 'vterm--get-color :override #'old-version-of-vterm--get-color)
+
+
+;; Keep track of our face remap handle
+(defvar vi/vterm-copy-mode-bg-cookie nil)
+
+(defun vi/vterm-copy-mode-bg-toggle ()
+  (if vterm-copy-mode
+      ;; When entering vterm-copy-mode, remap the default face.
+      (setq vi/vterm-copy-mode-bg-cookie (face-remap-add-relative 'default :background (modus-themes-get-color-value 'bg-active)))
+    ;; When leaving vterm-copy-mode, remove the remap if it exists.
+    (when vi/vterm-copy-mode-bg-cookie
+      (face-remap-remove-relative vi/vterm-copy-mode-bg-cookie)
+      (setq vi/vterm-copy-mode-bg-cookie nil))))
+
+;; Trigger our function whenever vterm-copy-mode toggles
+(add-hook 'vterm-copy-mode-hook #'vi/vterm-copy-mode-bg-toggle)
+
+(use-package! eat
+  :custom
+  (eat-enable-directory-tracking t)
+  (eat-enable-yank-to-terminal t)
+  (eat-term-scrollback-size nil)
+  ;; (eat-enable-auto-line-mode t)
+  :config
+  (customize-set-variable ;; has :set code
+    'eat-semi-char-non-bound-keys
+    (append
+      (list (vector meta-prefix-char ?k))
+      eat-semi-char-non-bound-keys))
+  )
 
 (use-package! flycheck
   :custom
@@ -2672,6 +2758,7 @@ Results are reported in a compilation buffer."
   ;; set to 'all, this seems to make commits slow?
   (setq magit-diff-refine-hunk nil)
   (setq magit-log-section-commit-count 25)
+
 
   ;; https://github.com/magit/forge/issues/676#issuecomment-2252842813
   ;; see forge-insert-topics & forge--topics-spec
@@ -2908,7 +2995,8 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
   ;; Allow `TODO (venky):` space after TODO
   ;; also allow TODO without colon
   (setq! magit-todos-keyword-suffix "[ ]?\\(?:[([][^])]+[])]\\)?:?")
-  :config (magit-todos-mode 1))
+  ;; :config (magit-todos-mode 1)
+  )
 
 ;; We leave this in so that /yadm:: still works
 (use-package! tramp
@@ -2994,12 +3082,20 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
     ;; (lsp-ui-imenu-auto-refresh t)
     )
 
+  ;; file-notify-rm-all-watches
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.venv\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.mypy_cache\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.ruff_cache\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.pdm-build\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]wandb\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]__pycache__\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\].emacs.d/.local/cache\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\].gtags\\'")
+  ;; plus-specific
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]pdf-anonymizer/tests/resources/doc-repo\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]pdf-anonymizer/tests/resources/release\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]protoapp/src/uploads\\'")
+
 
   ;; Fix the hint diagnostic to display as faded out, not error  (https://github.com/emacs-lsp/lsp-mode/issues/3104)
   ;; Unrelated error: Invalid face reference: lsp-flycheck-info-unnecessary (https://github.(com/emacs-lsp/lsp-mode/issues/2255)
@@ -3110,6 +3206,10 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
     (locate-dominating-file buffer-file-name "pyproject.toml")
     nil))
 
+;; (defun python-pytest--project-root ()
+;;   "Find the project root directory."
+;;   project-compilation-dir)
+
 (add-hook! 'python-mode-hook (setq!
                                project-compilation-dir (vi/python-project-compilation-dir)
                                python-pytest-executable "rye run pytest"))
@@ -3130,6 +3230,9 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
 
 (add-hook! 'python-mode-hook #'vi/python-mode-lsp)
 (setq python-ts-mode-hook python-mode-hook)
+
+(with-eval-after-load 'lsp-mode
+  (setq lsp-ruff-server-command '("ruff" "server" "--preview")))
 
 (major-mode-hydra-define (python-base-mode python-pytest-mode) (:exit t :quit-key ("q" "C-g"))
   (
@@ -3158,7 +3261,8 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
   (interactive "*")
   ;; even with this, it will drop comments https://github.com/deshaw/pyflyby/issues/154
   ;;  "--align=0" "--from-spaces=1")
-  (pyflyby-transform-region-with-command "tidy-imports" "--hanging-indent=never" "--align=0" "--no-align-future" "--no-separate-from-imports") ;; "--no-remove-unused")
+  ;; (pyflyby-transform-region-with-command "rye" "run" "tidy-imports" "--hanging-indent=never" "--align=0" "--no-align-future" "--no-separate-from-imports") ;; "--no-remove-unused")
+  (pyflyby-transform-region-with-command "~/dev/pyflyby/bin/tidy-imports" "--hanging-indent=never" "--align=0" "--no-align-future" "--no-separate-from-imports") ;; "--no-remove-unused")
   )
 
 ;;; Doom -style setting doesn't allow multiple formatters per mode

@@ -1,13 +1,11 @@
-function mv-and-symlink () {
-    if [[ -z $1 || -z $2 ]]
-    then
+function mv-and-symlink() {
+    if [[ -z $1 || -z $2 ]]; then
         echo "No arguments provided: expected <TARGET> <DESTINATION_DIR>"
         return 1
     fi
     target=$1
     destination=$2
-    if test ! -d $2
-    then
+    if test ! -d $2; then
         echo "$2 is not a directory"
         return 1
     fi
@@ -16,8 +14,7 @@ function mv-and-symlink () {
 }
 
 function unsymlink() {
-    if [[ -z $1 ]]
-    then
+    if [[ -z $1 ]]; then
         echo "No arguments provided"
         return 1
     fi
@@ -25,7 +22,6 @@ function unsymlink() {
     target=$(realpath $link)
     rm -f $link && cp -R $target $link
 }
-
 
 function start_script() {
     # Skip if SCRIPT_LOG_FILE is already set
@@ -77,10 +73,12 @@ function start_script() {
 #   modify-current-argument '${('$q[1,${NUMERIC:-1}]')${(Q)ARG}}'
 # }
 
-
 # zle -N _quote_word
 # bindkey "^Xq" _quote_word
 # zle -N _unquote_word
 # bindkey "^XQ" _unquote_word
 # zle -N _quote_unquote_word
 # bindkey "^X^[q" _quote_unquote_word
+
+# https://www.reddit.com/r/emacs/comments/17nl7cw/comment/k7y4jou/
+stty -echoe -echoke -echoctl

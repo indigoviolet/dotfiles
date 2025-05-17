@@ -40,19 +40,23 @@ else
     # # disabled = true
     #
     #
-
-    PROMPT=$PROMPT'%{$(vterm_prompt_end)%}%{$(tmux_prompt)%}'
+    if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
+        setopt PROMPT_SUBST
+        # PROMPT=$PROMPT'%{$(vterm_prompt_end)%}%{$(tmux_prompt)%}'
+        PROMPT=$PROMPT'%{$(vterm_prompt_end)%}%'
+        # PROMPT=$PROMPT'%{$(tmux_prompt)%}'
+    fi
 
     function set_window_title() {
         # uname -n instead of %m, because %m is the hostname, which is sometimes changed
-        print -Pn "\e]2;%~:$(uname -n)\a"
+        print -Pn "\e]2;%~:$(uname -n | cut -c1-5)\a"
     }
 
     function set_cursor_norm() {
         tput cnorm
     }
 
-    #precmd_functions+=(set_window_title set_cursor_norm)
+    precmd_functions+=(set_window_title set_cursor_norm)
 
     # see zpreztorc:plugin olets/zsh-window-title for a different way to set the window title so vterm can pick it up
     # https://github.com/olets/zsh-window-title#cli
@@ -71,5 +75,5 @@ else
         zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
     fi
 
-
+    # [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && source "$EAT_SHELL_INTEGRATION_DIR/zsh"
 fi

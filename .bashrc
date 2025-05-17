@@ -28,3 +28,5 @@ set_x() {
     PS4=$'\e[94m+$BASH_SOURCE:${BASH_LINENO[0]}:${FUNCNAME[0]:-}()>\e[0m '
     set -x
 }
+
+source /Users/venky/.config/broot/launcher/bash/br

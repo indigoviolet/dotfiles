@@ -12,7 +12,7 @@
 
     # All files modified. gitmodified is a function in ~/.dotfiles/zsh/custom
     modified = !zsh -i -l -c "git-modified"
-    cleanup = !zsh -i -l -c "git-cleanup"
+    # cleanup = !zsh -i -l -c "git-cleanup"
 
     # open all files modified relative to master in emacs
     open = !"f() {( git modified | xargs emacsclient -n -t -a '' && emacsclient -t -a '' )}; f"
@@ -76,6 +76,11 @@
     # https://stackoverflow.com/questions/5741106/how-does-one-show-untracked-files-in-current-directory-only-ignoring-subdirecto
     ls-untracked = ls-files --other
 
+    # Difftastic aliases, so `git dlog` is `git log` with difftastic and so on.
+    dlog = -c diff.external=difft log --ext-diff
+    dshow = -c diff.external=difft show --ext-diff
+    ddiff = -c diff.external=difft diff
+
 [user]
     name = Venky Iyer
     email = indigoviolet@gmail.com
@@ -91,7 +96,7 @@
     date = relative
 {% endif %}
     decorate = true
-
+    showSignature=false
 [format]
         pretty = "format:%C(auto,yellow)%h%C(auto,magenta)% G? %C(auto,blue)%>(12,trunc)%ad %C(auto,green)%<(7,trunc)%aN%C(auto,reset)%s%C(auto,red)% gD% D"
 
@@ -209,7 +214,7 @@
 
 [diff]
     colorMoved = default
-    tool = difft
+    # tool = difft
 
 [github]
 	user = indigoviolet

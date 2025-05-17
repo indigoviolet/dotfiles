@@ -43,9 +43,9 @@ modified = "\uea73"
 staged = "\uf440"
 format = '([\[$conflicted$modified$staged$ahead_behind\]]($style) )'
 
-[custom.dvc_dirty]
-detect_files = ["dvc.lock"]
-# check icon: https://www.nerdfonts.com/cheat-sheet
-command = ''' just dvc_is_synced || echo "DVC \ueb43" '''
-style = "bold red"
-format = '[ $output ]($style) '
+# [custom.dvc_dirty]
+# detect_files = ["dvc.lock"]
+# # check icon: https://www.nerdfonts.com/cheat-sheet
+# command = ''' just dvc_is_synced || echo "DVC \ueb43" '''
+# style = "bold red"
+# format = '[ $output ]($style) '

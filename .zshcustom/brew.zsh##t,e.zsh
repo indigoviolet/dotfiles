@@ -7,9 +7,7 @@ HOMEBREW_PREFIX="/opt/homebrew"
 HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
 {% endif %}
 
-if ! is_dir_in_path $HOMEBREW_PREFIX/bin; then
-    eval $($HOMEBREW_PREFIX/bin/brew shellenv)
-fi
+eval $($HOMEBREW_PREFIX/bin/brew shellenv)
 
 {% if yadm.os == "Darwin" %}
 # coreutils, but use non-g-prefixed names

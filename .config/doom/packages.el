@@ -148,9 +148,6 @@
 
 (package! undo-hl :recipe (:host github :repo "casouri/undo-hl"))
 
-(package! yankpad :recipe (:host github :repo "Kungsgeten/yankpad"))
-(package! yasnippet)
-
 (package! unfill)
 
 (package! rebox2)
@@ -188,13 +185,15 @@
 (package! corfu :recipe (:host github :repo "minad/corfu" :files (:defaults "extensions/*.el")))
 (package! cape)
 (package! company)                      ; for company-yankpad
-(package! popon :recipe (:host codeberg :repo "akib/emacs-popon"))
+;; (package! popon :recipe (:host codeberg :repo "akib/emacs-popon"))
 ;; (package! corfu-terminal :recipe (:type git :repo "https://codeberg.org/akib/emacs-corfu-terminal.git"))
 
 (package! copilot
   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
 
 (package! gptel)
+
+(package! aidermacs :recipe (:host github :repo "MatthewZMD/aidermacs" :files ("*.el")))
 
 (package! iedit)
 
@@ -226,15 +225,28 @@
 
 (package! ox-gfm)
 
+(package! org-link-minor-mode :recipe (:host github :repo "seanohalpin/org-link-minor-mode"))
+
 (unpin! vterm)
 
 (package! sticky-shell)
+
+(package! eat
+  :recipe (:host codeberg
+       :repo "akib/emacs-eat"
+       :files ("*.el" ("term" "term/*.el") "*.texi"
+               "*.ti" ("terminfo/e" "terminfo/e/*")
+               ("terminfo/65" "terminfo/65/*")
+               ("integration" "integration/*")
+               (:exclude ".dir-locals.el" "*-tests.el"))))
 
 (package! browse-at-remote :recipe (:host github :repo "rmuslimov/browse-at-remote"))
 
 (package! git-link)
 
 (package! magit-todos)
+
+(package! why-this :recipe (:host codeberg :repo "akib/emacs-why-this"))
 
 (package! lsp-mode :pin "561788352cd566558d303f72821c160295089839") ;ruff server
 

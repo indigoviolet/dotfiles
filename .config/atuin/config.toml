@@ -12,6 +12,9 @@
 ## date format used, either "us" or "uk"
 # dialect = "uk"
 
+
+workspaces = true
+
 ## enable or disable automatic sync
 auto_sync = true
 

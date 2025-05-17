@@ -10,7 +10,7 @@ export ALTERNATE_EDITOR=""
 
 {% if yadm.class == "personal" %}
 # not reusing frame because we can quit a new frame more easily
-export EDITOR="emacsclient -c -a ''"
+export EDITOR="emacsclient -r -a ''"
 {% endif %}
 
 {% if yadm.class == "remote" %}
