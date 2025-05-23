@@ -40,7 +40,7 @@ external_plugins=(
     zsh-users/zsh-autosuggestions
     Aloxaf/fzf-tab
     zdharma-continuum/fast-syntax-highlighting
-    
+
     # TODO: Add regexp support to this plugin (with =~ and PCRE) https://github.com/indigoviolet/zsh-history-filter/blob/master/zsh-history-filter.plugin.zsh#L28
     # TODO: Use `rg` to rewrite_history
     # MichaelAquilina/zsh-history-filter
@@ -55,13 +55,12 @@ external_plugins=(
 for repo in $external_plugins; do
     if [[ ! -d $ZPREZTODIR/contrib/${repo:t} ]]; then
         git clone https://github.com/${repo} $ZPREZTODIR/contrib/${repo:t}/external
-        echo "source \${0:A:h}/external/${repo:t}.plugin.zsh" > $ZPREZTODIR/contrib/${repo:t}/init.zsh
+        echo "source \${0:A:h}/external/${repo:t}.plugin.zsh" >$ZPREZTODIR/contrib/${repo:t}/init.zsh
     fi
 done
 
 # Set the key mapping style to 'emacs' or 'vi'.
 zstyle ':prezto:module:editor' key-bindings 'emacs'
-
 
 # Set the Prezto modules to load (browse modules).
 # The order matters.
@@ -79,17 +78,14 @@ zstyle ':prezto:load' pmodule \
     'completion' \
     'fzf-tab' \
     'zsh-autosuggestions'
-    # 'zsh-autocomplete' \
-    # 'zsh-hist'
-    # 'zsh-history-filter' \
+# 'zsh-autocomplete' \
+# 'zsh-hist'
+# 'zsh-history-filter' \
 # 'ssh' \ # Managed in .zshcustom/ssh.zsh
 # 'history-substring-search' # see input.zsh
 # 'contrib-prompt' \
 # 'prompt' \
 # 'node' \
-
-
-
 
 #
 # Autosuggestions
@@ -280,3 +276,7 @@ zstyle ':prezto:module:terminal:tab-title' format '%m: %s'
 # before deleting or overwriting files. Set to 'no' to disable this safer
 # behavior.
 zstyle ':prezto:module:utility' safe-ops 'yes'
+
+# fzf-tab customizations
+zstyle ':fzf-tab:complete:*:*' fzf-preview 'lsd -t --blocks date,size,name --size short --date "+%Y-%m-%d %X" --color always --classify $realpath'
+zstyle ':completion:*' file-sort modification
