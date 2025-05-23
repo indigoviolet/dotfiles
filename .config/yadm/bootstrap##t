@@ -36,7 +36,7 @@ atuin_login:
     # password from bitwarden
     atuin login -u indigoviolet --key $(cat ~/.local/share/atuin/key) -p fondness-agent-provable
     atuin import auto
-    atuin sync -f
+    atuin sync
 
 git_info:
     mkdir -p ~/.local/bin && curl -fsSL https://raw.githubusercontent.com/gitbits/git-info/master/git-info --output ~/.local/bin/git-info && chmod +x ~/.local/bin/git-info
