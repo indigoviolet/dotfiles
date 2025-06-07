@@ -6833,6 +6833,14 @@ also does not track untracked files
 (package! why-this :recipe (:host codeberg :repo "akib/emacs-why-this"))
 #+end_src
 
+#+begin_src emacs-lisp
+(use-package! why-this
+  :custom
+  (why-this-annotate-width 100)
+  (why-this-minimum-column 160))
+#+end_src
+
+
 
 
 * Yadm

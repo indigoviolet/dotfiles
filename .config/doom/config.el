@@ -2998,6 +2998,11 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
   ;; :config (magit-todos-mode 1)
   )
 
+(use-package! why-this
+  :custom
+  (why-this-annotate-width 100)
+  (why-this-minimum-column 160))
+
 ;; We leave this in so that /yadm:: still works
 (use-package! tramp
   :config
