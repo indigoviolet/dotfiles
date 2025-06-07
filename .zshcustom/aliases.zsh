@@ -26,9 +26,9 @@ alias rm="rm -iv"
 alias py="python -c 'import IPython; IPython.terminal.ipapp.launch_new_instance()'"
 # alias t="tmux -2 -u -CC a || tmux -2 -u -CC"
 alias htopt="htop -p \"$(ps a -o 'pid' | tail -n +2 | perl -0777 -lne 'chop; s/\n/,/g; print')\""
-alias find=fd
+# alias find=fd
 alias g="git"
-alias cat="bat"
+# alias cat="bat"
 # alias less="bat --paging=always --wrap=never"
 # alias z=zi
 alias ls="lsd -h -t --date relative --group-dirs=first --blocks size,date,permission,user,name --depth 3 --classify"

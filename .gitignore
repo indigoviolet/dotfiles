@@ -21,5 +21,3 @@ node_modules/
 nohup.out
 /.aider*
 /python/pdf-anonymizer/.aider.CONVENTIONS.md
-/.claude/
-.claude

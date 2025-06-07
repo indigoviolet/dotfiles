@@ -150,6 +150,7 @@
 
 [push]
     default = simple
+    autoSetupRemote = true
 
 ## the credential manager is cross-platform
 [credential]
