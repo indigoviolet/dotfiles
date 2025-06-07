@@ -29,13 +29,13 @@ git-credential-manager:
 
 atuin_install:
     atuin register -u indigoviolet -e indigoviolet@gmail.com
-    atuin import auto
+    # atuin import auto
     atuin sync
 
 atuin_login:
     # password from bitwarden
     atuin login -u indigoviolet --key $(cat ~/.local/share/atuin/key) -p fondness-agent-provable
-    atuin import auto
+    # atuin import auto
     atuin sync
 
 git_info:
