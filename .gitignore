@@ -21,3 +21,10 @@ node_modules/
 nohup.out
 /.aider*
 /python/pdf-anonymizer/.aider.CONVENTIONS.md
+
+.overmind
+.codanna*
+.direnv
+.fastembed_cache
+.serena
+.ck

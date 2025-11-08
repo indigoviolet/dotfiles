@@ -43,6 +43,15 @@ modified = "\uea73"
 staged = "\uf440"
 format = '([\[$conflicted$modified$staged$ahead_behind\]]($style) )'
 
+[git_branch]
+format = 'on [$symbol$branch]($style) '
+
+[status]
+disabled = false
+
+[directory]
+fish_style_pwd_dir_length = 1
+
 # [custom.dvc_dirty]
 # detect_files = ["dvc.lock"]
 # # check icon: https://www.nerdfonts.com/cheat-sheet

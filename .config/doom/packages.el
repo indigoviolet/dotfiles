@@ -60,6 +60,7 @@
 ;; (disable-packages! which-key)
 (disable-packages! dired-git-info)
 (disable-packages! highlight-indent-guides)
+(disable-packages! code-review)
 
 ;; (package! transient :pin "55d5d41b48d7f7bc1ecf1f90c012d7821dff5724")
 
@@ -74,10 +75,16 @@
 
 ;; https://github.com/doomemacs/doomemacs/issues/7363#issuecomment-1696530746
 ;; (unpin! git-commit)
-(package! magit :pin "0aa2686" :recipe (:host github :repo "magit/magit"))
-(package! forge :pin "35cc600" :recipe (:host github :repo "magit/forge"))
+;; (package! magit :pin "0aa2686" :recipe (:host github :repo "magit/magit"))
+;; (package! forge :pin "35cc600" :recipe (:host github :repo "magit/forge"))
+(unpin! forge)
+(unpin! ghub)
+(unpin! magit)
+(unpin! transient)
 
 (package! persistent-scratch)
+
+(package! osx-clipboard-mode :recipe (:host github :repo "joddie/osx-clipboard-mode"))
 
 (package! pp+ :recipe (:host github :repo "emacsmirror/pp-plus"))
 
@@ -114,8 +121,6 @@
 (package! windmove)
 
 (package! winner)
-
-(package! burly)
 
 (package! bufler)
 
@@ -158,6 +163,8 @@
 
 (package! mwim)
 
+(package! gumshoe :recipe (:host github :repo "Overdr0ne/gumshoe"))
+
 (package! back-button)
 
 (package! smartscan)
@@ -172,6 +179,8 @@
 
 (package! gxref)
 
+(package! consult-projectile :recipe (:host gitlab :repo "OlMon/consult-projectile"))
+
 (package! consult-project-extra)
 
 (package! avy)
@@ -182,6 +191,8 @@
 
 (package! treesit-fold :recipe (:host github :repo "emacs-tree-sitter/treesit-fold"))
 
+(package! window-stool :recipe (:host github :repo "JasZhe/window-stool"))
+
 (package! corfu :recipe (:host github :repo "minad/corfu" :files (:defaults "extensions/*.el")))
 (package! cape)
 (package! company)                      ; for company-yankpad
@@ -190,10 +201,6 @@
 
 (package! copilot
   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
-
-(package! gptel)
-
-(package! aidermacs :recipe (:host github :repo "MatthewZMD/aidermacs" :files ("*.el")))
 
 (package! iedit)
 
@@ -231,20 +238,9 @@
 
 (package! sticky-shell)
 
-(package! eat
-  :recipe (:host codeberg
-       :repo "akib/emacs-eat"
-       :files ("*.el" ("term" "term/*.el") "*.texi"
-               "*.ti" ("terminfo/e" "terminfo/e/*")
-               ("terminfo/65" "terminfo/65/*")
-               ("integration" "integration/*")
-               (:exclude ".dir-locals.el" "*-tests.el"))))
-
 (package! browse-at-remote :recipe (:host github :repo "rmuslimov/browse-at-remote"))
 
 (package! git-link)
-
-(package! magit-todos)
 
 (package! why-this :recipe (:host codeberg :repo "akib/emacs-why-this"))
 
@@ -261,10 +257,6 @@
 (package! apheleia)
 
 (package! add-node-modules-path :recipe (:host github :repo "codesuki/add-node-modules-path"))
-
-(package! dirvish)
-
-(package! dired-git-log :recipe (:host github :repo "amno1/dired-git-log"))
 
 (package! all-the-icons-dired)
 
@@ -283,13 +275,13 @@
 (package! jsonnet-mode)
 
 (package! just-mode)
-(package! justl)
+;; (package! justl)
 
 (package! commify)
 
 (package! org-latex-impatient)
 
-;; (package! prodigy)
+(package! prodigy)
 
 (package! atomic-chrome :recipe (:host github :repo "KarimAziev/atomic-chrome"))
 

@@ -72,7 +72,7 @@ export PYFLYBY_PATH=~/.pyflyby:.../.pyflyby
 export LANG='en_US.UTF-8'
 export LC_ALL='en_US.UTF-8'
 export BASH_ENV=$HOME/.bashrc
-
+export CODER_SSH_WAIT="no"
 # Apheleia -> shfmt formats path[1,0] with a space, which breaks it
 
 # Local Variables:

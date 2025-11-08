@@ -117,6 +117,9 @@
 ;; Disable exit confirmation.
 ;; (setq confirm-kill-emacs nil)
 
+(setq native-comp-async-report-warnings-errors nil)
+(setq native-comp-speed 2)
+(menu-bar-mode -1)
 (setq confirm-nonexistent-file-or-buffer 'after-completion)
 
 ;; indent anywhere, no completion on tab
@@ -476,8 +479,8 @@
 
   :hook
   ((prog-mode . rainbow-identifiers-mode)
-  ;; (yaml-mode . rainbow-identifiers-mode)
-    ;; (yaml-ts-mode . rainbow-identifiers-mode)
+    (yaml-mode . rainbow-identifiers-mode)
+    (yaml-ts-mode . rainbow-identifiers-mode)
 
     )
   )
@@ -642,7 +645,8 @@ message listing the hooks."
     doom-modeline-vcs-max-length 24
     ;; doom-modeline-icon nil
     ;; doom-modeline-major-mode-color-icon nil
-    doom-modeline-persp-name nil)
+    doom-modeline-persp-name t
+    )
 
   ;; (doom-modeline-def-segment purpose
   ;;   ;; Purpose-mode segment
@@ -690,7 +694,7 @@ message listing the hooks."
   ;; doom-modeline. other names don't seem to take effect as default..
   (doom-modeline-def-modeline 'main
     '(bar buffer-info-simple selection-info buffer-position remote-host recursion-depth matches check misc-info)
-    '(debug repl process lsp vcs minor-modes major-mode))
+    '(debug repl process lsp vcs minor-modes persp-name major-mode))
 
   (doom-modeline-def-modeline 'org-src
    '(bar buffer-info-simple selection-info matches)
@@ -700,7 +704,7 @@ message listing the hooks."
     '(bar buffer-info-simple selection-info remote-host recursion-depth)
     '( debug github process vcs minor-modes major-mode misc-info))
 
-
+  (doom-modeline-mode)
   ;; don't think we need this, since we modified 'main
   ;;(add-hook! '(prog-mode-hook org-mode-hook) (doom-modeline-set-modeline 'main))
   )
@@ -832,20 +836,6 @@ message listing the hooks."
   (if (= (count-non-dedicated-windows) 1) (winner-undo) (delete-other-windows)))
 
 (map! :g "C-x 1" #'vi/zygospore)
-
-(defhydra hydra-burly (:color blue :hint nil)
-  "
-Burly Commands
---------------
-_b_: Open bookmarks    _s_: Save layout
-_r_: Restore layout    _n_: New layout
-_q_: Quit
-"
-  ("b" burly-open-bookmark)
-  ("s" burly-bookmark-windows)
-  ("r" burly-open-bookmark)
-  ("n" burly-reset-window-layout)
-  ("q" nil :color blue))
 
 (use-package! bufler
   :after-call doom-first-buffer-hook
@@ -1535,6 +1525,18 @@ _q_: Quit
   ("C-e" . mwim-end)
   )
 
+(use-package! gumshoe
+  :config
+  ;; Enabing global-gumshoe-mode will initiate tracking
+  (global-gumshoe-mode +1)
+  ;; customize peruse slot display if you like
+  (setf gumshoe-slot-schema '(time buffer position line))
+  ;; personally, I use perspectives
+  ;; (setf gumshoe-slot-schema '(perspective time buffer position line))
+  ;; disable auto-cancel of backtracking
+  (setf gumshoe-auto-cancel-backtracking-p nil)
+  )
+
 (use-package! back-button
   :config
   (back-button-mode +1))
@@ -1684,6 +1686,8 @@ _q_: Quit
 
   (map! "C-s" #'consult-line "C-r" #'vertico-repeat)               ;deliberately not setting initial
 
+  ;; https://github.com/minad/consult#live-previews
+  (setq! consult-preview-key "M-.")
 
   (setq consult-line-start-from-top nil)
   (setq consult-line-point-placement 'match-beginning)
@@ -1705,23 +1709,39 @@ _q_: Quit
         "D" #'consult-dir)
   )
 
+(use-package! consult-projectile)
+
+(after! consult-projectile
+  (setq consult-buffer-sources
+    '(
+       consult-projectile--source-projectile-buffer
+       consult-projectile--source-projectile-file
+
+       consult--source-modified-buffer
+
+       consult--source-buffer
+       consult--source-recent-file
+       consult-projectile--source-projectile-project
+       ;;consult--source-project-buffer
+       consult--source-hidden-buffer
+       +vertico--consult-org-source)))
+
 (use-package! consult-project-extra
   :config
   (setq! consult-buffer-sources
-    '(consult--source-modified-buffer
-       consult-project-extra--source-buffer
-       ;; consult--source-project-buffer
+    '(
+       consult-projectile--source-projectile-buffer
+       consult-projectile--source-projectile-file
+
+       consult--source-modified-buffer
+
        consult--source-buffer
        consult--source-recent-file
-       ;; consult-projectile--source-projectile-buffer
-       ;; consult-projectile--source-projectile-file
-       ;; consult-projectile--source-projectile-project
+       consult-projectile--source-projectile-project
+       ;;consult--source-project-buffer
+       consult--source-hidden-buffer
+       +vertico--consult-org-source)a)
 
-       consult-project-extra--source-file
-       consult-project-extra--source-project
-       ;; consult--source-hidden-buffer
-       +vertico--consult-org-source
-       ))
 
   ;; consult-project-buffer calls consult-project-function(t) but doom-project-root, the default value of consult-project-function doesn't take t
   (setq! consult-project-function (lambda (_) (doom-project-root)))
@@ -1863,6 +1883,20 @@ _q_: Quit
     ("S-<tab>" . treesit-fold-open))
   :hook
   (python-ts-mode . treesit-fold-indicators-mode) ;turns on treesit-fold-mode as well
+  )
+
+(use-package window-stool
+  :custom
+  (window-stool-n-from-top 10)
+  (window-stool-n-from-bottom 10)
+  :hook
+  (prog-mode . window-stool-mode)
+  (yaml-mode . window-stool-mode)
+  (yaml-ts-mode . window-stool-mode)
+  (json-mode . window-stool-mode)
+  (json-ts-mode . window-stool-mode)
+  :config
+  (custom-set-faces! '(window-stool-face :inherit mode-line))
   )
 
 (use-package! corfu
@@ -2047,7 +2081,7 @@ is available."
   ;;         ;; ("C-<tab>" . 'copilot-accept-completion)
   ;;         )
  )
-(add-hook! 'copilot-mode-hook (map! :map copilot-mode-map "C-<return>" #'rk/copilot-complete-or-accept))
+;; (add-hook! 'copilot-mode-hook (map! :map copilot-mode-map "C-<return>" #'rk/copilot-complete-or-accept))
 ;; (add-hook! 'copilot-mode-hook (map! :map prog-mode-map "<tab>" #'rk/copilot-tab))
 
 
@@ -2056,26 +2090,6 @@ is available."
 
 ;; try to turn off keybindings (up/down) that company-mode interferes with
 ;;(add-hook! prog-mode :append (progn (message "disabling company mode") (company-mode -1) (message "disabled")))
-
-(use-package! gptel
-  :custom
-  (gptel-api-key (lambda () (getenv "OPENAI_API_KEY")))
-  (gptel-temperature 0.01)
-  :config
-  (setq!
-    gptel-model "claude-3-sonnet-20240229" ;  "claude-3-opus-20240229" also available
-    gptel-backend (gptel-make-anthropic "Claude"
-                    :stream t :key (lambda () (getenv "ANTHROPIC_API_KEY"))))
-
-  :bind
-  ("C-c RET" . gptel-send)
-  )
-
-(use-package! aidermacs
-  :custom
-  (aidermacs-backend 'vterm)
-  :config
-  (global-set-key (kbd "C-c a") 'aidermacs-transient-menu))
 
 (use-package! iedit
   :config
@@ -2636,20 +2650,6 @@ Re-introducing the old version fixes auto-dim-other-buffers for vterm buffers."
 ;; Trigger our function whenever vterm-copy-mode toggles
 (add-hook 'vterm-copy-mode-hook #'vi/vterm-copy-mode-bg-toggle)
 
-(use-package! eat
-  :custom
-  (eat-enable-directory-tracking t)
-  (eat-enable-yank-to-terminal t)
-  (eat-term-scrollback-size nil)
-  ;; (eat-enable-auto-line-mode t)
-  :config
-  (customize-set-variable ;; has :set code
-    'eat-semi-char-non-bound-keys
-    (append
-      (list (vector meta-prefix-char ?k))
-      eat-semi-char-non-bound-keys))
-  )
-
 (use-package! flycheck
   :custom
   (flycheck-check-syntax-automatically '(mode-enabled save idle-change idle-buffer-switch new-line))
@@ -2815,10 +2815,10 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
        magit-insert-stashes
 
        ;; forge
-       vi/forge-insert-authored-pullreqs
-       vi/forge-insert-assigned-issues
-       forge-insert-pullreqs
-       forge-insert-issues
+       ;; vi/forge-insert-authored-pullreqs
+       ;; vi/forge-insert-assigned-issues
+       ;; forge-insert-pullreqs
+       ;; forge-insert-issues
 
        ;; Add ignored files section to magit status
        ;; This makes yadm-status very slow: https://github.com/magit/magit/discussions/4750
@@ -2910,6 +2910,116 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
   "M-<tab>" nil
   )
 
+(after! magit
+(defun th/magit--with-difftastic (buffer command)
+  "Run COMMAND with GIT_EXTERNAL_DIFF=difft then show result in BUFFER."
+  (let ((process-environment
+          (cons (concat "GIT_EXTERNAL_DIFF=difft --width="
+                 (number-to-string (frame-width)))
+           process-environment)))
+    ;; Clear the result buffer (we might regenerate a diff, e.g., for
+    ;; the current changes in our working directory).
+    (with-current-buffer buffer
+      (setq buffer-read-only nil)
+      (erase-buffer))
+    ;; Now spawn a process calling the git COMMAND.
+    (make-process
+      :name (buffer-name buffer)
+      :buffer buffer
+      :command command
+      ;; Don't query for running processes when emacs is quit.
+      :noquery t
+      ;; Show the result buffer once the process has finished.
+      :sentinel (lambda (proc event)
+                 (when (eq (process-status proc) 'exit)
+                   (with-current-buffer (process-buffer proc)
+                     (goto-char (point-min))
+                     (ansi-color-apply-on-region (point-min) (point-max))
+                     (setq buffer-read-only t)
+                     (view-mode)
+                     (end-of-line)
+                     ;; difftastic diffs are usually 2-column side-by-side,
+                     ;; so ensure our window is wide enough.
+                     (let ((width (current-column)))
+                       (while (zerop (forward-line 1))
+                         (end-of-line)
+                         (setq width (max (current-column) width)))
+                       ;; Add column size of fringes
+                       (setq width (+ width
+                                     (fringe-columns 'left)
+                                     (fringe-columns 'right)))
+                       (goto-char (point-min))
+                       (pop-to-buffer
+                         (current-buffer)
+                         `(;; If the buffer is that wide that splitting the frame in
+                            ;; two side-by-side windows would result in less than
+                            ;; 80 columns left, ensure it's shown at the bottom.
+                            ,(when (> 80 (- (frame-width) width))
+                               #'display-buffer-at-bottom)
+                            (window-width
+                              . ,(min width (frame-width))))))))))))
+
+
+(defun th/magit-show-with-difftastic (rev)
+  "Show the result of \"git show REV\" with GIT_EXTERNAL_DIFF=difft."
+  (interactive
+    (list (or
+            ;; If REV is given, just use it.
+            (when (boundp 'rev) rev)
+            ;; If not invoked with prefix arg, try to guess the REV from
+            ;; point's position.
+            (and (not current-prefix-arg)
+              (or (magit-thing-at-point 'git-revision t)
+                (magit-branch-or-commit-at-point)))
+            ;; Otherwise, query the user.
+            (magit-read-branch-or-commit "Revision"))))
+  (if (not rev)
+    (error "No revision specified")
+    (th/magit--with-difftastic
+      (get-buffer-create (concat "*git show difftastic " rev "*"))
+      (list "git" "--no-pager" "show" "--ext-diff" rev))))
+
+
+(defun th/magit-diff-with-difftastic (arg)
+  "Show the result of \"git diff ARG\" with GIT_EXTERNAL_DIFF=difft."
+  (interactive
+    (list (or
+            ;; If RANGE is given, just use it.
+            (when (boundp 'range) range)
+            ;; If prefix arg is given, query the user.
+            (and current-prefix-arg
+              (magit-diff-read-range-or-commit "Range"))
+            ;; Otherwise, auto-guess based on position of point, e.g., based on
+            ;; if we are in the Staged or Unstaged section.
+            (pcase (magit-diff--dwim)
+              ('unmerged (error "unmerged is not yet implemented"))
+              ('unstaged nil)
+              ('staged "--cached")
+              (`(stash . ,value) (error "stash is not yet implemented"))
+              (`(commit . ,value) (format "%s^..%s" value value))
+              ((and range (pred stringp)) range)
+              (_ (magit-diff-read-range-or-commit "Range/Commit"))))))
+  (let ((name (concat "*git diff difftastic"
+                (if arg (concat " " arg) "")
+                "*")))
+    (th/magit--with-difftastic
+      (get-buffer-create name)
+      `("git" "--no-pager" "diff" "--ext-diff" ,@(when arg (list arg))))))
+
+
+(transient-define-prefix th/magit-aux-commands ()
+  "My personal auxiliary magit commands."
+  ["Auxiliary commands"
+    ("d" "Difftastic Diff (dwim)" th/magit-diff-with-difftastic)
+    ("s" "Difftastic Show" th/magit-show-with-difftastic)])
+
+
+(transient-append-suffix 'magit-dispatch "!"
+  '("#" "My Magit Cmds" th/magit-aux-commands))
+
+(define-key magit-status-mode-map (kbd "#") #'th/magit-aux-commands)
+  )
+
 (add-hook! 'doom-first-file-hook #'magit-wip-mode)
 
 (defun vi/ediff-setup-windows-plain-merge (buf-A buf-B buf-C control-buffer)
@@ -2989,14 +3099,6 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
 (use-package! git-link
   :custom
   (git-link-default-branch "main"))
-
-(use-package! magit-todos
-  :custom
-  ;; Allow `TODO (venky):` space after TODO
-  ;; also allow TODO without colon
-  (setq! magit-todos-keyword-suffix "[ ]?\\(?:[([][^])]+[])]\\)?:?")
-  ;; :config (magit-todos-mode 1)
-  )
 
 (use-package! why-this
   :custom
@@ -3088,6 +3190,7 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
     )
 
   ;; file-notify-rm-all-watches
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\..*\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.venv\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.mypy_cache\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.ruff_cache\\'")
@@ -3096,6 +3199,9 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]__pycache__\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\].emacs.d/.local/cache\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\].gtags\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]data\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]doc-repo\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]prefect-results\\'")
   ;; plus-specific
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]pdf-anonymizer/tests/resources/doc-repo\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]pdf-anonymizer/tests/resources/release\\'")
@@ -3203,7 +3309,7 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
 
 (use-package! python-pytest
   :config
-  (setq python-pytest-preferred-project-manager 'project) ;not projectile or auto
+  (setq python-pytest-preferred-project-manager 'projectile) ;not projectile or auto
   )
 
 (defun vi/python-project-compilation-dir ()
@@ -3217,7 +3323,7 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
 
 (add-hook! 'python-mode-hook (setq!
                                project-compilation-dir (vi/python-project-compilation-dir)
-                               python-pytest-executable "rye run pytest"))
+                               python-pytest-executable "uv run pytest"))
 
 (defun vi/python-mode-lsp ()
   (lsp)
@@ -3282,8 +3388,8 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
   ;; (setf (alist-get 'usort apheleia-formatters) '("usort" "format" "-"))
 
   ;; pipx install ruff
-  (setf (alist-get 'ruff-check apheleia-formatters) '("ruff" "check" "--fix" "--exit-zero" "-" "--stdin-filename" filepath))
-  (setf (alist-get 'ruff-format apheleia-formatters) '("ruff" "format" "--target-version" "py311" "-" "--stdin-filename" filepath))
+  (setf (alist-get 'ruff-check apheleia-formatters) '("uvx" "ruff@0.14.0" "check" "--fix" "--exit-zero" "-" "--stdin-filename" filepath))
+  (setf (alist-get 'ruff-format apheleia-formatters) '("uvx" "ruff@0.14.0" "format" "-" "--stdin-filename" filepath))
 
   ;; this may require `npm install -g prettier prettier-plugin-toml --save-dev --save-exact`
   (setf (alist-get 'prettier-toml apheleia-formatters) '(npx "prettier" "--stdin-filepath" filepath "--parser=toml"))
@@ -3320,23 +3426,6 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
   (treemacs-follow-mode t)
   )
 
-(use-package! dirvish
-  :custom
-  (dirvish-side-width 40)
-  ;; allow switching to dirvish-side window
-  (dirvish-side-window-parameters '((no-delete-other-windows . t) (no-other-window . nil)))
-  (dirvish-attributes '(subtree-state vc-state collapse))
-  (dirvish-reuse-session nil)
-  :config
-  (dirvish-override-dired-mode)
-  (dirvish-side-follow-mode)
-  (dirvish-peek-mode))
-
-(add-hook 'dirvish-find-entry-hook
-          (lambda (&rest _) (setq-local truncate-lines t)))
-
-;; (add-hook 'dired-after-readin-hook 'dired-git-log-mode)
-
 (defun git-add-files(files)
   "Run git add with the input file"
   (shell-command (format "git add %s" files)))
@@ -3369,12 +3458,6 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
 	  (setq files (concat files " " fn)))
 	(yadm-add-files files))
     (error (format "Not a Dired buffer \(%s\)" major-mode))))
-
-(after! dired
-  (map! :map dired-mode-map
-    "<tab>" #'dired-subtree-toggle
-    "<backtab>" #'dired-subtree-cycle)
-)
 
 (defun dired-open-file ()
   "In dired, open the file named on this line."
@@ -3476,6 +3559,16 @@ With optional prefix argument ARG, drag all the files at once."
                     (when arg '("-a"))
                     (dired-get-marked-files))
    :noquery t))
+
+(use-package! projectile
+  :after-call doom-first-buffer-hook
+  :custom
+  (projectile-project-search-path '("~/dev/plus"))
+  (projectile-auto-discover t)
+  :config
+  (add-to-list 'projectile-project-root-files "pyproject.toml")
+
+  )
 
 (use-package! firestarter
   :after-call doom-first-file-hook
@@ -3587,6 +3680,8 @@ Version 2016-01-08"
                                (1+ column-number))
                        "--reuse-window")
       (message "Buffer is not visiting a file!"))))
+
+(add-hook! 'yaml-ts-mode-hook #'lsp)
 
 (use-package! prodigy
   :custom

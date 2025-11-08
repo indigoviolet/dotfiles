@@ -82,7 +82,7 @@
   ;;word-wrap         ; soft wrapping with language-aware indent
 
   :emacs
-  dired             ; making dired pretty [functional]
+  (dired +dirvish)             ; making dired pretty [functional]
   electric          ; smarter, keyword-based electric-indent
   ;;ibuffer         ; interactive buffer management
   undo              ; persistent, smarter undo for your inevitable mistakes
@@ -111,7 +111,7 @@
   ;;gist              ; interacting with github gists
   ;;(lookup +docsets)              ; navigate your code and its documentation
   (lsp +peek)               ; M-x vscode
-  (magit +forge)             ; a git porcelain for Emacs
+  (magit) ;; +forge)             ; a git porcelain for Emacs
   ;;make              ; run make tasks from Emacs
   ;;pass              ; password manager for nerds
   ;; pdf               ; pdf enhancements <-- pdf-tools + org-noter: this crashes emacs on `i` in a pdf file
@@ -192,7 +192,7 @@
   ;;swift             ; who asked for emoji variables?
   ;;terra             ; Earth and Moon in alignment for performance.
   ;;web               ; the tubes
-  (yaml);; +tree-sitter)              ; JSON, but readable
+  (yaml) ;; +tree-sitter)              ; JSON, but readable
   ;;zig               ; C, but simpler
 
   :email

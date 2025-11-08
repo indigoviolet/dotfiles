@@ -49,17 +49,14 @@ source ${ZSH_CUSTOM_DIR}/gt.zsh
 source ${ZSH_CUSTOM_DIR}/ssh.zsh
 source ${ZSH_CUSTOM_DIR}/fzf.zsh
 source ${ZSH_CUSTOM_DIR}/misc.zsh
-source ${ZSH_CUSTOM_DIR}/pipx.zsh
 source ${ZSH_CUSTOM_DIR}/direnv.zsh
-source ${ZSH_CUSTOM_DIR}/conda.zsh
 source ${ZSH_CUSTOM_DIR}/abduco.zsh
 
 source ${ZSH_CUSTOM_DIR}/doom.zsh
 source ${ZSH_CUSTOM_DIR}/just.zsh
-source ${ZSH_CUSTOM_DIR}/rye.zsh
 
 {% if yadm.class == "personal" %}
-source ${ZSH_CUSTOM_DIR}/rtx.zsh
+source ${ZSH_CUSTOM_DIR}/mise.zsh
 source ${ZSH_CUSTOM_DIR}/gcloud.zsh
 source ${ZSH_CUSTOM_DIR}/gcloud-completion.zsh
 
@@ -90,8 +87,7 @@ source ${ZSH_CUSTOM_DIR}/aliases.zsh
 source ${ZSH_CUSTOM_DIR}/atuin.zsh
 source ${ZSH_CUSTOM_DIR}/secrets.zsh
 source ${ZSH_CUSTOM_DIR}/less.zsh
-# source ${ZSH_CUSTOM_DIR}/broot.zsh
-# source ${ZSH_CUSTOM_DIR}/tilix.zsh
+
 
 
 

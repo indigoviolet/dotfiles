@@ -1,8 +1,9 @@
 {
-  "authToken": "mP49QZRTf50mwtrHitklnlqbU3lZvibhthUCoCYoWLBkixKH166eXk6oY9sw",
   "branchPrefix": "venky/",
   "branchDate": false,
+  "authToken": "mP49QZRTf50mwtrHitklnlqbU3lZvibhthUCoCYoWLBkixKH166eXk6oY9sw",
   "submitIncludeCommitMessages": true,
+  "submitViaCli": true,
   "gtiConfigs": [
     {
       "key": "graphite.branch_edit",
@@ -33,7 +34,6 @@
       "value": "\"published\""
     }
   ],
-  "tips": true,
   "systemTrayConfig": {
     "sections": [
       {
@@ -54,9 +54,16 @@
       },
       {
         "sectionId": "cE9LKdAQGadcwPgGAnMa",
-        "display": true
+        "display": false
+      },
+      {
+        "sectionId": "JYyXeYJw0S1Q8Bee2spy",
+        "display": false
+      },
+      {
+        "sectionId": "8FOtIbx8LJK9CC8fRXB2",
+        "display": false
       }
     ]
-  },
-  "submitViaCli": true
+  }
 }

@@ -35,3 +35,5 @@ alias ls="lsd -h -t --date relative --group-dirs=first --blocks size,date,permis
 alias tree="ls --tree"
 alias ll="ls -ltrL"
 alias jq="jq -C"
+alias ccc="claude --dangerously-skip-permissions"
+alias e="emacsclient -c -a '' --socket-name /tmp/emacs503/server -nw"
