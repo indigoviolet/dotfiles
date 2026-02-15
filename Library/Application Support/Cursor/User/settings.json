@@ -1,0 +1,269 @@
+{
+    "ruff.nativeServer": "on",
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+    "editor.experimental.asyncTokenization": true,
+    "editor.fontWeight": "600",
+    "editor.guides.bracketPairs": "active",
+    "editor.inlineSuggest.enabled": true,
+    "editor.lineHeight": 1.4,
+    "editor.minimap.enabled": false,
+    "editor.quickSuggestionsDelay": 2,
+    "editor.semanticHighlighting.enabled": true,
+    "editor.suggest.preview": true,
+    "editor.suggest.shareSuggestSelections": true,
+    "explorer.confirmDelete": false,
+    "explorer.confirmDragAndDrop": false,
+    "explorer.incrementalNaming": "disabled",
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "git.autofetch": true,
+    "git.enableSmartCommit": true,
+    "github.copilot.enable": {
+        "*": true,
+        "markdown": true,
+        "plaintext": false,
+        "scminput": false,
+        "yaml": true
+    },
+    "githubPullRequests.fileListLayout": "tree",
+    "githubPullRequests.pullBranch": "never",
+    "githubPullRequests.pushBranch": "always",
+    "jupyter.askForKernelRestart": false,
+    "notebook.cellToolbarLocation": {
+        "default": "right",
+        "jupyter-notebook": "left"
+    },
+    "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "**/data/**": true,
+  },
+    "notebook.diff.overviewRuler": true,
+    "notebook.markup.fontSize": 14,
+    "notebook.outline.showCodeCells": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.diagnosticSeverityOverrides": {},
+    "python.terminal.activateEnvironment": false,
+    "python.testing.pytestEnabled": true,
+    "security.workspace.trust.untrustedFiles": "open",
+    "terminal.external.linuxExec": "xterm-256color",
+    "terminal.integrated.copyOnSelection": true,
+    "terminal.integrated.cursorBlinking": true,
+    "terminal.integrated.defaultLocation": "editor",
+    "terminal.integrated.fontWeight": "normal",
+    "terminal.integrated.inheritEnv": false,
+    "terminal.integrated.lineHeight": 1.1,
+    "terminal.integrated.scrollback": 1000000,
+    "terminal.integrated.tabs.enabled": false,
+    "workbench.commandPalette.experimental.suggestCommands": true,
+    "workbench.commandPalette.preserveInput": true,
+    "workbench.editor.highlightModifiedTabs": true,
+    "workbench.quickOpen.preserveInput": true,
+    "workbench.startupEditor": "none",
+    "debug.console.fontSize": 17,
+    "search.experimental.closedNotebookRichContentResults": true,
+    "terminal.integrated.allowChords": false,
+    "search.quickOpen.includeSymbols": true,
+    "search.searchEditor.reusePriorSearchConfiguration": true,
+    "search.seedOnFocus": true,
+    "search.seedWithNearestWord": true,
+    "search.showLineNumbers": true,
+    "search.smartCase": true,
+    "search.useParentIgnoreFiles": true,
+    "search.useGlobalIgnoreFiles": true,
+    "githubPullRequests.createOnPublishBranch": "never",
+    "git.inputValidationSubjectLength": 72,
+    "git.inputValidationLength": 500,
+    "git-graph.commitDetailsView.location": "Docked to Bottom",
+    "git.rebaseWhenSync": true,
+    "testExplorer.useNativeTesting": true,
+    "jupyter.interactiveWindow.textEditor.executeSelection": true,
+    "notebook.cellFocusIndicator": "border",
+    "notebook.insertToolbarLocation": "betweenCells",
+    "jupyter.pythonExportMethod": "commentMagics",
+    "jupyter.experimental.debugging": true,
+    "editor.accessibilitySupport": "off",
+    "notebook.output.fontSize": 15,
+    "notebook.output.fontFamily": "\"Iosevka Nerd Font Mono\"",
+    "python.analysis.remapDiagnostics": true,
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.inlayHints.pytestParameters": true,
+    "python.analysis.inlayHints.variableTypes": true,
+    "python.analysis.autoFormatStrings": true,
+    "workbench.editor.empty.hint": "hidden",
+    "editor.largeFileOptimizations": false,
+    "git.openRepositoryInParentFolders": "never",
+    "security.promptForLocalFileProtocolHandling": false,
+    "errorLens.enabledDiagnosticLevels": [
+        "error",
+        "warning",
+        "info"
+    ],
+    "notebook.output.scrolling": true,
+    "errorLens.enabled": true,
+    "errorLens.messageEnabled": false,
+    "accessibility.signals.lineHasError": {
+        "sound": "off"
+    },
+    "accessibility.signals.lineHasFoldedArea": {
+        "sound": "off"
+    },
+    "accessibility.signals.lineHasBreakpoint": {
+        "sound": "off"
+    },
+    "accessibility.signals.lineHasInlineSuggestion": {
+        "sound": "off"
+    },
+    "accessibility.signals.terminalQuickFix": {
+        "sound": "off"
+    },
+    "accessibility.signals.onDebugBreak": {
+        "sound": "off"
+    },
+    "accessibility.signals.taskCompleted": {
+        "sound": "off"
+    },
+    "accessibility.signals.taskFailed": {
+        "sound": "off"
+    },
+    "accessibility.signals.terminalCommandFailed": {
+        "sound": "off"
+    },
+    "accessibility.signals.notebookCellCompleted": {
+        "sound": "off"
+    },
+    "accessibility.signals.notebookCellFailed": {
+        "sound": "off"
+    },
+    "accessibility.signals.terminalBell": {
+        "sound": "on"
+    },
+    "terminal.integrated.enableVisualBell": true,
+    "codeQL.telemetry.enableTelemetry": false,
+    "github.copilot.editor.enableAutoCompletions": true,
+    "pythonTestExplorer.testFramework": "pytest",
+    "pythonTestExplorer.testplanUseLegacyDiscovery": false,
+    "testExplorer.sort": "byLocation",
+    "testExplorer.mergeSuites": true,
+    "notebook.lineNumbers": "on",
+    "jupyter.executionAnalysis.enabled": true,
+    "notebook.experimental.variablesView": true,
+    "notebook.consolidatedOutputButton": false,
+    "notebook.stickyScroll.enabled": true,
+    "notebook.experimental.cellChat": true,
+    "notebook.formatOnCellExecution": true,
+    "notebook.formatOnSave.enabled": true,
+    "remote.SSH.remotePlatform": {
+        "coder-vscode.coder.eng.additive.ai--venky--plus--main": "linux",
+        "coder-vscode.coder.eng.additive.ai--venky--plus": "linux",
+        "coder-vscode.coder.eng.additive.ai--venky--plus2": "linux",
+        "coder-vscode.coder.eng.additive.ai--venky--plus2--main": "linux",
+        "coder-vscode.coder.eng.additive.ai--venky--plus3": "linux",
+        "coder-vscode.coder.eng.additive.ai--venky--plus.main": "linux"
+    },
+    "remote.SSH.connectTimeout": 1800,
+    "github.copilot.chat.search.semanticTextResults": true,
+    "editor.experimentalEditContextEnabled": true,
+    "editor.fontSize": 17,
+    "editor.fontFamily": "\"Iosevka Nerd Font Mono\"",
+    "terminal.integrated.profiles.osx": {
+        "tmux-shell": {
+            "path": "bash",
+            "args": [
+                "-c",
+                "tmux new -ADs ${PWD##*/}"
+            ],
+            "icon": "terminal-tmux"
+        }
+    },
+    "terminal.integrated.profiles.linux": {
+        "tmux-shell": {
+            "path": "bash",
+            "args": [
+                "-c",
+                "tmux new -ADs ${PWD##*/}"
+            ],
+            "icon": "terminal-tmux"
+        }
+    },
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "terminal.integrated.fontSize": 16,
+    "terminal.integrated.enableImages": true,
+    "terminal.integrated.shellIntegration.history": 1000,
+    "python.terminal.shellIntegration.enabled": true,
+    "terminal.integrated.persistentSessionScrollback": 500,
+    "gitlens.views.drafts.avatars": false,
+    "git.confirmSync": false,
+    "cursor.cpp.disabledLanguages": [
+        "plaintext",
+        "scminput"
+    ],
+    "python.testing.autoTestDiscoverOnSaveEnabled": false,
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "redhat.telemetry.enabled": true,
+    "direnv.path.executable": "/opt/homebrew/bin/direnv",
+    "peacock.favoriteColors": [
+        {
+            "name": "Angular Red",
+            "value": "#dd0531"
+        },
+        {
+            "name": "Azure Blue",
+            "value": "#007fff"
+        },
+        {
+            "name": "JavaScript Yellow",
+            "value": "#f9e64f"
+        },
+        {
+            "name": "Mandalorian Blue",
+            "value": "#1857a4"
+        },
+        {
+            "name": "Node Green",
+            "value": "#215732"
+        },
+        {
+            "name": "React Blue",
+            "value": "#61dafb"
+        },
+        {
+            "name": "Something Different",
+            "value": "#832561"
+        },
+        {
+            "name": "Svelte Orange",
+            "value": "#ff3d00"
+        },
+        {
+            "name": "Vue Green",
+            "value": "#42b883"
+        }
+    ],
+    "chat.editor.fontSize": 16,
+    "breadcrumbs.enabled": false,
+    "editor.renderControlCharacters": false,
+    "editor.stickyScroll.enabled": false,
+    "workbench.tree.enableStickyScroll": false,
+    "workbench.colorTheme": "Quiet Light",
+    "jupyter.interactiveWindow.notebookRepl": true,
+    "notebook.variablesView": true,
+    "cursorpyright.analysis.autoImportCompletions": true,
+    "cursorpyright.analysis.diagnosticSeverityOverrides": {},
+    "cursorpyright.analysis.inlayHints.functionReturnTypes": true,
+    "cursorpyright.analysis.inlayHints.variableTypes": true,
+    "[dockercompose]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    "[github-actions-workflow]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    }
+}

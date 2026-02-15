@@ -1,0 +1,8 @@
+"$schema" = "https://jj-vcs.github.io/jj/latest/config-schema.json"
+
+[template-aliases]
+'format_short_id(id)' = 'id.shortest()'
+
+[user]
+name = "Venky Iyer"
+email = "indigoviolet@gmail.com"

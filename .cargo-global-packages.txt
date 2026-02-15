@@ -1,0 +1,6 @@
+cargo-binstall v1.15.6:
+ck-search v0.3.4:
+codanna v0.5.9:
+git-prole v0.5.3:
+jj-cli v0.34.0:
+mergiraf v0.4.0:
