@@ -116,6 +116,8 @@ Then run `gh auth setup-git` to configure git credential helper.
 
 ### Interactive — atuin
 
+**Personal only.** Skip for remote.
+
 If `~/.local/share/atuin/key` exists:
 
 ```bash
