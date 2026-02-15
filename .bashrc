@@ -29,8 +29,40 @@ set_x() {
     set -x
 }
 
+PATH_add() {
+    local dir=$1
+
+    if [[ -z "$dir" ]]; then
+        return 1
+    fi
+
+    case ":$PATH:" in
+        *":$dir:"*) ;;
+        *) PATH="$dir:$PATH" ;;
+    esac
+}
+
+export LANG='en_US.UTF-8'
+export LC_ALL='en_US.UTF-8'
+
+PATH_add "$HOME/.local/bin"
+PATH_add "$HOME/.cargo/bin"
+PATH_add "$HOME/.local/share/mise/shims"
+PATH_add "$HOME/.bun/bin"
+PATH_add "/.sprite/bin"
+
 HOMEBREW_PREFIX="/opt/homebrew"
 
-eval $($HOMEBREW_PREFIX/bin/brew shellenv)
-eval "$(mise activate bash)"
-. "$HOME/.cargo/env"
+if [[ -x "$HOMEBREW_PREFIX/bin/brew" ]]; then
+    eval "$("$HOMEBREW_PREFIX/bin/brew" shellenv)"
+elif [[ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+if command -v mise >/dev/null 2>&1; then
+    eval "$(mise activate bash)"
+fi
+
+if [[ -f "$HOME/.cargo/env" ]]; then
+    . "$HOME/.cargo/env"
+fi
