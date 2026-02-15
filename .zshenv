@@ -12,4 +12,4 @@ fi
 
 # Skip the not really helping Ubuntu global compinit
 skip_global_compinit=1
-. "$HOME/.cargo/env"
+[[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"

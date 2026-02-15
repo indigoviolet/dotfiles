@@ -4,7 +4,7 @@ You are bootstrapping a development machine. The user's dotfiles are already clo
 
 ## Principles
 
-- **Idempotent**: skip anything already installed/configured. Check with `command -v` before installing.
+- **Idempotent**: skip anything already installed/configured. To check if a mise tool is installed, use `mise ls -g` (not `command -v`, which can match shell aliases or stale shims).
 - **Install preference**: mise → apt (linux) → brew (mac/linux fallback)
 - **Python tools**: use `uv tool install` (not pipx)
 - **JS/node tools**: use `bun install -g`
@@ -21,13 +21,15 @@ Core CLI tools via mise (`mise use -g <tool>@latest`):
 
 - atuin
 - fd
-- gh
+- github-cli (provides `gh` — do NOT use the mise tool name `gh`, its aqua backend has attestation verification failures)
 - jq
 - lsd
 - ripgrep
 - starship
 - vivid
 - zoxide
+
+**Install tools one at a time** (or in small groups) with `mise use -g`. Batch installs can partially fail — if one tool errors, the others may not get written to config.toml.
 
 Core CLI tools NOT in mise (brew or apt):
 
@@ -111,19 +113,21 @@ sudo chsh -s $(which zsh) $(whoami)
 
 ### Interactive — gh auth
 
-If `gh auth status` fails, run `gh auth login` and walk the user through it.
+If `gh auth status` fails, run `gh auth login -h github.com -p https -w` (web-based flow works well on headless/remote machines) and walk the user through it.
 Then run `gh auth setup-git` to configure git credential helper.
 
 ### Interactive — atuin
 
 **Personal only.** Skip for remote.
 
-If `~/.local/share/atuin/key` exists:
+If `~/.local/share/atuin/key` exists, ask the user for their atuin password, then:
 
 ```bash
-atuin login -u indigoviolet --key $(cat ~/.local/share/atuin/key)
+atuin login -u indigoviolet -p <PASSWORD> -k "$(cat ~/.local/share/atuin/key)"
 atuin sync
 ```
+
+The `-p` flag is **required** — `atuin login` panics without a TTY if password is not provided on the command line.
 
 Otherwise, ask the user if they want to register or login.
 
