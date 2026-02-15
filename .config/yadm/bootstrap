@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# --- Install mise if missing ---
+if ! command -v mise &>/dev/null; then
+    echo "Installing mise..."
+    curl -fsSL https://mise.run | sh
+fi
+
+# Activate mise in this shell
+eval "$(mise activate bash --shims)" 2>/dev/null || eval "$(~/.local/bin/mise activate bash --shims)"
+
+# --- Bootstrap tools needed for the rest of bootstrap ---
+mise use -g gum@latest node@latest bun@latest uv@latest
+
+# --- Ensure yadm class is set ---
+YADM_CLASS=$(yadm config local.class 2>/dev/null || true)
+if [ -z "$YADM_CLASS" ]; then
+    YADM_CLASS=$(gum choose --header "Select yadm class:" "personal" "remote")
+    yadm config local.class "$YADM_CLASS"
+    gum log --level info "Set yadm class to: $YADM_CLASS"
+fi
+
+# --- Run yadm alt to link/render dotfiles based on class ---
+gum spin --title "Running yadm alt..." -- yadm alt
+gum log --level info "yadm alt complete"
+
+# --- Install claude code ---
+if ! command -v claude &>/dev/null; then
+    gum spin --title "Installing claude code..." -- bun install -g @anthropic-ai/claude-code
+    gum log --level info "claude code installed"
+else
+    gum log --level info "claude code already installed"
+fi
+
+# --- Detect environment ---
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m)
+
+gum log --level info "Environment: os=$OS arch=$ARCH class=$YADM_CLASS"
+gum log --level info "Handing off to claude code for the rest of bootstrap..."
+echo ""
+
+# --- Hand off to claude code ---
+PROMPT_FILE="${SCRIPT_DIR}/bootstrap-prompt.md"
+
+claude \
+    --system-prompt "$(cat "$PROMPT_FILE")" \
+    "Bootstrap this machine.
+
+Environment:
+- OS: ${OS}
+- Architecture: ${ARCH}
+- yadm class: ${YADM_CLASS}
+- Home: ${HOME}
+- Shell: $(basename "${SHELL:-/bin/bash}")
+
+Already installed by this script:
+- mise (with: gum, node, bun, uv)
+- claude code
+
+Please proceed step by step. Install tools, set up the shell, and handle interactive steps (like atuin login) when we get to them."
