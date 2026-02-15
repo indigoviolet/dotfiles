@@ -545,3 +545,9 @@ cargo "codanna"
 cargo "git-prole"
 cargo "jj-cli"
 cargo "mergiraf"
+mas "Amphetamine", id: 937984704
+mas "iMovie", id: 408981434
+mas "Keynote", id: 361285480
+mas "Numbers", id: 361304891
+mas "Pages", id: 361309726
+mas "Velja", id: 1607635845

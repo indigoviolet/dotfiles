@@ -1,0 +1,1 @@
+0 * * * * /opt/homebrew/bin/fd "#\*ediff-merge*" ~/dev/ -uu -x rm
