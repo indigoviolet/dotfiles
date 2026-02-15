@@ -56,8 +56,7 @@ setopt HIST_IGNORE_SPACE
 prepend_path_if_missing $HOME/.local/bin/
 prepend_path_if_missing $HOME/.cargo/bin/
 
-# https://github.com/jdxcode/rtx#ide-integration (vscode doesn't load the function from .zshcustom/asdf.zsh)
-prepend_path_if_missing $HOME/.local/share/rtx/shims/
+prepend_path_if_missing $HOME/.local/share/mise/shims/
 
 
 # zsh-autosuggestions
