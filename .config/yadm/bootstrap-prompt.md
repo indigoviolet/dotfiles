@@ -55,11 +55,22 @@ Install with `uv tool install <package>`:
 
 (none currently — this group exists for future additions)
 
+### Work tools
+
+Only for personal profile on macOS. Additive — ask the user if they want work tools installed.
+
+If yes, run `brew bundle --file ~/.Brewfile.work`. This includes:
+- Cloud/infra: coder, terraform, pulumi, helm, cloud-sql-proxy, caddy, rclone, lakefs
+- PDF tools: diff-pdf, ghostscript, mupdf, poppler, qpdf
+- Data: excel-compare, gsheet, xlsxsql
+- Docker: hadolint, devcontainer
+- All VSCode extensions
+
 ### Personal extras
 
 Only for personal profile. Skip entirely for remote.
 
-**Homebrew + casks:** if on macOS, ensure brew is installed, then run `brew bundle --global` if `~/.Brewfile` exists (yadm alt should have linked it). This handles macOS-specific formulas and casks (1password, iterm2, emacs, fonts, etc.)
+**Homebrew + casks:** if on macOS, ensure brew is installed, then run `brew bundle --global` if `~/.Brewfile` exists (yadm alt should have linked it). This handles macOS-specific formulas and casks (1password, emacs, fonts, etc.)
 
 **Doom Emacs:** if `~/.emacs.d` does not exist:
 

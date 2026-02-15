@@ -1,94 +1,9 @@
-tap "eth-p/software"
 tap "homebrew/bundle"
-# tap "homebrew/core"
-# tap "homebrew/services"
-tap "indigoviolet/tap"
-# tap "jesseduffield/lazydocker"
-# tap "mutagen-io/mutagen"
-tap "rs/tap"
-# Provides session management: i.e. separate programs from terminals
-brew "abduco"
-
-# Improved shell history for zsh and bash
-brew "atuin"
-# Official Amazon AWS command-line interface
-brew "awscli"
-# Human-friendly and fast alternative to cut and (sometimes) awk
-# brew "choose-rust"
-# JSON, YAML, TOML, XML, and CSV query and modification tool
-# brew "dasel"
-# Load/unload environment variables based on $PWD
-brew "direnv"
-# Tool for exploring each layer in a docker image
-# brew "dive"
-# Emulates the detach feature of screen
-# brew "dtach"
-# More intuitive version of du in rust
-# brew "dust"
-# Easily install prebuilt binaries from GitHub
-brew "eget"
-# Simple, fast and user-friendly alternative to find
-brew "fd"
-# Command-line fuzzy finder written in Go
-brew "fzf"
-# GitHub command-line tool
-brew "gh"
-# Git extension for versioning large files
-# brew "git-lfs"
-# Improved top (interactive process viewer)
-# brew "htop"
-# Image loading and rendering library
-# brew "imlib2"
-# Command-line pager for JSON data
-brew "jless"
-# Lightweight and flexible command-line JSON processor
-brew "jq"
-# Handy way to save and run project-specific commands
-brew "just"
-# Pager program similar to more
-brew "less"
-# Clone of ls with colorful output, file type icons, and more
-brew "lsd"
-# Modern and intuitive terminal-based text editor
-brew "micro"
-# Remote terminal application
-# brew "mosh"
-# CLI for Postgres with auto-completion and syntax highlighting
-# brew "pgcli"
-# Execute binaries from Python packages in isolated environments
-brew "pipx"
-# Cloud native development platform
-# brew "pulumi"
-# Cross-shell prompt for astronauts
-brew "starship"
-# Display images in a terminal using block graphic characters
-# brew "terminalimageviewer"
+# Input filter for the pager less
+brew "lesspipe"
 # Configure transparent encryption of files in a Git repo
 brew "transcrypt"
-# Generator for LS_COLORS with support for multiple color themes
-brew "vivid"
+# Improved colored diff
+brew "icdiff"
 # Fast CSV toolkit written in Rust
 brew "xsv"
-# Yet Another Dotfiles Manager
-brew "yadm"
-# Process YAML, JSON, XML, CSV and properties documents from the CLI
-brew "yq"
-# Shell extension to navigate your filesystem faster
-brew "zoxide"
-# A simple terminal UI for docker, written in Go
-# brew "jesseduffield/lazydocker/lazydocker"
-# Fast file synchronization and network forwarding for remote development
-# brew "mutagen-io/mutagen/mutagen-beta"
-brew "ripgrep"
-brew "ripgrep-all"
-# brew "rye"
-brew "poppler"
-brew "icdiff"
-brew "gum"
-brew "lesspipe"
-brew "bat"
-brew "bat-extras"
-# brew "helix"
-brew "delta"
-brew "difftastic"
-brew "parquet-cli"
