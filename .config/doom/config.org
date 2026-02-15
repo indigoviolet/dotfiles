@@ -42,6 +42,12 @@ https://github.com/doomemacs/doomemacs/blob/master/docs/getting_started.org#pack
 
 - setq debug-on-message <regexp> (https://old.reddit.com/r/emacs/comments/aqmrkq/determine_source_of_messages_printed_to_messages/)
 
+#+begin_src emacs-lisp
+;; Debug startup stall: drop into the debugger when something prints
+;; "Waiting for git...".
+;; (setq debug-on-message "Waiting for git")
+#+end_src
+
 * To try:
 ** hyper/super keys
 *** http://ergoemacs.org/emacs/emacs_hyper_super_keys.html
@@ -654,7 +660,7 @@ here as-is for now, as it is quite well structured and clear.
   ;;ocaml             ; an objective camel
 
   ;; +pretty is quite slow! (org-superstar)
-  (org +dragndrop +roam2);; +pretty)        ; organize your plain life in plain text
+  (org +dragndrop);; +roam2);; +pretty)        ; organize your plain life in plain text
   ;;php               ; perl's insecure younger brother
   ;;plantuml          ; diagrams for confusing people more
   ;;purescript        ; javascript, but functional
@@ -752,6 +758,11 @@ doesn't work.. so it's at the beginning of config.el and commented out.
 (disable-packages! highlight-indent-guides)
 (disable-packages! code-review)
 
+;; Large transitive deps; only useful for Elisp package authorship.
+;; Disabling avoids startup cost from pulling in `package-lint`.
+(disable-packages! flycheck-package)
+(disable-packages! package-lint)
+
 ;; (package! transient :pin "55d5d41b48d7f7bc1ecf1f90c012d7821dff5724")
 
 
@@ -782,13 +793,25 @@ doesn't work.. so it's at the beginning of config.el and commented out.
 https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_to_timestamp/
 #+begin_src emacs-lisp
 ;; timestamps in *Messages*
+;;
+;; NOTE: We override `message` below, which can bypass Emacs' built-in
+;; `debug-on-message` mechanism. So we explicitly check `debug-on-message` and
+;; call `debug` ourselves.
 
 (require 'ts)
 (defalias 'message-plain (symbol-function 'message))
+(defvar vi/debug-on-message-triggered nil
+  "Non-nil once we have triggered `debug` via `debug-on-message`.")
+
 (defun message (fmt-string &rest args)
   (let ((message-truncate-lines t))
+    (when (and (stringp debug-on-message)
+               (not vi/debug-on-message-triggered)
+               (string-match-p debug-on-message (apply #'format-message fmt-string args)))
+      (setq vi/debug-on-message-triggered t)
+      (debug))
     (apply
-     'message-plain
+     #'message-plain
      (concat (ts-format "[%Y-%m-%dT%T]: ") fmt-string)
      args)))
 #+end_src
@@ -871,6 +894,11 @@ https://old.reddit.com/r/emacs/comments/16tzu9/anyone_know_of_a_reasonable_way_t
 ;; vterm and eat as well
 (setq read-process-output-max (* 20 1024 1024)) ;; 4mb
 (setq process-adaptive-read-buffering nil)
+
+
+(prefer-coding-system 'utf-8)
+;; without this, citre tag finding is very slow
+(setq set-auto-coding-function nil)
 
 #+end_src
 
@@ -979,12 +1007,12 @@ https://emacs.stackexchange.com/a/24658 -- not sure if this works?
 (package! osx-clipboard-mode :recipe (:host github :repo "joddie/osx-clipboard-mode"))
 #+end_src
 
-*** COMMENT foo
+
 #+begin_src emacs-lisp
-(use-package! osx-clipboard-mode
+(use-package! osx-clipboard
   :config
   (osx-clipboard-mode)
-  )
+ )
 
 #+end_src
 
@@ -1449,6 +1477,7 @@ Hence we turn off solaire-mode in vterm by calling vterm buffers "real"
 
 #+begin_src emacs-lisp
 (use-package! pulsar
+  :after-call doom-first-buffer-hook
   :custom
   (pulsar-pulse t)
   (pulsar-delay 0.05)
@@ -1458,15 +1487,13 @@ Hence we turn off solaire-mode in vterm by calling vterm buffers "real"
   :config
   (pulsar-global-mode 1)
   :hook (
-          ;;(consult-after-jump . pulsar-recenter-top)
+          ;; (consult-after-jump . pulsar-recenter-top)
           (consult-after-jump . pulsar-reveal-entry)
-
           )
   :bind (
           ("C-x l" . pulsar-highlight-dwim)
           ("C-l" . pulsar-recenter-middle)
-          )
-  )
+          ))
 
 (custom-set-faces! '(pulsar-red :background "red"))
 #+end_src
@@ -1573,10 +1600,12 @@ https://github.com/alphapapa/bufler.el/issues/84
 
 
 #+begin_src emacs-lisp
-(global-diff-hl-mode)
-(add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
-(add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
-
+(use-package! diff-hl
+  :after-call doom-first-file-hook
+  :config
+  (global-diff-hl-mode 1)
+  (add-hook 'magit-pre-refresh-hook #'diff-hl-magit-pre-refresh)
+  (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh))
 #+end_src
 
 
@@ -1792,7 +1821,8 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
     doom-modeline-vcs-max-length 24
     ;; doom-modeline-icon nil
     ;; doom-modeline-major-mode-color-icon nil
-    doom-modeline-persp-name t
+    doom-modeline-persp-name nil
+    doom-modeline-project-name t
     )
 
   ;; (doom-modeline-def-segment purpose
@@ -1841,7 +1871,7 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
   ;; doom-modeline. other names don't seem to take effect as default..
   (doom-modeline-def-modeline 'main
     '(bar buffer-info-simple selection-info buffer-position remote-host recursion-depth matches check misc-info)
-    '(debug repl process lsp vcs minor-modes persp-name major-mode))
+    '(debug repl process lsp project-name vcs minor-modes major-mode))
 
   (doom-modeline-def-modeline 'org-src
    '(bar buffer-info-simple selection-info matches)
@@ -1851,10 +1881,17 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
     '(bar buffer-info-simple selection-info remote-host recursion-depth)
     '( debug github process vcs minor-modes major-mode misc-info))
 
-  (doom-modeline-mode)
+  ;; NOTE: Doom enables `doom-modeline-mode` on `doom-after-init-hook` by default.
+  ;; We remove it there and enable on `doom-first-buffer-hook` instead (see below).
+  ;; (doom-modeline-mode)
   ;; don't think we need this, since we modified 'main
-  ;;(add-hook! '(prog-mode-hook org-mode-hook) (doom-modeline-set-modeline 'main))
+  ;; (add-hook! '(prog-mode-hook org-mode-hook) (doom-modeline-set-modeline 'main))
   )
+
+;; Defer modeline activation until the first real buffer is shown, to avoid
+;; blocking startup on VC/project detection (e.g. git).
+(remove-hook 'doom-after-init-hook #'doom-modeline-mode)
+(add-hook! 'doom-first-buffer-hook #'doom-modeline-mode)
 #+end_src
 
 
@@ -1866,9 +1903,12 @@ TODO: would like to add a segment like anzu for iterm, ctrlf
 
 #+begin_src emacs-lisp
 (after! doom-modeline
-  (setq doom-modeline-minor-modes t)
-  (minions-mode)
-  )
+  (setq doom-modeline-minor-modes t))
+
+(use-package! minions
+  :after-call doom-first-buffer-hook
+  :config
+  (minions-mode 1))
 #+end_src
 
 *** mode minder
@@ -3673,7 +3713,7 @@ seems broken
 #+end_src
 
 
-** back-button
+** COMMENT back-button
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! back-button)
@@ -3806,15 +3846,20 @@ seems broken
 
 #+begin_src emacs-lisp
 ;; https://git.sr.ht/~northyear/dotemacs/tree/e9b75ccce4e840525c4ec664777694e21c69bc6e/item/site-lisp/consult-citre.el
-;; stored in .config/doom/lisp
-(load! "lisp/consult-citre.el")
+;; stored in $DOOMDIR/lisp
+;; Defer loading until `consult-citre` is invoked.
+(defconst vi/doom-lisp-dir (expand-file-name "lisp/" doom-private-dir)
+  "Path to $DOOMDIR/lisp.")
+
+(use-package! consult-citre
+  :commands (consult-citre)
+  :load-path vi/doom-lisp-dir)
 
 (after! citre
   (setq! citre-find-reference-backends '(global)
     citre-find-definition-backends '(tags global)
     citre-tags-in-buffer-backends '(global tags)
-    citre-ctags-program (concat (getenv "HOMEBREW_PREFIX") "/bin/ctags")
-    ))
+    citre-ctags-program (concat (getenv "HOMEBREW_PREFIX") "/bin/ctags")))
 #+end_src
 
 citre TAGS recipe:
@@ -5602,7 +5647,7 @@ disabled because it is noisy on startup, and used rarely (<2022-03-21 Mon>)
         "." (vi/org-in-calendar '(calendar-goto-today)))
 )
 #+end_src
-*** Org Roam
+*** COMMENT Org Roam
 
 
 - <2022-09-09 Fri> If we set org-roam-directory to ~org-directory~, syncing is
@@ -6064,7 +6109,8 @@ doesn't work
 
 (defun vi/vterm-reset ()
   (interactive)
-  (vterm-send-string "tput cnorm"))
+  (vterm-send-string "tput cnorm
+"))
 
 (map! :map vterm-mode-map "C-c C-r" #'vi/vterm-reset)
 
@@ -6305,6 +6351,7 @@ pretty slow at pagers (less etc, htop)
 
 #+begin_src emacs-lisp
 (use-package! flycheck
+  :after-call doom-first-file-hook
   :custom
   (flycheck-check-syntax-automatically '(mode-enabled save idle-change idle-buffer-switch new-line))
   (flycheck-idle-change-delay 3)
@@ -6879,6 +6926,7 @@ also does not track untracked files
 
 #+begin_src emacs-lisp
 (use-package! git-link
+  :commands (git-link git-link-commit git-link-homepage)
   :custom
   (git-link-default-branch "main"))
 
@@ -6955,7 +7003,10 @@ GIT_WORK_TREE via $HOME/.envrc, but this is problematic because
 1. magit will unset them on startup: https://github.com/magit/magit/wiki/Don't-set-$GIT_DIR-and-alike
 2. a new git directory without .envrc will default to the yadm repo, which is scary (actually maybe not: git init in an existing repo is safe..)
 
-** Using Tramp for magit/yadm
+** COMMENT Using Tramp for magit/yadm
+
+this slows down start up with "Waiting for git" message
+
 
 doesn't work for commits??
 
@@ -7009,6 +7060,7 @@ Quit recursive edit using C-]
 
 #+begin_src emacs-lisp
 (use-package! lsp-mode
+  :after-call doom-first-file-hook
   :init
   (setq! lsp-keymap-prefix "C-c l")
 
@@ -7080,6 +7132,8 @@ Quit recursive edit using C-]
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]pdf-anonymizer/tests/resources/release\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]protoapp/src/uploads\\'")
 
+  ;; https://emacs-lsp.github.io/lsp-mode/page/faq/#how-do-i-force-lsp-mode-to-forget-the-workspace-folders-for-multi-root-servers-so-the-workspace-folders-are-added-on-demand
+  (advice-add 'lsp :before (lambda (&rest _args) (eval '(setf (lsp-session-server-id->folders (lsp-session)) (ht)))))
 
   ;; Fix the hint diagnostic to display as faded out, not error  (https://github.com/emacs-lsp/lsp-mode/issues/3104)
   ;; Unrelated error: Invalid face reference: lsp-flycheck-info-unnecessary (https://github.(com/emacs-lsp/lsp-mode/issues/2255)
@@ -7353,8 +7407,26 @@ Lens shows refs for each variable in an overlay which is annoying. Also duplicat
 #+end_src
 * Python
 
+** lsp-pyrefly
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! lsp-pyrefly :recipe (:host github :repo "indigoviolet/lsp-pyrefly"))
+;; (package! lsp-pyrefly :recipe (:local-repo "~/dev/lsp-pyrefly"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! lsp-pyrefly
+  :after lsp-mode
+  :init
+  ;; Prefer pyrefly over pyright (priority 2)
+  (setq lsp-pyrefly-priority 3))
+#+end_src
+
+** python-mode
+
 #+begin_src emacs-lisp
 (use-package! python
+  :after-call doom-first-file-hook
   :custom
   (python-fill-docstring-style 'symmetric)
   ;; https://www.reddit.com/r/neovim/comments/ymcu8v/pyright_takes_several_minutes_when_1st_python/
@@ -7500,9 +7572,10 @@ Note: workspace root must have the pyrightconfig.json?
 
 #+begin_src emacs-lisp
 (use-package! python-pytest
+  ;; Avoid pulling in python/eshell/transient during startup.
+  :after-call python-mode-hook
   :config
-  (setq python-pytest-preferred-project-manager 'projectile) ;not projectile or auto
-  )
+  (setq python-pytest-preferred-project-manager 'projectile)) ; not projectile or auto
 
 (defun vi/python-project-compilation-dir ()
   (if-let ((file-name buffer-file-name))
@@ -7513,9 +7586,10 @@ Note: workspace root must have the pyrightconfig.json?
 ;;   "Find the project root directory."
 ;;   project-compilation-dir)
 
-(add-hook! 'python-mode-hook (setq!
-                               project-compilation-dir (vi/python-project-compilation-dir)
-                               python-pytest-executable "uv run pytest"))
+(add-hook! 'python-mode-hook
+  (setq!
+    project-compilation-dir (vi/python-project-compilation-dir)
+    python-pytest-executable "uv run pytest"))
 #+end_src
 
 
@@ -7545,10 +7619,11 @@ Note: workspace root must have the pyrightconfig.json?
 (setq python-ts-mode-hook python-mode-hook)
 
 (with-eval-after-load 'lsp-mode
-  (setq lsp-ruff-server-command '("ruff" "server" "--preview")))
+  (setq lsp-ruff-server-command '("uvx" "ruff@0.14.0" "server" "--preview"))
+  (setq lsp-pyrefly-server-command '("uvx" "pyrefly" "lsp")))
 #+end_src
 
-ruff-lsp support is built into emacs lsp (https://emacs-lsp.github.io/lsp-mode/page/lsp-ruff-lsp/)
+ruff-lsp support is built into emacs lsp (https://emacs-lsp.github.io/lsp-mode/page/lsp-ruff/)
 
 
 ** Flycheck checkers
@@ -8657,7 +8732,7 @@ useless
 
 #+end_src
 **
-* atomic chrome
+* COMMENT atomic chrome
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! atomic-chrome :recipe (:host github :repo "KarimAziev/atomic-chrome"))

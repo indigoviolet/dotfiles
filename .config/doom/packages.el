@@ -62,6 +62,11 @@
 (disable-packages! highlight-indent-guides)
 (disable-packages! code-review)
 
+;; Large transitive deps; only useful for Elisp package authorship.
+;; Disabling avoids startup cost from pulling in `package-lint`.
+(disable-packages! flycheck-package)
+(disable-packages! package-lint)
+
 ;; (package! transient :pin "55d5d41b48d7f7bc1ecf1f90c012d7821dff5724")
 
 
@@ -165,8 +170,6 @@
 
 (package! gumshoe :recipe (:host github :repo "Overdr0ne/gumshoe"))
 
-(package! back-button)
-
 (package! smartscan)
 
 (package! visual-regexp)
@@ -226,8 +229,6 @@
 
 (package! org-make-toc)
 
-(package! consult-org-roam :recipe (:host github :repo "jgru/consult-org-roam"))
-
 (package! org-colored-text :recipe (:host github :repo "indigoviolet/org-colored-text"))
 
 (package! ox-gfm)
@@ -251,6 +252,9 @@
 (package! dap-mode :recipe (:host github :repo "emacs-lsp/dap-mode"))
 
 (package! treesit-auto)
+
+(package! lsp-pyrefly :recipe (:host github :repo "indigoviolet/lsp-pyrefly"))
+;; (package! lsp-pyrefly :recipe (:local-repo "~/dev/lsp-pyrefly"))
 
 (package! py-isort :disable t)
 
@@ -282,8 +286,6 @@
 (package! org-latex-impatient)
 
 (package! prodigy)
-
-(package! atomic-chrome :recipe (:host github :repo "KarimAziev/atomic-chrome"))
 
 (package! gif-screencast :recipe (:host gitlab :repo "ambrevar/emacs-gif-screencast"))
 
