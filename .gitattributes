@@ -10,4 +10,5 @@
 .ssh/id_ed25519\#\#c.personal filter=crypt diff=crypt merge=crypt
 .config/TabNine/registration_key filter=crypt diff=crypt merge=crypt
 .config/rclone/rclone.conf filter=crypt diff=crypt merge=crypt
+Library/Application[[:space:]]Support/SABnzbd/sabnzbd.ini filter=crypt diff=crypt merge=crypt
 # .gitattributes:1 ends here
