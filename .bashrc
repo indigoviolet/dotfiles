@@ -29,5 +29,8 @@ set_x() {
     set -x
 }
 
+HOMEBREW_PREFIX="/opt/homebrew"
+
+eval $($HOMEBREW_PREFIX/bin/brew shellenv)
 eval "$(mise activate bash)"
 . "$HOME/.cargo/env"

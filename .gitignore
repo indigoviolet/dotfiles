@@ -28,3 +28,6 @@ nohup.out
 .fastembed_cache
 .serena
 .ck
+
+# PI coding agent
+agent_plans/

@@ -52,6 +52,11 @@ disabled = false
 [directory]
 fish_style_pwd_dir_length = 1
 
+[time]
+disabled = false
+time_format = "%l:%M %p"
+format = '[$time]($style)'
+
 # [custom.dvc_dirty]
 # detect_files = ["dvc.lock"]
 # # check icon: https://www.nerdfonts.com/cheat-sheet

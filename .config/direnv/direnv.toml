@@ -4,4 +4,4 @@
 load_dotenv = false
 
 [whitelist]
-prefix = ["/home/venky/dev"]
+prefix = ["/home/venky/dev", "/Users/venky/dev/"]
