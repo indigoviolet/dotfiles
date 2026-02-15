@@ -42,6 +42,7 @@ export ZSH_CUSTOM_DIR=${HOME}/.zshcustom
 # env.zsh, scriptlib.zsh
 source ${ZSH_CUSTOM_DIR}/noninteractive.zsh
 source ${ZSH_CUSTOM_DIR}/bun.zsh
+source ${ZSH_CUSTOM_DIR}/sprites.zsh
 source ${ZSH_CUSTOM_DIR}/input.zsh
 source ${ZSH_CUSTOM_DIR}/git.zsh
 source ${ZSH_CUSTOM_DIR}/ssh.zsh
