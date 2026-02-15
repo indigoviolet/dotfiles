@@ -114,14 +114,6 @@ atuin sync
 
 Otherwise, ask the user if they want to register or login.
 
-### git-info
-
-```bash
-mkdir -p ~/.local/bin
-curl -fsSL https://raw.githubusercontent.com/gitbits/git-info/master/git-info --output ~/.local/bin/git-info
-chmod +x ~/.local/bin/git-info
-```
-
 ---
 
 ## Notes
