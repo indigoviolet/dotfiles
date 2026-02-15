@@ -14,7 +14,7 @@ export EDITOR="emacsclient -r -a ''"
 {% endif %}
 
 {% if yadm.class == "remote" %}
-export EDITOR="micro" # installed via brew
+export EDITOR="nano"
 {% endif %}
 
 {% if yadm.os == "Darwin" %}

@@ -152,26 +152,8 @@
     default = simple
     autoSetupRemote = true
 
-## the credential manager is cross-platform
-[credential]
-    helper = manager            # git-credential-manager
-
-## on windows/osx the store is the keychain by default
-
-{% if yadm.class == "personal_ubuntu" %}
-## on graphical linux we can use the freedesktop api (gnome keyring etc.)
-    credentialStore = secretservice
-{% endif %}
-
-{% if yadm.class == "personal_mac" %}
-   credentialStore = keychain
-{% endif %}
-
-{% if yadm.class == "remote" %}
-## on headless tty we'll use a long timeout for the ephemeral in-memory cache
-    credentialStore = cache
-    cacheOptions = "--timeout 604800" # 1 week
-{% endif %}
+## gh auth setup-git configures per-host credential helpers for github.com
+## no global credential.helper needed
 
 # [filter "lfs"]
 #     clean = git-lfs clean -- %f
