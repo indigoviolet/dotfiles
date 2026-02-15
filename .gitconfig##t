@@ -152,8 +152,15 @@
     default = simple
     autoSetupRemote = true
 
-## gh auth setup-git configures per-host credential helpers for github.com
-## no global credential.helper needed
+## gh auth setup-git writes per-host credential helpers here;
+## yadm alt will preserve them since they're in the template
+[credential "https://github.com"]
+    helper =
+    helper = !/home/sprite/.local/share/mise/shims/gh auth git-credential
+
+[credential "https://gist.github.com"]
+    helper =
+    helper = !/home/sprite/.local/share/mise/shims/gh auth git-credential
 
 # [filter "lfs"]
 #     clean = git-lfs clean -- %f
