@@ -1,0 +1,17 @@
+# needed to see local shell environment
+sandbox_mode = "danger-full-access"
+
+model = "gpt-5.3-codex"
+personality = "pragmatic"
+
+[shell_environment_policy]
+inherit = "all"
+ignore_default_excludes = true
+include_only = ["PATH", "HOME"]
+
+[features]
+unified_exec = true
+shell_snapshot = true
+
+[notice.model_migrations]
+gpt-5-codex = "gpt-5.3-codex"

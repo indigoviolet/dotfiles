@@ -1,0 +1,30 @@
+{
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-opus-4-6",
+  "defaultThinkingLevel": "high",
+  "hideThinkingBlock": true,
+  "lastChangelogVersion": "0.52.10",
+  "steeringMode": "all",
+  "followUpMode": "all",
+  "collapseChangelog": true,
+  "packages": [
+    {
+      "source": "git:github.com/indigoviolet/shitty-extensions",
+      "extensions": [
+        "-extensions/cost-tracker.ts",
+        "-extensions/flicker-corp.ts",
+        "-extensions/funny-working-message.ts",
+        "-extensions/resistance.ts",
+        "-extensions/speedreading.ts",
+        "-extensions/status-widget.ts",
+        "-extensions/ultrathink.ts",
+        "-extensions/usage-bar.ts",
+        "-extensions/plan-mode.ts",
+        "-extensions/loop.ts"
+      ],
+      "skills": [
+        "-skills/a-nach-b/SKILL.md"
+      ]
+    }
+  ]
+}
