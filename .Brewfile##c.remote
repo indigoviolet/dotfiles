@@ -3,7 +3,3 @@ tap "homebrew/bundle"
 brew "lesspipe"
 # Configure transparent encryption of files in a Git repo
 brew "transcrypt"
-# Improved colored diff
-brew "icdiff"
-# Fast CSV toolkit written in Rust
-brew "xsv"
