@@ -53,15 +53,7 @@ Via brew/apt:
 
 Install with `uv tool install <package>`:
 
-**All profiles:**
-(none currently)
-
-**Personal only:**
-- black
-- ipython
-- isort
-- llm
-- ruff
+(none currently — this group exists for future additions)
 
 ### Personal extras
 
