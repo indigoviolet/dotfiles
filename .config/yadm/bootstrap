@@ -47,6 +47,7 @@ echo ""
 PROMPT_FILE="${SCRIPT_DIR}/bootstrap-prompt.md"
 
 claude \
+    --dangerously-skip-permissions \
     --system-prompt "$(cat "$PROMPT_FILE")" \
     "Bootstrap this machine.
 
