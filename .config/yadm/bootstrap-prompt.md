@@ -8,62 +8,52 @@ You are bootstrapping a development machine. The user's dotfiles are already clo
 - **Install preference**: mise → apt (linux) → brew (mac/linux fallback)
 - **Python tools**: use `uv tool install` (not pipx)
 - **JS/node tools**: use `bun install -g`
-- **Proceed step by step**, confirming each group with the user before moving on.
 - **Interactive steps** (logins, auth): pause and walk the user through them.
+- mise replaces direnv and just — do not install those separately.
 
-## Step 1: Core CLI tools via mise
+## Tool groups
 
-Install globally with `mise use -g <tool>@latest`:
+**Ask the user which groups to install.** Present the list and let them pick. Always install "basics". The rest are optional.
+
+### Basics
+
+Core CLI tools via mise (`mise use -g <tool>@latest`):
 
 - atuin
-- bat
-- bat-extras
-- delta
-- difftastic
-- direnv
 - fd
-- fzf
 - gh
-- jless
 - jq
-- just
 - lsd
 - ripgrep
-- ripgrep-all
 - starship
 - vivid
-- yq
 - zoxide
 
-## Step 2: CLI tools NOT in mise
-
-These need brew (macOS) or apt (Linux). On Linux, install brew first if not present (`https://brew.sh`).
+Core CLI tools NOT in mise (brew or apt):
 
 - abduco
 - eget
-- icdiff
 - lesspipe
 - micro
 - transcrypt
 - xsv
 
-## Step 3: Shell setup — prezto
+### Dev tools
 
-If `~/.zprezto` does not exist:
+Additional CLI tools for active development, via mise:
 
-```bash
-git clone --recursive https://github.com/sorin-ionescu/prezto.git "${HOME}/.zprezto"
-git clone --recurse-submodules https://github.com/belak/prezto-contrib "${HOME}/.zprezto/contrib"
-```
+- delta
+- difftastic
+- fzf
+- jless
+- ripgrep-all
+- yq
 
-On Linux, if zsh is not the login shell:
+Via brew/apt:
 
-```bash
-sudo apt-get install --no-install-recommends -y zsh
-sudo chsh -s $(which zsh) $(whoami)
-```
+- icdiff
 
-## Step 4: Python tools via uv
+### Python tools
 
 Install with `uv tool install <package>`:
 
@@ -80,17 +70,63 @@ Install with `uv tool install <package>`:
 - llm
 - ruff
 
-## Step 5: Interactive — gh auth
+### Personal extras
 
-If `gh auth status` fails:
+Only for personal profile. Skip entirely for remote.
+
+**Homebrew + casks:** if on macOS, ensure brew is installed, then run `brew bundle --global` if `~/.Brewfile` exists (yadm alt should have linked it). This handles macOS-specific formulas and casks (1password, iterm2, emacs, fonts, etc.)
+
+**Doom Emacs:** if `~/.emacs.d` does not exist:
 
 ```bash
-gh auth login
+git clone https://github.com/hlissner/doom-emacs "${HOME}/.emacs.d"
+~/.emacs.d/bin/doom install
 ```
 
-Walk the user through the interactive flow.
+### Remote extras
 
-## Step 6: Interactive — atuin
+Only for remote profile. Skip entirely for personal.
+
+**git-credential-manager (Linux):**
+
+```bash
+cd /tmp
+eget -a '.deb' GitCredentialManager/git-credential-manager
+sudo dpkg -i /tmp/gcm*.deb
+git credential-manager configure
+```
+
+**Tailscale (Linux):** if not already installed:
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+```
+
+---
+
+## After tool groups: Shell & interactive setup
+
+### Shell setup — prezto
+
+If `~/.zprezto` does not exist:
+
+```bash
+git clone --recursive https://github.com/sorin-ionescu/prezto.git "${HOME}/.zprezto"
+git clone --recurse-submodules https://github.com/belak/prezto-contrib "${HOME}/.zprezto/contrib"
+```
+
+On Linux, if zsh is not the login shell:
+
+```bash
+sudo apt-get install --no-install-recommends -y zsh
+sudo chsh -s $(which zsh) $(whoami)
+```
+
+### Interactive — gh auth
+
+If `gh auth status` fails, run `gh auth login` and walk the user through it.
+
+### Interactive — atuin
 
 If `~/.local/share/atuin/key` exists:
 
@@ -101,53 +137,12 @@ atuin sync
 
 Otherwise, ask the user if they want to register or login.
 
-## Step 7: git-info
+### git-info
 
 ```bash
 mkdir -p ~/.local/bin
 curl -fsSL https://raw.githubusercontent.com/gitbits/git-info/master/git-info --output ~/.local/bin/git-info
 chmod +x ~/.local/bin/git-info
-```
-
----
-
-## Personal profile only (skip for remote)
-
-### Homebrew + casks
-
-If on macOS, ensure brew is installed, then:
-
-- Run `brew bundle --global` if `~/.Brewfile` exists (yadm alt should have linked it)
-- This handles macOS-specific formulas and casks (1password, iterm2, emacs, fonts, etc.)
-
-### Doom Emacs
-
-If `~/.emacs.d` does not exist:
-
-```bash
-git clone https://github.com/hlissner/doom-emacs "${HOME}/.emacs.d"
-~/.emacs.d/bin/doom install
-```
-
----
-
-## Remote profile only (skip for personal)
-
-### git-credential-manager (Linux)
-
-```bash
-cd /tmp
-eget -a '.deb' GitCredentialManager/git-credential-manager
-sudo dpkg -i /tmp/gcm*.deb
-git credential-manager configure
-```
-
-### Tailscale (Linux)
-
-If `tailscale` is not already installed:
-
-```bash
-curl -fsSL https://tailscale.com/install.sh | sh
 ```
 
 ---
