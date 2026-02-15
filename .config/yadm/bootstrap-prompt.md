@@ -31,12 +31,8 @@ Core CLI tools via mise (`mise use -g <tool>@latest`):
 
 Core CLI tools NOT in mise (brew or apt):
 
-- abduco
-- eget
 - lesspipe
-- micro
 - transcrypt
-- xsv
 
 ### Dev tools
 
@@ -46,27 +42,24 @@ Additional CLI tools for active development, via mise:
 - difftastic
 - fzf
 - jless
-- ripgrep-all
 - yq
 
 Via brew/apt:
 
 - icdiff
+- xsv
 
 ### Python tools
 
 Install with `uv tool install <package>`:
 
 **All profiles:**
-- jinjanator
-- jello
-- pypyp
+(none currently)
 
 **Personal only:**
 - black
 - ipython
 - isort
-- jupytext
 - llm
 - ruff
 
@@ -86,15 +79,6 @@ git clone https://github.com/hlissner/doom-emacs "${HOME}/.emacs.d"
 ### Remote extras
 
 Only for remote profile. Skip entirely for personal.
-
-**git-credential-manager (Linux):**
-
-```bash
-cd /tmp
-eget -a '.deb' GitCredentialManager/git-credential-manager
-sudo dpkg -i /tmp/gcm*.deb
-git credential-manager configure
-```
 
 **Tailscale (Linux):** if not already installed:
 
@@ -125,6 +109,7 @@ sudo chsh -s $(which zsh) $(whoami)
 ### Interactive — gh auth
 
 If `gh auth status` fails, run `gh auth login` and walk the user through it.
+Then run `gh auth setup-git` to configure git credential helper.
 
 ### Interactive — atuin
 
