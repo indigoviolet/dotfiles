@@ -1,11 +1,17 @@
 # Plan document
 
-- Every session should work from a markdown plan document capturing TODOs and context.
-- If the session was started with a plan document, use that. 
-- If no plan document was provided, work with the user to define a plan and create a new plan document in `<project root dir>/agent_plans`. The plan doc will be named `<git-branch>_<short-goal>.md`
-- Keep the plan doc updated as you learn things.
+**When is a plan needed?** Only when changes to tracked (or to-be-tracked) files are being considered. Investigation, temporary/scratch files, and casual questions do **not** require a plan.
 
-Plan doc should include:
+**When a plan is needed:**
+- Anchor it to a **GitHub issue**. Load the `github-issue-plan` skill and follow its instructions to find or create the tracking issue, read/create the living plan comment, and move the issue to "In Progress".
+- If the session was started with an issue number, use that issue directly.
+- Keep the plan comment updated as you learn things and complete work.
+- Post session logs at milestones or session end.
+
+**Fallback (only if the user explicitly says not to use a GitHub issue):**
+- Create a plan document in `<project root dir>/agent_plans`. The plan doc will be named `<git-branch>_<short-goal>.md`.
+
+Plan content should include:
 1. High-level goal
 2. TODOs (completed and future). Break down each TODO into granular sub-tasks; check off completed items.
 3. Pointers to relevant files

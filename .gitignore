@@ -31,3 +31,4 @@ nohup.out
 
 # PI coding agent
 agent_plans/
+.pi

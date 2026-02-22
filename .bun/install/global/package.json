@@ -1,9 +1,8 @@
 {
   "dependencies": {
-    "@anthropic-ai/claude-code": "^2.1.5",
     "@getgrit/cli": "^0.1.0-alpha.1723589842",
     "@google/gemini-cli": "^0.1.12",
-    "@mariozechner/pi-coding-agent": "^0.52.10",
+    "@mariozechner/pi-coding-agent": "^0.53.1",
     "@openai/codex": "^0.100.0",
     "@statsig/siggy": "^0.0.4",
     "@withgraphite/graphite-cli": "^1.7.14",
