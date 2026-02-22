@@ -3,7 +3,7 @@
   "defaultModel": "claude-opus-4-6",
   "defaultThinkingLevel": "high",
   "hideThinkingBlock": false,
-  "lastChangelogVersion": "0.53.1",
+  "lastChangelogVersion": "0.54.0",
   "steeringMode": "all",
   "followUpMode": "all",
   "collapseChangelog": true,

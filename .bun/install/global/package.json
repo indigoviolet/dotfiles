@@ -2,8 +2,7 @@
   "dependencies": {
     "@getgrit/cli": "^0.1.0-alpha.1723589842",
     "@google/gemini-cli": "^0.1.12",
-    "@mariozechner/pi-coding-agent": "^0.53.1",
-    "@openai/codex": "^0.100.0",
+    "@openai/codex": "^0.104.0",
     "@statsig/siggy": "^0.0.4",
     "@withgraphite/graphite-cli": "^1.7.14",
     "concurrently": "^9.0.1",
