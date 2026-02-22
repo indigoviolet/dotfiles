@@ -1,0 +1,15 @@
+[settings]
+experimental = true
+verbose = false
+idiomatic_version_file_enable_tools = []
+
+trusted_config_paths = [
+    '~/dev/plus',
+]
+
+
+
+status.show_env = true
+
+[tools]
+fnox = "latest"
