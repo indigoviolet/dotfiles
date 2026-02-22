@@ -156,11 +156,11 @@
 ## yadm alt will preserve them since they're in the template
 [credential "https://github.com"]
     helper =
-    helper = !/home/sprite/.local/share/mise/shims/gh auth git-credential
+    helper = !gh auth git-credential
 
 [credential "https://gist.github.com"]
     helper =
-    helper = !/home/sprite/.local/share/mise/shims/gh auth git-credential
+    helper = !gh auth git-credential
 
 # [filter "lfs"]
 #     clean = git-lfs clean -- %f
