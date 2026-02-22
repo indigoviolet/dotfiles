@@ -1,0 +1,99 @@
+# TPM
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'sainnhe/tmux-fzf'
+
+set -wg remain-on-exit off      # close pane when process exits
+set -wg mode-keys emacs
+# setw -g utf8 on
+
+set -g status-keys emacs
+set -g status-justify left
+set -g status-left ''
+set -g status-right '#[bg=yellow]#S#[bg=cyan]'
+set -g status-right-length 66
+set -g status on                # show status bar
+
+set -g bell-action any
+set -g visual-bell off
+set -g visual-activity on
+
+set -g default-shell /bin/zsh
+
+set -wg automatic-rename on
+set -g allow-rename on
+
+set -g aggressive-resize off
+set -g history-limit 50000
+
+set -g update-environment "PATH DISPLAY SSH_ASKPASS SSH_AUTH_SOCK SSH_CONNECTION WINDOWID XAUTHORITY"
+
+# Native scrollback https://superuser.com/questions/1737355/enabling-seamless-mouse-scrolling-with-tmux
+set -ga terminal-overrides 'xterm*:smcup@:rmcup@'
+
+# set -g destroy-unattached on
+
+
+# required for vterm escapes to work properly
+set -g allow-passthrough all
+
+# set -g pane-border-indicators off
+# set -g pane-border-lines single
+# set -g pane-border-status off
+# set -g pane-border-style none
+# set -g window-active-style none
+# set -g window-style none
+# set -g pane-active-border-style none
+
+set -g pane-border-status bottom
+
+# https://github.com/tmux/tmux/issues/733
+# set -g pane-border-format "#{pane_index} '#(ps --no-headers -t #{pane_tty} -o args -O-c)'"
+set -g pane-border-format "#{client_session} #{?client_prefix,#[bg=lightpink],} #{?pane_in_mode,#[bg=white],} <#{@custom_pane_title}> '$> #(sleep 0.25; ps -t #{pane_tty} -o args= | tail -n 1)'"
+bind < command-prompt -p "New Title: " -I "#{@custom_pane_title}" "set-option -p @custom_pane_title '%%'"
+
+# copy-mode -e exits when you hit the bottom of the screen
+bind [ copy-mode -eu
+bind PageUp copy-mode -eu
+
+# requires tmux_prompt escape codes, see prompt.zsh
+bind -T copy-mode n send-keys -X next-prompt
+bind -T copy-mode p send-keys -X previous-prompt
+
+#set -g pane-active-border-bg red
+#set -g pane-border-bg white
+
+# set -g display-panes-active-colour red
+# set -g display-panes-colour white
+
+# bind-key -n M-Left previous-window
+# bind-key -n M-Right next-window
+
+# bind o select-pane -t:.+1 \; display-panes
+
+# bind n new-window -a
+# bind-key = copy-mode
+
+# bind-key '|' split-window -h
+# bind-key _ split-window
+# bind-key . choose-session "move-window -t %%"
+
+# bind-key 1 break-pane
+# bind-key 2 select-layout even-vertical
+# bind-key 3 select-layout even-horizontal
+# bind-key / command-prompt -p "Set default-path to: " "set default-path '%%'"
+# bind f command-prompt -p "find-window: " "find-window %%"
+
+
+# bind-key c run-shell 'tmux capture-pane -S -100000 -p > /tmp/tmux-buffer && emacsclient -c -n -a "" /tmp/tmux-buffer'
+
+
+
+# bind-key c capture-pane -S -100000  \; save-buffer /tmp/tmux-buffer \; delete-buffer \; run-shell "emacsclient -c -n -a '' /tmp/tmux-buffer"
+# bind-key k kill-window
+
+set -g default-terminal "screen-256color"
+bind R source-file ~/.tmux.conf \; display-message "Config reloaded..."
+
+# Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+run '~/.tmux/plugins/tpm/tpm'
