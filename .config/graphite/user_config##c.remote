@@ -1,3 +1,37 @@
 {
-  "authToken": "dmlsAi722Fx3sBFHRGLz1yLzCCQ12XkF1S8tiQTTVTLpouWSaolhfksRgWtI"
+  "branchPrefix": "venky/",
+  "branchDate": false,
+  "authToken": "dmlsAi722Fx3sBFHRGLz1yLzCCQ12XkF1S8tiQTTVTLpouWSaolhfksRgWtI",
+  "submitIncludeCommitMessages": true,
+  "submitViaCli": true,
+  "gtiConfigs": [
+    {
+      "key": "graphite.branch_edit",
+      "value": "commit"
+    },
+    {
+      "key": "gti.hasShownGettingStarted",
+      "value": "true"
+    },
+    {
+      "key": "graphite.create_prs_as",
+      "value": "published"
+    },
+    {
+      "key": "gti.submit-with-web",
+      "value": "\"web\""
+    },
+    {
+      "key": "gti.changedFilesDisplayType",
+      "value": "\"tree\""
+    },
+    {
+      "key": "gti.is-onboarded",
+      "value": "true"
+    },
+    {
+      "key": "gti.submit-as-draft",
+      "value": "\"published\""
+    }
+  ]
 }
