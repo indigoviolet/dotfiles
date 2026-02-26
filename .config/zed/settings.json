@@ -7,6 +7,8 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "buffer_font_weight": 600.0,
+  "buffer_font_family": "IndigovioleskaSemi Nerd Font Mono",
   "ssh_connections": [
     {
       "host": "hetzner1",

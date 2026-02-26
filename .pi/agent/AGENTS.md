@@ -76,6 +76,9 @@ Acknowledge that you have read these instructions by saying "Pinstructions loade
 
 # Tools
 - `rg` instead of `grep`
+  - When using alternation patterns with `|`, use `-e` flags instead of `|` in the
+    pattern string, because the shell interprets `|` as a pipe even inside quotes
+    in some contexts. E.g. use `rg -e "foo" -e "bar"` instead of `rg "foo|bar"`.
 - `fd` instead of `find`
 
 

@@ -8,23 +8,11 @@
   "followUpMode": "all",
   "collapseChangelog": true,
   "packages": [
-    {
-      "source": "git:github.com/indigoviolet/shitty-extensions",
-      "extensions": [
-        "-extensions/cost-tracker.ts",
-        "-extensions/flicker-corp.ts",
-        "-extensions/funny-working-message.ts",
-        "-extensions/resistance.ts",
-        "-extensions/speedreading.ts",
-        "-extensions/status-widget.ts",
-        "-extensions/ultrathink.ts",
-        "-extensions/usage-bar.ts",
-        "-extensions/plan-mode.ts",
-        "-extensions/loop.ts"
-      ],
-      "skills": [
-        "-skills/a-nach-b/SKILL.md"
-      ]
-    }
+    "npm:@aliou/pi-processes",
+    "npm:pi-subdir-context",
+    "npm:pi-notify",
+    "npm:pi-interactive-shell",
+    "npm:pi-ask-tool-extension",
+    "git:github.com/indigoviolet/agentic"
   ]
 }
