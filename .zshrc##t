@@ -50,13 +50,18 @@ source ${ZSH_CUSTOM_DIR}/fzf.zsh
 source ${ZSH_CUSTOM_DIR}/misc.zsh
 source ${ZSH_CUSTOM_DIR}/abduco.zsh
 
+{% if yadm.os == "Darwin" %}
+[[ -x /opt/homebrew/bin/brew ]] && source ${ZSH_CUSTOM_DIR}/brew.zsh
+[[ -x /opt/homebrew/bin/brew ]] && source ${ZSH_CUSTOM_DIR}/build.zsh
+{% else %}
+[[ -x /home/linuxbrew/.linuxbrew/bin/brew ]] && source ${ZSH_CUSTOM_DIR}/brew.zsh
+[[ -x /home/linuxbrew/.linuxbrew/bin/brew ]] && source ${ZSH_CUSTOM_DIR}/build.zsh
+{% endif %}
+(( $+commands[gt] )) && source ${ZSH_CUSTOM_DIR}/gt.zsh
+(( $+commands[direnv] )) && source ${ZSH_CUSTOM_DIR}/direnv.zsh
+(( $+commands[emacs] )) && source ${ZSH_CUSTOM_DIR}/doom.zsh
+(( $+commands[just] )) && source ${ZSH_CUSTOM_DIR}/just.zsh
 {% if yadm.class == "personal" %}
-source ${ZSH_CUSTOM_DIR}/brew.zsh
-source ${ZSH_CUSTOM_DIR}/build.zsh
-source ${ZSH_CUSTOM_DIR}/gt.zsh
-source ${ZSH_CUSTOM_DIR}/direnv.zsh
-source ${ZSH_CUSTOM_DIR}/doom.zsh
-source ${ZSH_CUSTOM_DIR}/just.zsh
 source ${ZSH_CUSTOM_DIR}/gcloud.zsh
 source ${ZSH_CUSTOM_DIR}/gcloud-completion.zsh
 # source ${ZSH_CUSTOM_DIR}/android.zsh
