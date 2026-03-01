@@ -31,4 +31,8 @@ nohup.out
 
 # PI coding agent
 agent_plans/
-.pi
+.pi/
+!/.pi/
+/.pi/agent/auth.json
+/.pi/agent/sessions/
+/.pi/agent/cache/

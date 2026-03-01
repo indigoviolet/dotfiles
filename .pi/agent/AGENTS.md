@@ -80,5 +80,6 @@ Acknowledge that you have read these instructions by saying "Pinstructions loade
     pattern string, because the shell interprets `|` as a pipe even inside quotes
     in some contexts. E.g. use `rg -e "foo" -e "bar"` instead of `rg "foo|bar"`.
 - `fd` instead of `find`
+- `yadm`: Always stage files explicitly (`yadm add <file> ...`). Never use `yadm add -u` or `yadm add -A` — the home directory has too many tracked files and it's easy to accidentally stage unwanted changes.
 
 

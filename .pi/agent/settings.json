@@ -3,16 +3,15 @@
   "defaultModel": "claude-opus-4-6",
   "defaultThinkingLevel": "high",
   "hideThinkingBlock": false,
-  "lastChangelogVersion": "0.54.0",
+  "lastChangelogVersion": "0.55.3",
   "steeringMode": "all",
   "followUpMode": "all",
   "collapseChangelog": true,
   "packages": [
-    "npm:@aliou/pi-processes",
-    "npm:pi-subdir-context",
     "npm:pi-notify",
-    "npm:pi-interactive-shell",
     "npm:pi-ask-tool-extension",
-    "git:github.com/indigoviolet/agentic"
+    "npm:pi-interactive-shell",
+    "npm:@romansix/pi-tmux",
+    "../../dev/agentic"
   ]
 }

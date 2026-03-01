@@ -3,6 +3,7 @@ sandbox_mode = "danger-full-access"
 
 model = "gpt-5.3-codex"
 personality = "pragmatic"
+model_reasoning_effort = "medium"
 
 [shell_environment_policy]
 inherit = "all"
