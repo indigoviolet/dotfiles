@@ -128,8 +128,7 @@ export default function pinExtension(pi: ExtensionAPI) {
 	function updateStatus(ctx: ExtensionContext) {
 		if (!ctx.hasUI) return;
 		if (pin) {
-			const viewLabel = pin.view === "full" ? "full" : "mini";
-			ctx.ui.setStatus("pin", ctx.ui.theme.fg("accent", `📌 ${viewLabel}`));
+			ctx.ui.setStatus("pin", ctx.ui.theme.fg("accent", "📌"));
 		} else {
 			ctx.ui.setStatus("pin", undefined);
 		}
