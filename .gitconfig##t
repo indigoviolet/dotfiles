@@ -144,7 +144,7 @@
     defaultBranch = main
 
 [core]
-    excludesfile = ~/.gitignore
+    excludesfile = ~/.config/git/ignore
     pager = delta
     abbrev = 7                  #length of shas
 

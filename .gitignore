@@ -1,3 +1,7 @@
+# This file is yadm's repo-level .gitignore (work tree = $HOME).
+# It is NOT the global git excludes file — that's ~/.config/git/ignore.
+# Patterns with a leading "/" anchor to $HOME and only affect yadm.
+
 *~
 .#*
 *.pyc

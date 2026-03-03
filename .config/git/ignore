@@ -1,0 +1,26 @@
+*~
+.#*
+*.pyc
+*.elc
+.cache-loader*
+.ipynb_checkpoints/
+__pycache__/
+*ediff-merge*
+
+node_modules/
+.DS_Store
+.direnv/
+.direnv
+nohup.out
+
+.overmind
+.codanna*
+.fastembed_cache
+.serena
+.ck
+
+# AI coding agents
+agent_plans/
+.pi/
+.pi
+**/.claude/settings.local.json
