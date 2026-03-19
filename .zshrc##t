@@ -35,6 +35,10 @@ if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
     source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
+# macOS 26 (Tahoe) changed the default umask from 022 to 077, which breaks
+# expected file permissions for git checkouts, editors, build tools, etc.
+umask 022
+
 # Customize to your needs...
 
 export ZSH_CUSTOM_DIR=${HOME}/.zshcustom
@@ -108,7 +112,7 @@ zstyle ':fzf-tab:complete:*' fzf-bindings 'ctrl-/:toggle-preview'
 zstyle ':fzf-tab:*' sort false
 zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
-# test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 # /usr/local/opt/fzf/install after brew install fzf
 # [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
