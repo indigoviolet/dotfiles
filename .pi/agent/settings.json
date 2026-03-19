@@ -3,15 +3,18 @@
   "defaultModel": "claude-opus-4-6",
   "defaultThinkingLevel": "high",
   "hideThinkingBlock": false,
-  "lastChangelogVersion": "0.55.3",
+  "lastChangelogVersion": "0.60.0",
   "steeringMode": "all",
   "followUpMode": "all",
   "collapseChangelog": true,
   "packages": [
+    "npm:@juanibiapina/pi-extension-settings",
     "npm:pi-notify",
     "npm:pi-ask-tool-extension",
-    "npm:pi-interactive-shell",
-    "npm:@romansix/pi-tmux",
-    "../../dev/agentic"
+    "../../dev/agentic",
+    "../../dev/pi-tmux",
+    "../../dev/pi-shupervisor",
+    "npm:@juanibiapina/pi-plan",
+    "../../dev/pi-fzf"
   ]
 }

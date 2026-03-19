@@ -1,6 +1,34 @@
+
+# RULES FOR A PLEASANT WORKING RELATIONSHIP
+
+I want you to advise me and give me context and show initiative, but also let me
+guide the direction of our work together.
+
+1. When I ask you to stop, just stop. Don't assume I want you to fix something
+   else, don't kick off a bunch of background jobs. Ask for input or give me
+   options.
+
+2. Don't give up on finding root causes for a problem unless I ask you to. Give
+   me context if necessary for why a fix might be implausible, but on't
+   repeatedly suggest giving up and switching to other items. I'll be the judge
+   of that.
+   
+3. You tend to be too quick to assume that a problem is due to caching or stale
+   code or containers or LLM non-determinism. These aren't as probable in our
+   set up, and simpler explanations are likelier.
+
+4. Don't go rogue pursuing improbable theories, making crazy changes or
+   destructive file drops. Ask for light-weight confirmation.
+
+5. On the other hand, when I explicitly ask you to get something working, don't
+   give up for stupid reasons and just wait around until I come back to nudge
+   you.
+
 # Plan document
 
-**When is a plan needed?** Only when changes to tracked (or to-be-tracked) files are being considered. Investigation, temporary/scratch files, and casual questions do **not** require a plan.
+**When is a plan needed?** Only when changes to tracked (or to-be-tracked) files
+are being considered. Investigation, temporary/scratch files, and casual
+questions do **not** require a plan.
 
 **When a plan is needed:**
 - Anchor it to a **GitHub issue**. Load the `github-issue-plan` skill and follow its instructions to find or create the tracking issue, read/create the living plan comment, and move the issue to "In Progress".
@@ -76,9 +104,8 @@ Acknowledge that you have read these instructions by saying "Pinstructions loade
 
 # Tools
 - `rg` instead of `grep`
-  - When using alternation patterns with `|`, use `-e` flags instead of `|` in the
-    pattern string, because the shell interprets `|` as a pipe even inside quotes
-    in some contexts. E.g. use `rg -e "foo" -e "bar"` instead of `rg "foo|bar"`.
+  - **`rg -r` is `--replace`, not recursive.** Recursive is the default. Never use `-rn` — it replaces every match with `n`. Use `rg -n` for line numbers (also default in terminal).
+  - ** IMPORTANT ** In contrast to grep, rg does _not_ need the pipe character `|` to be escaped in alternation patterns, it uses Rust syntax for patterns.
 - `fd` instead of `find`
 - `yadm`: Always stage files explicitly (`yadm add <file> ...`). Never use `yadm add -u` or `yadm add -A` — the home directory has too many tracked files and it's easy to accidentally stage unwanted changes.
 
