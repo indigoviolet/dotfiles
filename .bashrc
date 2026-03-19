@@ -59,7 +59,7 @@ elif [[ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
 
-if command -v mise >/dev/null 2>&1; then
+if command -v mise >/dev/null 2>&1 && [[ $- == *i* ]]; then
     eval "$(mise activate bash)"
 fi
 

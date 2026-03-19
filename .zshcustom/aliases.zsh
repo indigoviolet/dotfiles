@@ -7,7 +7,7 @@ alias cp="cp -v"
 alias echo="echo -e"
 
 # alias grep="rg"  # breaks on mac os?
-alias htop="htop -u $(whoami)"
+alias htop="htop -u $USER"
 
 function zshtype {
     # equivalent of `type -t` from bash
@@ -25,7 +25,7 @@ alias rm="rm -iv"
 # alias py="ipython"
 alias py="python -c 'import IPython; IPython.terminal.ipapp.launch_new_instance()'"
 # alias t="tmux -2 -u -CC a || tmux -2 -u -CC"
-alias htopt="htop -p \"$(ps a -o 'pid' | tail -n +2 | perl -0777 -lne 'chop; s/\n/,/g; print')\""
+htopt() { htop -p "$(ps a -o 'pid' | tail -n +2 | perl -0777 -lne 'chop; s/\n/,/g; print')" }
 # alias find=fd
 alias g="git"
 # alias cat="bat"
