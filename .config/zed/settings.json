@@ -7,6 +7,12 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "disable_ai": false,
+  "icon_theme": "Catppuccin Macchiato",
+  "project_panel": {
+    "hide_gitignore": true,
+    "hide_hidden": true,
+  },
   "buffer_font_weight": 600.0,
   "buffer_font_family": "IndigovioleskaSemi Nerd Font Mono",
   "ssh_connections": [
@@ -14,45 +20,61 @@
       "host": "hetzner1",
       "username": "venky",
       "args": [],
-      "projects": []
-    }
+      "projects": [],
+    },
   ],
   "edit_predictions": {
-    "provider": "zed"
+    "provider": "zed",
   },
   "buffer_line_height": "standard",
   "languages": {
     "Python": {
       "inlay_hints": {
-        "enabled": true
+        "enabled": true,
       },
+      "language_servers": [
+        // Enable ty, disable basedpyright, and enable all
+        // other registered language servers (ruff, pylsp, pyright).
+        "ty",
+        "basedpyright",
+        "ruff",
+      ],
       "show_whitespaces": "trailing",
       "indent_guides": {
         "background_coloring": "indent_aware",
-        "coloring": "indent_aware"
-      }
-    }
-  },
-  "prettier": {
-    "allowed": true
-  },
-  "agent_servers": {
-    "opencode": {
-      "type": "registry"
-    }
-  },
-  "session": {
-    "trust_all_worktrees": true
-  },
-  "agent": {
-    "model_parameters": [],
-    "default_model": {
-      "provider": "copilot_chat",
-      "model": "claude-opus-4.5"
+        "coloring": "indent_aware",
+      },
     },
   },
+  "prettier": {
+    "allowed": true,
+  },
+  "agent": {
+    "inline_assistant_model": {
+      "provider": "anthropic",
+      "model": "claude-opus-4-6-latest",
+    },
+  },
+  "agent_servers": {
+    "pi-acp": {
+      "type": "registry",
+    },
+    "claude-acp": {
+      "type": "registry",
+    },
+    "codex-acp": {
+      "type": "registry",
+    },
+    "opencode": {
+      "type": "registry",
+    },
+  },
+  "session": {
+    "trust_all_worktrees": true,
+  },
+
   "base_keymap": "VSCode",
   "ui_font_size": 15.0,
   "buffer_font_size": 14.0,
-  "theme": "JetBrains Dark",
+  "theme": "Dracula Solid",
 }
