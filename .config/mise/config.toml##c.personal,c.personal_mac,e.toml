@@ -12,5 +12,6 @@ trusted_config_paths = [
 status.show_env = true
 
 [tools]
+atuin = "latest"
 fnox = "latest"
 node = "22.21.1"

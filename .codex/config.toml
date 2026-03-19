@@ -1,7 +1,7 @@
 # needed to see local shell environment
 sandbox_mode = "danger-full-access"
 
-model = "gpt-5.3-codex"
+model = "gpt-5.4"
 personality = "pragmatic"
 model_reasoning_effort = "medium"
 

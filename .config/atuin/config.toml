@@ -31,13 +31,20 @@ sync_frequency = "5m"
 
 ## which search mode to use
 ## possible values: prefix, fulltext, fuzzy
-search_mode = "fulltext"
+search_mode = "daemon-fuzzy"
 
 ## which style to use
 ## possible values: auto, full, compact
 style = "compact"
 inline_height = 40
 filter_mode_shell_up_key_binding = "directory" # or global, host, directory, etc
+
+[ai]
+enabled = true
+
+[daemon]
+enabled = true
+autostart = true
 
 
 ## what to do when the escape key is pressed when searching
