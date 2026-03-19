@@ -4629,7 +4629,7 @@ not bad but not as good as window-stool
 #+end_src
 
 
-** copilot
+** COMMENT copilot
 
 *** original package
 

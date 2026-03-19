@@ -202,9 +202,6 @@
 ;; (package! popon :recipe (:host codeberg :repo "akib/emacs-popon"))
 ;; (package! corfu-terminal :recipe (:type git :repo "https://codeberg.org/akib/emacs-corfu-terminal.git"))
 
-(package! copilot
-  :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
-
 (package! iedit)
 
 (package! wgrep)
