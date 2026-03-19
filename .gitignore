@@ -40,3 +40,5 @@ agent_plans/
 /.pi/agent/auth.json
 /.pi/agent/sessions/
 /.pi/agent/cache/
+/.pi/agent/skills/*/.cache.md
+/.pi/agent/skills/*/.cache_updated_at
