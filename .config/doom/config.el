@@ -1770,7 +1770,7 @@ message listing the hooks."
        consult-projectile--source-projectile-project
        ;;consult--source-project-buffer
        consult--source-hidden-buffer
-       +vertico--consult-org-source)a)
+       +vertico--consult-org-source))
 
 
   ;; consult-project-buffer calls consult-project-function(t) but doom-project-root, the default value of consult-project-function doesn't take t
