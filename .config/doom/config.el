@@ -1747,13 +1747,13 @@ message listing the hooks."
        consult-projectile--source-projectile-buffer
        consult-projectile--source-projectile-file
 
-       consult--source-modified-buffer
+       consult-source-modified-buffer
 
-       consult--source-buffer
-       consult--source-recent-file
+       consult-source-buffer
+       consult-source-recent-file
        consult-projectile--source-projectile-project
-       ;;consult--source-project-buffer
-       consult--source-hidden-buffer
+       ;;consult-source-project-buffer
+       consult-source-hidden-buffer
        +vertico--consult-org-source)))
 
 (use-package! consult-project-extra
@@ -1763,13 +1763,13 @@ message listing the hooks."
        consult-projectile--source-projectile-buffer
        consult-projectile--source-projectile-file
 
-       consult--source-modified-buffer
+       consult-source-modified-buffer
 
-       consult--source-buffer
-       consult--source-recent-file
+       consult-source-buffer
+       consult-source-recent-file
        consult-projectile--source-projectile-project
-       ;;consult--source-project-buffer
-       consult--source-hidden-buffer
+       ;;consult-source-project-buffer
+       consult-source-hidden-buffer
        +vertico--consult-org-source))
 
 
