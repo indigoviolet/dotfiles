@@ -7,10 +7,21 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "outline_panel": {
+    "dock": "right"
+  },
+  "collaboration_panel": {
+    "dock": "right"
+  },
+  "git_panel": {
+    "dock": "right",
+    "tree_view": true
+  },
   "disable_ai": false,
   "icon_theme": "Catppuccin Macchiato",
   "project_panel": {
-    "hide_gitignore": true,
+    "dock": "right",
+    "hide_gitignore": false,
     "hide_hidden": true,
   },
   "buffer_font_weight": 600.0,
@@ -19,9 +30,29 @@
     {
       "host": "hetzner1",
       "username": "venky",
-      "args": [],
-      "projects": [],
+      "args": [
+        "-o",
+        "ProxyCommand=cloudflared access tcp --hostname ssh.romansix.org"
+      ],
+      "projects": [
+        {
+          "paths": [
+            "/home/venky/dev/puzzlebox"
+          ]
+        }
+      ]
     },
+    {
+      "host": "minions.coder",
+      "args": [],
+      "projects": [
+        {
+          "paths": [
+            "/workspaces/plus2/./"
+          ]
+        }
+      ]
+    }
   ],
   "edit_predictions": {
     "provider": "zed",
@@ -35,8 +66,9 @@
       "language_servers": [
         // Enable ty, disable basedpyright, and enable all
         // other registered language servers (ruff, pylsp, pyright).
-        "ty",
-        "basedpyright",
+        // "ty",
+        // "basedpyright"
+        "pyright",
         "ruff",
       ],
       "show_whitespaces": "trailing",
@@ -50,6 +82,15 @@
     "allowed": true,
   },
   "agent": {
+    "dock": "left",
+    "thinking_display": "always_collapsed",
+    "expand_edit_card": false,
+    "expand_terminal_card": false,
+    "default_model": {
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5-latest",
+      "enable_thinking": true,
+    },
     "inline_assistant_model": {
       "provider": "anthropic",
       "model": "claude-opus-4-6-latest",

@@ -7,13 +7,20 @@ description: Manage agent plan documents as comments on GitHub issues. Handles i
 
 Every agent session should be anchored to a GitHub issue. The plan lives in a **comment** on that issue — never in the issue body.
 
+Use the helper at:
+```bash
+PLAN_TOOL=/Users/venky/.pi/agent/skills/github-issue-plan/agent-plan.py
+```
+
+The utility manages **GitHub issue manipulation only**: repo detection, issue lookup/creation, plan-comment create/update, and session logs. It returns JSON by default; use `--field <name>` when you want a single value.
+
 ## 0. Detect the repository
 
 Determine the current GitHub repo dynamically:
 ```bash
-REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+REPO=$($PLAN_TOOL --field repo detect-repo)
 ```
-Use `$REPO` in all `gh` commands below instead of a hardcoded repo name.
+Use `$REPO` in all commands below instead of a hardcoded repo name.
 
 ## 1. Find or create the tracking issue
 
@@ -23,15 +30,15 @@ Use it directly.
 ### If no issue number was provided
 1. **Search** for a likely match — issues assigned to the current user that are open:
    ```bash
-   gh issue list --repo "$REPO" --assignee @me --state open --json number,title,url --limit 15
+   $PLAN_TOOL list-issues --repo "$REPO"
    ```
 2. **Present** the top candidates and ask the user which one to use.
 3. **If none match**, ask the user for:
    - A descriptive title (not the branch name — use a proper issue title like "Fix v3 extraction for CBIZ" or "Add ingestion roundtrip tests")
    - Brief context / goal
-   Then create the issue:
+   Then create the issue by writing the confirmed body to a temp file and calling:
    ```bash
-   gh issue create --repo "$REPO" --title "<title>" --assignee @me --body "<context from user>"
+   $PLAN_TOOL create-issue --repo "$REPO" --title "<title>" --body-file /tmp/issue-body.md
    ```
 
 ## 2. Move to "In Progress" via ZenHub (implementation start only)
@@ -53,50 +60,30 @@ The living plan is a single comment on the issue, identified by an HTML marker o
 
 ### Find it
 ```bash
-gh api repos/$REPO/issues/{NUMBER}/comments \
-  --jq '.[] | select(.body | startswith("<!-- agent-plan -->")) | {id, body}'
+$PLAN_TOOL get-plan --repo "$REPO" --issue {NUMBER}
 ```
+This returns JSON with `exists`, `comment_id`, `url`, and `body` when the plan comment exists.
 
 ### If found → resume
 Parse the plan content and continue from where it left off.
 
 ### If not found → create
+Write the full plan body to a temp file. It must start with `<!-- agent-plan -->`.
+
+Then create it:
 ```bash
-gh api repos/$REPO/issues/{NUMBER}/comments \
-  -f body='<!-- agent-plan -->
-## 🤖 Agent Plan
-
-### Goal
-<goal from user or issue body>
-
-### TODOs
-- [ ] <first task>
-
-### Context
-<relevant files, decisions, data flows>
-
-### File Pointers
-- `path/to/relevant/file.py`
-'
+$PLAN_TOOL ensure-plan --repo "$REPO" --issue {NUMBER} --body-file /tmp/agent-plan-body.md
 ```
 
 ## 4. Update the living plan
 
-As work progresses, update the plan comment **in place**:
+As work progresses, update the plan comment **in place** by writing the full updated markdown body to a temp file (again starting with `<!-- agent-plan -->`) and calling:
 
 ```bash
-gh api /repos/$REPO/issues/comments/{COMMENT_ID} -X PATCH \
-  -f body='<!-- agent-plan -->
-## 🤖 Agent Plan
-<updated content>'
+$PLAN_TOOL put-plan --repo "$REPO" --issue {NUMBER} --body-file /tmp/agent-plan-body.md
 ```
 
-**Important:** The body must be passed as a single `-f body=` argument. For multi-line content, write to a temp file and use `jq` to construct the JSON payload:
-
-```bash
-cat /tmp/agent-plan-body.md | jq -Rs '{body: .}' | \
-  gh api /repos/$REPO/issues/comments/{COMMENT_ID} -X PATCH --input -
-```
+The utility will fetch the latest plan comment before patching, or create it if it does not exist yet.
 
 Keep the plan lean and current:
 - Check off completed TODOs
@@ -106,27 +93,29 @@ Keep the plan lean and current:
 
 ## 5. Post session logs
 
-At **session end** or **major milestones** (e.g., a feature is complete, a significant decision was made), post an append-only session log comment:
+At **session end** or **major milestones** (e.g., a feature is complete, a significant decision was made), write the full log body to a temp file. It must start with `<!-- agent-log -->`.
 
+Then append it as a new comment:
 ```bash
-gh api repos/$REPO/issues/{NUMBER}/comments \
-  -f body='<!-- agent-log -->
-## 📝 Session Log — <YYYY-MM-DD>
-
-### Completed
-- <what was done, with commit SHAs or PR links>
-
-### Decisions
-- <key decisions and rationale>
-
-### Learnings
-- <anything discovered that is worth preserving>
-'
+$PLAN_TOOL append-log --repo "$REPO" --issue {NUMBER} --body-file /tmp/agent-log-body.md
 ```
 
 Session logs are **never edited** after posting. They form a chronological history.
 
 When moving completed items from the living plan to a session log, ensure nothing is lost — the log is the archive.
+
+## 6. Explicit no-issue fallback
+
+Only use this when the user explicitly says **not** to use a GitHub issue.
+
+Do **not** use the helper for local fallback. Instead, manage the plan doc directly as a normal file:
+
+- Create the plan at `<project root>/agent_plans/<git-branch>_<short-goal>.md`
+- Use normal file operations (`read`, `write`, `edit`) to keep it updated
+- Use the same plan structure: Goal, TODOs, Context, File Pointers, optional Sketches
+- If you want a session log, create a separate timestamped markdown file next to it or append a dated section manually
+
+This fallback should stay lightweight and ad hoc.
 
 ## Safety rules
 

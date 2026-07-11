@@ -67,3 +67,15 @@ fi
 
 # Non-interactive sessions source ~/.zprofile
 source ${HOME}/.zshcustom/noninteractive.zsh
+# >>> cert-tools (managed) >>>
+export REQUESTS_CA_BUNDLE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
+export NODE_EXTRA_CA_CERTS="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
+export CURL_CA_BUNDLE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
+export SSL_CERT_FILE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
+export AWS_CA_BUNDLE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
+export CLOUDSDK_CORE_CUSTOM_CA_CERTS_FILE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
+# <<< cert-tools (managed) <<<
+
+# Added by OrbStack: command-line tools and integration
+# This won't be added again if you remove it.
+source ~/.orbstack/shell/init.zsh 2>/dev/null || :

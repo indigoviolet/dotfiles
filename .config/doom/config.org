@@ -4067,6 +4067,12 @@ We put this file directly in .config/doom/lisp (.doom.d) so that we can edit loc
 #+end_src
 
 
+*** projectile
+
+#+begin_src emacs-lisp
+(setq projectile-switch-project-action #'magit-status)
+#+end_src
+
 *** consult-projectile
 
 +This is not very useful in practice:+ doom has built in support for project
@@ -7407,7 +7413,7 @@ Lens shows refs for each variable in an overlay which is annoying. Also duplicat
 #+end_src
 * Python
 
-** lsp-pyrefly
+** COMMENT lsp-pyrefly
 
 #+begin_src emacs-lisp :tangle packages.el
 (package! lsp-pyrefly :recipe (:host github :repo "indigoviolet/lsp-pyrefly"))

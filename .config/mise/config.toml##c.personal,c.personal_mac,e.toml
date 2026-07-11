@@ -13,5 +13,7 @@ status.show_env = true
 
 [tools]
 atuin = "latest"
-fnox = "latest"
+coder = "latest"
+codex = "latest"
+"github:agavra/tuicr" = "latest"
 node = "22.21.1"

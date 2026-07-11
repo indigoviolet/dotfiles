@@ -1739,6 +1739,8 @@ message listing the hooks."
         "D" #'consult-dir)
   )
 
+(setq projectile-switch-project-action #'magit-status)
+
 (use-package! consult-projectile)
 
 (after! consult-projectile
@@ -3133,12 +3135,6 @@ Mostly honor the buffer's filtering spec, overriding only the `type' and
   (remove-hook! lsp-lens-mode #'ccls-code-lens-mode)
   (ccls-code-lens-mode -1)
   )
-
-(use-package! lsp-pyrefly
-  :after lsp-mode
-  :init
-  ;; Prefer pyrefly over pyright (priority 2)
-  (setq lsp-pyrefly-priority 3))
 
 (use-package! python
   :after-call doom-first-file-hook

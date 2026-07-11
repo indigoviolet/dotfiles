@@ -1,20 +1,68 @@
 {
-  "defaultProvider": "anthropic",
-  "defaultModel": "claude-opus-4-6",
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-5.5",
   "defaultThinkingLevel": "high",
-  "hideThinkingBlock": false,
-  "lastChangelogVersion": "0.60.0",
+  "hideThinkingBlock": true,
+  "lastChangelogVersion": "0.78.0",
   "steeringMode": "all",
   "followUpMode": "all",
   "collapseChangelog": true,
   "packages": [
-    "npm:@juanibiapina/pi-extension-settings",
-    "npm:pi-notify",
+    "../../dev/pi-extension-settings",
+    {
+      "source": "npm:pi-notify",
+      "extensions": [
+        "-index.ts"
+      ]
+    },
     "npm:pi-ask-tool-extension",
-    "../../dev/agentic",
+    {
+      "source": "../../dev/agentic",
+      "extensions": [
+        "-extensions/subdir-context.ts",
+        "-extensions/powerbar-current-dir.ts",
+        "+extensions/answer.ts",
+        "-extensions/collapsed-results.ts",
+        "-extensions/context.ts",
+        "-extensions/external-editor.ts",
+        "-extensions/timestamp.ts"
+      ],
+      "skills": [
+        "-skills/update-pi-extension/SKILL.md"
+      ]
+    },
     "../../dev/pi-tmux",
-    "../../dev/pi-shupervisor",
-    "npm:@juanibiapina/pi-plan",
-    "../../dev/pi-fzf"
+    {
+      "source": "../../dev/pi-shupervisor",
+      "skills": [
+        "-skills/shupervisor/SKILL.md"
+      ]
+    },
+    {
+      "source": "../../dev/pi-plan",
+      "extensions": [
+        "-src/index.ts"
+      ]
+    },
+    "../../dev/pi-fzf",
+    {
+      "source": "npm:pi-cursor-agent",
+      "extensions": [
+        "-src/index.ts"
+      ]
+    },
+    {
+      "source": "npm:pi-subdir-context",
+      "extensions": [
+        "-src/index.ts"
+      ]
+    }
+  ],
+  "showHardwareCursor": true,
+  "quietStartup": false,
+  "theme": "dark",
+  "enabledModels": [
+    "openai-codex/gpt-5.4",
+    "anthropic/claude-opus-4-6"
   ]
 }

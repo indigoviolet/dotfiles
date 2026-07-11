@@ -162,13 +162,15 @@
         "coder-vscode.coder.eng.additive.ai--venky--plus2": "linux",
         "coder-vscode.coder.eng.additive.ai--venky--plus2--main": "linux",
         "coder-vscode.coder.eng.additive.ai--venky--plus3": "linux",
-        "coder-vscode.coder.eng.additive.ai--venky--plus.main": "linux"
+        "coder-vscode.coder.eng.additive.ai--venky--plus.main": "linux",
+        "minions.coder": "linux",
+        "coder.minions": "linux"
     },
     "remote.SSH.connectTimeout": 1800,
     "github.copilot.chat.search.semanticTextResults": true,
     "editor.experimentalEditContextEnabled": true,
-    "editor.fontSize": 17,
-    "editor.fontFamily": "\"Iosevka Nerd Font Mono\"",
+    "editor.fontSize": 14,
+    "editor.fontFamily": "IndigovioleskaSemi Nerd Font Mono",
     "terminal.integrated.profiles.osx": {
         "tmux-shell": {
             "path": "bash",
@@ -265,5 +267,18 @@
     },
     "[github-actions-workflow]": {
         "editor.defaultFormatter": "redhat.vscode-yaml"
-    }
+    },
+    "snyk.advanced.cliPath": "/Users/venky/Library/Application Support/snyk/vscode-cli/snyk-macos-arm64",
+    "snyk.securityAtInception.autoConfigureSnykMcpServer": true,
+    "snyk.securityAtInception.executionFrequency": "On Code Generation",
+    "snyk.yesWelcomeNotification": false,
+    "snyk.trustedFolders": [
+        "/Users/venky/dev/plus/main"
+    ],
+    "diffEditor.hideUnchangedRegions.enabled": true,
+    "[python]": {
+        "diffEditor.ignoreTrimWhitespace": false
+    },
+    "diffEditor.renderSideBySide": false,
+    "window.autoDetectColorScheme": false
 }

@@ -24,3 +24,10 @@ agent_plans/
 .pi/
 .pi
 **/.claude/settings.local.json
+/.tuicrignore
+
+# SurePrep r2r-core local artifacts (build cache + packaged third source +
+# Spotlight marker; never tracked)
+data/sureprep_cache/
+data/sureprep_packaged/
+data/.metadata_never_index

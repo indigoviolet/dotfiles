@@ -18,20 +18,24 @@
       "value": "published"
     },
     {
-      "key": "gti.submit-with-web",
-      "value": "\"web\""
+      "key": "gti.is-onboarded",
+      "value": "true"
+    },
+    {
+      "key": "gti.install-uuid",
+      "value": "0d2588f3-4149-4bb0-91f0-20688cc3ce5e"
     },
     {
       "key": "gti.changedFilesDisplayType",
       "value": "\"tree\""
     },
     {
-      "key": "gti.is-onboarded",
-      "value": "true"
-    },
-    {
       "key": "gti.submit-as-draft",
       "value": "\"published\""
+    },
+    {
+      "key": "gti.submit-with-web",
+      "value": "\"web\""
     }
   ],
   "systemTrayConfig": {

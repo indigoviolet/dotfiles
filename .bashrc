@@ -37,8 +37,8 @@ PATH_add() {
     fi
 
     case ":$PATH:" in
-        *":$dir:"*) ;;
-        *) PATH="$dir:$PATH" ;;
+    *":$dir:"*) ;;
+    *) PATH="$dir:$PATH" ;;
     esac
 }
 
@@ -47,9 +47,9 @@ export LC_ALL='en_US.UTF-8'
 
 PATH_add "$HOME/.local/bin"
 PATH_add "$HOME/.cargo/bin"
+# needs to be ahead of homebrew
 PATH_add "$HOME/.local/share/mise/shims"
 PATH_add "$HOME/.bun/bin"
-PATH_add "/.sprite/bin"
 
 HOMEBREW_PREFIX="/opt/homebrew"
 
@@ -66,3 +66,11 @@ fi
 if [[ -f "$HOME/.cargo/env" ]]; then
     . "$HOME/.cargo/env"
 fi
+# >>> cert-tools (managed) >>>
+export REQUESTS_CA_BUNDLE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
+export NODE_EXTRA_CA_CERTS="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
+export CURL_CA_BUNDLE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
+export SSL_CERT_FILE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
+export AWS_CA_BUNDLE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
+export CLOUDSDK_CORE_CUSTOM_CA_CERTS_FILE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
+# <<< cert-tools (managed) <<<

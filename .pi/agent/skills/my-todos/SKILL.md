@@ -114,6 +114,7 @@ Use `gh auth status` to discover the GitHub username for author-scoped searches 
 ## Rules
 - Preserve the three-section structure and any existing items you're not modifying.
 - After any mutation, show me what changed (e.g., "Added 2 items to Active").
+- **After every interaction (mutations and summaries alike), end by showing the full numbered list** — all Active, Tracking, and Backlog items with continuous numbering and section counts. This ensures the user always has an up-to-date reference for follow-up commands.
 - Keep items concise but faithful to what I said.
 - **Never touch the Done comment unless the operation requires it** (only "done" and explicit "show done" requests).
 

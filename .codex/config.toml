@@ -1,9 +1,11 @@
 # needed to see local shell environment
 sandbox_mode = "danger-full-access"
 
-model = "gpt-5.4"
+model = "gpt-5.5"
 personality = "pragmatic"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "xhigh"
+
+notify = ["/Users/venky/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
 
 [shell_environment_policy]
 inherit = "all"
@@ -11,8 +13,85 @@ ignore_default_excludes = true
 include_only = ["PATH", "HOME"]
 
 [features]
+hooks = true
 unified_exec = true
 shell_snapshot = true
+js_repl = false
 
 [notice.model_migrations]
 gpt-5-codex = "gpt-5.3-codex"
+
+[plugins."google-calendar@openai-curated"]
+enabled = true
+
+[plugins."github@openai-curated"]
+enabled = true
+
+[plugins."slack@openai-curated"]
+enabled = true
+
+[plugins."gmail@openai-curated"]
+enabled = true
+
+[plugins."teams@openai-curated"]
+enabled = true
+
+[plugins."outlook-email@openai-curated"]
+enabled = true
+
+[plugins."notion@openai-curated"]
+enabled = true
+
+[plugins."documents@openai-primary-runtime"]
+enabled = true
+
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = true
+
+[plugins."presentations@openai-primary-runtime"]
+enabled = true
+
+[plugins."browser@openai-bundled"]
+enabled = true
+
+[marketplaces.openai-bundled]
+last_updated = "2026-06-05T05:22:31Z"
+source_type = "local"
+source = "/Users/venky/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+[marketplaces.openai-primary-runtime]
+last_updated = "2026-06-03T01:01:03Z"
+source_type = "local"
+source = "/Users/venky/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
+
+[projects."/Users/venky/dev/plus"]
+trust_level = "trusted"
+
+[projects."/Users/venky/Documents/Codex/2026-05-28/build-me-a-guided-tour-of"]
+trust_level = "trusted"
+
+[desktop]
+conversationDetailMode = "STEPS_EXECUTION"
+
+[desktop.open-in-target-preferences]
+global = "zed"
+
+[mcp_servers.node_repl]
+args = []
+command = "/Applications/Codex.app/Contents/Resources/node_repl"
+startup_timeout_sec = 120
+
+[mcp_servers.node_repl.env]
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = ""
+NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/node"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/venky/.codex"
+CODEX_HOME = "/Users/venky/.codex"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "496c7b3cb95b4bc20cff49b513150606e0da0000c92bf752206bee5a6c248423"
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+BROWSER_USE_MARKETPLACE_NAME = "openai-bundled"
+NODE_REPL_UNTRUSTED_ENV_ALLOWLIST = "BROWSER_USE_MARKETPLACE_NAME"
+CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
+
+[tui.model_availability_nux]
+"gpt-5.5" = 3

@@ -36,4 +36,16 @@ alias tree="ls --tree"
 alias ll="ls -ltrL"
 alias jq="jq -C"
 alias ccc="claude --dangerously-skip-permissions"
-alias e="emacsclient -c -a '' --socket-name /tmp/emacs503/server -nw"
+unalias e 2>/dev/null
+e() {
+  local setdir="(progn (cd \"$PWD\") (setq-default default-directory \"$PWD/\"))"
+  if (( $# == 0 )); then
+    emacsclient -c -a '' --socket-name /tmp/emacs503/server -nw \
+      -e "$setdir" -e "(dired \"$PWD\")"
+  else
+    emacsclient -c -a '' --socket-name /tmp/emacs503/server -nw \
+      -e "$setdir" >/dev/null
+    emacsclient -c -a '' --socket-name /tmp/emacs503/server -nw "$@"
+  fi
+}
+alias pi='pi --tools read,bash,edit,write,grep,find,ls'

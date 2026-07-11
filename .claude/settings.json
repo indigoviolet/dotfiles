@@ -1,8 +1,45 @@
 {
+  "agentPushNotifEnabled": true,
+  "effortLevel": "high",
   "enabledPlugins": {
+    "claude-md-management@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "codex@openai-codex": true,
+    "pr-review-toolkit@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true
   },
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "EDITOR": "zed --wait",
+    "VISUAL": "zed --wait"
+  },
+  "extraKnownMarketplaces": {
+    "openai-codex": {
+      "source": {
+        "repo": "openai/codex-plugin-cc",
+        "source": "github"
+      }
+    }
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "bash '/Users/venky/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10,
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ]
+  },
+  "inputNeededNotifEnabled": true,
+  "model": "opus[1m]",
+  "remoteControlAtStartup": true,
   "skipDangerousModePermissionPrompt": true,
-  "effortLevel": "medium",
-  "model": "opus"
+  "teammateMode": "auto",
+  "theme": "auto",
+  "tui": "fullscreen"
 }

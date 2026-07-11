@@ -250,9 +250,6 @@
 
 (package! treesit-auto)
 
-(package! lsp-pyrefly :recipe (:host github :repo "indigoviolet/lsp-pyrefly"))
-;; (package! lsp-pyrefly :recipe (:local-repo "~/dev/lsp-pyrefly"))
-
 (package! py-isort :disable t)
 
 (package! apheleia)
