@@ -1,7 +1,7 @@
 # fzf searching shows dupes, and skim is slower, and fzy doesn't have options
 # eval "$(atuin hex init)"
 
-if [[ "$-" == *i* ]] && [[ -t 0 ]] && [[ -t 1 ]]; then
+if [[ "$-" == *i* ]] && [[ -t 0 ]] && [[ -t 1 ]] && atuin hex --help >/dev/null 2>&1; then
     _atuin_hex_tmux_current="${TMUX:-}"
     _atuin_hex_tmux_previous="${ATUIN_HEX_TMUX:-}"
 
