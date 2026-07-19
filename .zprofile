@@ -68,12 +68,16 @@ fi
 # Non-interactive sessions source ~/.zprofile
 source ${HOME}/.zshcustom/noninteractive.zsh
 # >>> cert-tools (managed) >>>
-export REQUESTS_CA_BUNDLE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
-export NODE_EXTRA_CA_CERTS="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
-export CURL_CA_BUNDLE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
-export SSL_CERT_FILE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
-export AWS_CA_BUNDLE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
-export CLOUDSDK_CORE_CUSTOM_CA_CERTS_FILE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
+# CA bundle for TLS-consuming tools. Prefer MacPorts, then Homebrew; only
+# export if the file exists, else fall back to each tool's system store.
+for _ca in /opt/local/etc/ssl/certs/os-ca-bundle.pem /opt/homebrew/etc/ca-certificates/cert.pem; do
+  if [ -r "$_ca" ]; then
+    export REQUESTS_CA_BUNDLE="$_ca" NODE_EXTRA_CA_CERTS="$_ca" CURL_CA_BUNDLE="$_ca" \
+           SSL_CERT_FILE="$_ca" AWS_CA_BUNDLE="$_ca" CLOUDSDK_CORE_CUSTOM_CA_CERTS_FILE="$_ca"
+    break
+  fi
+done
+unset _ca
 # <<< cert-tools (managed) <<<
 
 # Added by OrbStack: command-line tools and integration

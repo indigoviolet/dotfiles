@@ -120,11 +120,15 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 
 # >>> cert-tools (managed) >>>
 {% if yadm.os == "Darwin" %}
-# MacPorts CA bundle — macOS only. On coder/linux remotes the path is
-# absent, so these are omitted and TLS falls back to the system store.
-export REQUESTS_CA_BUNDLE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
-export NODE_EXTRA_CA_CERTS="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
-export SSL_CERT_FILE="/opt/local/etc/ssl/certs/os-ca-bundle.pem"
+# CA bundle for TLS-consuming tools. Prefer MacPorts, then Homebrew; only
+# export if the file exists, else fall back to each tool's system store.
+for _ca in /opt/local/etc/ssl/certs/os-ca-bundle.pem /opt/homebrew/etc/ca-certificates/cert.pem; do
+  if [ -r "$_ca" ]; then
+    export REQUESTS_CA_BUNDLE="$_ca" NODE_EXTRA_CA_CERTS="$_ca" SSL_CERT_FILE="$_ca"
+    break
+  fi
+done
+unset _ca
 {% endif %}
 # <<< cert-tools (managed) <<<
 

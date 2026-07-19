@@ -29,17 +29,7 @@ ssh-add -l >/dev/null || ssh-add
 {% endif %}
 
 {% if yadm.class == "personal_mac" %}
-
-function start_ssh_agent_reuse() {
-    if [ ! -S ~/.ssh/ssh_auth_sock ]; then
-        echo "'ssh-agent' has not been started since the last reboot. Starting 'ssh-agent' now."
-        eval "$(ssh-agent -s)"
-        ln -sf "$SSH_AUTH_SOCK" ~/.ssh/ssh_auth_sock
-    fi
-    export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
-}
-
-# On OSX, id_rsa ssh key can be in keychain so it can be added with -K argument
-start_ssh_agent_reuse
-ssh-add -l >/dev/null || ssh-add --apple-use-keychain
+# Use the 1Password SSH agent. Keys live in 1Password (not on disk), so there
+# is no local ssh-agent to start and no key files to ssh-add.
+export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 {% endif %}

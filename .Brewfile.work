@@ -1,6 +1,5 @@
 tap "coder/coder"
 tap "hashicorp/tap"
-tap "gromgit/fuse"
 tap "indigoviolet/tap", "git@github.com:indigoviolet/homebrew-tap.git"
 tap "noborus/tap"
 tap "pulumi/tap"
@@ -35,12 +34,8 @@ brew "pulumi"
 brew "qpdf"
 # Rsync for cloud storage
 brew "rclone"
-# Rsync for cloud storage (with macOS FUSE mount support)
-brew "gromgit/fuse/rclone-mac"
 # Terraform
 brew "hashicorp/tap/terraform"
-# CLI tool to upload CSV to Google Sheets
-brew "indigoviolet/tap/gsheet"
 # lakeFS is an open-source tool that transforms your object storage into a Git-like repository.
 brew "treeverse/lakefs/lakefs"
 vscode "alefragnani.bookmarks"

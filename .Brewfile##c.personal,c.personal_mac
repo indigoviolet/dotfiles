@@ -189,8 +189,8 @@ brew "sd"
 brew "shellcheck"
 # Autoformat shell script source code
 brew "shfmt"
-# Easiest, most secure way to use WireGuard and 2FA
-brew "tailscale"
+# Easiest, most secure way to use WireGuard and 2FA (menu-bar GUI app)
+cask "tailscale-app"
 # Send macOS User Notifications from the command-line
 brew "terminal-notifier"
 # Configure transparent encryption of files in a Git repo
@@ -203,6 +203,8 @@ brew "up"
 brew "util-linux"
 # Simple terminal image viewer written in Rust
 brew "viu"
+# Generator for LS_COLORS (native arm64; mise only ships an Intel build)
+brew "vivid"
 # Execute commands when watched files change
 brew "watchexec"
 # Watch files and take action when they change
@@ -223,8 +225,6 @@ brew "withgraphite/tap/graphite-beta"
 cask "1password"
 # Command-line interface for 1Password
 cask "1password/tap/1password-cli"
-# Compact TeX distribution as alternative to the full TeX Live / MacTeX
-cask "basictex"
 # E-books management software
 cask "calibre"
 # App to build and share containerised applications and microservices
@@ -260,9 +260,4 @@ go "github.com/isaacphi/mcp-language-server"
 cargo "cargo-binstall"
 cargo "git-prole"
 cargo "mergiraf"
-mas "Amphetamine", id: 937984704
 mas "iMovie", id: 408981434
-mas "Keynote", id: 361285480
-mas "Numbers", id: 361304891
-mas "Pages", id: 361309726
-mas "Velja", id: 1607635845
