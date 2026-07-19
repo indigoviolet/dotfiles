@@ -236,7 +236,6 @@ for which it seems to work better than mspyls
 - [ ] Figure out how to get pyright to watch fewer files?
 - [ ] Revisit lsp completion with pyright: https://github.com/emacs-lsp/lsp-pyright/issues/16#issuecomment-676501575
 - [ ] poetry and pyright: https://github.com/emacs-lsp/lsp-pyright/issues/24
-- [X] Set up semantic for tabnine: https://www.tabnine.com/semantic, but see if we can use current language server instead of pyls (pyright or pylance?)
 
 
 ** KILL Pylance
@@ -4522,36 +4521,6 @@ not bad but not as good as window-stool
 
 * Completion
 
-** COMMENT Tabnine
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! company-tabnine)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! company-tabnine
-  :custom
-  (company-tabnine-no-continue t)
-  :commands (company-tabnine))
-  ;; :config
-  ;; ;; https://github.com/TommyX12/company-tabnine#known-issues
-  ;; ;; workaround for company-transformers
-  ;; (setq company-tabnine--disable-next-transform nil)
-  ;; (defun my-company--transform-candidates (func &rest args)
-  ;;   (if (not company-tabnine--disable-next-transform)
-  ;;       (apply func args)
-  ;;     (setq company-tabnine--disable-next-transform nil)
-  ;;     (car args)))
-
-  ;; (defun my-company-tabnine (func &rest args)
-  ;;   (when (eq (car args) 'candidates)
-  ;;     (setq company-tabnine--disable-next-transform t))
-  ;;   (apply func args))
-
-  ;; (advice-add #'company--transform-candidates :around #'my-company--transform-candidates)
-  ;; (advice-add #'company-tabnine :around #'my-company-tabnine))
-#+end_src
-
 ** Corfu/Cape
 
 #+begin_src emacs-lisp :tangle packages.el
@@ -4596,10 +4565,9 @@ not bad but not as good as window-stool
   ;; (defalias 'vi/cape-yankpad (cape-capf-buster (cape-company-to-capf #'company-yankpad)))
 
   ;;                       ;; (apply-partially #'company--multi-backend-adapter
-  ;;                       ;;   '( ;;company-tabnine
+  ;;                       ;;   '(
   ;;                       ;;      company-yankpad)))))
 
-  ;; ;; (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
   ;; (defalias 'vi/cape-interactive-yankpad (cape-capf-interactive #'vi/cape-yankpad))
 
   ;; (setq-hook! '(conf-mode-hook text-mode-hook json-mode-hook org-mode-hook ein:notebook-mode-hook)
@@ -4608,7 +4576,7 @@ not bad but not as good as window-stool
 
   (defun vi/corfu-lsp-setup ()
     ;; Combine LSP via corfu so we can use it in combination with
-    ;; company-tabnine and yankpad
+    ;; yankpad
 
     (interactive)
     ;; https://github.com/minad/corfu/wiki

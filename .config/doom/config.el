@@ -1964,10 +1964,9 @@ message listing the hooks."
   ;; (defalias 'vi/cape-yankpad (cape-capf-buster (cape-company-to-capf #'company-yankpad)))
 
   ;;                       ;; (apply-partially #'company--multi-backend-adapter
-  ;;                       ;;   '( ;;company-tabnine
+  ;;                       ;;   '(
   ;;                       ;;      company-yankpad)))))
 
-  ;; ;; (defalias 'vi/cape-tabnine (cape-company-to-capf #'company-tabnine))
   ;; (defalias 'vi/cape-interactive-yankpad (cape-capf-interactive #'vi/cape-yankpad))
 
   ;; (setq-hook! '(conf-mode-hook text-mode-hook json-mode-hook org-mode-hook ein:notebook-mode-hook)
@@ -1976,7 +1975,7 @@ message listing the hooks."
 
   (defun vi/corfu-lsp-setup ()
     ;; Combine LSP via corfu so we can use it in combination with
-    ;; company-tabnine and yankpad
+    ;; yankpad
 
     (interactive)
     ;; https://github.com/minad/corfu/wiki
