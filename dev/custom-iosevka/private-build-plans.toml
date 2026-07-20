@@ -1,0 +1,56 @@
+[buildPlans.Indigovioleska]
+family = "Indigovioleska"
+spacing = "term"
+serifs = "sans"
+noCvSs = true
+exportGlyphNames = false
+
+  [buildPlans.Indigovioleska.variants]
+  inherits = "ss08"
+
+[buildPlans.Indigovioleska.weights.Regular]
+shape = 400
+menu = 400
+css = 400
+
+[buildPlans.Indigovioleska.weights.Bold]
+shape = 700
+menu = 700
+css = 700
+
+[buildPlans.Indigovioleska.weights.Medium]
+shape = 500
+menu = 500
+css = 500
+
+[buildPlans.Indigovioleska.weights.SemiBold]
+shape = 600
+menu = 600
+css = 600
+
+[buildPlans.Indigovioleska.widths.Condensed]
+shape = 500
+menu = 3
+css = "condensed"
+
+[buildPlans.Indigovioleska.widths.Normal]
+shape = 600
+menu = 5
+css = "normal"
+
+[buildPlans.Indigovioleska.widths.SemiExtended]
+shape = 658
+menu = 6
+css = "semi-expanded"
+
+[buildPlans.Indigovioleska.slopes.Upright]
+angle = 0
+shape = "upright"
+menu = "upright"
+css = "normal"
+
+[buildPlans.Indigovioleska.slopes.Italic]
+angle = 9.4
+shape = "italic"
+menu = "italic"
+css = "italic"
