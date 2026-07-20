@@ -74,6 +74,16 @@ Only for personal profile. Skip entirely for remote.
 
 **Homebrew + casks:** if on macOS, ensure brew is installed, then run `brew bundle --global` if `~/.Brewfile` exists (yadm alt should have linked it). This handles macOS-specific formulas and casks (1password, emacs, fonts, etc.)
 
+**iTerm2 preferences:** iTerm2's config is synced via a custom folder tracked in yadm at `~/.config/iterm2/com.googlecode.iterm2.plist` (not the `~/Library/Preferences` copy, which macOS `cfprefsd` clobbers). **Before launching iTerm2 for the first time**, point it at that folder — this must happen while iTerm2 is *not* running, or `cfprefsd` overwrites the setting on quit:
+
+```bash
+defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$HOME/.config/iterm2"
+defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
+killall cfprefsd 2>/dev/null || true
+```
+
+Then tell the user: after launching iTerm2, go to **Settings → General → Settings** and set the **"Save changes"** dropdown to **Automatically**, so iTerm2 writes preference changes back to the synced folder. Profiles (Default, tmux) should now be present.
+
 **Doom Emacs:** if `~/.emacs.d` does not exist:
 
 ```bash
